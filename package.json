@@ -1,0 +1,14 @@
+{
+  "workspaces": [
+    "frontend/**"
+  ],
+  "scripts": {
+    "web:dev": "bun run --cwd ./frontend/web dev",
+    "web:build": "bun run --cwd ./frontend/web build",
+    "web:lint": "bun run --cwd ./frontend/web lint",
+    "web:preview": "bun run --cwd ./frontend/web preview"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2"
+  }
+}
