@@ -10,12 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
+    "@rainbow-me/rainbowkit": "^2.0.0",
+    "@tailwindcss/vite": "^4.0.1",
+    "@tanstack/react-query": "^5.55.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@rainbow-me/rainbowkit": "^2.0.0",
-    "@tanstack/react-query": "^5.55.3",
-    "seismic-viem": "1.0.11-alpha.experimental.3",
+    "react-router-dom": "^7.1.4",
     "seismic-react": "1.0.0-alpha.experimental.6",
+    "seismic-viem": "1.0.11-alpha.experimental.3",
     "viem": "^2.22.3",
     "wagmi": "^2.0.0"
   },
@@ -28,6 +31,9 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
+    "lucide-react": "^0.474.0",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "tailwindcss": "^4.0.1",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^6.0.5"
