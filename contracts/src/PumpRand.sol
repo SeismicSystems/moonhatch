@@ -135,6 +135,10 @@ contract PumpRand {
         }
     }
 
+    function isGraduated(uint32 coinId) public view returns (bool) {
+        return graduated[coinId];
+    }
+
     function deployGraduated(uint32 coinId) public {
         // TODO: add to LP pool
     }
