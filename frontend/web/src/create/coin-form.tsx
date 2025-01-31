@@ -5,7 +5,7 @@ import ImageUpload from './image-upload'
 import InputField from './input-field'
 import TickerInput from './ticker-input'
 
-interface FormData {
+export type CoinFormData = {
   name: string
   ticker: string
   description: string
@@ -16,7 +16,7 @@ interface FormData {
 }
 
 const CoinForm: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<CoinFormData>({
     name: '',
     ticker: '',
     description: '',
