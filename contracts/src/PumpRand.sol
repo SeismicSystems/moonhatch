@@ -3,6 +3,15 @@ pragma solidity ^0.8.13;
 
 import { PumpCoin, IPumpCoin } from "./SRC20.sol";
 
+struct Coin {
+    string name;
+    string symbol;
+    uint256 supply;
+    address contractAddress;
+    // TODO: add decimals?
+    // uint8 decimals;
+}
+
 contract PumpRand {
     // 1 eth to graduate
     uint256 public constant WEI_GRADUATION = 1_000_000_000_000_000_000;
@@ -11,15 +20,6 @@ contract PumpRand {
     uint32 public coinsCreated;
     address public deployer;
     uint256 private fees;
-
-    struct Coin {
-        string name;
-        string symbol;
-        uint256 supply;
-        address contractAddress;
-        // TODO: add decimals?
-        // uint8 decimals;
-    }
 
     // directory of all coins created
     mapping(uint32 => Coin) private coins;

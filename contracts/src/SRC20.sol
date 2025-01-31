@@ -121,28 +121,16 @@ abstract contract SRC20 {
                         INTERNAL MINT/BURN LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function _mint(address to, suint256 amount) internal virtual {
+    function _mint(saddress to, suint256 amount) internal virtual {
         totalSupply += amount;
 
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
         unchecked {
-            balance[saddress(to)] += amount;
+            balance[to] += amount;
         }
 
         emit Transfer(address(0), address(to), uint256(amount));
-    }
-
-    function _burn(address from, suint256 amount) internal virtual {
-        balance[saddress(from)] -= amount;
-
-        // Cannot underflow because a user's balance
-        // will never be larger than the total supply.
-        unchecked {
-            totalSupply -= amount;
-        }
-
-        emit Transfer(address(from), address(0), uint256(amount));
     }
 }
 
@@ -164,7 +152,7 @@ contract PumpCoin is SRC20 {
         graduated = true;
     }
 
-    function mint(address to, suint256 amount) public onlyOwner {
+    function mint(saddress to, suint256 amount) public onlyOwner {
         _mint(to, amount);
     }
 
@@ -182,12 +170,12 @@ contract PumpCoin is SRC20 {
 
     modifier onlyOwner() {
         // TODO: figure this out
-        require(msg.sender == owner);
+        require(msg.sender == owner, "Must be owner");
         _;
     }
 
     modifier onlyGraduated() {
-        require(graduated);
+        require(graduated, "Must be graduated");
         _;
     }
 }
