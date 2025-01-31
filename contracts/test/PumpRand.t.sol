@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.13;
+
+import {Test, console} from "forge-std/Test.sol";
+import {PumpRand} from "../src/PumpRand.sol";
+import { IPumpCoin } from "../src/SRC20.sol";
+
+contract PumpRandTest is Test {
+    PumpRand public pump;
+
+    function setUp() public {
+        pump = new PumpRand(0);
+    }
+
+    function test_create_buy() public {
+        uint32 coinId = pump.createCoin("Bitcoin", "BTC", 21_000_000_000_000_000_000_000);
+        assertEq(coinId, 0);
+
+        IPumpCoin pc = pump.getCoinContract(coinId);
+        
+        console.log(address(this), address(pump), pc.owner());
+        pump.buy{value: 100 wei}(coinId);
+    }
+}
