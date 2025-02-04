@@ -4,6 +4,7 @@ import React, { Fragment } from 'react'
 import {
   Dialog,
   DialogPanel,
+  DialogTitle,
   Transition,
   TransitionChild,
 } from '@headlessui/react'
@@ -79,9 +80,9 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                   <X size={20} />
                 </button>
 
-                <Dialog.Title className="text-gray-200 text-xl mb-6 text-center">
+                <DialogTitle className="text-gray-200 text-xl mb-6 text-center">
                   how it works
-                </Dialog.Title>
+                </DialogTitle>
 
                 <Description />
 
