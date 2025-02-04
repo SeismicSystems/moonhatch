@@ -38,6 +38,7 @@ contract PumpRand {
     error CoinAlreadyGraduated();
     error CoinNotYetGraduated();
     error SweepFeesFailed();
+    error FailedToRefundExcessEth();
 
     constructor(uint16 _feeBps) {
         deployer = msg.sender;
@@ -78,41 +79,75 @@ contract PumpRand {
         return pc;
     }
 
-    function buy(uint32 coinId) public payable {
-        if (graduated[coinId]) {
-            revert CoinAlreadyGraduated();
-        }
-        Coin memory coin = getCoin(coinId);
-        // TODO: add fees + LP amount
-        suint256 price = randomUnitsPerWei(suint256(coin.supply) - unitsOut[coinId], weisIn[coinId]);
-        suint256 tokensToBond = price * suint256(msg.value);
-        suint256 remainingToBond = suint256(coin.supply) - unitsOut[coinId];
-        uint256 excessFill = 0;
-        if (tokensToBond >= remainingToBond) {
-            excessFill = uint256(tokensToBond) - uint256(remainingToBond);
-            tokensToBond = remainingToBond;
-            emit CoinGraduated(coinId);
-            graduated[coinId] = true;
-        }
-
-        IPumpCoin pc = IPumpCoin(coin.contractAddress);
-        pc.mint(saddress(msg.sender), tokensToBond);
-        if (excessFill > 0) {
-            uint256 weiToRefund = excessFill / uint256(price);
-            payable(msg.sender).transfer(weiToRefund);
-        }
-    }
-
     /**
     Fairness constraint:
     basePrice = coin.supply / WEI_GRADUATION
     EV[price] = basePrice without knowing any previous prices
     EV[price|allPreviousBuys] = (coin.supply - unitsOut) / (WEI_GRADUATION - weiIn)
     */
-    function randomUnitsPerWei(suint256 supplyRemaining, suint256 weiIn) internal view returns (suint256) {
-        suint256 basePrice = supplyRemaining / (suint256(WEI_GRADUATION) - weiIn);
-        suint256 priceMult = getRandomUint256() / suint256(2**127);
-        return basePrice * priceMult / suint256(2**128);
+    function randomInRange(uint256 min, uint256 max) internal view returns (uint256) {
+        uint256 diff = max - min;
+        // Shift down r to avoid overflow.
+        uint256 r = uint256(getRandomUint256()) >> 128;
+        uint256 denominatorShifted = type(uint256).max >> 128;
+        uint256 scaled = (diff * r) / denominatorShifted;
+        return min + scaled;
+    }
+
+    function buy(uint32 coinId) public payable returns (uint256 weiRefunded) {
+        if (graduated[coinId]) revert CoinAlreadyGraduated();
+        Coin memory coin = getCoin(coinId);
+        uint256 W_prev = uint256(weisIn[coinId]);
+        uint256 W_new = msg.value;
+        uint256 totalWei = W_prev + W_new;
+        uint256 T_rem = coin.supply - uint256(unitsOut[coinId]);
+        uint256 R = WEI_GRADUATION - W_prev; // remaining wei until 1 ETH
+
+        uint256 tokensMinted;
+        IPumpCoin pc = IPumpCoin(coin.contractAddress);
+            
+
+        // Final deposit: if total wei deposited reaches or exceeds 1 ETH.
+        if (totalWei >= WEI_GRADUATION) {
+            uint256 requiredWei = WEI_GRADUATION - W_prev;
+            uint256 refund = W_new - requiredWei;
+            tokensMinted = T_rem;
+            weisIn[coinId] = suint256(W_prev + requiredWei);
+            unitsOut[coinId] = suint256(coin.supply);
+            graduated[coinId] = true;
+            pc.mint(saddress(msg.sender), suint256(tokensMinted));
+            if (refund > 0) {
+                bool success1 = payable(msg.sender).send(refund);
+                if (!success1) {
+                    revert FailedToRefundExcessEth();
+                }
+            }
+            return refund;
+        }
+
+        // basePrice = T_rem / R, in fixed point (18 decimals).
+        uint256 basePriceFP = (T_rem * 1e18) / R;
+        uint256 M; // multiplier in fixed point (1e18 means 1×)
+
+        // If the deposit is small enough (W_prev + 2*W_new < 1 ETH) then use full range [0,2e18].
+        if (W_prev + 2 * W_new < WEI_GRADUATION) {
+            M = randomInRange(0, 2e18);
+        } else {
+            // Adjusted randomness: restrict the range so that the worst-case outcome
+            // gives exactly T_rem tokens and the expected multiplier remains 1.
+            uint256 raw = (R * 1e18) / W_new; // raw = R/newWei (18-decimal fixed point)
+            uint256 lowerBound = raw < 1e18 ? raw : (2e18 - raw);
+            uint256 upperBound = raw < 1e18 ? (2e18 - raw) : raw;
+            M = randomInRange(lowerBound, upperBound);
+        }
+        // price = basePriceFP * M / 1e18 (in tokens per wei, fixed point).
+        uint256 priceFP = (basePriceFP * M) / 1e18;
+        tokensMinted = (priceFP * W_new) / 1e18;
+
+        weisIn[coinId] = suint256(W_prev + W_new);
+        unitsOut[coinId] = suint256((coin.supply - T_rem) + tokensMinted);
+        pc.mint(saddress(msg.sender), suint256(tokensMinted));
+        return 0;
     }
 
     function getRandomUint256()
@@ -120,19 +155,20 @@ contract PumpRand {
         view
         returns (suint256 result)
     {
-        uint16 output_len = 32;
-        bytes memory input = abi.encodePacked(output_len);
+        return suint256(type(uint256).max / 2);
+        // uint16 output_len = 32;
+        // bytes memory input = abi.encodePacked(output_len);
 
-        (bool success, bytes memory output) = address(0x64).staticcall(input);
-        if (!success) {
-            // TODO:
-            return suint256(type(uint256).max / 2);
-            // revert RngPrecompileCallFailed();
-        }
+        // (bool success, bytes memory output) = address(0x64).staticcall(input);
+        // if (!success) {
+        //     // TODO:
+        //     return suint256(type(uint256).max / 2);
+        //     // revert RngPrecompileCallFailed();
+        // }
 
-        assembly {
-            result := mload(add(output, 32))
-        }
+        // assembly {
+        //     result := mload(add(output, 32))
+        // }
     }
 
     function isGraduated(uint32 coinId) public view returns (bool) {
