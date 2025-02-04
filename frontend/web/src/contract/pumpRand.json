@@ -1,0 +1,322 @@
+{
+  "methodIdentifiers": {
+    "WEI_GRADUATION()": "cc67b0e8",
+    "buy(uint32)": "7db5bd52",
+    "coinsCreated()": "14e577da",
+    "createCoin(string,string,uint256)": "2931b63d",
+    "deployGraduated(uint32)": "7891d8dd",
+    "deployer()": "d5f39488",
+    "getCoin(uint32)": "3e0a6fb0",
+    "getCoinContract(uint32)": "6d73402f",
+    "graduated(uint32)": "4974faf0",
+    "isGraduated(uint32)": "83e6ad52",
+    "sweepFees()": "d113b95c"
+  },
+  "abi": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "_feeBps",
+          "type": "uint16",
+          "internalType": "uint16"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "WEI_GRADUATION",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "buy",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "weiRefunded",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "payable"
+    },
+    {
+      "type": "function",
+      "name": "coinsCreated",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "createCoin",
+      "inputs": [
+        {
+          "name": "name",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "supply",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "deployGraduated",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "deployer",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getCoin",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct Coin",
+          "components": [
+            {
+              "name": "name",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "symbol",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "supply",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "contractAddress",
+              "type": "address",
+              "internalType": "address"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getCoinContract",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract IPumpCoin"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "graduated",
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "isGraduated",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "sweepFees",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "payable"
+    },
+    {
+      "type": "event",
+      "name": "CoinCreated",
+      "inputs": [
+        {
+          "name": "coin",
+          "type": "tuple",
+          "indexed": false,
+          "internalType": "struct Coin",
+          "components": [
+            {
+              "name": "name",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "symbol",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "supply",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "contractAddress",
+              "type": "address",
+              "internalType": "address"
+            }
+          ]
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "CoinGraduated",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "indexed": false,
+          "internalType": "uint32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "CoinAlreadyGraduated",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "CoinNotYetGraduated",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "FailedToRefundExcessEth",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "NoCoinWithId",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "RngPrecompileCallFailed",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "SupplyTooLow",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "SweepFeesFailed",
+      "inputs": []
+    }
+  ]
+}

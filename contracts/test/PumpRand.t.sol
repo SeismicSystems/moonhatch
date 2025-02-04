@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
 import { PumpRand, Coin } from "../src/PumpRand.sol";
-import { IPumpCoin } from "../src/SRC20.sol";
+import { IPumpCoin } from "../src/PumpCoin.sol";
 
 contract PumpRandTest is Test {
     PumpRand public pump;

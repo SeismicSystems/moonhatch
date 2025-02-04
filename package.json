@@ -6,7 +6,11 @@
     "web:dev": "bun run --cwd ./frontend/web dev",
     "web:build": "bun run --cwd ./frontend/web build",
     "web:lint": "bun run --cwd ./frontend/web lint",
-    "web:preview": "bun run --cwd ./frontend/web preview"
+    "web:preview": "bun run --cwd ./frontend/web preview",
+    "contract:anvil": "source .env && DEPLOYER_PRIVATE_KEY=$DEPLOYER_PRIVATE_KEY bun run --cwd ./contracts sforge script script/PumpRand.s.sol --rpc-url $RPC_URL --broadcast",
+    "contract:dev": "bun contract:build && bun contract:abi",
+    "contract:build": "bun run --cwd ./contracts sforge build",
+    "contract:abi": "jq '{methodIdentifiers: .methodIdentifiers, abi: .abi}' ./contracts/out/PumpRand.sol/PumpRand.json > ./frontend/web/src/contract/pumpRand.json"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^5.2.2"
