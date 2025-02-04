@@ -29,7 +29,7 @@ contract PumpRand {
     mapping(uint32 => suint256) unitsOut;
     mapping(uint32 => mapping(saddress => suint256)) bondAmounts;
 
-    event CoinCreated(Coin coin);
+    event CoinCreated(uint32 coinId);
     event CoinGraduated(uint32 coinId);
 
     error NoCoinWithId(uint32 coinId);
@@ -63,6 +63,7 @@ contract PumpRand {
         coins[coinId] = Coin(name, symbol, supply, address(pc));
         weisIn[coinId] = suint256(0);
         unitsOut[coinId] = suint256(0);
+        emit CoinCreated(coinId);
         coinsCreated = coinsCreated + 1;
     }
 

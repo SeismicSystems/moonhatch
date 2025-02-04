@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import '@rainbow-me/rainbowkit/styles.css'
+
 import HowItWorks from '../how-it-works'
 import { usePersistentState } from '../storage/persistent-state'
 
@@ -9,10 +12,6 @@ const NavBar: React.FC = () => {
 
   const { acceptedTerms } = usePersistentState()
   const [showHowItWorks, setShowHowItWorks] = useState(!acceptedTerms())
-
-  const onConnectWallet = () => {
-    console.log('Open Wallet Connector')
-  }
 
   return (
     <>
@@ -29,12 +28,7 @@ const NavBar: React.FC = () => {
         >
           New Coin
         </button>
-        <button
-          onClick={onConnectWallet}
-          className="hover:text-blue-600 transition"
-        >
-          Connect Wallet
-        </button>
+        <ConnectButton />
       </nav>
       {showHowItWorks && (
         <HowItWorks

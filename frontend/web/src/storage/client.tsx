@@ -3,12 +3,7 @@ import { useShieldedContract, useShieldedWallet } from 'seismic-react'
 import { Hex } from 'viem'
 
 import { abi } from '../contract/pumpRand.json'
-import { CoinFormData } from '../create/coin-form'
-
-export type Coin = { id: number; createdAt: number; imageUrl?: string } & Omit<
-  CoinFormData,
-  'image'
->
+import type { Coin } from '../types/coin'
 
 const CONTRACT_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
 
@@ -17,7 +12,9 @@ const mockCoins: Coin[] = [
     id: 1,
     createdAt: 1738336434,
     name: 'Bitcoin',
-    ticker: 'BTC',
+    symbol: 'BTC',
+    supply: 21_000_000_000_000_000_000_000n,
+    contractAddress: '0x0',
     description: 'The original cryptocurrency',
     imageUrl:
       'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png',
@@ -26,7 +23,9 @@ const mockCoins: Coin[] = [
     id: 2,
     createdAt: 1738336435,
     name: 'Ethereum',
-    ticker: 'ETH',
+    symbol: 'ETH',
+    supply: 21_000_000_000_000_000_000_000n,
+    contractAddress: '0x1',
     description: 'Programmable blockchain platform',
     imageUrl:
       'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png',
@@ -38,7 +37,9 @@ const mockCoins: Coin[] = [
     id: 3,
     createdAt: 1738336436,
     name: 'Dogecoin',
-    ticker: 'DOGE',
+    symbol: 'DOGE',
+    supply: 21_000_000_000_000_000_000_000n,
+    contractAddress: '0x2',
     description: 'Much wow, very crypto',
     website: 'https://dogecoin.com',
     twitter: 'https://twitter.com/dogecoin',
@@ -61,8 +62,38 @@ export function useCoins() {
       functionName: 'coinsCreated',
       args: [],
     })
-    console.log(`Max coin iD = ${maxCoinId}`)
-    return []
+    if (maxCoinId === 0n) {
+      console.log('No coins created yet')
+      return []
+    }
+
+    // Create an array of promises for fetching each coin
+    const fetchPromises = Array.from(
+      { length: Number(maxCoinId) },
+      (_, index) =>
+        publicClient
+          .readContract({
+            address: CONTRACT_ADDRESS,
+            abi,
+            functionName: 'getCoin',
+            args: [BigInt(index)],
+          })
+          // @ts-expect-error: This is the actual type returned from call
+          .then(({ name, symbol, supply, contractAddress }: OnChainCoin) => {
+            return {
+              id: index,
+              name,
+              symbol,
+              supply,
+              contractAddress,
+              // TODO: fetch rest from server
+              createdAt: 1738336436,
+              description: '',
+            } as Coin
+          })
+    )
+
+    return Promise.all(fetchPromises)
   }
 
   const getCoins = async (): Promise<Coin[]> => {

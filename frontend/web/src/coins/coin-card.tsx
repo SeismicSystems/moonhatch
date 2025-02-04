@@ -21,7 +21,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
           <div className="flex justify-between items-start">
             <div>
               <h3 className="text-lg font-semibold">{coin.name}</h3>
-              <span className="text-sm text-gray-500">{coin.ticker}</span>
+              <span className="text-sm text-gray-500">{coin.symbol}</span>
             </div>
             <span className="text-xs text-gray-400">{formattedDate}</span>
           </div>
