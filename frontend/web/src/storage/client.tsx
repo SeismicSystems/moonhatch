@@ -2,49 +2,9 @@ import { useState } from 'react'
 import { useShieldedContract, useShieldedWallet } from 'seismic-react'
 import { Hex } from 'viem'
 
+import { CONTRACT_ADDRESS } from '../contract/address'
 import { abi } from '../contract/pumpRand.json'
 import type { Coin } from '../types/coin'
-
-const CONTRACT_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
-
-const mockCoins: Coin[] = [
-  {
-    id: 1,
-    createdAt: 1738336434,
-    name: 'Bitcoin',
-    symbol: 'BTC',
-    supply: 21_000_000_000_000_000_000_000n,
-    contractAddress: '0x0',
-    description: 'The original cryptocurrency',
-    imageUrl:
-      'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png',
-  },
-  {
-    id: 2,
-    createdAt: 1738336435,
-    name: 'Ethereum',
-    symbol: 'ETH',
-    supply: 21_000_000_000_000_000_000_000n,
-    contractAddress: '0x1',
-    description: 'Programmable blockchain platform',
-    imageUrl:
-      'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png',
-    website: 'https://ethereum.org',
-    telegram: 'https://t.me/ethereum',
-    twitter: 'https://twitter.com/ethereum',
-  },
-  {
-    id: 3,
-    createdAt: 1738336436,
-    name: 'Dogecoin',
-    symbol: 'DOGE',
-    supply: 21_000_000_000_000_000_000_000n,
-    contractAddress: '0x2',
-    description: 'Much wow, very crypto',
-    website: 'https://dogecoin.com',
-    twitter: 'https://twitter.com/dogecoin',
-  },
-]
 
 export function useCoins() {
   const [loading, setLoading] = useState(false)
@@ -102,8 +62,7 @@ export function useCoins() {
 
     try {
       const coins = await fetchCoins()
-      // TODO: make real call to chain
-      return [...mockCoins, ...coins]
+      return coins
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error occurred'))
       return []

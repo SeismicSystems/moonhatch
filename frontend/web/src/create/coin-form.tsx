@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
+import { hexToNumber } from 'viem'
 
 import { useCreateCoin } from '../storage/client'
 import { CoinFormData } from '../types/coin'
-import { stringifyBigInt } from '../util'
 import ImageUpload from './image-upload'
 import InputField from './input-field'
 import TickerInput from './ticker-input'
@@ -41,7 +41,8 @@ const CoinForm: React.FC = () => {
       return
     }
     const receipt = await publicClient.waitForTransactionReceipt({ hash })
-    console.log(JSON.stringify(receipt, stringifyBigInt, 2))
+    const coinId = hexToNumber(receipt.logs[0].data)
+    console.log(`Created coinId=${coinId}`)
     // TODO: post rest of form to server
     return
   }

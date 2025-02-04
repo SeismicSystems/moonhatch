@@ -8,6 +8,7 @@
     "deployer()": "d5f39488",
     "getCoin(uint32)": "3e0a6fb0",
     "getCoinContract(uint32)": "6d73402f",
+    "getWeiIn(uint32)": "bb056e73",
     "graduated(uint32)": "4974faf0",
     "isGraduated(uint32)": "83e6ad52",
     "sweepFees()": "d113b95c"
@@ -180,6 +181,25 @@
           "name": "",
           "type": "address",
           "internalType": "contract IPumpCoin"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getWeiIn",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ],
       "stateMutability": "view"
