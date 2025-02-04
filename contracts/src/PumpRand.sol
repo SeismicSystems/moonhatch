@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import { PumpCoin, IPumpCoin } from "./SRC20.sol";
+import { PumpCoin, IPumpCoin } from "./PumpCoin.sol";
 
 struct Coin {
     string name;
