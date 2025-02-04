@@ -1,7 +1,12 @@
 import { X } from 'lucide-react'
 import React, { Fragment } from 'react'
 
-import { Dialog, Transition, TransitionChild } from '@headlessui/react'
+import {
+  Dialog,
+  DialogPanel,
+  Transition,
+  TransitionChild,
+} from '@headlessui/react'
 
 import { usePersistentState } from './storage/persistent-state'
 
@@ -57,7 +62,7 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
 
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 scale-95"
@@ -66,7 +71,7 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="bg-gray-900 rounded-lg w-full max-w-lg p-6 relative">
+              <DialogPanel className="bg-gray-900 rounded-lg w-full max-w-lg p-6 relative">
                 <button
                   onClick={onClose}
                   className="absolute right-4 top-4 text-gray-400 hover:text-gray-300"
@@ -116,8 +121,8 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                 >
                   I'm ready to pump
                 </button>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>
