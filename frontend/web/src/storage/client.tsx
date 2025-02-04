@@ -1,11 +1,16 @@
 import { useState } from 'react'
+import { useShieldedContract, useShieldedWallet } from 'seismic-react'
+import { Hex } from 'viem'
 
+import { abi } from '../contract/pumpRand.json'
 import { CoinFormData } from '../create/coin-form'
 
 export type Coin = { id: number; createdAt: number; imageUrl?: string } & Omit<
   CoinFormData,
   'image'
 >
+
+const CONTRACT_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
 
 const mockCoins: Coin[] = [
   {
@@ -43,14 +48,31 @@ const mockCoins: Coin[] = [
 export function useCoins() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
+  const { publicClient } = useShieldedWallet()
+
+  const fetchCoins = async (): Promise<Coin[]> => {
+    if (!publicClient) {
+      return []
+    }
+
+    const maxCoinId = await publicClient.readContract({
+      address: CONTRACT_ADDRESS,
+      abi,
+      functionName: 'coinsCreated',
+      args: [],
+    })
+    console.log(`Max coin iD = ${maxCoinId}`)
+    return []
+  }
 
   const getCoins = async (): Promise<Coin[]> => {
     setLoading(true)
     setError(null)
 
     try {
+      const coins = await fetchCoins()
       // TODO: make real call to chain
-      return mockCoins
+      return [...mockCoins, ...coins]
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error occurred'))
       return []
@@ -64,4 +86,34 @@ export function useCoins() {
     loading,
     error,
   }
+}
+
+type CreateCoinParams = {
+  name: string
+  symbol: string
+  supply: bigint
+}
+
+export function useCreateCoin() {
+  const [error, setError] = useState<string | null>(null)
+  const { contract, error: contractError } = useShieldedContract({
+    abi,
+    address: CONTRACT_ADDRESS,
+  })
+
+  const createCoin = async ({
+    name,
+    symbol,
+    supply,
+  }: CreateCoinParams): Promise<Hex | undefined> => {
+    if (!contract) {
+      setError(`Contract not loaded: ${contractError}`)
+      return undefined
+    }
+    return contract.write.createCoin([name, symbol, supply], {
+      gas: 1_000_000,
+    })
+  }
+
+  return { error, createCoin }
 }

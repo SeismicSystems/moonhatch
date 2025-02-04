@@ -12,7 +12,7 @@ import NotFound from './pages/NotFound'
 
 const config = getDefaultConfig({
   appName: 'Pump Rand',
-  projectId: 'SEISMIC_PUMP_RAND',
+  projectId: '21fef48091f12692cad574a6f7753643',
   chains: [sanvil],
   ssr: true,
 })
