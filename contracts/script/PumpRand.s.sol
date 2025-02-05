@@ -2,7 +2,7 @@
 pragma solidity ^0.8.27;
 
 import {Script, console} from "forge-std/Script.sol";
-import {PumpRand} from "../src/PumpRand.sol";
+import {PumpRand} from "../src/pump/PumpRand.sol";
 
 contract PumpRandScript is Script {
     PumpRand public pump;

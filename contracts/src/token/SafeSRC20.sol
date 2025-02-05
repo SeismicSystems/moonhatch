@@ -24,13 +24,13 @@ library SafeSRC20 {
     /**
      * @dev Indicates a failed `decreaseAllowance` request.
      */
-    error SafeERC20FailedDecreaseAllowance(address spender, uint256 currentAllowance, uint256 requestedDecrease);
+    error SafeERC20FailedDecreaseAllowance();
 
     /**
      * @dev Transfer `value` amount of `token` from the calling contract to `to`. If `token` returns no value,
      * non-reverting calls are assumed to be successful.
      */
-    function safeTransfer(ISRC20 token, address to, uint256 value) internal {
+    function safeTransfer(ISRC20 token, saddress to, suint256 value) internal {
         _callOptionalReturn(token, abi.encodeCall(token.transfer, (to, value)));
     }
 
@@ -38,7 +38,7 @@ library SafeSRC20 {
      * @dev Transfer `value` amount of `token` from `from` to `to`, spending the approval given by `from` to the
      * calling contract. If `token` returns no value, non-reverting calls are assumed to be successful.
      */
-    function safeTransferFrom(ISRC20 token, address from, address to, uint256 value) internal {
+    function safeTransferFrom(ISRC20 token, saddress from, saddress to, suint256 value) internal {
         _callOptionalReturn(token, abi.encodeCall(token.transferFrom, (from, to, value)));
     }
 
@@ -51,8 +51,8 @@ library SafeSRC20 {
      * this function. Performing a {safeIncreaseAllowance} or {safeDecreaseAllowance} operation on a token contract
      * that has a non-zero temporary allowance (for that particular owner-spender) will result in unexpected behavior.
      */
-    function safeIncreaseAllowance(ISRC20 token, address spender, uint256 value) internal {
-        uint256 oldAllowance = token.allowance(address(this), spender);
+    function safeIncreaseAllowance(ISRC20 token, saddress spender, suint256 value) internal {
+        suint256 oldAllowance = suint256(token.allowance(saddress(this), spender));
         forceApprove(token, spender, oldAllowance + value);
     }
 
@@ -65,11 +65,11 @@ library SafeSRC20 {
      * this function. Performing a {safeIncreaseAllowance} or {safeDecreaseAllowance} operation on a token contract
      * that has a non-zero temporary allowance (for that particular owner-spender) will result in unexpected behavior.
      */
-    function safeDecreaseAllowance(ISRC20 token, address spender, uint256 requestedDecrease) internal {
+    function safeDecreaseAllowance(ISRC20 token, saddress spender, suint256 requestedDecrease) internal {
         unchecked {
-            uint256 currentAllowance = token.allowance(address(this), spender);
+            suint256 currentAllowance = suint256(token.allowance(saddress(this), spender));
             if (currentAllowance < requestedDecrease) {
-                revert SafeERC20FailedDecreaseAllowance(spender, currentAllowance, requestedDecrease);
+                revert SafeERC20FailedDecreaseAllowance(); // spender, currentAllowance, requestedDecrease);
             }
             forceApprove(token, spender, currentAllowance - requestedDecrease);
         }
@@ -84,11 +84,11 @@ library SafeSRC20 {
      * only sets the "standard" allowance. Any temporary allowance will remain active, in addition to the value being
      * set here.
      */
-    function forceApprove(ISRC20 token, address spender, uint256 value) internal {
+    function forceApprove(ISRC20 token, saddress spender, suint256 value) internal {
         bytes memory approvalCall = abi.encodeCall(token.approve, (spender, value));
 
         if (!_callOptionalReturnBool(token, approvalCall)) {
-            _callOptionalReturn(token, abi.encodeCall(token.approve, (spender, 0)));
+            _callOptionalReturn(token, abi.encodeCall(token.approve, (spender, suint256(0))));
             _callOptionalReturn(token, approvalCall);
         }
     }

@@ -68,10 +68,10 @@ contract SushiRoll {
 
     // Send remaining tokens to msg.sender
     if (amountA > pooledAmountA) {
-      ISRC20(tokenA).safeTransfer(msg.sender, amountA - pooledAmountA);
+      ISRC20(tokenA).safeTransfer(saddress(msg.sender), suint256(amountA - pooledAmountA));
     }
     if (amountB > pooledAmountB) {
-      ISRC20(tokenB).safeTransfer(msg.sender, amountB - pooledAmountB);
+      ISRC20(tokenB).safeTransfer(saddress(msg.sender), suint256(amountB - pooledAmountB));
     }
   }
 
@@ -128,8 +128,8 @@ contract SushiRoll {
     require(deadline >= block.timestamp, 'SushiSwap: EXPIRED');
     (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
     address pair = UniswapV2Library.pairFor(router.factory(), tokenA, tokenB);
-    ISRC20(tokenA).safeTransferFrom(msg.sender, pair, amountA);
-    ISRC20(tokenB).safeTransferFrom(msg.sender, pair, amountB);
+    ISRC20(tokenA).safeTransferFrom(saddress(msg.sender), saddress(pair), suint256(amountA));
+    ISRC20(tokenB).safeTransferFrom(saddress(msg.sender), saddress(pair), suint256(amountB));
     liquidity = IUniswapV2Pair(pair).mint(to);
   }
 
