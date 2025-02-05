@@ -9,6 +9,8 @@ import { stringifyBigInt } from '@/util'
 import ImageUpload from '@components/create/image-upload'
 import InputField from '@components/create/input-field'
 import TickerInput from '@components/create/ticker-input'
+import Alert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
 
 const CoinForm: React.FC = () => {
   const [formData, setFormData] = useState<CoinFormData>({
@@ -23,6 +25,9 @@ const CoinForm: React.FC = () => {
 
   const [showMore, setShowMore] = useState(false)
   const navigate = useNavigate()
+
+  // State to control the success popup (Snackbar)
+  const [successOpen, setSuccessOpen] = useState(false)
 
   const { createCoin } = useCreateCoin()
   const { publicClient } = useShieldedWallet()
@@ -46,7 +51,13 @@ const CoinForm: React.FC = () => {
     const coinId = hexToNumber(receipt.logs[0].data)
     console.info(`Created coinId=${coinId}`)
     // TODO: post rest of form to server
-    navigate(`/coins/${coinId}`)
+
+    // Show the success popup
+    setSuccessOpen(true)
+    // After 2 seconds, navigate to the coin detail page
+    setTimeout(() => {
+      navigate(`/coins/${coinId}`)
+    }, 2000)
 
     return
   }
@@ -140,6 +151,22 @@ const CoinForm: React.FC = () => {
           when your coin completes its bonding curve you receive 0.1 testnet ETH
         </p>
       </form>
+
+      {/* Snackbar to show a success popup */}
+      <Snackbar
+        open={successOpen}
+        autoHideDuration={2000}
+        onClose={() => setSuccessOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSuccessOpen(false)}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          Coin created successfully!
+        </Alert>
+      </Snackbar>
     </div>
   )
 }

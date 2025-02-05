@@ -116,9 +116,7 @@ const CoinDetail: React.FC = () => {
             // For non-graduated coins, show ETH balance if available or a button to view it
             <>
               {weiIn !== null ? (
-                <div className="text-green-600 font-bold">
-                  {formatEther(weiIn, 'wei')} ETH
-                </div>
+                <div className="text-green-600 font-bold">0 ETH</div>
               ) : loadingEthIn ? (
                 <div className="text-gray-500 text-sm">Waiting...</div>
               ) : (
