@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { useShieldedContract, useShieldedWallet } from 'seismic-react'
+import { useShieldedWallet } from 'seismic-react'
 import { formatEther, parseEther } from 'viem'
 
-import { CONTRACT_ADDRESS } from '../contract/address'
-import { abi } from '../contract/pumpRand.json'
+import { usePumpContract } from '../contract'
 import { Coin } from '../types/coin'
 import { formatRelativeTime } from '../util'
 import CoinImage from './coin-image'
@@ -24,10 +23,10 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   const [loading, setLoading] = useState<boolean>(false)
 
   const { publicClient, walletClient } = useShieldedWallet()
-  const { contract } = useShieldedContract({ address: CONTRACT_ADDRESS, abi })
+  const { contract } = usePumpContract()
 
   const [loadingEthIn, setLoadingEthIn] = useState(false)
-  const [ethIn, setEthIn] = useState<bigint | null>(null)
+  const [weiIn, setWeiIn] = useState<bigint | null>(null)
 
   const handleBuy = async () => {
     setError(null)
@@ -57,8 +56,6 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
         return
       }
 
-      console.log(amountInWei)
-
       setLoading(true)
       // Execute the contract call:
       const hash = await contract.write.buy([coin.id], {
@@ -86,8 +83,8 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
     setLoadingEthIn(true)
 
     // @ts-expect-error: it gives back a bigint
-    const weiIn: bigint = await contract.read.getWeiIn([coin.id])
-    setEthIn(BigInt(formatEther(weiIn, 'wei')))
+    const weisBought: bigint = await contract.read.getWeiIn([coin.id])
+    setWeiIn(weisBought)
 
     setLoadingEthIn(false)
   }
@@ -134,8 +131,10 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
         </div>
       </div>
       {/* Right panel: BUY section */}
-      {ethIn !== null ? (
-        <div className="text-green-600 font-bold">{ethIn.toString()} ETH</div>
+      {weiIn !== null ? (
+        <div className="text-green-600 font-bold">
+          {formatEther(weiIn, 'wei')} ETH
+        </div>
       ) : loadingEthIn ? (
         <div className="text-gray-500 text-sm">Waiting...</div>
       ) : (

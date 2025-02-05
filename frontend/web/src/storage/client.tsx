@@ -1,29 +1,29 @@
-import { useState } from 'react'
-import { useShieldedContract, useShieldedWallet } from 'seismic-react'
+import { useEffect, useState } from 'react'
 import { Hex } from 'viem'
 
-import { CONTRACT_ADDRESS } from '../contract/address'
-import { abi } from '../contract/pumpRand.json'
+import { usePumpContract } from '../contract'
 import type { Coin } from '../types/coin'
 
 export function useCoins() {
   const [loading, setLoading] = useState(false)
+  const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState<Error | null>(null)
-  const { publicClient } = useShieldedWallet()
+
+  const { contract, error: contractError } = usePumpContract()
 
   const fetchCoins = async (): Promise<Coin[]> => {
-    if (!publicClient) {
+    if (!contract) {
+      if (contractError) {
+        console.error(`Error loading contract: ${contractError}`)
+      } else {
+        console.warn(`Contract not yet loaded`)
+      }
       return []
     }
 
-    const maxCoinId = await publicClient.readContract({
-      address: CONTRACT_ADDRESS,
-      abi,
-      functionName: 'coinsCreated',
-      args: [],
-    })
+    const maxCoinId = await contract.tread.coinsCreated()
     if (maxCoinId === 0n) {
-      console.log('No coins created yet')
+      console.warn('No coins created yet')
       return []
     }
 
@@ -31,13 +31,8 @@ export function useCoins() {
     const fetchPromises = Array.from(
       { length: Number(maxCoinId) },
       (_, index) =>
-        publicClient
-          .readContract({
-            address: CONTRACT_ADDRESS,
-            abi,
-            functionName: 'getCoin',
-            args: [BigInt(index)],
-          })
+        contract.tread
+          .getCoin([BigInt(index)])
           // @ts-expect-error: This is the actual type returned from call
           .then(({ name, symbol, supply, contractAddress }: OnChainCoin) => {
             return {
@@ -56,6 +51,13 @@ export function useCoins() {
     return Promise.all(fetchPromises)
   }
 
+  useEffect(() => {
+    if (!contract) {
+      return
+    }
+    setLoaded(true)
+  }, [contract])
+
   const getCoins = async (): Promise<Coin[]> => {
     setLoading(true)
     setError(null)
@@ -73,6 +75,7 @@ export function useCoins() {
 
   return {
     getCoins,
+    loaded,
     loading,
     error,
   }
@@ -86,10 +89,7 @@ type CreateCoinParams = {
 
 export function useCreateCoin() {
   const [error, setError] = useState<string | null>(null)
-  const { contract, error: contractError } = useShieldedContract({
-    abi,
-    address: CONTRACT_ADDRESS,
-  })
+  const { contract, error: contractError } = usePumpContract()
 
   const createCoin = async ({
     name,
