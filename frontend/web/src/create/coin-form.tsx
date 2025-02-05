@@ -1,24 +1,18 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useShieldedWallet } from 'seismic-react'
+import { hexToNumber } from 'viem'
 
+import { useCreateCoin } from '../storage/client'
+import { CoinFormData } from '../types/coin'
 import ImageUpload from './image-upload'
 import InputField from './input-field'
 import TickerInput from './ticker-input'
 
-export type CoinFormData = {
-  name: string
-  ticker: string
-  description: string
-  image: File | null
-  telegram?: string
-  website?: string
-  twitter?: string
-}
-
 const CoinForm: React.FC = () => {
   const [formData, setFormData] = useState<CoinFormData>({
     name: '',
-    ticker: '',
+    symbol: '',
     description: '',
     image: null,
     telegram: '',
@@ -29,9 +23,28 @@ const CoinForm: React.FC = () => {
   const [showMore, setShowMore] = useState(false)
   const navigate = useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { createCoin } = useCreateCoin()
+  const { publicClient } = useShieldedWallet()
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted:', JSON.stringify(formData))
+    if (!publicClient) {
+      return
+    }
+    const hash = await createCoin({
+      name: formData.name,
+      symbol: formData.symbol,
+      supply: 21_000_000_000_000_000_000_000n,
+    })
+    if (!hash) {
+      console.log('failed to broadcast tx')
+      return
+    }
+    const receipt = await publicClient.waitForTransactionReceipt({ hash })
+    const coinId = hexToNumber(receipt.logs[0].data)
+    console.log(`Created coinId=${coinId}`)
+    // TODO: post rest of form to server
+    return
   }
 
   return (
@@ -54,8 +67,8 @@ const CoinForm: React.FC = () => {
         />
 
         <TickerInput
-          value={formData.ticker}
-          onChange={(value) => setFormData({ ...formData, ticker: value })}
+          value={formData.symbol}
+          onChange={(value) => setFormData({ ...formData, symbol: value })}
         />
 
         <div className="mb-4">

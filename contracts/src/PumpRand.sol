@@ -27,9 +27,9 @@ contract PumpRand {
     mapping(uint32 => bool) public graduated;
     mapping(uint32 => suint256) weisIn;
     mapping(uint32 => suint256) unitsOut;
-    mapping(uint32 => mapping(saddress => suint256)) bondAmounts;
+    mapping(uint32 => mapping(saddress => suint256)) weisInByAddress;
 
-    event CoinCreated(Coin coin);
+    event CoinCreated(uint32 coinId);
     event CoinGraduated(uint32 coinId);
 
     error NoCoinWithId(uint32 coinId);
@@ -63,6 +63,7 @@ contract PumpRand {
         coins[coinId] = Coin(name, symbol, supply, address(pc));
         weisIn[coinId] = suint256(0);
         unitsOut[coinId] = suint256(0);
+        emit CoinCreated(coinId);
         coinsCreated = coinsCreated + 1;
     }
 
@@ -105,14 +106,14 @@ contract PumpRand {
 
         uint256 tokensMinted;
         IPumpCoin pc = IPumpCoin(coin.contractAddress);
-            
-
+    
         // Final deposit: if total wei deposited reaches or exceeds 1 ETH.
         if (totalWei >= WEI_GRADUATION) {
             uint256 requiredWei = WEI_GRADUATION - W_prev;
             uint256 refund = W_new - requiredWei;
             tokensMinted = T_rem;
             weisIn[coinId] = suint256(W_prev + requiredWei);
+            weisInByAddress[coinId][saddress(msg.sender)] = weisInByAddress[coinId][saddress(msg.sender)] + suint256(requiredWei);
             unitsOut[coinId] = suint256(coin.supply);
             graduated[coinId] = true;
             pc.mint(saddress(msg.sender), suint256(tokensMinted));
@@ -145,6 +146,7 @@ contract PumpRand {
         tokensMinted = (priceFP * W_new) / 1e18;
 
         weisIn[coinId] = suint256(W_prev + W_new);
+        weisInByAddress[coinId][saddress(msg.sender)] = weisInByAddress[coinId][saddress(msg.sender)] + suint256(W_new);
         unitsOut[coinId] = suint256((coin.supply - T_rem) + tokensMinted);
         pc.mint(saddress(msg.sender), suint256(tokensMinted));
         return 0;
@@ -169,6 +171,10 @@ contract PumpRand {
         // assembly {
         //     result := mload(add(output, 32))
         // }
+    }
+
+    function getWeiIn(uint32 coinId) public view returns (uint256) {
+        return uint256(weisInByAddress[coinId][saddress(msg.sender)]);
     }
 
     function isGraduated(uint32 coinId) public view returns (bool) {

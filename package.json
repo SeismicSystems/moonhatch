@@ -14,5 +14,8 @@
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^5.2.2"
+  },
+  "dependencies": {
+    "seismic-viem": "1.0.13"
   }
 }
