@@ -74,6 +74,8 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   }
 
   const viewEthIn = async () => {
+    // TODO: read/write this to browser's local storage once they read it once
+    // this map should be [chainId] => [coinId] => weiIn
     if (!walletClient || !contract) {
       return
     }
