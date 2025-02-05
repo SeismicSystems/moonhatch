@@ -32,6 +32,7 @@ const CoinDetail: React.FC = () => {
       {/* Reuse your coin-card component to display the coin details */}
       <div className="coin-name">name -{coin.name}</div>
       <div className="coin-ticker">ticker - {coin.symbol}</div>
+      <div className="coin-address">address - {coin.contractAddress}</div>
       <div className="coin-created-at">
         created-at - {coin.createdAt.toString()}
       </div>
@@ -39,7 +40,13 @@ const CoinDetail: React.FC = () => {
       <div className="coin-graduated">
         graduated - {coin.graduated.toString()}
       </div>
-      {/* <div className="coin-image">image - {coin.image.toString()}</div> */}
+      <div className="coin-image">
+        img-{' '}
+        <img
+          src="https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png"
+          alt="alt"
+        ></img>
+      </div>
       {/* {coin.name}
       {coin.name}
       {coin.name}
