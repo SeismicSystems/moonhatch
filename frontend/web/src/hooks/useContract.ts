@@ -44,9 +44,8 @@ const pumpContractData = await loadContractData({
 export const PUMP_CONTRACT_ADDRESS = pumpContractData.address
 export const PUMP_CONTRACT_ABI = pumpContractData.abi
 
-export const useContract = () => {
-  return useShieldedContract({
+export const useContract = () =>
+  useShieldedContract({
     abi: PUMP_CONTRACT_ABI,
     address: PUMP_CONTRACT_ADDRESS,
   })
-}
