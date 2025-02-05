@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
 import React, { Fragment } from 'react'
 
-import { useAppState } from '@/client/app-state'
+import { useAppState } from '@/hooks/useAppState'
 import {
   Dialog,
   DialogPanel,
