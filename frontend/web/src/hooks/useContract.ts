@@ -2,16 +2,20 @@ import { useShieldedContract } from 'seismic-react'
 
 import type { ContractData } from '@/types/contract'
 
-const loadContractData = async (
+const loadContractData = async ({
+  name,
+  chainId,
+}: {
+  name: string
   chainId: string | undefined
-): Promise<ContractData> => {
+}): Promise<ContractData> => {
   // Check if VITE_CHAIN_ID is set
   if (!chainId) {
     throw new Error('loadContractData failed: chainId not set')
   }
 
   // Construct the file path (vite makes this load from /public directory)
-  const configPath = `/chains/${chainId}.json`
+  const configPath = `/chains/${chainId}/${name}.json`
 
   try {
     const response = await fetch(configPath)
@@ -30,10 +34,18 @@ const loadContractData = async (
   }
 }
 
-const contractData = await loadContractData(import.meta.env.VITE_CHAIN_ID)
+const CHAIN_ID = import.meta.env.VITE_CHAIN_ID
 
-export const CONTRACT_ADDRESS = contractData.contractAddress
-export const CONTRACT_ABI = contractData.abi
+const pumpContractData = await loadContractData({
+  name: 'PumpRand',
+  chainId: CHAIN_ID,
+})
+
+export const PUMP_CONTRACT_ADDRESS = pumpContractData.address
+export const PUMP_CONTRACT_ABI = pumpContractData.abi
 
 export const useContract = () =>
-  useShieldedContract({ abi: CONTRACT_ABI, address: CONTRACT_ADDRESS })
+  useShieldedContract({
+    abi: PUMP_CONTRACT_ABI,
+    address: PUMP_CONTRACT_ADDRESS,
+  })
