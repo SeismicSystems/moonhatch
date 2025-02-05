@@ -1,13 +1,8 @@
 import { useState } from 'react'
 import { Hex } from 'viem'
 
-import { useContract } from './useContract'
-
-type CreateCoinParams = {
-  name: string
-  symbol: string
-  supply: bigint
-}
+import { useContract } from '@/hooks/useContract'
+import type { CreateCoinParams } from '@/types/coin'
 
 export function useCreateCoin() {
   const [error, setError] = useState<string | null>(null)

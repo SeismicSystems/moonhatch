@@ -1,11 +1,6 @@
 import { useShieldedContract } from 'seismic-react'
-import type { Abi, Hex } from 'viem'
 
-type ContractData = {
-  contractAddress: Hex
-  methodIdentifiers: { [functionSignature: string]: Hex }
-  abi: Abi
-}
+import type { ContractData } from '@/types/contract'
 
 const loadContractData = async (
   chainId: string | undefined
