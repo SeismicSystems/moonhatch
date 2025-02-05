@@ -21,7 +21,7 @@ export type CoinFormData = {
 }
 
 export type Coin = {
-  id: number
+  id: bigint
   createdAt: number
   imageUrl?: string
 } & OnChainCoin &
