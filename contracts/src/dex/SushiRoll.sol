@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.27;
 
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@openzeppelin/contracts/token/ERC20/SafeERC20.sol';
+import '../token/ISRC20.sol';
+import '../token/SafeSRC20.sol';
 import './interfaces/IUniswapV2Pair.sol';
 import './interfaces/IUniswapV2Router01.sol';
 import './interfaces/IUniswapV2Factory.sol';
@@ -11,12 +11,12 @@ import './libraries/UniswapV2Library.sol';
 
 // SushiRoll helps your migrate your existing Uniswap LP tokens to SushiSwap LP ones
 contract SushiRoll {
-  using SafeERC20 for IERC20;
+  using SafeSRC20 for ISRC20;
 
   IUniswapV2Router01 public oldRouter;
   IUniswapV2Router01 public router;
 
-  constructor(IUniswapV2Router01 _oldRouter, IUniswapV2Router01 _router) public {
+  constructor(IUniswapV2Router01 _oldRouter, IUniswapV2Router01 _router) {
     oldRouter = _oldRouter;
     router = _router;
   }
@@ -68,10 +68,10 @@ contract SushiRoll {
 
     // Send remaining tokens to msg.sender
     if (amountA > pooledAmountA) {
-      IERC20(tokenA).safeTransfer(msg.sender, amountA - pooledAmountA);
+      ISRC20(tokenA).safeTransfer(msg.sender, amountA - pooledAmountA);
     }
     if (amountB > pooledAmountB) {
-      IERC20(tokenB).safeTransfer(msg.sender, amountB - pooledAmountB);
+      ISRC20(tokenB).safeTransfer(msg.sender, amountB - pooledAmountB);
     }
   }
 
@@ -95,7 +95,7 @@ contract SushiRoll {
   function pairForOldRouter(address tokenA, address tokenB) internal view returns (address pair) {
     (address token0, address token1) = UniswapV2Library.sortTokens(tokenA, tokenB);
     pair = address(
-      uint256(
+      uint160(uint256(
         keccak256(
           abi.encodePacked(
             hex'ff',
@@ -104,7 +104,7 @@ contract SushiRoll {
             hex'96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f' // init code hash
           )
         )
-      )
+      ))
     );
   }
 
@@ -128,8 +128,8 @@ contract SushiRoll {
     require(deadline >= block.timestamp, 'SushiSwap: EXPIRED');
     (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
     address pair = UniswapV2Library.pairFor(router.factory(), tokenA, tokenB);
-    IERC20(tokenA).safeTransferFrom(msg.sender, pair, amountA);
-    IERC20(tokenB).safeTransferFrom(msg.sender, pair, amountB);
+    ISRC20(tokenA).safeTransferFrom(msg.sender, pair, amountA);
+    ISRC20(tokenB).safeTransferFrom(msg.sender, pair, amountB);
     liquidity = IUniswapV2Pair(pair).mint(to);
   }
 
