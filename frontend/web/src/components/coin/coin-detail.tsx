@@ -2,12 +2,12 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useGetCoins } from '@/hooks/useGetCoins'
+import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
 
 const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
-  const { getCoins, loaded, loading, error } = useGetCoins()
+  const { fetchCoins, loaded, loading, error } = useFetchCoin()
   const [coin, setCoin] = useState<Coin | null>(null)
 
   useEffect(() => {
@@ -15,10 +15,10 @@ const CoinDetail: React.FC = () => {
     if (!loaded) return
 
     // Fetch all coins and then find the one that matches coinId
-    getCoins().then((coins) => {
+    fetchCoins().then((coins) => {
       // Since your coins' id is stored as a number, parse coinId from URL
       const id = Number(coinId)
-      const foundCoin = coins.find((c) => c.id === id)
+      const foundCoin = coins.find((c) => c.id === BigInt(id))
       setCoin(foundCoin || null)
     })
   }, [loaded, coinId])
@@ -37,9 +37,7 @@ const CoinDetail: React.FC = () => {
         created-at - {coin.createdAt.toString()}
       </div>
       <div className="coin-supply">supply - {coin.supply.toString()}</div>
-      <div className="coin-graduated">
-        graduated - {coin.graduated.toString()}
-      </div>
+      <div className="coin-graduated">graduated - {coin.graduated}</div>
       <div className="coin-image">
         img-{' '}
         <img
