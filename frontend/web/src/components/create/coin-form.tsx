@@ -46,6 +46,8 @@ const CoinForm: React.FC = () => {
     const coinId = hexToNumber(receipt.logs[0].data)
     console.info(`Created coinId=${coinId}`)
     // TODO: post rest of form to server
+    navigate(`/coins/${coinId}`)
+
     return
   }
 
