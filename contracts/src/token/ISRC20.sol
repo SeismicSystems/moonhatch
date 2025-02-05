@@ -32,7 +32,8 @@ interface ISRC20 {
     //////////////////////////////////////////////////////////////*/
     function balanceOf() external view returns (uint256);
     function transfer(saddress to, suint256 amount) external returns (bool);
-    function allowance(saddress owner, saddress spender) external view returns (uint256);
+    // owner passed in as msg.sender via signedRead
+    function allowance(saddress spender) external view returns (uint256);
     function approve(saddress spender, suint256 amount) external returns (bool);
     function transferFrom(saddress from, saddress to, suint256 amount) external returns (bool);
 }

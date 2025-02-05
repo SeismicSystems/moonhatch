@@ -101,7 +101,7 @@ abstract contract SRC20 is ISRC20 {
         // emit Transfer(address(0), address(to), uint256(amount));
     }
 
-    function allowance(saddress owner, saddress spender) external view returns (uint256) {
-        return uint256(_allowance[owner][spender]);
+    function allowance(saddress spender) external view returns (uint256) {
+        return uint256(_allowance[saddress(msg.sender)][spender]);
     }
 }
