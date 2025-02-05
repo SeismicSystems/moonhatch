@@ -9,7 +9,7 @@ import {
   TransitionChild,
 } from '@headlessui/react'
 
-import { usePersistentState } from '../storage/persistent-state'
+import { useAppState } from '../state/app-state'
 
 const Step: React.FC<React.PropsWithChildren<{ number: number }>> = ({
   number,
@@ -45,7 +45,7 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
   onClose,
 }) => {
-  const { acceptTerms } = usePersistentState()
+  const { acceptTerms } = useAppState()
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>

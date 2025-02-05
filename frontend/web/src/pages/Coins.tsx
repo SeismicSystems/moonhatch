@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-import CoinCard from '../coins/coin-card'
-import Pagination from '../coins/pagination'
+import CoinCard from '../components/coin/coin-card'
+import Pagination from '../components/coin/pagination'
 import { Coin } from '../types/coin'
 
 const Coins: React.FC<{ coins: Coin[] }> = ({ coins }) => {

@@ -5,10 +5,10 @@ import { sanvil } from 'seismic-react'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 
 import './App.css'
-import CoinForm from './create/coin-form'
-import { Providers } from './hooks/Providers'
+import CoinForm from './components/create/coin-form'
 import Home from './pages/Home'
 import NotFound from './pages/NotFound'
+import { Providers } from './state/Providers'
 
 const config = getDefaultConfig({
   appName: 'Pump Rand',

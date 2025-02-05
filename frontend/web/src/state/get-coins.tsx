@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Hex } from 'viem'
 
 import type { Coin } from '../types/coin'
 import { usePumpContract } from './contract'
 
-export function useCoins() {
+export function useGetCoins() {
   const [loading, setLoading] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState<Error | null>(null)
@@ -79,31 +78,4 @@ export function useCoins() {
     loading,
     error,
   }
-}
-
-type CreateCoinParams = {
-  name: string
-  symbol: string
-  supply: bigint
-}
-
-export function useCreateCoin() {
-  const [error, setError] = useState<string | null>(null)
-  const { contract, error: contractError } = usePumpContract()
-
-  const createCoin = async ({
-    name,
-    symbol,
-    supply,
-  }: CreateCoinParams): Promise<Hex | undefined> => {
-    if (!contract) {
-      setError(`Contract not loaded: ${contractError}`)
-      return undefined
-    }
-    return contract.write.createCoin([name, symbol, supply], {
-      gas: 1_000_000,
-    })
-  }
-
-  return { error, createCoin }
 }

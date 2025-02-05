@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 
-import { useCoins } from '../hooks/client'
+import { useGetCoins } from '../state/get-coins'
 import type { Coin } from '../types/coin'
 import Coins from './Coins'
 import NavBar from './NavBar'
 
 const Home: React.FC = () => {
   const [coins, setCoins] = useState<Coin[]>([])
-  const { loaded, getCoins } = useCoins()
+  const { loaded, getCoins } = useGetCoins()
 
   useEffect(
     () => {

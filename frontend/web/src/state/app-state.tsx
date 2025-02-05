@@ -19,7 +19,7 @@ const DEFAULT_STATE: AppState = {
   // 'notifications-enabled': true,
 }
 
-export const usePersistentState = () => {
+export const useAppState = () => {
   const [state, setState] = useState<AppState>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
