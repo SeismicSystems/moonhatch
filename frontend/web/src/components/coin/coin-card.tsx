@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useShieldedWallet } from 'seismic-react'
 import { formatEther, parseEther } from 'viem'
 
-import { usePumpContract } from '../../state/contract'
-import { Coin } from '../../types/coin'
-import { formatRelativeTime } from '../../util'
-import CoinImage from './coin-image'
-import SocialLink from './social-link'
+import { usePumpContract } from '@/state/contract'
+import { Coin } from '@/types/coin'
+import { formatRelativeTime } from '@/util'
+import CoinImage from '@components/coin/coin-image'
+import SocialLink from '@components/coin/social-link'
 
 interface CoinCardProps {
   coin: Coin

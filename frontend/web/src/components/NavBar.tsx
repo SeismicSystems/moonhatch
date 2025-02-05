@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import HowItWorks from '@/pages/HowItWorks'
+import { useAppState } from '@/state/app-state'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import '@rainbow-me/rainbowkit/styles.css'
-
-import { useAppState } from '../state/app-state'
-import HowItWorks from './how-it-works'
 
 const NavBar: React.FC = () => {
   const navigate = useNavigate()

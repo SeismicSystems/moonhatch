@@ -1,6 +1,7 @@
 import { X } from 'lucide-react'
 import React, { Fragment } from 'react'
 
+import { useAppState } from '@/state/app-state'
 import {
   Dialog,
   DialogPanel,
@@ -8,8 +9,6 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react'
-
-import { useAppState } from '../state/app-state'
 
 const Step: React.FC<React.PropsWithChildren<{ number: number }>> = ({
   number,
