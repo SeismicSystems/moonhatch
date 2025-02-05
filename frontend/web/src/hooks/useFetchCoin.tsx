@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useContract } from '@/hooks/useContract'
 import type { Coin, OnChainCoin } from '@/types/coin'
 
-export function useGetCoins() {
+export function useFetchCoin() {
   const [loading, setLoading] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState<Error | null>(null)
