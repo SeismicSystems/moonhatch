@@ -1,3 +1,17 @@
+# Pump Rand web app
+
+## Directory structure
+
+- public: static public files
+- src
+  - main.tsx: DOM entrypoint
+  - App.tsx: root of the webapp
+  - components: helper components that don't live at a standalone page
+  - hooks: custom hooks for building function components
+  - pages: full-page components that are displayed at some route
+  - types: all type declarations
+  - util.ts: misc functions
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

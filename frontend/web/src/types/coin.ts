@@ -1,9 +1,12 @@
-import { Hex } from 'viem'
+import type { Hex } from 'viem'
 
-export type OnChainCoin = {
+export type CreateCoinParams = {
   name: string
   symbol: string
   supply: bigint
+}
+
+export type OnChainCoin = CreateCoinParams & {
   contractAddress: Hex
 }
 

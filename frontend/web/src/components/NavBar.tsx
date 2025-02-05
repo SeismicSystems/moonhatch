@@ -1,16 +1,15 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { useAppState } from '@/hooks/useAppState'
+import HowItWorks from '@/pages/HowItWorks'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import '@rainbow-me/rainbowkit/styles.css'
-
-import HowItWorks from '../how-it-works'
-import { usePersistentState } from '../storage/persistent-state'
 
 const NavBar: React.FC = () => {
   const navigate = useNavigate()
 
-  const { acceptedTerms } = usePersistentState()
+  const { acceptedTerms } = useAppState()
   const [showHowItWorks, setShowHowItWorks] = useState(!acceptedTerms())
 
   return (

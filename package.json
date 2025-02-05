@@ -14,7 +14,9 @@
     "contract:address": "jq -s '{\"contractAddress\": .[0].receipts[0].contractAddress} * .[1]' ./contracts/broadcast/PumpRand.s.sol/$VITE_CHAIN_ID/run-latest.json ./frontend/web/public/chains/$VITE_CHAIN_ID.json > temp.json && mv temp.json ./frontend/web/public/chains/$VITE_CHAIN_ID.json"
   },
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "^5.2.2"
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "prettier": "^3.4.2",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "dependencies": {
     "seismic-viem": "1.0.13"

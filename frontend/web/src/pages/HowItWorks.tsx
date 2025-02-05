@@ -1,6 +1,7 @@
 import { X } from 'lucide-react'
 import React, { Fragment } from 'react'
 
+import { useAppState } from '@/hooks/useAppState'
 import {
   Dialog,
   DialogPanel,
@@ -8,8 +9,6 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react'
-
-import { usePersistentState } from './storage/persistent-state'
 
 const Step: React.FC<React.PropsWithChildren<{ number: number }>> = ({
   number,
@@ -45,7 +44,7 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
   onClose,
 }) => {
-  const { acceptTerms } = usePersistentState()
+  const { acceptTerms } = useAppState()
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>

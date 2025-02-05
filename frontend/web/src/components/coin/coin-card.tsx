@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useShieldedWallet } from 'seismic-react'
 import { formatEther, parseEther } from 'viem'
 
-import { usePumpContract } from '../contract'
-import { Coin } from '../types/coin'
-import { formatRelativeTime } from '../util'
-import CoinImage from './coin-image'
-import SocialLink from './social-link'
+import { useContract } from '@/hooks/useContract'
+import { Coin } from '@/types/coin'
+import { formatRelativeTime } from '@/util'
+import CoinImage from '@components/coin/coin-image'
+import SocialLink from '@components/coin/social-link'
 
 interface CoinCardProps {
   coin: Coin
@@ -23,7 +23,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   const [loading, setLoading] = useState<boolean>(false)
 
   const { publicClient, walletClient } = useShieldedWallet()
-  const { contract } = usePumpContract()
+  const { contract } = useContract()
 
   const [loadingEthIn, setLoadingEthIn] = useState(false)
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
@@ -74,6 +74,8 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   }
 
   const viewEthIn = async () => {
+    // TODO: read/write this to browser's local storage once they read it once
+    // this map should be [chainId] => [coinId] => weiIn
     if (!walletClient || !contract) {
       return
     }

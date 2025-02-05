@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
-import CoinCard from '../coins/coin-card'
-import Pagination from '../coins/pagination'
-import { Coin } from '../types/coin'
+import { Coin } from '@/types/coin'
+import CoinCard from '@components/coin/coin-card'
+import Pagination from '@components/coin/pagination'
 
 const Coins: React.FC<{ coins: Coin[] }> = ({ coins }) => {
   const [currentPage, setCurrentPage] = useState(1)

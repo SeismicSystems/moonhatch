@@ -1,11 +1,6 @@
 import { useShieldedContract } from 'seismic-react'
-import { Abi, Hex } from 'viem'
 
-type ContractData = {
-  contractAddress: Hex
-  methodIdentifiers: { [functionSignature: string]: Hex }
-  abi: Abi
-}
+import type { ContractData } from '@/types/contract'
 
 const loadContractData = async (
   chainId: string | undefined
@@ -15,7 +10,7 @@ const loadContractData = async (
     throw new Error('loadContractData failed: chainId not set')
   }
 
-  // Construct the file path
+  // Construct the file path (vite makes this load from /public directory)
   const configPath = `/chains/${chainId}.json`
 
   try {
@@ -40,5 +35,5 @@ const contractData = await loadContractData(import.meta.env.VITE_CHAIN_ID)
 export const CONTRACT_ADDRESS = contractData.contractAddress
 export const CONTRACT_ABI = contractData.abi
 
-export const usePumpContract = () =>
+export const useContract = () =>
   useShieldedContract({ abi: CONTRACT_ABI, address: CONTRACT_ADDRESS })

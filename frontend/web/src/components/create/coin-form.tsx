@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
 import { hexToNumber } from 'viem'
 
-import { useCreateCoin } from '../storage/client'
-import { CoinFormData } from '../types/coin'
-import { stringifyBigInt } from '../util'
-import ImageUpload from './image-upload'
-import InputField from './input-field'
-import TickerInput from './ticker-input'
+import { useCreateCoin } from '@/hooks/useCreateCoin'
+import { CoinFormData } from '@/types/coin'
+import { stringifyBigInt } from '@/util'
+import ImageUpload from '@components/create/image-upload'
+import InputField from '@components/create/input-field'
+import TickerInput from '@components/create/ticker-input'
 
 const CoinForm: React.FC = () => {
   const [formData, setFormData] = useState<CoinFormData>({
