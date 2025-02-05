@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
-import type { Coin } from '../types/coin'
-import { useContract } from './useContract'
+import { useContract } from '@/hooks/useContract'
+import type { Coin, OnChainCoin } from '@/types/coin'
 
 export function useGetCoins() {
   const [loading, setLoading] = useState(false)
@@ -10,7 +10,47 @@ export function useGetCoins() {
 
   const { contract, error: contractError } = useContract()
 
-  const fetchCoins = async (): Promise<Coin[]> => {
+  const fetchCoin = async (coinId: bigint): Promise<Coin> => {
+    if (!contract) {
+      if (contractError) {
+        throw new Error(`Error loading contract: ${contractError}`)
+      } else {
+        throw new Error(`Contract not yet loaded`)
+      }
+    }
+    return (
+      contract.tread
+        .getCoin([coinId])
+        // @ts-expect-error: This is the actual type returned from call
+        .then(({ name, symbol, supply, contractAddress }: OnChainCoin) => {
+          return {
+            id: coinId,
+            name,
+            symbol,
+            supply,
+            contractAddress,
+            // TODO: fetch rest from server
+            createdAt: 1738336436,
+            description: '',
+          } as Coin
+        })
+    )
+  }
+
+  const fetchCoinsCreated = async (): Promise<bigint> => {
+    if (!contract) {
+      if (contractError) {
+        throw new Error(`Error loading contract: ${contractError}`)
+      } else {
+        throw new Error(`Contract not yet loaded`)
+      }
+    }
+    // @ts-expect-error: this returns a bigint
+    const maxCoinId: bigint = await contract.tread.coinsCreated()
+    return maxCoinId
+  }
+
+  const fetchAllCoins = async (): Promise<Coin[]> => {
     if (!contract) {
       if (contractError) {
         console.error(`Error loading contract: ${contractError}`)
@@ -20,7 +60,7 @@ export function useGetCoins() {
       return []
     }
 
-    const maxCoinId = await contract.tread.coinsCreated()
+    const maxCoinId = await fetchCoinsCreated()
     if (maxCoinId === 0n) {
       console.warn('No coins created yet')
       return []
@@ -29,22 +69,7 @@ export function useGetCoins() {
     // Create an array of promises for fetching each coin
     const fetchPromises = Array.from(
       { length: Number(maxCoinId) },
-      (_, index) =>
-        contract.tread
-          .getCoin([BigInt(index)])
-          // @ts-expect-error: This is the actual type returned from call
-          .then(({ name, symbol, supply, contractAddress }: OnChainCoin) => {
-            return {
-              id: index,
-              name,
-              symbol,
-              supply,
-              contractAddress,
-              // TODO: fetch rest from server
-              createdAt: 1738336436,
-              description: '',
-            } as Coin
-          })
+      (_, index) => fetchCoin(BigInt(index))
     )
 
     return Promise.all(fetchPromises)
@@ -57,12 +82,12 @@ export function useGetCoins() {
     setLoaded(true)
   }, [contract])
 
-  const getCoins = async (): Promise<Coin[]> => {
+  const fetchCoins = async (): Promise<Coin[]> => {
     setLoading(true)
     setError(null)
 
     try {
-      const coins = await fetchCoins()
+      const coins = await fetchAllCoins()
       return coins
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error occurred'))
@@ -73,7 +98,9 @@ export function useGetCoins() {
   }
 
   return {
-    getCoins,
+    fetchCoinsCreated,
+    fetchCoin,
+    fetchCoins,
     loaded,
     loading,
     error,
