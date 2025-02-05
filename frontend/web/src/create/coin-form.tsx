@@ -5,6 +5,7 @@ import { hexToNumber } from 'viem'
 
 import { useCreateCoin } from '../storage/client'
 import { CoinFormData } from '../types/coin'
+import { stringifyBigInt } from '../util'
 import ImageUpload from './image-upload'
 import InputField from './input-field'
 import TickerInput from './ticker-input'
@@ -37,12 +38,13 @@ const CoinForm: React.FC = () => {
       supply: 21_000_000_000_000_000_000_000n,
     })
     if (!hash) {
-      console.log('failed to broadcast tx')
+      console.error('failed to broadcast tx')
       return
     }
     const receipt = await publicClient.waitForTransactionReceipt({ hash })
+    console.log(JSON.stringify(receipt, stringifyBigInt, 2))
     const coinId = hexToNumber(receipt.logs[0].data)
-    console.log(`Created coinId=${coinId}`)
+    console.info(`Created coinId=${coinId}`)
     // TODO: post rest of form to server
     return
   }

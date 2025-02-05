@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { useShieldedContract, useShieldedWallet } from 'seismic-react'
+import { useShieldedWallet } from 'seismic-react'
 import { formatEther, parseEther } from 'viem'
 
-import { CONTRACT_ADDRESS } from '../contract/address'
-import { abi } from '../contract/pumpRand.json'
+import { usePumpContract } from '../contract'
 import { Coin } from '../types/coin'
 import { formatRelativeTime } from '../util'
 import CoinImage from './coin-image'
@@ -24,7 +23,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   const [loading, setLoading] = useState<boolean>(false)
 
   const { publicClient, walletClient } = useShieldedWallet()
-  const { contract } = useShieldedContract({ address: CONTRACT_ADDRESS, abi })
+  const { contract } = usePumpContract()
 
   const [loadingEthIn, setLoadingEthIn] = useState(false)
   const [ethIn, setEthIn] = useState<bigint | null>(null)
@@ -56,8 +55,6 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
         setError('Insufficient balance')
         return
       }
-
-      console.log(amountInWei)
 
       setLoading(true)
       // Execute the contract call:

@@ -3,14 +3,13 @@ import { useShieldedWallet } from 'seismic-react'
 
 import Coins from './pages/Coins'
 import NavBar from './pages/NavBar'
-import { Coin, useCoins } from './storage/client'
+import { useCoins } from './storage/client'
+import type { Coin } from './types/coin'
 
 const Home: React.FC = () => {
   const [coins, setCoins] = useState<Coin[]>([])
-  const { publicClient, error } = useShieldedWallet()
+  const { publicClient } = useShieldedWallet()
   const { getCoins } = useCoins()
-
-  console.log(error)
 
   useEffect(
     () => {
