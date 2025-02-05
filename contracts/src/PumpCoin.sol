@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.27;
 
 import { SRC20, ISRC20 } from "./SRC20.sol";
 
