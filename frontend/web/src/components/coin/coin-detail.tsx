@@ -2,26 +2,25 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useGetCoins } from '@/hooks/useGetCoins'
+import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
-import CoinCard from '@components/coin/coin-card'
 
 const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
-  const { getCoins, loaded, loading, error } = useGetCoins()
+  const { fetchCoin, loaded, loading, error } = useFetchCoin()
   const [coin, setCoin] = useState<Coin | null>(null)
 
   useEffect(() => {
     // Wait until the contract is loaded
     if (!loaded) return
+    if (coinId === undefined) return
 
     // Fetch all coins and then find the one that matches coinId
-    getCoins().then((coins) => {
+    fetchCoin(BigInt(coinId)).then((coin) => {
       // Since your coins' id is stored as a number, parse coinId from URL
-      const id = Number(coinId)
-      const foundCoin = coins.find((c) => c.id === id)
-      setCoin(foundCoin || null)
+      setCoin(coin)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded, coinId])
 
   if (loading) return <div>Loading...</div>
