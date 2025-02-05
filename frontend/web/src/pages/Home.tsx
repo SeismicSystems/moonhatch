@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
 import NavBar from '@/components/NavBar'
+import { useGetCoins } from '@/hooks/useGetCoins'
 import Coins from '@/pages/Coins'
-import { useGetCoins } from '@/state/get-coins'
 import type { Coin } from '@/types/coin'
 
 const Home: React.FC = () => {

@@ -1,5 +1,5 @@
 import { useShieldedContract } from 'seismic-react'
-import { Abi, Hex } from 'viem'
+import type { Abi, Hex } from 'viem'
 
 type ContractData = {
   contractAddress: Hex
@@ -40,5 +40,5 @@ const contractData = await loadContractData(import.meta.env.VITE_CHAIN_ID)
 export const CONTRACT_ADDRESS = contractData.contractAddress
 export const CONTRACT_ABI = contractData.abi
 
-export const usePumpContract = () =>
+export const useContract = () =>
   useShieldedContract({ abi: CONTRACT_ABI, address: CONTRACT_ADDRESS })

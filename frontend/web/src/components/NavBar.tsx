@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { useAppState } from '@/hooks/useAppState'
 import HowItWorks from '@/pages/HowItWorks'
-import { useAppState } from '@/state/app-state'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import '@rainbow-me/rainbowkit/styles.css'
 

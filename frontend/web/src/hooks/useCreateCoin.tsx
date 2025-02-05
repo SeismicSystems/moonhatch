@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Hex } from 'viem'
 
-import { usePumpContract } from './contract'
+import { useContract } from './useContract'
 
 type CreateCoinParams = {
   name: string
@@ -11,7 +11,7 @@ type CreateCoinParams = {
 
 export function useCreateCoin() {
   const [error, setError] = useState<string | null>(null)
-  const { contract, error: contractError } = usePumpContract()
+  const { contract, error: contractError } = useContract()
 
   const createCoin = async ({
     name,

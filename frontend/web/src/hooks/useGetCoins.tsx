@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 
 import type { Coin } from '../types/coin'
-import { usePumpContract } from './contract'
+import { useContract } from './useContract'
 
 export function useGetCoins() {
   const [loading, setLoading] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
-  const { contract, error: contractError } = usePumpContract()
+  const { contract, error: contractError } = useContract()
 
   const fetchCoins = async (): Promise<Coin[]> => {
     if (!contract) {
