@@ -26,7 +26,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   const { contract } = usePumpContract()
 
   const [loadingEthIn, setLoadingEthIn] = useState(false)
-  const [ethIn, setEthIn] = useState<bigint | null>(null)
+  const [weiIn, setWeiIn] = useState<bigint | null>(null)
 
   const handleBuy = async () => {
     setError(null)
@@ -83,8 +83,8 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
     setLoadingEthIn(true)
 
     // @ts-expect-error: it gives back a bigint
-    const weiIn: bigint = await contract.read.getWeiIn([coin.id])
-    setEthIn(BigInt(formatEther(weiIn, 'wei')))
+    const weisBought: bigint = await contract.read.getWeiIn([coin.id])
+    setWeiIn(weisBought)
 
     setLoadingEthIn(false)
   }
@@ -131,8 +131,10 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
         </div>
       </div>
       {/* Right panel: BUY section */}
-      {ethIn !== null ? (
-        <div className="text-green-600 font-bold">{ethIn.toString()} ETH</div>
+      {weiIn !== null ? (
+        <div className="text-green-600 font-bold">
+          {formatEther(weiIn, 'wei')} ETH
+        </div>
       ) : loadingEthIn ? (
         <div className="text-gray-500 text-sm">Waiting...</div>
       ) : (

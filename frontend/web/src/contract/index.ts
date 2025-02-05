@@ -16,7 +16,7 @@ const loadContractData = async (
   }
 
   // Construct the file path
-  const configPath = `./public/chains/${chainId}.json`
+  const configPath = `/chains/${chainId}.json`
 
   try {
     const response = await fetch(configPath)

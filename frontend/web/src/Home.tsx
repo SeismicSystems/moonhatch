@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { useShieldedWallet } from 'seismic-react'
 
 import Coins from './pages/Coins'
 import NavBar from './pages/NavBar'
@@ -8,18 +7,18 @@ import type { Coin } from './types/coin'
 
 const Home: React.FC = () => {
   const [coins, setCoins] = useState<Coin[]>([])
-  const { publicClient } = useShieldedWallet()
-  const { getCoins } = useCoins()
+  const { loaded, getCoins } = useCoins()
 
   useEffect(
     () => {
-      if (!publicClient) {
+      if (!loaded) {
+        console.log('no public client')
         return
       }
       getCoins().then((c) => setCoins(c))
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [publicClient]
+    [loaded]
   )
 
   return (

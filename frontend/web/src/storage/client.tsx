@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Hex } from 'viem'
 
 import { usePumpContract } from '../contract'
@@ -6,6 +6,7 @@ import type { Coin } from '../types/coin'
 
 export function useCoins() {
   const [loading, setLoading] = useState(false)
+  const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
   const { contract, error: contractError } = usePumpContract()
@@ -50,6 +51,13 @@ export function useCoins() {
     return Promise.all(fetchPromises)
   }
 
+  useEffect(() => {
+    if (!contract) {
+      return
+    }
+    setLoaded(true)
+  }, [contract])
+
   const getCoins = async (): Promise<Coin[]> => {
     setLoading(true)
     setError(null)
@@ -67,6 +75,7 @@ export function useCoins() {
 
   return {
     getCoins,
+    loaded,
     loading,
     error,
   }
