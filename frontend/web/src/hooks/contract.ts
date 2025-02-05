@@ -15,7 +15,7 @@ const loadContractData = async (
     throw new Error('loadContractData failed: chainId not set')
   }
 
-  // Construct the file path
+  // Construct the file path (vite makes this load from /public directory)
   const configPath = `/chains/${chainId}.json`
 
   try {

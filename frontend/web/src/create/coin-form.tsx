@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
 import { hexToNumber } from 'viem'
 
-import { useCreateCoin } from '../storage/client'
+import { useCreateCoin } from '../hooks/client'
 import { CoinFormData } from '../types/coin'
 import { stringifyBigInt } from '../util'
 import ImageUpload from './image-upload'

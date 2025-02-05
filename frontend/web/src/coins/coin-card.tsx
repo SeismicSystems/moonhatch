@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useShieldedWallet } from 'seismic-react'
 import { formatEther, parseEther } from 'viem'
 
-import { usePumpContract } from '../contract'
+import { usePumpContract } from '../hooks/contract'
 import { Coin } from '../types/coin'
 import { formatRelativeTime } from '../util'
 import CoinImage from './coin-image'

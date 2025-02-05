@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Hex } from 'viem'
 
-import { usePumpContract } from '../contract'
 import type { Coin } from '../types/coin'
+import { usePumpContract } from './contract'
 
 export function useCoins() {
   const [loading, setLoading] = useState(false)

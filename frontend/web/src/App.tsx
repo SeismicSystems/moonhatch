@@ -5,9 +5,9 @@ import { sanvil } from 'seismic-react'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 
 import './App.css'
-import Home from './Home'
-import { Providers } from './Providers'
 import CoinForm from './create/coin-form'
+import { Providers } from './hooks/Providers'
+import Home from './pages/Home'
 import NotFound from './pages/NotFound'
 
 const config = getDefaultConfig({

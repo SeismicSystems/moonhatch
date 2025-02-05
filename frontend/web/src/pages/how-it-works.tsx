@@ -9,7 +9,7 @@ import {
   TransitionChild,
 } from '@headlessui/react'
 
-import { usePersistentState } from './storage/persistent-state'
+import { usePersistentState } from '../storage/persistent-state'
 
 const Step: React.FC<React.PropsWithChildren<{ number: number }>> = ({
   number,

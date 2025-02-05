@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import '@rainbow-me/rainbowkit/styles.css'
 
-import HowItWorks from '../how-it-works'
 import { usePersistentState } from '../storage/persistent-state'
+import HowItWorks from './how-it-works'
 
 const NavBar: React.FC = () => {
   const navigate = useNavigate()
