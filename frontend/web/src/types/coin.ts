@@ -8,6 +8,7 @@ export type CreateCoinParams = {
 
 export type OnChainCoin = CreateCoinParams & {
   contractAddress: Hex
+  graduated: boolean
 }
 
 export type CoinFormData = {
@@ -24,5 +25,6 @@ export type Coin = {
   id: number
   createdAt: number
   imageUrl?: string
+  graduated: boolean
 } & OnChainCoin &
   Omit<CoinFormData, 'image' | keyof OnChainCoin>

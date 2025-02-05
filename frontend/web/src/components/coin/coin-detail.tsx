@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom'
 
 import { useGetCoins } from '@/hooks/useGetCoins'
 import type { Coin } from '@/types/coin'
-import CoinCard from '@components/coin/coin-card'
 
 const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
@@ -37,6 +36,9 @@ const CoinDetail: React.FC = () => {
         created-at - {coin.createdAt.toString()}
       </div>
       <div className="coin-supply">supply - {coin.supply.toString()}</div>
+      <div className="coin-graduated">
+        graduated - {coin.graduated.toString()}
+      </div>
       {/* <div className="coin-image">image - {coin.image.toString()}</div> */}
       {/* {coin.name}
       {coin.name}

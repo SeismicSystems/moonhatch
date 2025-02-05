@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import type { Coin } from '../types/coin'
+import { OnChainCoin } from '../types/coin'
 import { useContract } from './useContract'
 
 export function useGetCoins() {
@@ -30,21 +31,26 @@ export function useGetCoins() {
     const fetchPromises = Array.from(
       { length: Number(maxCoinId) },
       (_, index) =>
-        contract.tread
-          .getCoin([BigInt(index)])
-          // @ts-expect-error: This is the actual type returned from call
-          .then(({ name, symbol, supply, contractAddress }: OnChainCoin) => {
-            return {
-              id: index,
-              name,
-              symbol,
-              supply,
-              contractAddress,
-              // TODO: fetch rest from server
-              createdAt: 1738336436,
-              description: '',
-            } as Coin
-          })
+        Promise.all([
+          // Assert the return type to Promise<OnChainCoin>
+          contract.tread.getCoin([BigInt(index)]) as Promise<OnChainCoin>,
+          // Assert the return type to Promise<boolean>
+          contract.tread.isGraduated([BigInt(index)]) as Promise<boolean>,
+        ]).then(([coinData, graduated]) => {
+          // Now coinData is typed as OnChainCoin and graduated as boolean
+          const { name, symbol, supply, contractAddress } = coinData
+          return {
+            id: index,
+            name,
+            symbol,
+            supply,
+            contractAddress,
+            graduated,
+            // Hardcoded values for now
+            createdAt: 1738336436,
+            description: '',
+          } as Coin
+        })
     )
 
     return Promise.all(fetchPromises)
