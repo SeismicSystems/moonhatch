@@ -52,7 +52,7 @@ library SafeSRC20 {
      * that has a non-zero temporary allowance (for that particular owner-spender) will result in unexpected behavior.
      */
     function safeIncreaseAllowance(ISRC20 token, saddress spender, suint256 value) internal {
-        suint256 oldAllowance = suint256(token.allowance(saddress(this), spender));
+        suint256 oldAllowance = suint256(token.allowance(spender));
         forceApprove(token, spender, oldAllowance + value);
     }
 
@@ -67,7 +67,7 @@ library SafeSRC20 {
      */
     function safeDecreaseAllowance(ISRC20 token, saddress spender, suint256 requestedDecrease) internal {
         unchecked {
-            suint256 currentAllowance = suint256(token.allowance(saddress(this), spender));
+            suint256 currentAllowance = suint256(token.allowance(spender));
             if (currentAllowance < requestedDecrease) {
                 revert SafeERC20FailedDecreaseAllowance(); // spender, currentAllowance, requestedDecrease);
             }
