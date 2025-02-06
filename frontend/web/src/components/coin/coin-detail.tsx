@@ -79,6 +79,24 @@ const CoinDetail: React.FC = () => {
     }
   }
 
+  const refreshWeiIn = async () => {
+    if (!walletClient || !contract || !coin) return
+    if (loadingEthIn) return
+    setLoadingEthIn(true)
+    try {
+      const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id.toString()}`
+      // Force a blockchain call to refresh the value (which might trigger MetaMask)
+      const weisBought = (await contract.read.getWeiIn([coin.id])) as bigint
+      // Update local storage with the fresh value
+      localStorage.setItem(localStorageKey, weisBought.toString())
+      console.log('Refreshed wei from blockchain:', weisBought.toString())
+      setWeiIn(weisBought)
+    } catch (err) {
+      console.error('Error refreshing weiIn:', err)
+    } finally {
+      setLoadingEthIn(false)
+    }
+  }
   // Trade handlers (placeholders)
   // For non-graduated coins: current buy functionality.
   const handleBuy = () => {
@@ -141,18 +159,29 @@ const CoinDetail: React.FC = () => {
             // For non-graduated coins, show ETH balance if available or a button to view it
             <>
               {weiIn !== null ? (
-                <div className="text-green-600 font-bold">0 ETH</div>
+                <div className="text-green-600 font-bold">
+                  {formatEther(weiIn)}
+                </div>
               ) : loadingEthIn ? (
                 <div className="text-gray-500 text-sm">Waiting...</div>
               ) : (
-                <button
-                  //   onClick={viewEthIn}
-                  onClick={viewEthIn}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  View ETH
-                </button>
+                <>
+                  <button
+                    //   onClick={viewEthIn}
+                    onClick={viewEthIn}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    View ETH
+                  </button>
+                  <p>Wei In: {weiIn !== null ? formatEther(weiIn) : 'N/A'}</p>
+                </>
               )}
+              <button
+                onClick={refreshWeiIn}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Refresh WeiIn
+              </button>
             </>
           )}
         </Box>
