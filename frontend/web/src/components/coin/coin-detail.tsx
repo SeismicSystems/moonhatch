@@ -12,7 +12,11 @@ const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
 
 const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
+<<<<<<< HEAD
   const { fetchCoin, loaded, loading, error } = useFetchCoin()
+=======
+  const { fetchCoins, loaded, loading, error } = useFetchCoin()
+>>>>>>> 8585af0643bb2d9ad4ef397041b34a1101efe302
   const { publicClient, walletClient } = useShieldedWallet()
   const { contract } = useContract()
 
@@ -23,7 +27,11 @@ const CoinDetail: React.FC = () => {
   const [isBuying, setIsBuying] = useState(false)
   const [buyError, setBuyError] = useState<string | null>(null)
 
+<<<<<<< HEAD
   // Modal state for purchase warnings
+=======
+  // Modal state for ETH purchase limit warning
+>>>>>>> 8585af0643bb2d9ad4ef397041b34a1101efe302
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
 
@@ -222,7 +230,7 @@ const CoinDetail: React.FC = () => {
             type="text"
             value={buyAmount}
             onChange={(e) => setBuyAmount(e.target.value)}
-            placeholder="Enter amount"
+            placeholder="Enter amount (max 1 ETH)"
             className="border border-gray-300 p-2 rounded mb-2"
           />
           {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
@@ -235,7 +243,7 @@ const CoinDetail: React.FC = () => {
         </div>
       )}
 
-      {/* Modal for warnings */}
+      {/* Modal for ETH Limit Warning */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
         <Box className="p-4 bg-white border rounded shadow-lg text-center">
           <h2 className="text-lg font-bold">Warning</h2>
