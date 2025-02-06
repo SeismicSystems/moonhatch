@@ -7,7 +7,7 @@ import { WETH9 } from "../src/dex/mocks/WETH9.sol";
 import { UniswapV2Factory } from "../src/dex/UniswapV2Factory.sol";
 import { UniswapV2Router02 } from "../src/dex/UniswapV2Router02.sol";
 
-contract PumpRandScript is Script {
+contract SushiSwapScript is Script {
     // PumpRand public pump;
     WETH9 public weth9;
     UniswapV2Factory public factory;
