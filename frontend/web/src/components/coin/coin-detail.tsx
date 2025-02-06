@@ -12,11 +12,7 @@ const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
 
 const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
-<<<<<<< HEAD
   const { fetchCoin, loaded, loading, error } = useFetchCoin()
-=======
-  const { fetchCoins, loaded, loading, error } = useFetchCoin()
->>>>>>> 8585af0643bb2d9ad4ef397041b34a1101efe302
   const { publicClient, walletClient } = useShieldedWallet()
   const { contract } = useContract()
 
@@ -27,11 +23,7 @@ const CoinDetail: React.FC = () => {
   const [isBuying, setIsBuying] = useState(false)
   const [buyError, setBuyError] = useState<string | null>(null)
 
-<<<<<<< HEAD
   // Modal state for purchase warnings
-=======
-  // Modal state for ETH purchase limit warning
->>>>>>> 8585af0643bb2d9ad4ef397041b34a1101efe302
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
 
