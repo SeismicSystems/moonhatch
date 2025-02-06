@@ -6,6 +6,7 @@ import { formatEther } from 'viem'
 
 import { useContract } from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
+import { UseWeiIn } from '@/hooks/useWeiIn'
 import type { Coin } from '@/types/coin'
 import { Box } from '@mui/material'
 
@@ -13,13 +14,20 @@ const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
   const { fetchCoins, loaded, loading, error } = useFetchCoin()
   const [coin, setCoin] = useState<Coin | null>(null)
-
   // State for ETH in value (wei)
   const [loadingEthIn, setLoadingEthIn] = useState(false)
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
 
   const { publicClient, walletClient } = useShieldedWallet()
   const { contract } = useContract()
+  const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
+
+  useEffect(() => {
+    const cachedWeiIn = localStorage.getItem(`weiIn-${coinId}`)
+    if (cachedWeiIn) {
+      setWeiIn(BigInt(cachedWeiIn))
+    }
+  }, [coinId])
 
   useEffect(() => {
     // Wait until the contract is loaded
@@ -44,11 +52,28 @@ const CoinDetail: React.FC = () => {
     if (loadingEthIn) return
     setLoadingEthIn(true)
     try {
-      // Assuming contract.read.getWeiIn returns a bigint
-      const weisBought: bigint = await contract.read.getWeiIn([coin.id])
-      setWeiIn(weisBought)
+      const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id.toString()}`
+      const cachedWei = localStorage.getItem(localStorageKey)
+
+      if (cachedWei) {
+        // Use the cached value if it exists.
+        console.log('Using cachedWei:', cachedWei)
+        setWeiIn(BigInt(cachedWei))
+      } else {
+        // If there's no cached value, set a temporary placeholder.
+
+        // Now fetch the actual value from the blockchain.
+        const weisBought = (await contract.read.getWeiIn([coin.id])) as bigint
+
+        // Store the fresh value in local storage.
+        localStorage.setItem(localStorageKey, weisBought.toString())
+        console.log('Fetched from blockchain:', weisBought.toString())
+        setWeiIn(weisBought)
+      }
     } catch (err) {
       console.error('Error fetching ethIn:', err)
+      // On error, fall back to the placeholder.
+      setWeiIn(BigInt(5))
     } finally {
       setLoadingEthIn(false)
     }
@@ -121,6 +146,7 @@ const CoinDetail: React.FC = () => {
                 <div className="text-gray-500 text-sm">Waiting...</div>
               ) : (
                 <button
+                  //   onClick={viewEthIn}
                   onClick={viewEthIn}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 >
