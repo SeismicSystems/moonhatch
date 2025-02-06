@@ -12,7 +12,7 @@ const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
 
 const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
-  const { fetchCoins, loaded, loading, error } = useFetchCoin()
+  const { fetchCoin, loaded, loading, error } = useFetchCoin()
   const { publicClient, walletClient } = useShieldedWallet()
   const { contract } = useContract()
 
@@ -23,7 +23,7 @@ const CoinDetail: React.FC = () => {
   const [isBuying, setIsBuying] = useState(false)
   const [buyError, setBuyError] = useState<string | null>(null)
 
-  // Modal state for ETH purchase limit warning
+  // Modal state for purchase warnings
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
 
@@ -38,16 +38,13 @@ const CoinDetail: React.FC = () => {
   }, [coinId])
 
   /**
-   * Fetch coin details when component loads.
+   * Fetch single coin data instead of fetching all coins.
    */
   useEffect(() => {
-    if (!loaded) return
-    fetchCoins()
-      .then((coins) => {
-        const id = Number(coinId)
-        setCoin(coins.find((c) => c.id === BigInt(id)) || null)
-      })
-      .catch((err) => console.error('Error fetching coins:', err))
+    if (!loaded || !coinId) return
+    fetchCoin(BigInt(coinId))
+      .then((foundCoin) => setCoin(foundCoin || null))
+      .catch((err) => console.error('Error fetching coin:', err))
   }, [loaded, coinId])
 
   /**
@@ -70,7 +67,7 @@ const CoinDetail: React.FC = () => {
       }
     } catch (err) {
       console.error('Error fetching ethIn:', err)
-      setWeiIn(BigInt(5)) // Fallback value
+      setWeiIn(null) // Changed from 5 to null
     } finally {
       setLoadingEthIn(false)
     }
@@ -113,9 +110,11 @@ const CoinDetail: React.FC = () => {
     const existingWei = localStorage.getItem(localStorageKey)
     const existingWeiBigInt = existingWei ? BigInt(existingWei) : BigInt(0)
 
-    // 🚨 Prevent users from buying more than 1 ETH in total.
-    if (amountInWei > maxWei || existingWeiBigInt + amountInWei > maxWei) {
-      setModalMessage('You cannot buy more than 1 ETH in total.')
+    // 🚨 Check isGraduated instead of enforcing a strict 1 ETH limit
+    if (coin.graduated) {
+      setModalMessage(
+        'This coin has graduated. Purchases are no longer allowed.'
+      )
       setModalOpen(true)
       return
     }
@@ -144,7 +143,9 @@ const CoinDetail: React.FC = () => {
       setBuyAmount('') // Clear input after success
     } catch (err) {
       console.error('❌ Transaction Failed:', err)
-      setBuyError(`Transaction failed: ${err.message || 'Unknown error'}`)
+      setBuyError(
+        `Transaction failed: ${err instanceof Error ? err.message : 'Unknown error'}`
+      )
     } finally {
       setIsBuying(false)
     }
