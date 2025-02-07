@@ -1,5 +1,4 @@
 {
-  "address": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
   "methodIdentifiers": {
     "WEI_GRADUATION()": "cc67b0e8",
     "buy(uint32)": "7db5bd52",
@@ -9,6 +8,7 @@
     "deployer()": "d5f39488",
     "getCoin(uint32)": "3e0a6fb0",
     "getCoinContract(uint32)": "6d73402f",
+    "getCoinData(uint32)": "88558e31",
     "getWeiIn(uint32)": "bb056e73",
     "graduated(uint32)": "4974faf0",
     "isGraduated(uint32)": "83e6ad52",
@@ -182,6 +182,52 @@
           "name": "",
           "type": "address",
           "internalType": "contract IPumpCoin"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getCoinData",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "coin",
+          "type": "tuple",
+          "internalType": "struct Coin",
+          "components": [
+            {
+              "name": "name",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "symbol",
+              "type": "string",
+              "internalType": "string"
+            },
+            {
+              "name": "supply",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "contractAddress",
+              "type": "address",
+              "internalType": "address"
+            }
+          ]
+        },
+        {
+          "name": "graduatedStatus",
+          "type": "bool",
+          "internalType": "bool"
         }
       ],
       "stateMutability": "view"
