@@ -6,7 +6,9 @@ import { formatEther, parseEther } from 'viem'
 import { useContract } from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
-import { Box, Modal } from '@mui/material'
+
+import CoinInfoDetails from '../coin-detail/coin-info-details'
+import TradeSection from '../coin-detail/trade-section'
 
 const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
 
@@ -27,9 +29,6 @@ const CoinDetail: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
 
-  /**
-   * Load cached balance from local storage when component mounts.
-   */
   useEffect(() => {
     const cachedWei = localStorage.getItem(
       `${LOCAL_STORAGE_KEY_PREFIX}${coinId}`
@@ -37,9 +36,6 @@ const CoinDetail: React.FC = () => {
     if (cachedWei) setWeiIn(BigInt(cachedWei))
   }, [coinId])
 
-  /**
-   * Fetch single coin data instead of fetching all coins.
-   */
   useEffect(() => {
     if (!loaded || !coinId) return
     fetchCoin(BigInt(coinId))
@@ -73,9 +69,6 @@ const CoinDetail: React.FC = () => {
     }
   }
 
-  /**
-   * Refresh balance by fetching the latest value from blockchain.
-   */
   const refreshWeiIn = async () => {
     if (!walletClient || !contract || !coin || loadingEthIn) return
 
@@ -93,9 +86,6 @@ const CoinDetail: React.FC = () => {
     }
   }
 
-  /**
-   * Handle Buy Transaction with ETH purchase limit enforcement.
-   */
   const handleBuy = async () => {
     setBuyError(null)
 
@@ -111,7 +101,8 @@ const CoinDetail: React.FC = () => {
     const existingWeiBigInt = existingWei ? BigInt(existingWei) : BigInt(0)
 
     // 🚨 Check isGraduated instead of enforcing a strict 1 ETH limit
-    if (coin.graduated) {
+    // Left > maxWei for now but eventually will want this to only check if graduated
+    if (coin.graduated || amountInWei + existingWeiBigInt > maxWei) {
       setModalMessage(
         'This coin has graduated. Purchases are no longer allowed.'
       )
@@ -156,98 +147,22 @@ const CoinDetail: React.FC = () => {
   if (!coin) return <div>Coin not found.</div>
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      {/* Display coin details */}
-      <div className="coin-name">name - {coin.name}</div>
-      <div className="coin-ticker">ticker - {coin.symbol}</div>
-      <div className="coin-address">
-        address - {coin.contractAddress.toString()}
-      </div>
-      <div className="coin-created-at">
-        created-at - {coin.createdAt.toString()}
-      </div>
-      <div className="coin-supply">supply - {coin.supply.toString()}</div>
-      <div className="coin-graduated">graduated - {coin.graduated}</div>
-      <div className="coin-image">
-        <img
-          src="https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png"
-          alt="Coin Logo"
-        />
-      </div>
-
-      {/* View Balance Section */}
-      <Box
-        height="100px"
-        width="100px"
-        sx={{ background: 'black', p: 1, mt: 2 }}
-      >
-        <div className="text-white">VIEW BALANCE</div>
-        {coin.graduated ? (
-          <button
-            className="text-white"
-            onClick={() => console.log('View Balance (0)')}
-          >
-            View Balance (0)
-          </button>
-        ) : (
-          <>
-            {weiIn !== null ? (
-              <div className="text-green-600 font-bold">
-                {formatEther(weiIn)}
-              </div>
-            ) : loadingEthIn ? (
-              <div className="text-gray-500 text-sm">Waiting...</div>
-            ) : (
-              <button
-                className="bg-blue-600 text-white py-2 px-4 rounded"
-                onClick={viewEthIn}
-              >
-                View ETH
-              </button>
-            )}
-            <button
-              className="bg-blue-600 text-white py-2 px-4 rounded"
-              onClick={refreshWeiIn}
-            >
-              Refresh WeiIn
-            </button>
-          </>
-        )}
-      </Box>
-
-      {/* Buy Section */}
-      {!coin.graduated && (
-        <div className="trade my-4">
-          <input
-            type="text"
-            value={buyAmount}
-            onChange={(e) => setBuyAmount(e.target.value)}
-            placeholder="Enter amount (max 1 ETH)"
-            className="border border-gray-300 p-2 rounded mb-2"
-          />
-          {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
-          <button
-            className="bg-green-500 text-white px-4 py-2 rounded"
-            onClick={handleBuy}
-          >
-            Buy
-          </button>
-        </div>
-      )}
-
-      {/* Modal for ETH Limit Warning */}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <Box className="p-4 bg-white border rounded shadow-lg text-center">
-          <h2 className="text-lg font-bold">Warning</h2>
-          <p>{modalMessage}</p>
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
-            onClick={() => setModalOpen(false)}
-          >
-            OK
-          </button>
-        </Box>
-      </Modal>
+    <div className="page-container">
+      <CoinInfoDetails coin={coin} />
+      <TradeSection
+        coin={{ ...coin, id: coin.id }}
+        weiIn={weiIn}
+        loadingEthIn={loadingEthIn}
+        viewEthIn={viewEthIn}
+        refreshWeiIn={refreshWeiIn}
+        buyAmount={buyAmount}
+        setBuyAmount={setBuyAmount}
+        buyError={buyError}
+        handleBuy={handleBuy}
+        modalOpen={modalOpen}
+        modalMessage={modalMessage}
+        setModalOpen={setModalOpen}
+      />
     </div>
   )
 }
