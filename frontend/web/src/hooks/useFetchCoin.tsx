@@ -10,6 +10,33 @@ export function useFetchCoin() {
 
   const { contract, error: contractError } = useContract()
 
+  // const fetchCoin = async (coinId: bigint): Promise<Coin> => {
+  //   if (!contract) {
+  //     if (contractError) {
+  //       throw new Error(`Error loading contract: ${contractError}`)
+  //     } else {
+  //       throw new Error(`Contract not yet loaded`)
+  //     }
+  //   }
+  //   return (
+  //     contract.tread
+  //       .getCoin([coinId])
+  //       // @ts-expect-error: This is the actual type returned from call
+  //       .then(({ name, symbol, supply, contractAddress }: OnChainCoin) => {
+  //         return {
+  //           id: coinId,
+  //           name,
+  //           symbol,
+  //           supply,
+  //           contractAddress,
+  //           // TODO: fetch rest from server
+  //           createdAt: 1738336436,
+  //           description: '',
+  //         } as Coin
+  //       })
+  //   )
+  // }
+
   const fetchCoin = async (coinId: bigint): Promise<Coin> => {
     if (!contract) {
       if (contractError) {
@@ -18,23 +45,21 @@ export function useFetchCoin() {
         throw new Error(`Contract not yet loaded`)
       }
     }
-    return (
-      contract.tread
-        .getCoin([coinId])
-        // @ts-expect-error: This is the actual type returned from call
-        .then(({ name, symbol, supply, contractAddress }: OnChainCoin) => {
-          return {
-            id: coinId,
-            name,
-            symbol,
-            supply,
-            contractAddress,
-            // TODO: fetch rest from server
-            createdAt: 1738336436,
-            description: '',
-          } as Coin
-        })
-    )
+
+    // Call the composite getter, which returns a tuple: [Coin struct, graduation status]
+    return contract.tread.getCoinData([coinId]).then((result) => {
+      const [coinData, graduated] = result as [OnChainCoin, boolean]
+      return {
+        id: coinId,
+        name: coinData.name,
+        symbol: coinData.symbol,
+        supply: coinData.supply,
+        contractAddress: coinData.contractAddress,
+        graduated, // include the graduation status
+        createdAt: 1738336436, // Update this as needed
+        description: '',
+      } as Coin
+    })
   }
 
   const fetchCoinsCreated = async (): Promise<bigint> => {

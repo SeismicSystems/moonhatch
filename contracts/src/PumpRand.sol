@@ -80,6 +80,11 @@ contract PumpRand {
         return pc;
     }
 
+    function getCoinData(uint32 coinId) external view returns (Coin memory coin, bool graduatedStatus) {
+    coin = getCoin(coinId);
+    graduatedStatus = graduated[coinId];
+    }
+
     /**
     Fairness constraint:
     basePrice = coin.supply / WEI_GRADUATION

@@ -60,7 +60,7 @@ export default function TradeSection({
             className="text-white"
             onClick={() => console.log('View Balance (0)')}
           >
-            View Balance (0)
+            View Balance ({weiIn ? formatEther(weiIn) : 0})
           </button>
         ) : (
           <>
