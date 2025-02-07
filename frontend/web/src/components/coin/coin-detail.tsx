@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
 import { formatEther, parseEther } from 'viem'
-
 import { useContract } from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
@@ -134,6 +133,9 @@ const CoinDetail: React.FC = () => {
       setBuyAmount('') // Clear input after success
     } catch (err) {
       console.error('❌ Transaction Failed:', err)
+      setBuyError(
+        `Transaction failed: ${err instanceof Error ? err.message : 'Unknown error'}`
+      )
       setBuyError(
         `Transaction failed: ${err instanceof Error ? err.message : 'Unknown error'}`
       )

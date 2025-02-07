@@ -47,20 +47,19 @@ export function useFetchCoin() {
     }
 
     // Call the composite getter, which returns a tuple: [Coin struct, graduation status]
-    return contract.tread
-      .getCoinData([coinId])
-      .then(([coinData, graduated]: [OnChainCoin, boolean]) => {
-        return {
-          id: coinId,
-          name: coinData.name,
-          symbol: coinData.symbol,
-          supply: coinData.supply,
-          contractAddress: coinData.contractAddress,
-          graduated, // include the graduation status
-          createdAt: 1738336436, // Update this as needed
-          description: '',
-        } as Coin
-      })
+    return contract.tread.getCoinData([coinId]).then((result) => {
+      const [coinData, graduated] = result as [OnChainCoin, boolean]
+      return {
+        id: coinId,
+        name: coinData.name,
+        symbol: coinData.symbol,
+        supply: coinData.supply,
+        contractAddress: coinData.contractAddress,
+        graduated, // include the graduation status
+        createdAt: 1738336436, // Update this as needed
+        description: '',
+      } as Coin
+    })
   }
 
   const fetchCoinsCreated = async (): Promise<bigint> => {

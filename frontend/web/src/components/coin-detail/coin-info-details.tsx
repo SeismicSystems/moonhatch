@@ -23,7 +23,9 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
         created-at - {coin.createdAt.toString()}
       </div>
       <div className="coin-supply">supply - {coin.supply.toString()}</div>
-      <div className="coin-graduated">graduated - {coin.graduated}</div>
+      <div className="coin-graduated">
+        graduated - {coin.graduated.toString()}
+      </div>
       <div className="coin-image">
         <img
           src="https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png"
