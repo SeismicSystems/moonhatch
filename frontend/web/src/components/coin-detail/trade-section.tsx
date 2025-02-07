@@ -2,13 +2,10 @@ import { formatEther } from 'viem'
 
 import { Box, Modal } from '@mui/material'
 
-interface TradeSectionCoin {
-  id: string | number
-  graduated: boolean
-}
+import { Coin } from '../../types/coin'
 
 interface TradeSectionProps {
-  coin: TradeSectionCoin
+  coin: Pick<Coin, 'id' | 'graduated'>
   weiIn: bigint | null
   loadingEthIn: boolean
   viewEthIn: () => void
@@ -52,7 +49,6 @@ export default function TradeSection({
   )
   return (
     <>
-      {/* View Balance Section */}
       <Box
         height="100px"
         width="100px"
@@ -91,7 +87,7 @@ export default function TradeSection({
           </>
         )}
       </Box>
-      {/* Buy Section */}
+
       {!coin.graduated && (
         <div className="trade my-4">
           <input
@@ -110,7 +106,6 @@ export default function TradeSection({
           </button>
         </div>
       )}
-      {/* Modal for ETH Limit Warning */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
         <Box className="p-4 bg-white border rounded shadow-lg text-center">
           <h2 className="text-lg font-bold">Warning</h2>

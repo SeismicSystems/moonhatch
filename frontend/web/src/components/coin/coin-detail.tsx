@@ -6,7 +6,6 @@ import { formatEther, parseEther } from 'viem'
 import { useContract } from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
-import { Box, Modal } from '@mui/material'
 
 import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
@@ -30,9 +29,6 @@ const CoinDetail: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
 
-  /**
-   * Load cached balance from local storage when component mounts.
-   */
   useEffect(() => {
     const cachedWei = localStorage.getItem(
       `${LOCAL_STORAGE_KEY_PREFIX}${coinId}`
@@ -40,9 +36,6 @@ const CoinDetail: React.FC = () => {
     if (cachedWei) setWeiIn(BigInt(cachedWei))
   }, [coinId])
 
-  /**
-   * Fetch single coin data instead of fetching all coins.
-   */
   useEffect(() => {
     if (!loaded || !coinId) return
     fetchCoin(BigInt(coinId))
@@ -76,9 +69,6 @@ const CoinDetail: React.FC = () => {
     }
   }
 
-  /**
-   * Refresh balance by fetching the latest value from blockchain.
-   */
   const refreshWeiIn = async () => {
     if (!walletClient || !contract || !coin || loadingEthIn) return
 
@@ -96,9 +86,6 @@ const CoinDetail: React.FC = () => {
     }
   }
 
-  /**
-   * Handle Buy Transaction with ETH purchase limit enforcement.
-   */
   const handleBuy = async () => {
     setBuyError(null)
 
@@ -163,7 +150,7 @@ const CoinDetail: React.FC = () => {
     <div className="page-container">
       <CoinInfoDetails coin={coin} />
       <TradeSection
-        coin={{ ...coin, id: coin.id.toString() }}
+        coin={{ ...coin, id: coin.id }}
         weiIn={weiIn}
         loadingEthIn={loadingEthIn}
         viewEthIn={viewEthIn}

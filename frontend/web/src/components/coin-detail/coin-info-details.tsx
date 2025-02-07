@@ -14,7 +14,6 @@ interface CoinInfoDetailsProps {
 const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
   return (
     <>
-      {/* Display coin details */}
       <div className="coin-name">name - {coin.name}</div>
       <div className="coin-ticker">ticker - {coin.symbol}</div>
       <div className="coin-address">
