@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
-import { parseEther } from 'viem'
+
+import { formatEther, parseEther } from 'viem'
 
 import { useContract } from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
