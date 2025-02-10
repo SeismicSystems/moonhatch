@@ -52,3 +52,9 @@ Start local development server:
 ```sh
 bun web:dev
 ```
+
+Start backend:
+
+```sh
+cargo run --bin pump-rand-server
+```
