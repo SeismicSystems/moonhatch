@@ -8,6 +8,7 @@ struct Coin {
     string symbol;
     uint256 supply;
     address contractAddress;
+    address creator;    
     // TODO: add decimals?
     // uint8 decimals;
 }
