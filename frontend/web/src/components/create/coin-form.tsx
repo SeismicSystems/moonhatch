@@ -32,6 +32,35 @@ const CoinForm: React.FC = () => {
   const { createCoin } = useCreateCoin()
   const { publicClient } = useShieldedWallet()
 
+  const uploadImage = async (coinId: number): Promise<string | null> => {
+    if (!formData.image) {
+      return null
+    }
+    const body = new FormData()
+    body.append('file', formData.image)
+
+    // Send a POST request to the backend
+    return fetch(`http://127.0.0.1:3000/coin/${coinId}`, {
+      method: 'POST',
+      body,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Upload failed with status ${response.status}`)
+        }
+        // Assuming the backend returns the URL as plain text.
+        return response.text()
+      })
+      .then((publicUrl) => {
+        console.log('Uploaded image is available at:', publicUrl)
+        return publicUrl
+      })
+      .catch((error) => {
+        console.error('Error uploading image:', error)
+        return null
+      })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!publicClient) {
@@ -50,7 +79,7 @@ const CoinForm: React.FC = () => {
     console.log(JSON.stringify(receipt, stringifyBigInt, 2))
     const coinId = hexToNumber(receipt.logs[0].data)
     console.info(`Created coinId=${coinId}`)
-    // TODO: post rest of form to server
+    await uploadImage(coinId)
 
     // Show the success popup
     setSuccessOpen(true)
