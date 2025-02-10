@@ -58,6 +58,7 @@ export function useFetchCoin() {
         graduated, // include the graduation status
         createdAt: 1738336436, // Update this as needed
         description: '',
+        creator: coinData.creator,
       } as Coin
     })
   }

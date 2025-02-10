@@ -8,6 +8,7 @@ interface CoinInfoDetailsProps {
     createdAt: { toString: () => string }
     supply: { toString: () => string }
     graduated: boolean
+    creator: { toString: () => string }
   }
 }
 
@@ -15,9 +16,12 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
   return (
     <>
       <div className="coin-name">name - {coin.name}</div>
+      <div className="coin-creator">
+        creator - {coin.creator?.toString() || 'N/A'}
+      </div>
       <div className="coin-ticker">ticker - {coin.symbol}</div>
       <div className="coin-address">
-        address - {coin.contractAddress.toString()}
+        address - {coin.contractAddress?.toString() || 'N/A'}
       </div>
       <div className="coin-created-at">
         created-at - {coin.createdAt.toString()}
