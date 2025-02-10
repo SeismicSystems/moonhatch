@@ -2,6 +2,7 @@ import React from 'react'
 
 interface CoinInfoDetailsProps {
   coin: {
+    id: bigint
     name: string
     symbol: string
     contractAddress: { toString: () => string }
@@ -28,7 +29,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
       </div>
       <div className="coin-image">
         <img
-          src="https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png"
+          src={`https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id}`}
           alt="Coin Logo"
         />
       </div>

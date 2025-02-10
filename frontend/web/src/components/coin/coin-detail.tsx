@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
-import { formatEther, parseEther } from 'viem'
+import { parseEther } from 'viem'
 
 import { useContract } from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
@@ -154,7 +154,7 @@ const CoinDetail: React.FC = () => {
 
   return (
     <div className="page-container">
-      <CoinInfoDetails coin={coin} />
+      <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
       <TradeSection
         coin={{ ...coin, id: coin.id }}
         weiIn={weiIn}
