@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
+
 import { formatEther, parseEther } from 'viem'
 
 import { useContract } from '@/hooks/useContract'
@@ -38,6 +39,9 @@ const CoinDetail: React.FC = () => {
 
   useEffect(() => {
     if (!loaded || !coinId) return
+
+    console.log(`coinId = ${coinId}`)
+
     fetchCoin(BigInt(coinId))
       .then((foundCoin) => setCoin(foundCoin || null))
       .catch((err) => console.error('Error fetching coin:', err))
@@ -151,7 +155,7 @@ const CoinDetail: React.FC = () => {
 
   return (
     <div className="page-container">
-      <CoinInfoDetails coin={coin} />
+      <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
       <TradeSection
         coin={{ ...coin, id: coin.id }}
         weiIn={weiIn}

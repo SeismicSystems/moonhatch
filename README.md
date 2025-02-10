@@ -32,7 +32,7 @@ Note: Run all `bun install` commands from root. The only `node_modules/` with yo
 Start `sanvil`, storing blockchain state to a local JSON:
 
 ```sh
-sanvil --state ~/.anvil/pump.json
+mkdir -p ~/.anvil && sanvil --state ~/.anvil
 ```
 
 Copy over the `.env.anvil` to `.env` for deploying to anvil:
@@ -51,4 +51,10 @@ Start local development server:
 
 ```sh
 bun web:dev
+```
+
+Start backend:
+
+```sh
+cargo run --bin pump-rand-server
 ```
