@@ -29,6 +29,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
       </div>
       <div className="coin-image">
         <img
+          // TODO: add fallback (e.g. if they don't have an image saved)
           src={`https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id}`}
           alt="Coin Logo"
         />
