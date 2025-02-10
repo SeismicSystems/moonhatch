@@ -162,6 +162,11 @@
               "name": "contractAddress",
               "type": "address",
               "internalType": "address"
+            },
+            {
+              "name": "creator",
+              "type": "address",
+              "internalType": "address"
             }
           ]
         }
@@ -220,6 +225,11 @@
             },
             {
               "name": "contractAddress",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "creator",
               "type": "address",
               "internalType": "address"
             }

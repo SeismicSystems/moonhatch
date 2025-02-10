@@ -8,6 +8,7 @@ struct Coin {
     string symbol;
     uint256 supply;
     address contractAddress;
+    address creator;    
     // TODO: add decimals?
     // uint8 decimals;
 }
@@ -60,7 +61,7 @@ contract PumpRand {
         }
         PumpCoin pc = new PumpCoin(address(this), name, symbol, 18);
         coinId = coinsCreated;
-        coins[coinId] = Coin(name, symbol, supply, address(pc));
+        coins[coinId] = Coin(name, symbol, supply, address(pc),msg.sender);
         weisIn[coinId] = suint256(0);
         unitsOut[coinId] = suint256(0);
         emit CoinCreated(coinId);
