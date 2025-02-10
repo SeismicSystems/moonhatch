@@ -9,6 +9,7 @@ export type CreateCoinParams = {
 export type OnChainCoin = CreateCoinParams & {
   contractAddress: Hex
   graduated: boolean
+  creator: Hex
 }
 
 export type CoinFormData = {
