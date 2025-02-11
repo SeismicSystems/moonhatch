@@ -1,4 +1,5 @@
 // src/db.rs
+
 use diesel::prelude::*;
 use diesel::result::QueryResult;
 use crate::models::Coin;
@@ -33,11 +34,13 @@ pub fn get_coin_snippet(
 ) -> QueryResult<String> {
     use crate::schema::coins::dsl::*;
     
-    let coin: Coin = coins.filter(id.eq(coin_id)).first(conn)?;
+    // Fetch the coin record.
+    let coin_record: Coin = coins.filter(id.eq(coin_id)).first(conn)?;
     
-    // Get the description (or an empty string if None) and slice it.
-    let desc = coin.description.unwrap_or_default();
-    // Ensure we don't panic if snippet_length is longer than desc.
+    // Extract description (or default to empty string)
+    let desc = coin_record.description.unwrap_or_default();
+    
+    // Return the snippet safely.
     let snippet = if desc.len() > snippet_length {
         desc[..snippet_length].to_string()
     } else {
