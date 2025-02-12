@@ -1,6 +1,8 @@
 // src/main.rs
 use crate::db::create_coin;
 use crate::models::Coin;
+use crate::schema::coins::dsl::{coins, id, verified};
+
 use axum::{
     extract::{Multipart, Path, Query, State},
     http::{HeaderValue, Method, StatusCode},
@@ -29,6 +31,7 @@ pub struct AppState {
     pub db_pool: PgPool,
 }
 
+use diesel::prelude::*;
 use serde::Serialize;
 #[derive(Serialize)]
 struct CoinResponse {
@@ -70,13 +73,28 @@ async fn verify_coin_handler(
                 .into_response()
         }
     };
-    let coin = match db::get_coin(&mut conn, coin_id) {
-        Ok(coin) => coin,
-        Err(e) => {
-            return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response()
-        }
-    };
-    Json(CoinResponse { coin }).into_response()
+
+    // Perform the update operation
+    match diesel::update(coins.filter(id.eq(coin_id)))
+        .set(verified.eq(true))
+        .execute(&mut conn)
+    {
+        Ok(rows_affected) if rows_affected > 0 => (
+            StatusCode::OK,
+            Json(format!("Coin {} verified successfully!", coin_id)),
+        )
+            .into_response(),
+        Ok(_) => (
+            StatusCode::NOT_FOUND,
+            format!("Coin with id {} not found", coin_id),
+        )
+            .into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Error updating coin: {}", e),
+        )
+            .into_response(),
+    }
 }
 //how to update database to set verified to true
 // call coin/id/verify in postman

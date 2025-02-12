@@ -14,6 +14,7 @@ pub struct Coin {
     pub contract_address: String,
     pub creator: String,
     pub graduated: bool,
+    pub verified: bool,
     pub description: Option<String>,
     pub image_url: Option<String>,
     pub created_at: NaiveDateTime,

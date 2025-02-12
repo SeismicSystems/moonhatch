@@ -11,6 +11,7 @@ diesel::table! {
         #[max_length = 42]
         creator -> Bpchar,
         graduated -> Bool,
+        verified -> Bool,
         description -> Nullable<Text>,
         image_url -> Nullable<Text>,
         created_at -> Timestamp,
