@@ -8,6 +8,7 @@ import { formatEther, parseEther } from 'viem'
 import { useContract } from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
+import LockIcon from '@mui/icons-material/Lock'
 
 import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
@@ -160,10 +161,10 @@ const CoinDetail: React.FC = () => {
         <Link to="/" className="home-button">
           <HomeIcon size={24} color="white" />
         </Link>
-        <h2 className="self-center absolute left-1/2 transform -translate-x-1/2">
+        <h2 className="self-center text-white absolute left-1/2 transform -translate-x-1/2">
           UNPREDICTA-PUMP
         </h2>
-        <div className="wallet-container border px-2">...x324</div>
+        <div className="wallet-container border px-2 text-white">...x324</div>
       </div>
       <div className="page-container w-full max-w-full mx-auto p-4 overflow-x-hidden">
         <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
@@ -181,6 +182,20 @@ const CoinDetail: React.FC = () => {
           modalMessage={modalMessage}
           setModalOpen={setModalOpen}
         />
+      </div>
+      <div className="status-icon-container flex justify-center mt-4">
+        {coin.graduated ? (
+          <div className="chart-container  text-white">CHART</div>
+        ) : (
+          <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
+            <div className="lock-container w-[130px] border-2 border-red-500 rounded-full p-4">
+              <LockIcon
+                className="lock-icon text-red-500 animate-pulse"
+                style={{ fontSize: '96px' }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </>
   )

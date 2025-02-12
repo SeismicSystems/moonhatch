@@ -16,9 +16,8 @@ interface CoinInfoDetailsProps {
 
 const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
   return (
-    <div className=" p-4 flex items-center space-x-4">
-      {/* Left Column: Coin Image */}
-      <div className="w-48 h-48">
+    <div className="left-column p-4 flex items-center justify-center space-x-4">
+      <div className="w-24 h-24">
         <img
           src={`https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`}
           alt="Coin Logo"
@@ -26,8 +25,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
         />
       </div>
 
-      {/* Right Column: Coin Details */}
-      <div className="flex flex-col text-left">
+      <div className="right-column flex flex-col text-left">
         <div className="text-lg font-bold">{coin.name}</div>
         <div className="text-gray-500">$:{coin.symbol}</div>
         <div className="text-gray-600 text-xs">
