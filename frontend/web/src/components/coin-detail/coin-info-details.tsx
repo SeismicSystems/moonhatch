@@ -16,33 +16,29 @@ interface CoinInfoDetailsProps {
 
 const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
   return (
-    <>
-      <div className="border-black border-8">
-        <div className="coin-name">name - {coin.name}</div>
-        <div className="coin-creator">
-          creator - {coin.creator?.toString() || 'N/A'}
+    <div className=" p-4 flex items-center space-x-4">
+      {/* Left Column: Coin Image */}
+      <div className="w-48 h-48">
+        <img
+          src={`https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`}
+          alt="Coin Logo"
+          className="rounded-lg w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Right Column: Coin Details */}
+      <div className="flex flex-col text-left">
+        <div className="text-lg font-bold">{coin.name}</div>
+        <div className="text-gray-500">$:{coin.symbol}</div>
+        <div className="text-gray-600 text-xs">
+          AUTHOR: {coin.creator?.toString().slice(0, 4)}...
+          {coin.creator?.toString().slice(-4) || 'N/A'}
         </div>
-        <div className="coin-ticker">ticker - {coin.symbol}</div>
-        <div className="coin-address">
-          address - {coin.contractAddress?.toString() || 'N/A'}
-        </div>
-        <div className="coin-description">description - {coin.description}</div>
-        <div className="coin-created-at">
-          created-at - {coin.createdAt.toString()}
-        </div>
-        <div className="coin-graduated">
-          graduated - {coin.graduated.toString()}
-        </div>
-        <div className="coin-image rounded-4xl w-12 h-12 ">
-          <img
-            // TODO: add fallback (e.g. if they don't have an image saved)
-            src={`https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`}
-            alt="Coin Logo"
-            className="rounded-4xl w-12 h-12 object-contain"
-          />
+        <div className="text-gray-600 text-xs">
+          TIMESTAMP:{coin.createdAt.toString()}
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

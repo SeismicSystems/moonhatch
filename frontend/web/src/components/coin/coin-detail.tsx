@@ -1,5 +1,7 @@
+import { HomeIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
 import { formatEther, parseEther } from 'viem'
 
@@ -153,23 +155,34 @@ const CoinDetail: React.FC = () => {
   if (!coin) return <div>Coin not found.</div>
 
   return (
-    <div className="page-container w-full max-w-full mx-auto p-4 overflow-x-hidden">
-      <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
-      <TradeSection
-        coin={{ ...coin, id: coin.id }}
-        weiIn={weiIn}
-        loadingEthIn={loadingEthIn}
-        viewEthIn={viewEthIn}
-        refreshWeiIn={refreshWeiIn}
-        buyAmount={buyAmount}
-        setBuyAmount={setBuyAmount}
-        buyError={buyError}
-        handleBuy={handleBuy}
-        modalOpen={modalOpen}
-        modalMessage={modalMessage}
-        setModalOpen={setModalOpen}
-      />
-    </div>
+    <>
+      <div className="header-bar bg-amber-950 w-full p-4 h-[60px] flex justify-between items-center">
+        <Link to="/" className="home-button">
+          <HomeIcon size={24} color="white" />
+        </Link>
+        <h2 className="self-center absolute left-1/2 transform -translate-x-1/2">
+          UNPREDICTA-PUMP
+        </h2>
+        <div className="wallet-container border px-2">...x324</div>
+      </div>
+      <div className="page-container w-full max-w-full mx-auto p-4 overflow-x-hidden">
+        <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
+        <TradeSection
+          coin={{ ...coin, id: coin.id }}
+          weiIn={weiIn}
+          loadingEthIn={loadingEthIn}
+          viewEthIn={viewEthIn}
+          refreshWeiIn={refreshWeiIn}
+          buyAmount={buyAmount}
+          setBuyAmount={setBuyAmount}
+          buyError={buyError}
+          handleBuy={handleBuy}
+          modalOpen={modalOpen}
+          modalMessage={modalMessage}
+          setModalOpen={setModalOpen}
+        />
+      </div>
+    </>
   )
 }
 
