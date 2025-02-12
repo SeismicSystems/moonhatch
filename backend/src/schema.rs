@@ -8,7 +8,8 @@ diesel::table! {
         supply -> Numeric,
         #[max_length = 42]
         contract_address -> Bpchar,
-        creator -> Text,
+        #[max_length = 42]
+        creator -> Bpchar,
         description -> Nullable<Text>,
         image_url -> Nullable<Text>,
         created_at -> Nullable<Timestamp>,
