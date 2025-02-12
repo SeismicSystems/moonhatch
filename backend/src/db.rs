@@ -1,52 +1,37 @@
 // src/db.rs
 
-use diesel::prelude::*;
-use diesel::result::QueryResult;
 use crate::models::Coin;
 use crate::schema::coins;
+use crate::schema::coins::dsl::*;
 use bigdecimal::BigDecimal;
+use diesel::prelude::*;
+use diesel::result::QueryResult;
+use serde::Deserialize;
 
-#[derive(Insertable)]
+#[derive(Insertable, Deserialize)]
 #[diesel(table_name = coins)]
-pub struct NewCoin<'a> {
-    pub name: &'a str,
-    pub symbol: &'a str,
+pub struct NewCoin {
+    pub id: i64,
+    pub name: String,
+    pub symbol: String,
     pub supply: BigDecimal,
-    pub contract_address: &'a str,
-    pub creator: &'a str,
-    pub description: Option<&'a str>,
-    pub image_url: Option<&'a str>
+    pub contract_address: String,
+    pub creator: String,
+    pub graduated: bool,
+    pub description: Option<String>,
+    pub image_url: Option<String>,
 }
 
-pub fn create_coin<'a>(
-    conn: &mut PgConnection,
-    new_coin: NewCoin<'a>,
-) -> QueryResult<Coin> {
+pub fn create_coin(conn: &mut PgConnection, new_coin: NewCoin) -> QueryResult<Coin> {
     use crate::schema::coins::dsl::*;
     diesel::insert_into(coins)
         .values(&new_coin)
         .get_result(conn)
 }
 
-pub fn get_coin_snippet(
-    conn: &mut PgConnection,
-    coin_id: i32,
-    snippet_length: usize,
-) -> QueryResult<String> {
-    use crate::schema::coins::dsl::*;
-    
+pub fn get_coin(conn: &mut PgConnection, coin_id: i64) -> QueryResult<Coin> {
     // Fetch the coin record.
     let coin_record: Coin = coins.filter(id.eq(coin_id)).first(conn)?;
-    
-    // Extract description (or default to empty string)
-    let desc = coin_record.description.unwrap_or_default();
-    
-    // Return the snippet safely.
-    let snippet = if desc.len() > snippet_length {
-        desc[..snippet_length].to_string()
-    } else {
-        desc
-    };
-    
-    Ok(snippet)
+
+    Ok(coin_record)
 }
