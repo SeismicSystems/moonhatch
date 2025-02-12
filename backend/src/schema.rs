@@ -6,9 +6,11 @@ diesel::table! {
         name -> Text,
         symbol -> Text,
         supply -> Numeric,
-        contract_address -> Text,
+        #[max_length = 42]
+        contract_address -> Bpchar,
         creator -> Text,
         description -> Nullable<Text>,
+        image_url -> Nullable<Text>,
         created_at -> Nullable<Timestamp>,
     }
 }

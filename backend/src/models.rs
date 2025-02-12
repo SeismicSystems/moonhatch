@@ -15,5 +15,6 @@ pub struct Coin {
     pub creator: String,
     pub description: Option<String>,
     // Change to Option to match Nullable<Timestamp> from your schema.
+    pub image_url: Option<String>,
     pub created_at: Option<NaiveDateTime>,
 }

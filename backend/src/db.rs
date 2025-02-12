@@ -15,6 +15,7 @@ pub struct NewCoin<'a> {
     pub contract_address: &'a str,
     pub creator: &'a str,
     pub description: Option<&'a str>,
+    pub image_url: Option<&'a str>
 }
 
 pub fn create_coin<'a>(
