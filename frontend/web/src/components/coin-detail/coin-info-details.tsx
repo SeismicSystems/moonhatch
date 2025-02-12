@@ -30,7 +30,6 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
         <div className="coin-created-at">
           created-at - {coin.createdAt.toString()}
         </div>
-        <div className="coin-supply">supply - {coin.supply.toString()}</div>
         <div className="coin-graduated">
           graduated - {coin.graduated.toString()}
         </div>
