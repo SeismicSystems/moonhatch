@@ -2,7 +2,7 @@
 
 diesel::table! {
     coins (id) {
-        id -> Int4,
+        id -> Int8,
         name -> Text,
         symbol -> Text,
         supply -> Numeric,
@@ -10,8 +10,9 @@ diesel::table! {
         contract_address -> Bpchar,
         #[max_length = 42]
         creator -> Bpchar,
+        graduated -> Bool,
         description -> Nullable<Text>,
         image_url -> Nullable<Text>,
-        created_at -> Nullable<Timestamp>,
+        created_at -> Timestamp,
     }
 }
