@@ -96,12 +96,28 @@ async fn verify_coin_handler(
             .into_response(),
     }
 }
-//how to update database to set verified to true
-// call coin/id/verify in postman
 
-//get request to /coins for all coins
-//async get all coins handler, might need params, no params for time being
+async fn get_all_coins_handler(State(state): State<AppState>) -> impl IntoResponse {
+    let mut conn = match state.db_pool.get() {
+        Ok(conn) => conn,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("DB error: {}", e),
+            )
+                .into_response()
+        }
+    };
 
+    match db::get_all_coins(&mut conn) {
+        Ok(coin_list) => Json(coin_list).into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Error fetching coins: {}", e),
+        )
+            .into_response(),
+    }
+}
 /// Handler for POST /coin/create
 async fn create_coin_handler(
     State(state): State<AppState>,
@@ -213,6 +229,7 @@ async fn main() {
     // Define the main router.
     let app = Router::new()
         .nest("/coin/:id", coin_routes)
+        .route("/coins", get(get_all_coins_handler))
         .with_state(app_state)
         .layer(cors);
 

@@ -36,3 +36,7 @@ pub fn get_coin(conn: &mut PgConnection, coin_id: i64) -> QueryResult<Coin> {
 
     Ok(coin_record)
 }
+
+pub fn get_all_coins(conn: &mut PgConnection) -> QueryResult<Vec<Coin>> {
+    coins.order(created_at.desc()).load::<Coin>(conn)
+}
