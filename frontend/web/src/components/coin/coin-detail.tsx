@@ -185,7 +185,9 @@ const CoinDetail: React.FC = () => {
       </div>
       <div className="status-icon-container flex justify-center mt-4">
         {coin.graduated ? (
-          <div className="chart-container  text-white">CHART</div>
+          <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
+            CHART
+          </div>
         ) : (
           <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
             <div className="lock-container w-[130px] border-2 border-red-500 rounded-full p-4">
