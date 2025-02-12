@@ -153,7 +153,7 @@ const CoinDetail: React.FC = () => {
   if (!coin) return <div>Coin not found.</div>
 
   return (
-    <div className="page-container">
+    <div className="page-container w-full max-w-full mx-auto p-4 overflow-x-hidden">
       <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
       <TradeSection
         coin={{ ...coin, id: coin.id }}
