@@ -16,8 +16,15 @@ const TickerInput: React.FC<Omit<InputFieldProps, 'label'>> = ({
       <input
         className="flex-1 bg-gray-900 border border-gray-700 border-l-0 rounded-r p-2 text-white"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
+        onChange={(e) => {
+          // Only update if the new value's length is at most 5.
+          if (e.target.value.length <= 5) {
+            onChange(e.target.value)
+          }
+        }}
+        placeholder="3-5 Characters "
+        maxLength={5} // HTML attribute to prevent typing over 5 characters
+        minLength={3} // Used for form validation (won't block typing, but will mark form invalid if < 3 on submission)
       />
     </div>
   </div>

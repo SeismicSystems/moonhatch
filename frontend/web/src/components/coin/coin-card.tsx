@@ -5,7 +5,6 @@ import { formatEther, parseEther } from 'viem'
 import { useContract } from '@/hooks/useContract'
 import { Coin } from '@/types/coin'
 import { formatRelativeTime } from '@/util'
-import CoinImage from '@components/coin/coin-image'
 import SocialLink from '@components/coin/social-link'
 
 interface CoinCardProps {
@@ -94,21 +93,39 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   useEffect(() => {}, [coin, walletClient])
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex gap-4">
+    <div className="bg-[var(--darkBlue)] rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex gap-4 ">
       {/* Left panel: Coin details */}
       <div className="flex-1">
         <div className="flex items-start gap-4">
-          {coin.imageUrl && <CoinImage src={coin.imageUrl} name={coin.name} />}
+          <img
+            src={`https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`}
+            alt="Coin Logo"
+            className="rounded-lg w-24 h-24 object-cover"
+            style={{ width: '100px', height: '100px' }}
+          />{' '}
           <div className="flex-1">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-lg font-semibold">{coin.name}</h3>
-                <span className="text-sm text-gray-500">{coin.symbol}</span>
+                <h3 className="text-lg text-[var(--creamWhite)]">
+                  {coin.name.toUpperCase()}
+                </h3>
+                <span className="text-sm text-[var(--midBlue)]">
+                  $: {coin.symbol.toUpperCase()}
+                </span>
               </div>
-              <span className="text-xs text-gray-400">{relativeTime}</span>
+              <span className="text-xs text-[var(--lightBlue)]">
+                {relativeTime}
+              </span>
             </div>
 
-            <p className="mt-2 text-gray-600 text-sm">{coin.description}</p>
+            <p className="mt-2  text-sm -mb-2 text-[var(--lightBlue)]">
+              DESCRIPTION:
+            </p>
+            <p className="mt-2 text-[var(--lightBlue)] text-sm">
+              {coin.description.length > 50
+                ? `${coin.description.substring(0, 50)}...`
+                : coin.description}
+            </p>
 
             <div className="mt-3 flex flex-wrap gap-2">
               {coin.website && (
@@ -132,7 +149,8 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
           </div>
         </div>
       </div>
-      {/* Right panel: BUY section */}
+      {/* //Commenting out this part bc I'm not sure a user would need to buy or view ETH fromt his screen */}
+      {/* Right panel: BUY section
       {weiIn !== null ? (
         <div className="text-green-600 font-bold">
           {formatEther(weiIn, 'wei')} ETH
@@ -163,7 +181,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
           {loading ? 'Processing...' : 'BUY'}
         </button>
         {error && <div className="mt-2 text-red-500 text-xs">{error}</div>}
-      </div>
+      </div> */}
     </div>
   )
 }

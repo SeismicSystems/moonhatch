@@ -183,7 +183,7 @@ const CoinDetail: React.FC = () => {
         </h2>
         <div className="wallet-container border px-2 text-white">...x324</div>
       </div>
-      <div className="page-container bg-[var(--darkBlue)] rounded-3xl  w-[350px] max-w-full mx-auto p-4 h-auto overflow-x-hidden overflow-y-hidden">
+      <div className="page-container bg-[var(--darkBlue)] rounded-3xl  w-[350px] max-w-full mx-auto p-4 h-overflow-x-hidden overflow-y-hidden">
         <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
         <TradeSection
           coin={{ ...coin, id: coin.id }}

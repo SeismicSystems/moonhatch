@@ -4,7 +4,7 @@ const CoinImage: React.FC<{ src: string | null; name: string }> = ({
   src,
   name,
 }) => (
-  <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+  <div className="w-12 h-12 rounded-full  bg-gray-200 flex items-center justify-center">
     {src ? (
       <img
         src={src}

@@ -23,8 +23,10 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <NavBar />
-      <Coins coins={coins} />
+      <div className="home-container overflow-y-scroll">
+        <NavBar />
+        <Coins coins={coins} />
+      </div>
     </>
   )
 }
