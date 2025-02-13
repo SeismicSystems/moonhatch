@@ -1,105 +1,178 @@
-// main.rs
+// src/main.rs
+use crate::db::create_coin;
+use crate::models::Coin;
+use crate::schema::coins::dsl::{coins, id, verified};
+
+use axum::{
+    extract::{Multipart, Path, Query, State},
+    http::{HeaderValue, Method, StatusCode},
+    response::IntoResponse,
+    routing::{get, post},
+    Json, Router,
+};
+use db::NewCoin;
+use dotenv::dotenv;
+use std::{collections::HashMap, net::SocketAddr, sync::Arc};
+use tower_http::cors::{Any, CorsLayer};
+
+// Declare our modules.
+mod db;
+mod db_pool;
+mod models;
+mod schema;
 
 use aws_config::meta::region::RegionProviderChain;
-use axum::{
-    extract::{Multipart, Path, State},
-    http::StatusCode,
-    response::IntoResponse,
-    routing::post,
-    Router,
-};
 use aws_sdk_s3::{config::Region, primitives::ByteStream, Client as S3Client};
-use std::{net::SocketAddr, sync::Arc};
-use tower_http::cors::{Any, CorsLayer};
-use axum::http::HeaderValue;
-use dotenv::dotenv;
+use db_pool::{establish_pool, PgPool};
 
-#[tokio::main]
-async fn main() {
-    dotenv().ok();
-    // Load the AWS configuration from the environment (this picks up AWS_ACCESS_KEY_ID, etc.)
-    let region_provider = RegionProviderChain::default_provider()
-        .or_else(Region::new("us-east-1"));
-
-    let aws_config = aws_config::from_env().region(region_provider).load().await;
-    let s3_client = S3Client::new(&aws_config);
-
-    // Wrap the S3 client in an Arc so it can be shared with each request handler.
-    let shared_s3_client = Arc::new(s3_client);
-
-    // Set up a CORS layer to allow requests from http://localhost:5173.
-    let origin = "http://localhost:5173".parse::<HeaderValue>().unwrap();
-    let cors = CorsLayer::new()
-        .allow_origin(origin)
-        .allow_methods(Any)
-        .allow_headers(Any);
-
-    // Build the Axum router with the endpoint.
-    let app = Router::new()
-        .route("/coin/:id", post(upload_file))
-        .with_state(shared_s3_client)
-        .layer(cors);
-
-    // Bind and run the server.
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    println!("Listening on http://{}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+#[derive(Clone)]
+pub struct AppState {
+    pub s3_client: Arc<S3Client>,
+    pub db_pool: PgPool,
 }
 
-/// Handler for POST /coin/:id
-///
-/// Expects a multipart form upload with a file (any field that has a filename)
-/// and writes the file content to S3 under the key "pump/<coin_id>".
-/// Returns the full URL to the public asset.
+use diesel::prelude::*;
+use serde::Serialize;
+#[derive(Serialize)]
+struct CoinResponse {
+    coin: Coin,
+}
+
+/// Handler for GET /coin/:id/snippet?length=50
+async fn get_coin_handler(
+    Path(coin_id): Path<i64>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let mut conn = match state.db_pool.get() {
+        Ok(conn) => conn,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("DB error: {}", e),
+            )
+                .into_response()
+        }
+    };
+
+    match db::get_coin(&mut conn, coin_id) {
+        Ok(coin) => Json(CoinResponse { coin }).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
+    }
+}
+async fn verify_coin_handler(
+    Path(coin_id): Path<i64>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let mut conn = match state.db_pool.get() {
+        Ok(conn) => conn,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("DB error: {}", e),
+            )
+                .into_response()
+        }
+    };
+
+    // Perform the update operation
+    match diesel::update(coins.filter(id.eq(coin_id)))
+        .set(verified.eq(true))
+        .execute(&mut conn)
+    {
+        Ok(rows_affected) if rows_affected > 0 => (
+            StatusCode::OK,
+            Json(format!("Coin {} verified successfully!", coin_id)),
+        )
+            .into_response(),
+        Ok(_) => (
+            StatusCode::NOT_FOUND,
+            format!("Coin with id {} not found", coin_id),
+        )
+            .into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Error updating coin: {}", e),
+        )
+            .into_response(),
+    }
+}
+
+async fn get_all_coins_handler(State(state): State<AppState>) -> impl IntoResponse {
+    let mut conn = match state.db_pool.get() {
+        Ok(conn) => conn,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("DB error: {}", e),
+            )
+                .into_response()
+        }
+    };
+
+    match db::get_all_coins(&mut conn) {
+        Ok(coin_list) => Json(coin_list).into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Error fetching coins: {}", e),
+        )
+            .into_response(),
+    }
+}
+/// Handler for POST /coin/create
+async fn create_coin_handler(
+    State(state): State<AppState>,
+    Json(payload): Json<NewCoin>,
+) -> impl IntoResponse {
+    let mut conn = match state.db_pool.get() {
+        Ok(conn) => conn,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("DB error: {}", e),
+            )
+                .into_response()
+        }
+    };
+
+    match create_coin(&mut conn, payload) {
+        Ok(coin) => Json(CoinResponse { coin }).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
+    }
+}
+/// Handler for POST /coin/:id (file upload)
 async fn upload_file(
-    // Extract the S3 client from shared state.
-    State(s3_client): State<Arc<S3Client>>,
-    // Extract the coin id from the URL path.
+    State(state): State<AppState>,
     Path(coin_id): Path<String>,
-    // Extract the multipart form data.
     mut multipart: Multipart,
 ) -> impl IntoResponse {
-    // Look for the file field in the multipart form.
+    let s3_client = state.s3_client;
+
     let mut file_bytes: Option<Vec<u8>> = None;
     while let Some(field) = multipart.next_field().await.unwrap() {
-        // Check if this field is a file (it will have a filename).
         if field.file_name().is_some() {
-            // Read all bytes from the field.
-            let data = if let Ok(bytes) = field.bytes().await {
-                bytes.to_vec()
-            } else {
-                eprintln!("Error reading uploaded file");
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    "Failed to read file".to_string(),
-                );
+            let data = match field.bytes().await {
+                Ok(bytes) => bytes.to_vec(),
+                Err(_) => {
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "File read error".to_string(),
+                    )
+                        .into_response()
+                }
             };
             file_bytes = Some(data);
             break;
         }
     }
 
-    // If no file was provided, return a 400 error.
     let file_bytes = match file_bytes {
         Some(bytes) => bytes,
-        None => {
-            println!("bad request");
-            return (
-                StatusCode::BAD_REQUEST,
-                "No file found in upload".to_string(),
-            )
-        }
+        None => return (StatusCode::BAD_REQUEST, "No file found".to_string()).into_response(),
     };
 
-    // Prepare S3 upload parameters.
     let bucket_name = "seismic-public-assets";
-    // The key will be under the "pump" folder with the filename equal to the coin id.
     let key = format!("pump/{}", coin_id);
 
-    // Upload the file to S3 with the public-read ACL.
     let upload_result = s3_client
         .put_object()
         .bucket(bucket_name)
@@ -109,16 +182,61 @@ async fn upload_file(
         .send()
         .await;
 
-    // Check if the upload was successful.
     match upload_result {
         Ok(_) => {
-            // Construct the public URL. (This example assumes the default AWS S3 endpoint.)
             let public_url = format!("https://{}.s3.amazonaws.com/{}", bucket_name, key);
-            (StatusCode::OK, public_url)
+            (StatusCode::OK, public_url).into_response()
         }
-        Err(e) => {
-            eprintln!("Error uploading to S3: {:?}", e);
-            (StatusCode::INTERNAL_SERVER_ERROR, "Upload failed".to_string())
-        }
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Upload error: {:?}", e),
+        )
+            .into_response(),
     }
+}
+
+#[tokio::main]
+async fn main() {
+    dotenv().ok();
+
+    // Set up AWS S3.
+    let region_provider = RegionProviderChain::default_provider().or_else(Region::new("us-east-1"));
+    let aws_config = aws_config::from_env().region(region_provider).load().await;
+    let s3_client = S3Client::new(&aws_config);
+    let shared_s3_client = Arc::new(s3_client);
+
+    // Establish the database pool.
+    let db_pool = establish_pool();
+    let app_state = AppState {
+        s3_client: shared_s3_client,
+        db_pool,
+    };
+
+    // Set up CORS.
+    let origin = "http://localhost:5173".parse::<HeaderValue>().unwrap();
+    let cors = CorsLayer::new()
+        .allow_origin(origin)
+        .allow_methods(vec![Method::GET, Method::POST])
+        .allow_headers(Any);
+
+    // Define coin-related routes in a sub-router.
+    let coin_routes = Router::new()
+        .route("/upload", post(upload_file)) // POST /coin/:id
+        .route("/", get(get_coin_handler)) // GET /coin/:id/snippet
+        .route("/", post(create_coin_handler)) // POST /coin/create
+        .route("/verify", post(verify_coin_handler));
+
+    // Define the main router.
+    let app = Router::new()
+        .nest("/coin/:id", coin_routes)
+        .route("/coins", get(get_all_coins_handler))
+        .with_state(app_state)
+        .layer(cors);
+
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    println!("Listening on http://{}", addr);
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
 }

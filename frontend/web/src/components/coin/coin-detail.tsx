@@ -1,12 +1,14 @@
+import { HomeIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
-
 import { formatEther, parseEther } from 'viem'
 
 import { useContract } from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
+import LockIcon from '@mui/icons-material/Lock'
 
 import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
@@ -46,6 +48,23 @@ const CoinDetail: React.FC = () => {
       .then((foundCoin) => setCoin(foundCoin || null))
       .catch((err) => console.error('Error fetching coin:', err))
   }, [loaded, coinId])
+
+  // useEffect(() => {
+  //   if (!coinId || !contract) return
+
+    // const fetchGraduatedStatus = async () => {
+    //   try {
+    //     const updatedCoin = await fetchCoin(BigInt(coinId))
+    //     setCoin(updatedCoin || null)
+    //   } catch (err) {
+    //     console.error('Error fetching graduated status:', err)
+    //   }
+    // }
+
+    // const intervalId = setInterval(fetchGraduatedStatus, 5000) // Poll every 5 seconds
+
+  //   return () => clearInterval(intervalId) // Cleanup on unmount
+  // }, [coinId, contract, fetchCoin])
 
   /**
    * Fetch the ETH balance (weiIn) for non-graduated coins.
@@ -154,23 +173,50 @@ const CoinDetail: React.FC = () => {
   if (!coin) return <div>Coin not found.</div>
 
   return (
-    <div className="page-container">
-      <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
-      <TradeSection
-        coin={{ ...coin, id: coin.id }}
-        weiIn={weiIn}
-        loadingEthIn={loadingEthIn}
-        viewEthIn={viewEthIn}
-        refreshWeiIn={refreshWeiIn}
-        buyAmount={buyAmount}
-        setBuyAmount={setBuyAmount}
-        buyError={buyError}
-        handleBuy={handleBuy}
-        modalOpen={modalOpen}
-        modalMessage={modalMessage}
-        setModalOpen={setModalOpen}
-      />
-    </div>
+    <>
+      <div className="header-bar bg-amber-950 w-full p-4 h-[60px] flex justify-between items-center">
+        <Link to="/" className="home-button">
+          <HomeIcon size={24} color="white" />
+        </Link>
+        <h2 className="self-center text-white absolute left-1/2 transform -translate-x-1/2">
+          UNPREDICTA-PUMP
+        </h2>
+        <div className="wallet-container border px-2 text-white">...x324</div>
+      </div>
+      <div className="page-container w-full max-w-full mx-auto p-4 overflow-x-hidden">
+        <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
+        <TradeSection
+          coin={{ ...coin, id: coin.id }}
+          weiIn={weiIn}
+          loadingEthIn={loadingEthIn}
+          viewEthIn={viewEthIn}
+          refreshWeiIn={refreshWeiIn}
+          buyAmount={buyAmount}
+          setBuyAmount={setBuyAmount}
+          buyError={buyError}
+          handleBuy={handleBuy}
+          modalOpen={modalOpen}
+          modalMessage={modalMessage}
+          setModalOpen={setModalOpen}
+        />
+      </div>
+      <div className="status-icon-container flex justify-center mt-4">
+        {coin.graduated ? (
+          <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
+            CHART
+          </div>
+        ) : (
+          <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
+            <div className="lock-container w-[130px] border-2 border-red-500 rounded-full p-4">
+              <LockIcon
+                className="lock-icon text-red-500 animate-pulse"
+                style={{ fontSize: '96px' }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   )
 }
 
