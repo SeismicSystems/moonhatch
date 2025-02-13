@@ -139,40 +139,54 @@ async fn create_coin_handler(
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
     }
 }
-/// Handler for POST /coin/:id (file upload)
+
 async fn upload_file(
+    // Extract the S3 client from shared state.
     State(state): State<AppState>,
+    // Extract the coin id from the URL path.
     Path(coin_id): Path<String>,
+    // Extract the multipart form data.
     mut multipart: Multipart,
 ) -> impl IntoResponse {
     let s3_client = state.s3_client;
-
+    // Look for the file field in the multipart form.
     let mut file_bytes: Option<Vec<u8>> = None;
     while let Some(field) = multipart.next_field().await.unwrap() {
+        // Check if this field is a file (it will have a filename).
         if field.file_name().is_some() {
-            let data = match field.bytes().await {
-                Ok(bytes) => bytes.to_vec(),
-                Err(_) => {
-                    return (
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        "File read error".to_string(),
-                    )
-                        .into_response()
-                }
+            // Read all bytes from the field.
+            let data = if let Ok(bytes) = field.bytes().await {
+                bytes.to_vec()
+            } else {
+                eprintln!("Error reading uploaded file");
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Failed to read file".to_string(),
+                );
             };
             file_bytes = Some(data);
             break;
         }
     }
 
+    // If no file was provided, return a 400 error.
     let file_bytes = match file_bytes {
         Some(bytes) => bytes,
-        None => return (StatusCode::BAD_REQUEST, "No file found".to_string()).into_response(),
+        None => {
+            println!("bad request");
+            return (
+                StatusCode::BAD_REQUEST,
+                "No file found in upload".to_string(),
+            );
+        }
     };
 
+    // Prepare S3 upload parameters.
     let bucket_name = "seismic-public-assets";
+    // The key will be under the "pump" folder with the filename equal to the coin id.
     let key = format!("pump/{}", coin_id);
 
+    // Upload the file to S3 with the public-read ACL.
     let upload_result = s3_client
         .put_object()
         .bucket(bucket_name)
@@ -182,16 +196,20 @@ async fn upload_file(
         .send()
         .await;
 
+    // Check if the upload was successful.
     match upload_result {
         Ok(_) => {
+            // Construct the public URL. (This example assumes the default AWS S3 endpoint.)
             let public_url = format!("https://{}.s3.amazonaws.com/{}", bucket_name, key);
-            (StatusCode::OK, public_url).into_response()
+            (StatusCode::OK, public_url)
         }
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Upload error: {:?}", e),
-        )
-            .into_response(),
+        Err(e) => {
+            eprintln!("Error uploading to S3: {:?}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Upload failed".to_string(),
+            )
+        }
     }
 }
 
