@@ -15,9 +15,13 @@ const Coins: React.FC<{ coins: Coin[] }> = ({ coins }) => {
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <div className="space-y-4">
+      <div className="space-y-4 ">
         {currentCoins.reverse().map((coin) => (
-          <Link key={coin.id} className="block" to={`/coins/${coin.id}`}>
+          <Link
+            key={coin.id}
+            className="block border-[var(--lightBlue)] border-4 rounded-2xl"
+            to={`/coins/${coin.id}`}
+          >
             <CoinCard coin={coin} />
           </Link>
         ))}
