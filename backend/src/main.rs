@@ -161,7 +161,7 @@ async fn upload_file(
                 eprintln!("Error reading uploaded file");
                 return (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "Failed to read file".to_string(),
+                    "Failed to read file as bytes".to_string(),
                 );
             };
             file_bytes = Some(data);
