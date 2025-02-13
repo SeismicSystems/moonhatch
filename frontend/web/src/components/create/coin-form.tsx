@@ -79,7 +79,33 @@ const CoinForm: React.FC = () => {
     console.log(JSON.stringify(receipt, stringifyBigInt, 2))
     const coinId = hexToNumber(receipt.logs[0].data)
     console.info(`Created coinId=${coinId}`)
-    await uploadImage(coinId)
+    const imgUpload: string | null = await uploadImage(coinId)
+
+    const backendResponse = await fetch('http://127.0.0.1:3000/coin/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: coinId,
+        name: formData.name,
+        symbol: formData.symbol,
+        supply: '21000000000000000000000', // Convert to string for BigDecimal
+        contract_address: receipt.to, // Contract address
+        creator: receipt.from, // Address of the sender
+        graduated: false,
+        verified: false,
+        description: formData.description || null,
+        image_url: imgUpload, // To be updated after image upload
+      }),
+    })
+
+    if (!backendResponse.ok) {
+      console.error('Failed to save coin to backend')
+      return
+    }
+
+    console.log('Coin successfully saved in the database')
 
     // Show the success popup
     setSuccessOpen(true)
