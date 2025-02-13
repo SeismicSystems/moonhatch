@@ -40,7 +40,7 @@ const CoinForm: React.FC = () => {
     body.append('file', formData.image)
 
     // Send a POST request to the backend
-    return fetch(`http://127.0.0.1:3000/coin/${coinId}`, {
+    return fetch(`http://127.0.0.1:3000/coin/${coinId}/upload`, {
       method: 'POST',
       body,
     })
