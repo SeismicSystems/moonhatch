@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -15,15 +16,19 @@ const Coins: React.FC<{ coins: Coin[] }> = ({ coins }) => {
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <div className="space-y-4 ">
-        {currentCoins.reverse().map((coin) => (
-          <Link
+      <div className="space-y-4">
+        {[...currentCoins].reverse().map((coin, index) => (
+          <motion.div
             key={coin.id}
-            className="block border-[var(--lightBlue)] border-4 rounded-2xl"
-            to={`/coins/${coin.id}`}
+            initial={{ opacity: 0, x: -100 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.2, duration: 1.0 }}
+            className="block" // ensures the motion.div is block-level so space-y-4 applies
           >
-            <CoinCard coin={coin} />
-          </Link>
+            <Link to={`/coin/${coin.id}`} className="block">
+              <CoinCard coin={coin} />
+            </Link>
+          </motion.div>
         ))}
       </div>
 
