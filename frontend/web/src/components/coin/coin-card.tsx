@@ -27,6 +27,12 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   const [loadingEthIn, setLoadingEthIn] = useState(false)
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
 
+  const defaultImage =
+    'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
+  const primaryImage = `https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`
+
+  const [imgSrc, setImgSrc] = useState(primaryImage)
+
   const handleBuy = async () => {
     setError(null)
     if (!publicClient || !walletClient) {
@@ -98,11 +104,15 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
       <div className="flex-1">
         <div className="flex items-start gap-4">
           <img
-            src={`https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`}
+            src={imgSrc}
             alt="Coin Logo"
             className="rounded-lg w-24 h-24 object-cover"
-            style={{ width: '100px', height: '100px' }}
-          />{' '}
+            onError={() => {
+              if (imgSrc !== defaultImage) {
+                setImgSrc(defaultImage)
+              }
+            }}
+          />
           <div className="flex-1">
             <div className="flex justify-between items-start">
               <div>

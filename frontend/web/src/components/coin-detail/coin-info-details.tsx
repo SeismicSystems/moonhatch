@@ -6,6 +6,7 @@ interface CoinInfoDetailsProps {
     name: string
     symbol: string
     contractAddress: { toString: () => string }
+    image?: string
     createdAt: { toString: () => string }
     supply: { toString: () => string }
     graduated: boolean
@@ -21,7 +22,11 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
         <div className="left-column bg-[var(--darkBlue)] w-[300px] p-4 flex items-center justify-center space-x-4 rounded-2xl">
           <div className="w-24 h-24">
             <img
-              src={`https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`}
+              src={
+                coin.image
+                  ? `https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`
+                  : 'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
+              }
               alt="Coin Logo"
               className="rounded-lg w-full h-full object-cover"
             />
