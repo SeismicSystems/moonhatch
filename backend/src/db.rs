@@ -21,6 +21,9 @@ pub struct NewCoin {
     pub verified: bool,
     pub description: Option<String>,
     pub image_url: Option<String>,
+    pub twitter: Option<String>,
+    pub website: Option<String>,
+    pub telegram: Option<String>,
 }
 
 pub fn create_coin(conn: &mut PgConnection, new_coin: NewCoin) -> QueryResult<Coin> {

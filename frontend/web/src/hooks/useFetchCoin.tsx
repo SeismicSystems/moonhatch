@@ -51,8 +51,11 @@ export function useFetchCoin() {
       coinId,
     ])) as [OnChainCoin, boolean]
 
-    // Initialize description to empty string
+    // Initialize description and other variables to empty strings
     let description = ''
+    let twitter = ''
+    let telegram = ''
+    let website = ''
 
     // Attempt to fetch additional info from the database using the correct endpoint
     try {
@@ -61,6 +64,9 @@ export function useFetchCoin() {
       )
       if (response.ok) {
         const dbData = await response.json()
+        twitter = dbData.coin?.twitter || ''
+        telegram = dbData.coin?.telegram || ''
+        website = dbData.coin?.website || ''
         // Adjust based on your API response structure:
         // Your API returns { "coin": { ... } }
         description = dbData.coin?.description || ''
@@ -80,6 +86,9 @@ export function useFetchCoin() {
       contractAddress: coinData.contractAddress,
       graduated,
       createdAt: 1738336436, // update as needed
+      twitter,
+      telegram,
+      website,
       description,
       creator: coinData.creator,
     } as Coin
