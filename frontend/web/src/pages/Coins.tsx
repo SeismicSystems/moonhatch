@@ -25,7 +25,7 @@ const Coins: React.FC<{ coins: Coin[] }> = ({ coins }) => {
             transition={{ delay: index * 0.2, duration: 1.0 }}
             className="block" // ensures the motion.div is block-level so space-y-4 applies
           >
-            <Link to={`/coin/${coin.id}`} className="block">
+            <Link to={`/coins/${coin.id}`} className="block">
               <CoinCard coin={coin} />
             </Link>
           </motion.div>
