@@ -10,6 +10,7 @@ import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
 
+import NavBar from '../NavBar'
 import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
 
@@ -174,14 +175,8 @@ const CoinDetail: React.FC = () => {
 
   return (
     <>
-      <div className="header-bar bg-[var(--bgColor)] w-full p-4 h-[60px] flex justify-between items-center">
-        <Link to="/" className="home-button">
-          <HomeIcon size={24} color="white" />
-        </Link>
-        <h2 className="self-center text-white absolute left-1/2 transform -translate-x-1/2">
-          UNPREDICTA-PUMP
-        </h2>
-        <div className="wallet-container border px-2 text-white">...x324</div>
+      <div className="mb-8">
+        <NavBar />
       </div>
       <div className="page-container bg-[var(--darkBlue)] rounded-3xl  w-[350px] max-w-full mx-auto p-4 h-overflow-x-hidden overflow-y-hidden">
         <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
