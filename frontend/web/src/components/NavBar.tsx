@@ -17,20 +17,15 @@ const NavBar: React.FC = () => {
 
   return (
     <>
-      <nav className="w-full bg-[var(--darkBlue)] shadow-md py-4 px-8 flex justify-center space-x-8 text-lg font-medium text-[var(--creamWhite)]">
+      <nav className="w-full bg-[var(--darkBlue)] shadow-md py-4 px-8 flex justify-between text-lg font-medium text-[var(--creamWhite)]">
         <button
           onClick={() => setShowHowItWorks(true)}
           className="hover:text-blue-600 transition"
         >
           <HelpIcon />
         </button>
-        <button
-          onClick={() => navigate('/create')}
-          className="hover:text-blue-600 text-[var(--creamWhite)] rounded-xl  transition border px-2 bg-[var(--midBlue)] whitespace-nowrap"
-        >
-          CREATE COIN
-        </button>
-        <div className="w-[10px] rounded-3xl">
+        <div className="self-center">UNPREDICTA-PUMP</div>
+        <div className="w-[67px] rounded-3xl">
           <MyStyledConnectButton />
           {/* <ConnectButton /> */}
         </div>

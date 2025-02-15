@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
+import HomeHeader from '@/components/HomeHeader'
 import NavBar from '@/components/NavBar'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import Coins from '@/pages/Coins'
@@ -25,6 +26,7 @@ const Home: React.FC = () => {
     <>
       <div className="home-container overflow-y-scroll">
         <NavBar />
+        <HomeHeader />
         <Coins coins={coins} />
       </div>
     </>
