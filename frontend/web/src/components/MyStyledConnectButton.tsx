@@ -19,7 +19,7 @@ const MyStyledConnectButton = () => {
           return (
             <button
               onClick={openConnectModal}
-              className="text-base py-2 px-2 bg-[var(--midBlue)] text-[var(--creamWhite)]  border rounded hover:bg-blue-600 transition rounded-2xl"
+              className="text-base py-2 px-2 bg-[var(--midBlue)] text-[var(--creamWhite)]  border rounded hover:bg-[var(--darkBlue)] transition rounded-2xl"
             >
               {account ? account.displayName : 'Connect Wallet'}
             </button>

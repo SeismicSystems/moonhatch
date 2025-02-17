@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { formatRelativeTime } from '@/util'
+import SocialLink from '@components/coin/social-link'
 
 export const FALLBACK_COIN_IMAGE_URL =
   'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
@@ -17,6 +18,9 @@ interface CoinInfoDetailsProps {
     graduated: boolean
     creator: { toString: () => string }
     description: string
+    twitter: string
+    website: string
+    telegram: string
   }
 }
 
@@ -47,13 +51,29 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
               {coin.creator?.toString().slice(-4) || 'N/A'}
             </div>
             <div className="text-[var(--lightBlue)] text-xs">
-              TIMESTAMP:{relativeTime}
+              AGE:{relativeTime}
             </div>
           </div>
         </div>
       </div>
       <div className="text-[var(--lightBlue)] flex flex-col text-xs">
-        <div className="coin-desc mb-2">"{coin.description}"</div>
+        <div className="coin-desc mb-2">
+          "{coin.description || 'creator did not provide description'}"
+        </div>
+      </div>
+      <div
+        className="flex mt-2 mb-4 items-center justify-center flex-wrap gap-2 text-center"
+        onClick={(e) => e.stopPropagation()} // Prevents card click from triggering
+      >
+        {coin.website && (
+          <SocialLink href={coin.website} type="website" label="website" />
+        )}
+        {coin.telegram && (
+          <SocialLink href={coin.telegram} type="telegram" label="telegram" />
+        )}
+        {coin.twitter && (
+          <SocialLink href={coin.twitter} type="twitter" label="twitter" />
+        )}
       </div>
     </>
   )

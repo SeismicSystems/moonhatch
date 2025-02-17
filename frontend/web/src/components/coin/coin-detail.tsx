@@ -186,8 +186,16 @@ const CoinDetail: React.FC = () => {
       <div className="mb-8">
         <NavBar />
       </div>
-      <div className="page-container bg-[var(--darkBlue)] rounded-3xl  w-[350px] max-w-full mx-auto p-4 h-overflow-x-hidden overflow-y-hidden">
-        <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
+      <div className="coin-container  border border-[var(--creamWhite)] border-2 bg-[var(--darkBlue)] rounded-3xl  w-[350px] max-w-full mx-auto p-4 h-overflow-x-hidden overflow-y-hidden">
+        <CoinInfoDetails
+          coin={{
+            ...coin,
+            id: coin.id,
+            twitter: coin.twitter || '',
+            telegram: coin.telegram || '',
+            website: coin.website || '',
+          }}
+        />
         <TradeSection
           coin={{ ...coin, id: coin.id }}
           weiIn={weiIn}

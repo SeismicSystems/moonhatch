@@ -23,7 +23,7 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <div className="home-container overflow-y-scroll">
+      <div className="home-container">
         <NavBar />
         <HomeHeader />
         <Coins coins={coins} />
