@@ -12,17 +12,63 @@ interface CoinCardProps {
 }
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
-  //implement Z to correct timezone issue
-  const relativeTime = formatRelativeTime(coin.createdAt)
-
   const { walletClient } = useShieldedWallet()
-
   const defaultImage =
     'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
 
   const [imgSrc, setImgSrc] = useState(coin.imageUrl)
 
-  useEffect(() => {}, [coin, walletClient])
+  // State for scrambled text elements
+  const [scrambledName, setScrambledName] = useState(coin.name.toUpperCase())
+  const [scrambledSymbol, setScrambledSymbol] = useState(
+    `$${coin.symbol.toUpperCase()}`
+  )
+  const [scrambledDescription, setScrambledDescription] = useState(
+    coin.description.substring(0, 50)
+  )
+  const [scrambledAge, setScrambledAge] = useState(
+    formatRelativeTime(coin.createdAt)
+  )
+
+  useEffect(() => {
+    const scrambleText = (
+      text: string,
+      setText: (val: string) => void,
+      duration: number
+    ) => {
+      const chars = '!<>-_\\/[]{}—=+*^?#________'
+      let iterations = 0
+      let displayText = text
+        .split('')
+        .map(() => chars[Math.floor(Math.random() * chars.length)])
+        .join('')
+      setText(displayText)
+
+      const interval = setInterval(() => {
+        displayText = displayText
+          .split('')
+          .map((char, index) =>
+            index < iterations
+              ? text[index]
+              : chars[Math.floor(Math.random() * chars.length)]
+          )
+          .join('')
+
+        setText(displayText)
+
+        if (iterations >= text.length) {
+          clearInterval(interval)
+          setText(text)
+        }
+
+        iterations += 1
+      }, duration / text.length)
+    }
+
+    // Run the scramble effect on all elements simultaneously for 500ms
+    scrambleText(coin.name.toUpperCase(), setScrambledName, 500)
+    scrambleText(`$${coin.symbol.toUpperCase()}`, setScrambledSymbol, 750)
+  }, [coin])
 
   return (
     <div className="bg-[var(--darkBlue)] rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex gap-4">
@@ -45,9 +91,9 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
           <div className="flex-1">
             <div className="flex items-start">
               <div className="text-left">
-                <div className="flex items-center  ">
-                  <h3 className="text-lg -mb-2 text-[var(--creamWhite)] ">
-                    {coin.name.toUpperCase()}
+                <div className="flex items-center">
+                  <h3 className="text-lg -mb-2 text-[var(--creamWhite)]">
+                    {scrambledName}
                   </h3>
                   <div className="items-center justify-center">
                     {coin.graduated ? (
@@ -64,25 +110,23 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                   </div>
                 </div>
                 <span className="text-sm text-[var(--midBlue)]">
-                  ${coin.symbol.toUpperCase()}
+                  {scrambledSymbol}
                 </span>
-                <div className=" self-end text-[10px] text-[var(--lightBlue)]">
-                  {relativeTime}
+                <div className="self-end text-[10px] text-[var(--lightBlue)]">
+                  AGE: {scrambledAge}
                 </div>
                 <div className="desc-container w-5/6">
-                  <p className=" text-[9px] -mb-2  text-[var(--lightBlue)]">
-                    DESCRIPTION:{' '}
+                  <p className="text-[9px] -mb-2 text-[var(--lightBlue)]">
+                    DESCRIPTION:
                   </p>
                   <p className="mt-2 text-[var(--lightBlue)] text-xs">
-                    {coin.description.length > 50
-                      ? `${coin.description.substring(0, 50)}...`
-                      : coin.description}
+                    {scrambledDescription}
                   </p>
                 </div>
               </div>
             </div>
           </div>
-          <div className=" flex flex-col items-center justify-center flex-wrap gap-2 text-center">
+          <div className="flex flex-col items-center justify-center flex-wrap gap-2 text-center">
             {coin.website && (
               <SocialLink href={coin.website} type="website" label="website" />
             )}
@@ -102,4 +146,5 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
     </div>
   )
 }
+
 export default CoinCard
