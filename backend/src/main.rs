@@ -1,8 +1,8 @@
 // src/main.rs
 use crate::db::create_coin;
 use crate::models::Coin;
-use crate::schema::coins::dsl::{coins as coins_table};
-use crate::schema::{coins as coins_schema};
+use crate::schema::coins::dsl::coins as coins_table;
+use crate::schema::coins as coins_schema;
 
 use abi::get_coin_tx;
 use alloy_primitives::Address;
@@ -29,7 +29,7 @@ mod models;
 mod schema;
 mod abi;
 
-use abi::{Coin as SolidityCoin};
+use abi::Coin as SolidityCoin;
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_s3::{config::Region, primitives::ByteStream, Client as S3Client};
 use db_pool::{establish_pool, PgPool};

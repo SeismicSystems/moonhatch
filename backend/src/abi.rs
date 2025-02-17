@@ -1,6 +1,5 @@
-use alloy_primitives::Bytes;
 use alloy_sol_types::{sol, SolCall};
-use alloy_primitives::{hex, Address};
+use alloy_primitives::Address;
 use alloy_provider::network::TransactionBuilder;
 use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
 
