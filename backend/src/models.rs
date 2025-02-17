@@ -18,4 +18,7 @@ pub struct Coin {
     pub description: Option<String>,
     pub image_url: Option<String>,
     pub created_at: NaiveDateTime,
+    pub twitter: Option<String>,
+    pub website: Option<String>,
+    pub telegram: Option<String>,
 }

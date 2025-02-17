@@ -15,5 +15,8 @@ diesel::table! {
         description -> Nullable<Text>,
         image_url -> Nullable<Text>,
         created_at -> Timestamp,
+        twitter -> Nullable<Text>,
+        website -> Nullable<Text>,
+        telegram -> Nullable<Text>,
     }
 }

@@ -90,13 +90,16 @@ const CoinForm: React.FC = () => {
         id: coinId,
         name: formData.name,
         symbol: formData.symbol,
-        supply: '21000000000000000000000', // Convert to string for BigDecimal
-        contract_address: receipt.to, // Contract address
-        creator: receipt.from, // Address of the sender
+        supply: '21000000000000000000000', // as a string for BigDecimal
+        contract_address: receipt.to,
+        creator: receipt.from,
         graduated: false,
         verified: false,
         description: formData.description || null,
-        image_url: imgUpload, // To be updated after image upload
+        image_url: imgUpload, // result of the image upload
+        twitter: formData.twitter || null,
+        website: formData.website || null,
+        telegram: formData.telegram || null,
       }),
     })
 

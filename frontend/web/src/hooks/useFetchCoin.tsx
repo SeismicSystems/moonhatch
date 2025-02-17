@@ -46,21 +46,52 @@ export function useFetchCoin() {
       }
     }
 
-    // Call the composite getter, which returns a tuple: [Coin struct, graduation status]
-    return contract.tread.getCoinData([coinId]).then((result) => {
-      const [coinData, graduated] = result as [OnChainCoin, boolean]
-      return {
-        id: coinId,
-        name: coinData.name,
-        symbol: coinData.symbol,
-        supply: coinData.supply,
-        contractAddress: coinData.contractAddress,
-        graduated, // include the graduation status
-        createdAt: 1738336436, // Update this as needed
-        description: '',
-        creator: coinData.creator,
-      } as Coin
-    })
+    // Fetch on-chain data
+    const [coinData, graduated] = (await contract.tread.getCoinData([
+      coinId,
+    ])) as [OnChainCoin, boolean]
+
+    // Initialize description and other variables to empty strings
+    let description = ''
+    let twitter = ''
+    let telegram = ''
+    let website = ''
+
+    // Attempt to fetch additional info from the database using the correct endpoint
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:3000/coin/${coinId.toString()}`
+      )
+      if (response.ok) {
+        const dbData = await response.json()
+        twitter = dbData.coin?.twitter || ''
+        telegram = dbData.coin?.telegram || ''
+        website = dbData.coin?.website || ''
+        // Adjust based on your API response structure:
+        // Your API returns { "coin": { ... } }
+        description = dbData.coin?.description || ''
+      } else {
+        console.warn(`No DB info for coin ${coinId}, response not ok`)
+      }
+    } catch (dbError) {
+      console.error(`Failed to fetch DB info for coin ${coinId}:`, dbError)
+      // Fallback: leave description empty or assign a default value
+    }
+
+    return {
+      id: coinId,
+      name: coinData.name,
+      symbol: coinData.symbol,
+      supply: coinData.supply,
+      contractAddress: coinData.contractAddress,
+      graduated,
+      createdAt: 1738336436, // update as needed
+      twitter,
+      telegram,
+      website,
+      description,
+      creator: coinData.creator,
+    } as Coin
   }
 
   const fetchCoinsCreated = async (): Promise<bigint> => {

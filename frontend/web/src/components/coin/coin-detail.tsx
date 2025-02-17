@@ -49,26 +49,6 @@ const CoinDetail: React.FC = () => {
       .catch((err) => console.error('Error fetching coin:', err))
   }, [loaded, coinId])
 
-  // useEffect(() => {
-  //   if (!coinId || !contract) return
-
-    // const fetchGraduatedStatus = async () => {
-    //   try {
-    //     const updatedCoin = await fetchCoin(BigInt(coinId))
-    //     setCoin(updatedCoin || null)
-    //   } catch (err) {
-    //     console.error('Error fetching graduated status:', err)
-    //   }
-    // }
-
-    // const intervalId = setInterval(fetchGraduatedStatus, 5000) // Poll every 5 seconds
-
-  //   return () => clearInterval(intervalId) // Cleanup on unmount
-  // }, [coinId, contract, fetchCoin])
-
-  /**
-   * Fetch the ETH balance (weiIn) for non-graduated coins.
-   */
   const viewEthIn = async () => {
     if (!walletClient || !contract || !coin || loadingEthIn) return
 
@@ -174,7 +154,7 @@ const CoinDetail: React.FC = () => {
 
   return (
     <>
-      <div className="header-bar bg-amber-950 w-full p-4 h-[60px] flex justify-between items-center">
+      <div className="header-bar bg-[var(--bgColor)] w-full p-4 h-[60px] flex justify-between items-center">
         <Link to="/" className="home-button">
           <HomeIcon size={24} color="white" />
         </Link>
@@ -183,7 +163,7 @@ const CoinDetail: React.FC = () => {
         </h2>
         <div className="wallet-container border px-2 text-white">...x324</div>
       </div>
-      <div className="page-container w-full max-w-full mx-auto p-4 overflow-x-hidden">
+      <div className="page-container bg-[var(--darkBlue)] rounded-3xl  w-[350px] max-w-full mx-auto p-4 h-overflow-x-hidden overflow-y-hidden">
         <CoinInfoDetails coin={{ ...coin, id: coin.id }} />
         <TradeSection
           coin={{ ...coin, id: coin.id }}
@@ -200,7 +180,7 @@ const CoinDetail: React.FC = () => {
           setModalOpen={setModalOpen}
         />
       </div>
-      <div className="status-icon-container flex justify-center mt-4">
+      <div className="status-icon-container bg-[var(--bgColor)] flex justify-center mt-4">
         {coin.graduated ? (
           <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
             CHART

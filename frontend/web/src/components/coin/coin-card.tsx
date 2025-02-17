@@ -5,7 +5,6 @@ import { formatEther, parseEther } from 'viem'
 import { useContract } from '@/hooks/useContract'
 import { Coin } from '@/types/coin'
 import { formatRelativeTime } from '@/util'
-import CoinImage from '@components/coin/coin-image'
 import SocialLink from '@components/coin/social-link'
 
 interface CoinCardProps {
@@ -27,6 +26,12 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
 
   const [loadingEthIn, setLoadingEthIn] = useState(false)
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
+
+  const defaultImage =
+    'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
+  const primaryImage = `https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`
+
+  const [imgSrc, setImgSrc] = useState(primaryImage)
 
   const handleBuy = async () => {
     setError(null)
@@ -94,22 +99,49 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   useEffect(() => {}, [coin, walletClient])
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex gap-4">
+    <div className="bg-[var(--darkBlue)] rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex gap-4">
       {/* Left panel: Coin details */}
       <div className="flex-1">
-        <div className="flex items-start gap-4">
-          {coin.imageUrl && <CoinImage src={coin.imageUrl} name={coin.name} />}
+        <div className="flex items-center gap-4 justify-center">
+          {/* Wrap the image in a flex container for perfect centering */}
+          <div className="w-24 h-24 flex items-center justify-center">
+            <img
+              src={imgSrc}
+              alt="Coin Logo"
+              className="rounded-lg w-full h-full object-cover"
+              onError={() => {
+                if (imgSrc !== defaultImage) {
+                  setImgSrc(defaultImage)
+                }
+              }}
+            />
+          </div>
           <div className="flex-1">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="text-lg font-semibold">{coin.name}</h3>
-                <span className="text-sm text-gray-500">{coin.symbol}</span>
+            <div className="flex items-start">
+              <div className="text-left">
+                <div className="flex">
+                  <h3 className="text-lg -mb-2 text-[var(--creamWhite)]">
+                    {coin.name.toUpperCase()}
+                  </h3>
+                  <div className=" self-end ml-1 text-[8px] text-[var(--lightBlue)]">
+                    {relativeTime}
+                  </div>
+                </div>
+                <span className="text-sm text-[var(--midBlue)]">
+                  ${coin.symbol.toUpperCase()}
+                </span>
+                <div className="desc-container w-5/6">
+                  <p className=" text-sm -mb-2  text-[var(--lightBlue)]">
+                    desc:
+                  </p>
+                  <p className="mt-2 text-[var(--lightBlue)] text-xs">
+                    {coin.description.length > 50
+                      ? `${coin.description.substring(0, 50)}...`
+                      : coin.description}
+                  </p>
+                </div>
               </div>
-              <span className="text-xs text-gray-400">{relativeTime}</span>
             </div>
-
-            <p className="mt-2 text-gray-600 text-sm">{coin.description}</p>
-
             <div className="mt-3 flex flex-wrap gap-2">
               {coin.website && (
                 <SocialLink
@@ -132,40 +164,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
           </div>
         </div>
       </div>
-      {/* Right panel: BUY section */}
-      {weiIn !== null ? (
-        <div className="text-green-600 font-bold">
-          {formatEther(weiIn, 'wei')} ETH
-        </div>
-      ) : loadingEthIn ? (
-        <div className="text-gray-500 text-sm">Waiting...</div>
-      ) : (
-        <button
-          onClick={viewEthIn}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          View ETH
-        </button>
-      )}
-      <div className="flex flex-col items-center justify-center border-l pl-4">
-        <input
-          type="text"
-          value={buyAmount}
-          onChange={(e) => setBuyAmount(e.target.value)}
-          placeholder="ETH"
-          className="mb-2 p-2 border rounded w-20 text-center"
-        />
-        <button
-          onClick={handleBuy}
-          disabled={loading}
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-        >
-          {loading ? 'Processing...' : 'BUY'}
-        </button>
-        {error && <div className="mt-2 text-red-500 text-xs">{error}</div>}
-      </div>
     </div>
   )
 }
-
 export default CoinCard
