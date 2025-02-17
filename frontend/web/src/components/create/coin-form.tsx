@@ -81,12 +81,12 @@ const CoinForm: React.FC = () => {
     console.log(JSON.stringify(receipt, stringifyBigInt, 2))
     const coinId = hexToNumber(receipt.logs[0].data)
     console.info(`Created coinId=${coinId}`)
-    const imgUpload: string | null = await uploadImage(coinId)
+    const imageUrl: string | null = await uploadImage(coinId)
 
     const backendResponse = await postCreatedCoin({
       coinId,
       formData,
-      imgUpload,
+      imageUrl,
       receipt,
     })
 

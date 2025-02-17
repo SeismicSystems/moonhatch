@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useShieldedWallet } from 'seismic-react'
-import { formatEther, parseEther } from 'viem'
+import { parseEther } from 'viem'
 
 import { useContract } from '@/hooks/useContract'
 import { Coin } from '@/types/coin'
@@ -12,7 +12,6 @@ interface CoinCardProps {
 }
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
-  console.log(coin)
   //implement Z to correct timezone issue
   const createdTimestamp = coin.created_at
   const relativeTime = formatRelativeTime(createdTimestamp)
@@ -28,9 +27,8 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
 
   const defaultImage =
     'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
-  const primaryImage = `https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`
 
-  const [imgSrc, setImgSrc] = useState(primaryImage)
+  const [imgSrc, setImgSrc] = useState(coin.imageUrl)
 
   const handleBuy = async () => {
     setError(null)
