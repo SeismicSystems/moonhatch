@@ -1,11 +1,12 @@
 // src/main.rs
 use crate::db::create_coin;
 use crate::models::Coin;
-use crate::schema::coins::dsl::{coins, id, verified};
+use crate::schema::coins::dsl::{coins as coins_table};
+use crate::schema::{coins as coins_schema};
 
-use alloy_primitives::{hex, Address};
-use alloy_provider::network::TransactionBuilder;
-use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
+use abi::get_coin_tx;
+use alloy_primitives::Address;
+use alloy_sol_types::SolValue;
 use axum::{
     extract::{Multipart, Path, State},
     http::{HeaderValue, Method, StatusCode},
@@ -19,7 +20,7 @@ use dotenv::dotenv;
 use std::str::FromStr;
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
-use alloy_provider::{create_seismic_provider_without_wallet, SeismicPublicClient};
+use alloy_provider::{create_seismic_provider_without_wallet, Provider, SeismicPublicClient};
 
 // Declare our modules.
 mod db;
@@ -28,6 +29,7 @@ mod models;
 mod schema;
 mod abi;
 
+use abi::{Coin as SolidityCoin};
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_s3::{config::Region, primitives::ByteStream, Client as S3Client};
 use db_pool::{establish_pool, PgPool};
@@ -84,11 +86,29 @@ async fn verify_coin_handler(
     };
 
     let client = state.seismic_client;
-    // client.call();
+    let tx_req = get_coin_tx(state.contract_address, coin_id as u32);
+    let coin = match client.call(&tx_req).await {
+        Ok(response_bytes) => match SolidityCoin::abi_decode(&response_bytes, true) {
+            Ok(coin) => coin,
+            Err(_) => {
+                return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to parse coin id {}", coin_id)).into_response()    
+            }
+        },
+        Err(_e) => {
+            return (StatusCode::NOT_FOUND, format!("Coin with id {} not found", coin_id)).into_response();
+        }
+    };
 
     // Perform the update operation
-    match diesel::update(coins.filter(id.eq(coin_id)))
-        .set(verified.eq(true))
+    match diesel::update(coins_table.filter(schema::coins::id.eq(coin_id)))
+        .set((
+            coins_schema::verified.eq(true),
+            coins_schema::supply.eq(bigdecimal::BigDecimal::from_str(&coin.supply.to_string()).unwrap()),
+            coins_schema::name.eq(coin.name),
+            coins_schema::symbol.eq(coin.symbol),
+            coins_schema::contract_address.eq(coin.contractAddress.to_string()),
+            coins_schema::creator.eq(coin.creator.to_string())
+        ))
         .execute(&mut conn)
     {
         Ok(rows_affected) if rows_affected > 0 => (

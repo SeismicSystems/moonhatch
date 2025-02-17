@@ -19,11 +19,11 @@ sol! {
     function getCoin(uint32 coinId) public view returns (Coin memory);
 }
 
-fn get_coin_calldata(contract_address: Address, coin_id: u32) -> TransactionRequest {
-    let input = hex!("12341234");
+pub fn get_coin_tx(contract_address: Address, coin_id: u32) -> TransactionRequest {
     let calldata = getCoinCall { coinId: coin_id }.abi_encode();
-    println!("Calldata: {:?}", calldata);
-    TransactionRequest::default().with_to(contract_address).input(TransactionInput::new(input.into()))
+    TransactionRequest::default()
+        .with_to(contract_address)
+        .input(TransactionInput::new(calldata.into()))
 }
 
 #[cfg(test)]
@@ -34,13 +34,13 @@ mod tests {
     use alloy_sol_types::SolType;
     use reqwest::Url;
 
-    use crate::abi::get_coin_calldata;
+    use crate::abi::get_coin_tx;
     use super::*;
 
     #[test]
     fn test_calldata() {
         let contract_address = Address::from_str("0x5FbDB2315678afecb367f032d93F642f64180aa3").unwrap();
-        println!("{:?}", get_coin_calldata(contract_address, 0))
+        println!("{:?}", get_coin_tx(contract_address, 0))
     }
 
     #[tokio::test]
@@ -51,7 +51,7 @@ mod tests {
 
         let contract_address = Address::from_str("0x5FbDB2315678afecb367f032d93F642f64180aa3").unwrap();
         let coin_id = 0;
-        let tx = &get_coin_calldata(contract_address, coin_id);
+        let tx = &get_coin_tx(contract_address, coin_id);
         let response_bytes = seismic_client.call(tx).await.unwrap();
         let coin = Coin::abi_decode(&response_bytes, true).unwrap();
         println!("Coin = {:#?}", coin);
