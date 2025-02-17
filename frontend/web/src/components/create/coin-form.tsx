@@ -4,6 +4,7 @@ import { useShieldedWallet } from 'seismic-react'
 import { hexToNumber } from 'viem'
 
 import { useCreateCoin } from '@/hooks/useCreateCoin'
+import { useFetchCoin } from '@/hooks/useFetchCoin'
 import { CoinFormData } from '@/types/coin'
 import { stringifyBigInt } from '@/util'
 import ImageUpload from '@components/create/image-upload'
@@ -30,6 +31,7 @@ const CoinForm: React.FC = () => {
   const [successOpen, setSuccessOpen] = useState(false)
 
   const { createCoin } = useCreateCoin()
+  const { postCreatedCoin, verifyCoin } = useFetchCoin()
   const { publicClient } = useShieldedWallet()
 
   const uploadImage = async (coinId: number): Promise<string | null> => {
@@ -81,26 +83,11 @@ const CoinForm: React.FC = () => {
     console.info(`Created coinId=${coinId}`)
     const imgUpload: string | null = await uploadImage(coinId)
 
-    const backendResponse = await fetch('http://127.0.0.1:3000/coin/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: coinId,
-        name: formData.name,
-        symbol: formData.symbol,
-        supply: '21000000000000000000000', // as a string for BigDecimal
-        contract_address: receipt.to,
-        creator: receipt.from,
-        graduated: false,
-        verified: false,
-        description: formData.description || null,
-        image_url: imgUpload, // result of the image upload
-        twitter: formData.twitter || null,
-        website: formData.website || null,
-        telegram: formData.telegram || null,
-      }),
+    const backendResponse = await postCreatedCoin({
+      coinId,
+      formData,
+      imgUpload,
+      receipt,
     })
 
     if (!backendResponse.ok) {
@@ -109,6 +96,9 @@ const CoinForm: React.FC = () => {
     }
 
     console.log('Coin successfully saved in the database')
+    verifyCoin(coinId)
+      .then(() => console.log(`Verified coin ${coinId}`))
+      .catch((e) => console.error(`Failed verifying coin ${coinId}: ${e}`))
 
     // Show the success popup
     setSuccessOpen(true)
