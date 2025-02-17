@@ -4,7 +4,7 @@ use crate::models::Coin;
 use crate::schema::coins::dsl::{coins, id, verified};
 
 use axum::{
-    extract::{Multipart, Path, Query, State},
+    extract::{Multipart, Path, State},
     http::{HeaderValue, Method, StatusCode},
     response::IntoResponse,
     routing::{get, post},
@@ -12,7 +12,7 @@ use axum::{
 };
 use db::NewCoin;
 use dotenv::dotenv;
-use std::{collections::HashMap, net::SocketAddr, sync::Arc};
+use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
 use alloy_provider::create_seismic_provider_without_wallet;
 
