@@ -11,6 +11,7 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import './App.css'
+import { Candles } from './components/chart/Candles'
 import CoinDetail from './components/coin/coin-detail'
 import CoinForm from './components/create/coin-form'
 import Home from './pages/Home'
@@ -55,7 +56,12 @@ const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/create" element={<CoinForm />} />
           <Route path="/coins/:coinId" element={<CoinDetail />} />
-
+          <Route
+            path="/candles"
+            element={
+              <Candles pool="0x5E07afD1A8Abd7c3A723396C55a165B23C09844f" />
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Providers>
