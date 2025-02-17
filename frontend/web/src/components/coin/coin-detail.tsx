@@ -49,26 +49,6 @@ const CoinDetail: React.FC = () => {
       .catch((err) => console.error('Error fetching coin:', err))
   }, [loaded, coinId])
 
-  // useEffect(() => {
-  //   if (!coinId || !contract) return
-
-  // const fetchGraduatedStatus = async () => {
-  //   try {
-  //     const updatedCoin = await fetchCoin(BigInt(coinId))
-  //     setCoin(updatedCoin || null)
-  //   } catch (err) {
-  //     console.error('Error fetching graduated status:', err)
-  //   }
-  // }
-
-  // const intervalId = setInterval(fetchGraduatedStatus, 5000) // Poll every 5 seconds
-
-  //   return () => clearInterval(intervalId) // Cleanup on unmount
-  // }, [coinId, contract, fetchCoin])
-
-  /**
-   * Fetch the ETH balance (weiIn) for non-graduated coins.
-   */
   const viewEthIn = async () => {
     if (!walletClient || !contract || !coin || loadingEthIn) return
 

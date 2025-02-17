@@ -24,7 +24,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
             <img
               src={
                 coin.image
-                  ? `https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`
+                  ? coin.image
                   : 'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
               }
               alt="Coin Logo"

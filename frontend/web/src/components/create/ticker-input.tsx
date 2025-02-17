@@ -23,8 +23,8 @@ const TickerInput: React.FC<Omit<InputFieldProps, 'label'>> = ({
           }
         }}
         placeholder="3-5 Characters "
-        maxLength={5} // HTML attribute to prevent typing over 5 characters
-        minLength={3} // Used for form validation (won't block typing, but will mark form invalid if < 3 on submission)
+        // maxLength={5}
+        // minLength={3}
       />
     </div>
   </div>
