@@ -14,6 +14,7 @@ use db::NewCoin;
 use dotenv::dotenv;
 use std::{collections::HashMap, net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
+use alloy_provider::create_seismic_provider_without_wallet;
 
 // Declare our modules.
 mod db;

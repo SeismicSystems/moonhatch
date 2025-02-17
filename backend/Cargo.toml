@@ -25,3 +25,10 @@ aws-sdk-s3 = "0.27.0"
 
 # Tokio runtime.
 tokio = { version = "1.28", features = ["full"] }
+
+alloy-provider = { version = "=0.8.0", features = [
+    "reqwest",
+    "ws",
+    "ipc",
+    "trace-api",
+] }

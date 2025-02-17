@@ -1,3 +1,6 @@
 [workspace]
 members = ["backend"]
 resolver = "2"
+
+[patch.crates-io]
+alloy-provider = { git = "https://github.com/SeismicSystems/seismic-alloy", rev = "daf73651" }
