@@ -16,9 +16,11 @@ const InputField: React.FC<InputFieldProps> = ({
   optional,
 }) => (
   <div className="mb-4">
-    <label className="block text-blue-400 mb-2 text-sm">{label}</label>
+    <label className="block  mb-2 text-sm text-[var(--lightBlue)]">
+      {label}
+    </label>
     <input
-      className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white"
+      className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-[var(--creamWhite)]"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={optional ? '(optional)' : placeholder}

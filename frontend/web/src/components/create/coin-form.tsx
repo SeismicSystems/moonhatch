@@ -34,40 +34,10 @@ const CoinForm: React.FC = () => {
   const { postCreatedCoin, verifyCoin } = useFetchCoin()
   const { publicClient } = useShieldedWallet()
 
-  const uploadImage = async (coinId: number): Promise<string | null> => {
-    if (!formData.image) {
-      return null
-    }
-    const body = new FormData()
-    body.append('file', formData.image)
-
-    // Send a POST request to the backend
-    return fetch(`http://127.0.0.1:3000/coin/${coinId}/upload`, {
-      method: 'POST',
-      body,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Upload failed with status ${response.status}`)
-        }
-        // Assuming the backend returns the URL as plain text.
-        return response.text()
-      })
-      .then((publicUrl) => {
-        console.log('Uploaded image is available at:', publicUrl)
-        return publicUrl
-      })
-      .catch((error) => {
-        console.error('Error uploading image:', error)
-        return null
-      })
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!publicClient) {
-      return
-    }
+    if (!publicClient) return
+
     const hash = await createCoin({
       name: formData.name,
       symbol: formData.symbol,
@@ -77,16 +47,15 @@ const CoinForm: React.FC = () => {
       console.error('failed to broadcast tx')
       return
     }
+
     const receipt = await publicClient.waitForTransactionReceipt({ hash })
-    console.log(JSON.stringify(receipt, stringifyBigInt, 2))
     const coinId = hexToNumber(receipt.logs[0].data)
+
     console.info(`Created coinId=${coinId}`)
-    const imageUrl: string | null = await uploadImage(coinId)
 
     const backendResponse = await postCreatedCoin({
       coinId,
       formData,
-      imageUrl,
       receipt,
     })
 
@@ -100,31 +69,27 @@ const CoinForm: React.FC = () => {
       .then(() => console.log(`Verified coin ${coinId}`))
       .catch((e) => console.error(`Failed verifying coin ${coinId}: ${e}`))
 
-    // Show the success popup
     setSuccessOpen(true)
-    // After 2 seconds, navigate to the coin detail page
     setTimeout(() => {
       navigate(`/coins/${coinId}`)
     }, 2000)
-
-    return
   }
 
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="mb-4">
         <button
-          className="text-blue-400 hover:text-blue-300"
+          className="text-orange-300 hover:text-blue-300"
           type="button"
           onClick={() => navigate(-1)}
         >
-          [go back]
+          [GO BACK]
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 ">
         <InputField
-          label="name"
+          label="NAME"
           value={formData.name}
           onChange={(value) => setFormData({ ...formData, name: value })}
         />
@@ -135,8 +100,8 @@ const CoinForm: React.FC = () => {
         />
 
         <div className="mb-4">
-          <label className="block text-blue-400 mb-2 text-sm">
-            description
+          <label className="block text-[var(--lightBlue)] mb-2 text-sm">
+            DESCRIPTION
           </label>
           <textarea
             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white h-32"
@@ -153,50 +118,84 @@ const CoinForm: React.FC = () => {
 
         <button
           type="button"
-          className="text-blue-400 hover:text-blue-300"
+          className="text-orange-300 hover:text-blue-300"
           onClick={() => setShowMore(!showMore)}
         >
-          {showMore ? 'hide' : 'show'} more options ↑
+          {showMore ? '↑ HIDE MORE OPTIONS ↑' : '↓ SHOW MORE OPTIONS ↓'}
         </button>
 
         {showMore && (
           <div className="space-y-4">
-            <InputField
-              label="Telegram link"
-              value={formData.telegram || ''}
-              onChange={(value) =>
-                setFormData({ ...formData, telegram: value })
-              }
-              optional
-            />
-            <InputField
-              label="Website link"
-              value={formData.website || ''}
-              onChange={(value) => setFormData({ ...formData, website: value })}
-              optional
-            />
-            <InputField
-              label="Twitter or X link"
-              value={formData.twitter || ''}
-              onChange={(value) => setFormData({ ...formData, twitter: value })}
-              optional
-            />
+            <h3 className=" text-[var(--lightBlue)] text-[10px]">
+              THESE FIELDS ARE OPTIONAL
+            </h3>
+            {/* Telegram Input */}
+            <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
+              <span className="text-gray-400 pr-2">t.me/</span>
+              <input
+                type="text"
+                className="bg-transparent border-none outline-none w-full text-white"
+                placeholder="handle"
+                value={formData.telegram}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    telegram: e.target.value.replace('t.me/', ''),
+                  })
+                }
+              />
+            </div>
+
+            {/* Twitter Input */}
+            <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
+              <span className="text-gray-400 pr-2">x.com/</span>
+              <input
+                type="text"
+                className="bg-transparent border-none outline-none w-full text-white"
+                placeholder="username"
+                value={formData.twitter}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    twitter: e.target.value.replace('x.com/', ''),
+                  })
+                }
+              />
+            </div>
+
+            {/* Website Input */}
+            <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
+              <span className="text-gray-400 pr-2">www.</span>
+              <input
+                type="text"
+                className="bg-transparent border-none outline-none w-full text-white"
+                placeholder="example.com"
+                value={formData.website}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    website: e.target.value.replace('www.', ''),
+                  })
+                }
+              />
+            </div>
           </div>
         )}
 
         <p className="text-gray-400 text-sm">
-          tip: coin data cannot be changed after creation
+          COIN DATA CANNOT BE CHANGED AFTER CREATION{' '}
         </p>
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white rounded py-3 hover:bg-blue-700"
+          className="w-full bg-green-600 text-white rounded py-3 hover:bg-blue-700"
         >
-          create coin
+          CREATE COIN
         </button>
 
         <p className="text-gray-400 text-sm text-center">
-          when your coin completes its bonding curve you receive 0.1 testnet ETH
+          WHEN YOUR COIN COMPLETES ITS BONDING CURVE, YOU RECEIVE 0.1 TESTNET
+          ETH.
         </p>
       </form>
 
