@@ -19,38 +19,22 @@ export default function HomeHeader() {
         {/* Left section: Help Icon */}
         <button
           onClick={() => setShowHowItWorks(true)}
-          className="text-[var(--creamWhite)]  ml-12 hover:text-blue-600 transition justify-self-start"
+          className="text-orange-300  md:ml-40 lg:ml-96  ml-12 hover:text-blue-600 transition justify-self-start"
         >
-          <HelpIcon />
+          <HelpIcon
+            sx={{
+              fontSize: { xs: '20px', sm: '20px', md: '34px' },
+            }}
+          />
         </button>
 
         {/* Center section: "CREATE COIN" button */}
-        <motion.button
-          animate={{
-            backgroundColor: [
-              '#161b33', // Base color
-              '#00FF00', // Flicker 1: green
-              '#161b33', // Back to base
-              '#00FF00', // Flicker 2: green
-              '#161b33', // Back to base
-            ],
-            color: ['#f1dac4', '#0d0c1d', '#f1dac4', '#0d0c1d', '#f1dac4'],
-          }}
-          transition={{
-            duration: 4,
-            times: [0, 0.2, 0.5, 0.8, 1],
-            ease: [
-              [0.445, 0.05, 0.55, 0.95],
-              [0.445, 0.05, 0.55, 0.95],
-              [0.445, 0.05, 0.55, 0.95],
-              [0.445, 0.05, 0.55, 0.95],
-            ],
-          }}
+        <button
           onClick={() => navigate('/create')}
-          className="mt-6 w-[200px] max-w-xs text-[var(--creamWhite)] rounded-xl transition border px-2 text-xl whitespace-nowrap h-16 justify-self-center"
+          className="mt-6 w-[200px] md:w-[300px] lg:w-[400px] max-w-3xl lg:my-12 text-[var(--creamWhite)] rounded-xl transition border px-2 text-xl md:text-2xl lg:text-3xl whitespace-nowrap h-16 md:h-20 lg:h-28 justify-self-center bg-[#161b33] hover:bg-green-500 hover:text-[#0d0c1d]"
         >
           CREATE COIN
-        </motion.button>
+        </button>
 
         {/* Right section: Empty placeholder to balance the grid */}
 
@@ -61,23 +45,27 @@ export default function HomeHeader() {
           />
         )}
       </div>
-      <div className="justify-self-end mt-4 flex-col flex text-[var(--creamWhite)]"></div>
+      <div className="justify-self-end mt-4 lg:-mt-4 flex-col flex text-[var(--creamWhite)]"></div>
       <div className="flex grad-icons-container gap-2 justify-center ">
         <div className="flex items-center">
           <LockIcon
-            className="lock-icon text-red-500 mx-1  "
-            style={{ fontSize: '20px' }}
+            className="lock-icon text-red-500 mx-1"
+            sx={{
+              fontSize: { xs: '20px', sm: '24px', md: '24px', lg: '30px' },
+            }}
           />
-          <p className="text-[10px] text-[var(--creamWhite)]">
+          <p className="text-[10px] md:text-[12px] lg:text-[14px] text-[var(--creamWhite)]">
             = not graduated to raydium
           </p>
         </div>
         <div className="flex items-center">
           <SchoolIcon
             className="lock-icon text-green-500 mx-1 "
-            style={{ fontSize: '20px' }}
+            sx={{
+              fontSize: { xs: '20px', sm: '24px', md: '24px', lg: '30px' },
+            }}
           />
-          <p className="text-[10px] text-[var(--creamWhite)]">
+          <p className="text-[10px] md:text-[12px] lg:text-[14px] text-[var(--creamWhite)]">
             = graduated to raydium
           </p>
         </div>
