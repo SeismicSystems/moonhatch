@@ -91,26 +91,6 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                 <Description />
 
                 <div className="space-y-4 mb-6">
-                  <div className="flex grad-icons-container gap-2 justify-center ">
-                    <div className="flex items-center">
-                      <LockIcon
-                        className="lock-icon text-red-500 mx-1  "
-                        style={{ fontSize: '20px' }}
-                      />
-                      <p className="text-[10px] text-[var(--creamWhite)]">
-                        = not graduated to raydium
-                      </p>
-                    </div>
-                    <div className="flex items-center">
-                      <SchoolIcon
-                        className="lock-icon text-green-500 mx-1 "
-                        style={{ fontSize: '20px' }}
-                      />
-                      <p className="text-[10px] text-[var(--creamWhite)]">
-                        = graduated to raydium
-                      </p>
-                    </div>
-                  </div>
                   <Step number={1}>pick a coin that you like</Step>
                   <Step number={2}>buy the coin on the bonding curve</Step>
                   <Step number={3}>

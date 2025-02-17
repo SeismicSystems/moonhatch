@@ -4,15 +4,17 @@ import { useShieldedWallet } from 'seismic-react'
 import { Coin } from '@/types/coin'
 import { formatRelativeTime } from '@/util'
 import SocialLink from '@components/coin/social-link'
+import LockIcon from '@mui/icons-material/Lock'
+import SchoolIcon from '@mui/icons-material/School'
 
 interface CoinCardProps {
   coin: Coin
 }
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
-  console.log(coin)
   //implement Z to correct timezone issue
   const relativeTime = formatRelativeTime(coin.createdAt)
+
   const { walletClient } = useShieldedWallet()
 
   const defaultImage =
@@ -43,20 +45,33 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
           <div className="flex-1">
             <div className="flex items-start">
               <div className="text-left">
-                <div className="flex">
-                  <h3 className="text-lg -mb-2 text-[var(--creamWhite)]">
+                <div className="flex items-center  ">
+                  <h3 className="text-lg -mb-2 text-[var(--creamWhite)] ">
                     {coin.name.toUpperCase()}
                   </h3>
-                  <div className=" self-end ml-1 text-[8px] text-[var(--lightBlue)]">
-                    {relativeTime}
+                  <div className="items-center justify-center">
+                    {coin.graduated ? (
+                      <SchoolIcon
+                        className="lock-icon text-green-500 mx-1"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <LockIcon
+                        className="lock-icon text-red-500 mx-1"
+                        style={{ fontSize: '20px' }}
+                      />
+                    )}
                   </div>
                 </div>
                 <span className="text-sm text-[var(--midBlue)]">
                   ${coin.symbol.toUpperCase()}
                 </span>
+                <div className=" self-end text-[10px] text-[var(--lightBlue)]">
+                  {relativeTime}
+                </div>
                 <div className="desc-container w-5/6">
-                  <p className=" text-sm -mb-2  text-[var(--lightBlue)]">
-                    desc:
+                  <p className=" text-[9px] -mb-2  text-[var(--lightBlue)]">
+                    DESCRIPTION:{' '}
                   </p>
                   <p className="mt-2 text-[var(--lightBlue)] text-xs">
                     {coin.description.length > 50
