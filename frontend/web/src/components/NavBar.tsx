@@ -13,7 +13,7 @@ const NavBar: React.FC = () => {
 
   return (
     <>
-      <nav className="w-full bg-[var(--darkBlue)] shadow-md py-4 px-8 flex justify-between text-lg font-medium text-[var(--creamWhite)] ">
+      <nav className="w-auto bg-[var(--darkBlue)] shadow-md py-4 px-8 flex justify-between text-lg font-medium text-[var(--creamWhite)] ">
         <button
           onClick={() => navigate('/')}
           className="hover:text-blue-600 transition"

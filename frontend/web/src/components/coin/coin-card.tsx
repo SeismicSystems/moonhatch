@@ -69,7 +69,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
 
   return (
     <div
-      className="bg-[var(--darkBlue)] rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex gap-4 cursor-pointer"
+      className="coin-card-container bg-[var(--darkBlue)] w-full rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex gap-4 cursor-pointer"
       onClick={() => navigate(`/coins/${coin.id}`)} // Navigate when clicking card
     >
       {/* Left panel: Coin details */}
@@ -91,34 +91,38 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
             <div className="flex items-start">
               <div className="text-left">
                 <div className="flex items-center">
-                  <h3 className="text-lg -mb-2 text-[var(--creamWhite)]">
+                  <h3 className="text-lg md:text-xl -mb-2 text-[var(--creamWhite)]">
                     {scrambledName}
                   </h3>
                   <div className="items-center justify-center">
                     {coin.graduated ? (
                       <SchoolIcon
                         className="lock-icon text-green-500 mx-1"
-                        style={{ fontSize: '20px' }}
+                        sx={{
+                          fontSize: { xs: '20px', sm: '20px', md: '24px' },
+                        }}
                       />
                     ) : (
                       <LockIcon
                         className="lock-icon text-red-500 mx-1"
-                        style={{ fontSize: '20px' }}
+                        sx={{
+                          fontSize: { xs: '20px', sm: '20px', md: '24px' },
+                        }}
                       />
                     )}
                   </div>
                 </div>
-                <span className="text-sm text-[var(--midBlue)]">
+                <span className="text-sm md:text-[16px] text-[var(--midBlue)]">
                   {scrambledSymbol}
                 </span>
-                <div className="self-end text-[10px] text-[var(--lightBlue)]">
+                <div className="self-end text-[10px] md:text-[12px] text-[var(--lightBlue)]">
                   AGE: {formatRelativeTime(coin.createdAt)}
                 </div>
                 <div className="desc-container w-5/6">
-                  <p className="text-[9px] -mb-2 text-[var(--lightBlue)]">
+                  <p className="text-[9px] md:text-[10px] -mb-2 text-[var(--creamWhite)]">
                     DESCRIPTION:
                   </p>
-                  <p className="mt-2 text-[var(--lightBlue)] text-xs">
+                  <p className="mt-2 text-[var(--lightBlue)] text-xs md:text-[14px]">
                     {coin.description.length > 50
                       ? `${coin.description.substring(0, 50)}...`
                       : coin.description}

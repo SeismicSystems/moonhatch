@@ -16,3 +16,21 @@ body {
   /* font-family: 'Orbitron', cursive; */
   font-family: 'Tomorrow', cursive;
 }
+
+.coin-card-container {
+  height: 160px;
+  @media (min-width: 768px) {
+    height: 200px;
+  }
+  /* width: 393px;
+  @media (min-width: 768px) {
+    width: 40px;
+  }
+  display: flex; */
+  align-items: center;
+}
+
+.home-container {
+  margin: 0;
+  padding: 0;
+}
