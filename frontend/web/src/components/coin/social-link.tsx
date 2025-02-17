@@ -9,10 +9,26 @@ interface SocialLinkProps {
   href: string
   type: 'website' | 'telegram' | 'twitter'
   label: string
+  onClick?: (e: React.MouseEvent) => void
 }
 
 // Helper Components
 const SocialLink: React.FC<SocialLinkProps> = ({ href, type, label }) => {
+  const getFormattedHref = () => {
+    if (type === 'twitter') {
+      return `https://twitter.com/${href.replace('@', '')}` // Remove @ and format link
+    }
+    if (type === 'telegram') {
+      return `https://t.me/${href.replace('@', '')}`
+    }
+    if (type === 'website') {
+      return href.startsWith('http://') || href.startsWith('https://')
+        ? href
+        : `https://${href}`
+    }
+    return href
+  }
+
   const getIcon = () => {
     switch (type) {
       case 'website':
@@ -28,7 +44,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ href, type, label }) => {
 
   return (
     <a
-      href={href}
+      href={getFormattedHref()}
       target="_blank"
       rel="noopener noreferrer"
       className="inline-flex items-center justify-center gap-2 px-2 py-1.5 rounded-full text-[var(--lightBlue)] text-sm 

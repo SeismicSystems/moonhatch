@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
 
+// Import navigate hook
 import { Coin } from '@/types/coin'
 import { formatRelativeTime } from '@/util'
 import SocialLink from '@components/coin/social-link'
@@ -12,6 +14,7 @@ interface CoinCardProps {
 }
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
+  const navigate = useNavigate() // Navigation hook
   const { walletClient } = useShieldedWallet()
   const defaultImage =
     'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
@@ -60,16 +63,18 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
     }
 
     // Scramble only the name and ticker for 500ms
-    scrambleText(coin.name.toUpperCase(), setScrambledName, 1000)
-    scrambleText(`$${coin.symbol.toUpperCase()}`, setScrambledSymbol, 1000)
+    scrambleText(coin.name.toUpperCase(), setScrambledName, 500)
+    scrambleText(`$${coin.symbol.toUpperCase()}`, setScrambledSymbol, 500)
   }, [coin])
 
   return (
-    <div className="bg-[var(--darkBlue)] rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex gap-4">
+    <div
+      className="bg-[var(--darkBlue)] rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex gap-4 cursor-pointer"
+      onClick={() => navigate(`/coins/${coin.id}`)} // Navigate when clicking card
+    >
       {/* Left panel: Coin details */}
       <div className="flex-1">
         <div className="flex items-center gap-4 justify-center">
-          {/* Wrap the image in a flex container for perfect centering */}
           <div className="w-24 h-24 flex items-center justify-center">
             <img
               src={imgSrc}
@@ -122,19 +127,34 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col items-center justify-center flex-wrap gap-2 text-center">
+          {/* Social Links */}
+          <div
+            className="flex flex-col items-center justify-center flex-wrap gap-2 text-center"
+            onClick={(e) => e.stopPropagation()} // Prevents card click from triggering
+          >
             {coin.website && (
-              <SocialLink href={coin.website} type="website" label="website" />
+              <SocialLink
+                href={coin.website}
+                type="website"
+                label="website"
+                onClick={(e) => e.stopPropagation()}
+              />
             )}
             {coin.telegram && (
               <SocialLink
                 href={coin.telegram}
                 type="telegram"
                 label="telegram"
+                onClick={(e) => e.stopPropagation()}
               />
             )}
             {coin.twitter && (
-              <SocialLink href={coin.twitter} type="twitter" label="twitter" />
+              <SocialLink
+                href={coin.twitter}
+                type="twitter"
+                label="twitter"
+                onClick={(e) => e.stopPropagation()}
+              />
             )}
           </div>
         </div>
