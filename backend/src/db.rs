@@ -1,8 +1,9 @@
 // src/db.rs
 
 use crate::models::{Coin, PoolPrices};
-use crate::schema::{coins as coins_schema, pool_prices as pool_prices_schema};
+use crate::schema::{coins as coins_schema, pool_prices as pool_prices_schema, pools as pools_schema};
 use crate::schema::coins::dsl::{coins as coins_table};
+use crate::schema::pools::dsl::{pools as pools_table};
 use crate::schema::pool_prices::dsl::{pool_prices as pool_prices_table};
 use bigdecimal::BigDecimal;
 use diesel::prelude::*;
@@ -47,7 +48,7 @@ pub fn get_all_coins(conn: &mut PgConnection) -> QueryResult<Vec<Coin>> {
     coins_table.order(coins_schema::created_at.desc()).load::<Coin>(conn)
 }
 
-pub fn get_pool_prices(conn: &mut PgConnection, pool: String, max_ts: Option<i64>, min_ts: Option<i64>, limit: usize) -> QueryResult<Vec<PoolPrices>> {
+pub fn get_pool_prices(conn: &mut PgConnection, pool: String, max_ts: Option<i64>, min_ts: Option<i64>, limit: usize) -> QueryResult<Vec<PoolPrices>> {    
     // Start with base query and pool filter
     let mut query = pool_prices_table
         .filter(pool_prices_schema::pool.eq(pool))
