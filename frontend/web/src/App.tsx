@@ -56,7 +56,12 @@ const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/create" element={<CoinForm />} />
           <Route path="/coins/:coinId" element={<CoinDetail />} />
-          <Route path="/candles" element={<Candles symbol="WOW/ETH" />} />
+          <Route
+            path="/candles"
+            element={
+              <Candles pool="0x5E07afD1A8Abd7c3A723396C55a165B23C09844f" />
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Providers>
