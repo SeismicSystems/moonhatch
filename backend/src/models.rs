@@ -24,6 +24,8 @@ pub struct Coin {
     pub twitter: Option<String>,
     pub website: Option<String>,
     pub telegram: Option<String>,
+    #[serde(rename = "deployedPool")]
+    pub deployed_pool: Option<String>,
 }
 
 #[derive(Queryable, Serialize, Deserialize, Debug)]
@@ -40,3 +42,13 @@ pub struct Pool {
     pub created_at: NaiveDateTime,
 }
 
+#[derive(Queryable, Serialize, Deserialize, Debug)]
+pub struct PoolPrices {
+    pub id: i64,
+    pub pool: String,
+    pub time: i64,
+    pub open: BigDecimal,
+    pub high: BigDecimal,
+    pub low: BigDecimal,
+    pub close: BigDecimal,
+}
