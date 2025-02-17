@@ -1,9 +1,7 @@
-import { HomeIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Link } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
-import { formatEther, parseEther } from 'viem'
+import { parseEther } from 'viem'
 
 import { useContract } from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
@@ -136,6 +134,10 @@ const CoinDetail: React.FC = () => {
     }
 
     try {
+      if (isBuying) {
+        setBuyError('Already buying')
+        return
+      }
       const balance = await publicClient.getBalance({
         address: walletClient.account.address,
       })
