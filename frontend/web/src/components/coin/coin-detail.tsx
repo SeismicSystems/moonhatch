@@ -38,15 +38,19 @@ const CoinDetail: React.FC = () => {
     if (cachedWei) setWeiIn(BigInt(cachedWei))
   }, [coinId])
 
-  useEffect(() => {
-    if (!loaded || !coinId) return
+  useEffect(
+    () => {
+      if (!loaded || !coinId) return
 
-    console.log(`coinId = ${coinId}`)
+      console.log(`coinId = ${coinId}`)
 
-    fetchCoin(BigInt(coinId))
-      .then((foundCoin) => setCoin(foundCoin || null))
-      .catch((err) => console.error('Error fetching coin:', err))
-  }, [loaded, coinId])
+      fetchCoin(BigInt(coinId))
+        .then((foundCoin) => setCoin(foundCoin || null))
+        .catch((err) => console.error('Error fetching coin:', err))
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [loaded, coinId]
+  )
 
   // useEffect(() => {
   //   if (!coinId || !contract) return
@@ -201,6 +205,7 @@ const CoinDetail: React.FC = () => {
       <div className="status-icon-container bg-[var(--bgColor)] flex justify-center mt-4">
         {coin.graduated ? (
           <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
+            {/* <Candles symbol={`${coin.symbol}/ETH`} /> */}
             CHART
           </div>
         ) : (
