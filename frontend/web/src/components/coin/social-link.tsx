@@ -8,6 +8,7 @@ import XIcon from '@mui/icons-material/X'
 interface SocialLinkProps {
   href: string
   type: 'website' | 'telegram' | 'twitter'
+  label: string
 }
 
 // Helper Components

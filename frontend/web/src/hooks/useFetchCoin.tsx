@@ -52,8 +52,8 @@ export function useFetchCoin() {
         // Map over the array to provide default values for nullable fields
         return data.map((coin) => ({
           ...coin,
-          created_at: coin.created_at
-            ? new Date(coin.created_at + 'Z').getTime()
+          createdAt: coin.createdAt
+            ? new Date(coin.createdAt + 'Z').getTime()
             : 0,
           description: coin.description || '',
           twitter: coin.twitter || '',
@@ -80,12 +80,12 @@ export function useFetchCoin() {
   const postCreatedCoin = ({
     coinId,
     formData,
-    imgUpload,
+    imageUrl,
     receipt,
   }: {
     coinId: number
     formData: CoinFormData
-    imgUpload: string | null
+    imageUrl: string | null
     receipt: TransactionReceipt
   }) => {
     return fetch(`${BASE_API_URL}/coin/create`, {
@@ -98,12 +98,12 @@ export function useFetchCoin() {
         name: formData.name,
         symbol: formData.symbol,
         supply: '21000000000000000000000', // as a string for BigDecimal
-        contract_address: receipt.to,
+        contractAddress: receipt.to,
         creator: receipt.from,
         graduated: false,
         verified: false,
         description: formData.description || null,
-        image_url: imgUpload, // result of the image upload
+        imageUrl,
         twitter: formData.twitter || null,
         website: formData.website || null,
         telegram: formData.telegram || null,

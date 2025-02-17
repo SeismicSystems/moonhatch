@@ -11,12 +11,15 @@ pub struct Coin {
     pub name: String,
     pub symbol: String,
     pub supply: BigDecimal,
+    #[serde(rename = "contractAddress")]
     pub contract_address: String,
     pub creator: String,
     pub graduated: bool,
     pub verified: bool,
     pub description: Option<String>,
+    #[serde(rename = "imageUrl")]
     pub image_url: Option<String>,
+    #[serde(rename = "createdAt")]
     pub created_at: NaiveDateTime,
     pub twitter: Option<String>,
     pub website: Option<String>,

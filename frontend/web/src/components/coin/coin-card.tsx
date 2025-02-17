@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useShieldedWallet } from 'seismic-react'
-import { formatEther, parseEther } from 'viem'
 
-import { useContract } from '@/hooks/useContract'
 import { Coin } from '@/types/coin'
 import { formatRelativeTime } from '@/util'
 import SocialLink from '@components/coin/social-link'
@@ -12,88 +10,14 @@ interface CoinCardProps {
 }
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
-  console.log(coin)
   //implement Z to correct timezone issue
-  const createdTimestamp = coin.created_at
-  const relativeTime = formatRelativeTime(createdTimestamp)
-  const [buyAmount, setBuyAmount] = useState<string>('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
-
-  const { publicClient, walletClient } = useShieldedWallet()
-  const { contract } = useContract()
-
-  const [loadingEthIn, setLoadingEthIn] = useState(false)
-  const [weiIn, setWeiIn] = useState<bigint | null>(null)
+  const relativeTime = formatRelativeTime(coin.createdAt)
+  const { walletClient } = useShieldedWallet()
 
   const defaultImage =
     'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
-  const primaryImage = `https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`
 
-  const [imgSrc, setImgSrc] = useState(primaryImage)
-
-  const handleBuy = async () => {
-    setError(null)
-    if (!publicClient || !walletClient) {
-      setError('Clients not loaded')
-      return
-    }
-    if (!contract) {
-      setError('client not loaded')
-      return
-    }
-    // Check that the input is a valid number
-    if (!buyAmount || isNaN(Number(buyAmount))) {
-      setError('Please enter a valid amount')
-      return
-    }
-    // Convert the input amount (ETH) to Wei (bigint)
-    const amountInWei = parseEther(buyAmount, 'wei')
-    try {
-      // Refresh the balance just before sending the transaction.
-      const balance = await publicClient.getBalance({
-        address: walletClient.account.address,
-      })
-
-      if (amountInWei > BigInt(balance)) {
-        setError('Insufficient balance')
-        return
-      }
-
-      setLoading(true)
-      // Execute the contract call:
-      const hash = await contract.write.buy([coin.id], {
-        gas: 1_000_000,
-        value: amountInWei,
-      })
-      console.log(`Tx hash: ${hash}`)
-      // Optionally, clear the input or give a success message:
-      setBuyAmount('')
-    } catch (err) {
-      // @ts-expect-error: it's an error
-      setError(`Transaction failed: ${err.message || err}`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const viewEthIn = async () => {
-    // TODO: read/write this to browser's local storage once they read it once
-    // this map should be [chainId] => [coinId] => weiIn
-    if (!walletClient || !contract) {
-      return
-    }
-    if (loadingEthIn) {
-      return
-    }
-    setLoadingEthIn(true)
-
-    // @ts-expect-error: it gives back a bigint
-    const weisBought: bigint = await contract.read.getWeiIn([coin.id])
-    setWeiIn(weisBought)
-
-    setLoadingEthIn(false)
-  }
+  const [imgSrc, setImgSrc] = useState(coin.imageUrl)
 
   useEffect(() => {}, [coin, walletClient])
 
