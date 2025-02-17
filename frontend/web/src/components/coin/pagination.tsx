@@ -18,13 +18,13 @@ const Pagination: React.FC<PaginationProps> = ({
   const totalPages = Math.ceil(totalItems / itemsPerPage)
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-6">
+    <div className="flex items-center justify-center text-[var(--creamWhite)] gap-2 mt-6">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent"
       >
-        <ChevronLeft className="h-5 w-5" />
+        <ChevronLeft className="h-5 w-5 text-[var(--creamWhite)]" />
       </button>
 
       <div className="flex gap-1">
@@ -34,7 +34,7 @@ const Pagination: React.FC<PaginationProps> = ({
             onClick={() => onPageChange(i + 1)}
             className={`w-8 h-8 rounded-md ${
               currentPage === i + 1
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[var(--midBlue)] text-[var(--creamWhite)]'
                 : 'hover:bg-gray-100'
             }`}
           >
@@ -48,7 +48,7 @@ const Pagination: React.FC<PaginationProps> = ({
         disabled={currentPage === totalPages}
         className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent"
       >
-        <ChevronRight className="h-5 w-5" />
+        <ChevronRight className="h-5 w-5 text-[var(--creamWhite)]" />
       </button>
     </div>
   )

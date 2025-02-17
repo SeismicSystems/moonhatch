@@ -1,22 +1,42 @@
-import { ExternalLink, Globe, MessageCircle, Twitter } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import React from 'react'
+
+import LanguageIcon from '@mui/icons-material/Language'
+import TelegramIcon from '@mui/icons-material/Telegram'
+import XIcon from '@mui/icons-material/X'
 
 interface SocialLinkProps {
   href: string
   type: 'website' | 'telegram' | 'twitter'
   label: string
+  onClick?: (e: React.MouseEvent) => void
 }
 
 // Helper Components
 const SocialLink: React.FC<SocialLinkProps> = ({ href, type, label }) => {
+  const getFormattedHref = () => {
+    if (type === 'twitter') {
+      return `https://twitter.com/${href.replace('@', '')}` // Remove @ and format link
+    }
+    if (type === 'telegram') {
+      return `https://t.me/${href.replace('@', '')}`
+    }
+    if (type === 'website') {
+      return href.startsWith('http://') || href.startsWith('https://')
+        ? href
+        : `https://${href}`
+    }
+    return href
+  }
+
   const getIcon = () => {
     switch (type) {
       case 'website':
-        return <Globe className="h-4 w-4" />
+        return <LanguageIcon className="h-4 w-4" />
       case 'telegram':
-        return <MessageCircle className="h-4 w-4" />
+        return <TelegramIcon className="h-4 w-4" />
       case 'twitter':
-        return <Twitter className="h-4 w-4" />
+        return <XIcon className="h-4 w-4" />
       default:
         return <ExternalLink className="h-4 w-4" />
     }
@@ -24,15 +44,14 @@ const SocialLink: React.FC<SocialLinkProps> = ({ href, type, label }) => {
 
   return (
     <a
-      href={href}
+      href={getFormattedHref()}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm 
-                bg-gray-100 hover:bg-gray-200 transition-colors"
+      className="inline-flex items-center justify-center gap-2 px-2 py-1.5 rounded-full text-[var(--lightBlue)] text-sm 
+                bg-[var(--midBlue)] hover:bg-gray-200 transition-colors"
       title={label}
     >
       {getIcon()}
-      <span>{label}</span>
     </a>
   )
 }
