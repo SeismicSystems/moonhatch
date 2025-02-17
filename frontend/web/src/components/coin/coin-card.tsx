@@ -69,7 +69,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
 
   return (
     <div
-      className="bg-[var(--darkBlue)] rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex gap-4 cursor-pointer"
+      className="bg-[var(--darkBlue)] border border-[var(--creamWhite)] border-2 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex gap-4 cursor-pointer"
       onClick={() => navigate(`/coins/${coin.id}`)} // Navigate when clicking card
     >
       {/* Left panel: Coin details */}
