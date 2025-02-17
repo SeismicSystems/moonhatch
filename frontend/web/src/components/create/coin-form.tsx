@@ -6,7 +6,6 @@ import { hexToNumber } from 'viem'
 import { useCreateCoin } from '@/hooks/useCreateCoin'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import { CoinFormData } from '@/types/coin'
-import { stringifyBigInt } from '@/util'
 import ImageUpload from '@components/create/image-upload'
 import InputField from '@components/create/input-field'
 import TickerInput from '@components/create/ticker-input'
@@ -31,7 +30,7 @@ const CoinForm: React.FC = () => {
   const [successOpen, setSuccessOpen] = useState(false)
 
   const { createCoin } = useCreateCoin()
-  const { postCreatedCoin, verifyCoin } = useFetchCoin()
+  const { postCreatedCoin, verifyCoin, uploadImage } = useFetchCoin()
   const { publicClient } = useShieldedWallet()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,10 +52,12 @@ const CoinForm: React.FC = () => {
 
     console.info(`Created coinId=${coinId}`)
 
+    const imageUrl: string | null = await uploadImage(coinId, formData.image)
     const backendResponse = await postCreatedCoin({
       coinId,
       formData,
       receipt,
+      imageUrl,
     })
 
     if (!backendResponse.ok) {
