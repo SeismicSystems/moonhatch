@@ -1,161 +1,78 @@
 import { useEffect, useState } from 'react'
 
-import { useContract } from '@/hooks/useContract'
-import type { Coin, OnChainCoin } from '@/types/coin'
+import type { Coin } from '@/types/coin'
 
-export function useFetchCoin() {
+interface APIEndpoints {
+  coinDetail: string
+  allCoins: string
+}
+
+export function useFetchCoin(
+  endpoints: APIEndpoints = {
+    coinDetail: 'http://127.0.0.1:3000/coin',
+    allCoins: 'http://127.0.0.1:3000/coins',
+  }
+) {
   const [loading, setLoading] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
-  const { contract, error: contractError } = useContract()
-
-  // const fetchCoin = async (coinId: bigint): Promise<Coin> => {
-  //   if (!contract) {
-  //     if (contractError) {
-  //       throw new Error(`Error loading contract: ${contractError}`)
-  //     } else {
-  //       throw new Error(`Contract not yet loaded`)
-  //     }
-  //   }
-  //   return (
-  //     contract.tread
-  //       .getCoin([coinId])
-  //       // @ts-expect-error: This is the actual type returned from call
-  //       .then(({ name, symbol, supply, contractAddress }: OnChainCoin) => {
-  //         return {
-  //           id: coinId,
-  //           name,
-  //           symbol,
-  //           supply,
-  //           contractAddress,
-  //           // TODO: fetch rest from server
-  //           createdAt: 1738336436,
-  //           description: '',
-  //         } as Coin
-  //       })
-  //   )
-  // }
-
   const fetchCoin = async (coinId: bigint): Promise<Coin> => {
-    if (!contract) {
-      if (contractError) {
-        throw new Error(`Error loading contract: ${contractError}`)
-      } else {
-        throw new Error(`Contract not yet loaded`)
-      }
-    }
-
-    // Fetch on-chain data
-    const [coinData, graduated] = (await contract.tread.getCoinData([
-      coinId,
-    ])) as [OnChainCoin, boolean]
-
-    // Initialize description and other variables to empty strings
-    let description = ''
-    let twitter = ''
-    let telegram = ''
-    let website = ''
-
-    // Attempt to fetch additional info from the database using the correct endpoint
+    setLoading(true)
     try {
+      // Use the coinDetail endpoint for a single coin
       const response = await fetch(
-        `http://127.0.0.1:3000/coin/${coinId.toString()}`
+        `${endpoints.coinDetail}/${coinId.toString()}`
       )
       if (response.ok) {
-        const dbData = await response.json()
-        twitter = dbData.coin?.twitter || ''
-        telegram = dbData.coin?.telegram || ''
-        website = dbData.coin?.website || ''
-        // Adjust based on your API response structure:
-        // Your API returns { "coin": { ... } }
-        description = dbData.coin?.description || ''
+        const data = await response.json()
+        return data.coin as Coin
       } else {
-        console.warn(`No DB info for coin ${coinId}, response not ok`)
+        throw new Error(`Response not ok for coin ${coinId}`)
       }
-    } catch (dbError) {
-      console.error(`Failed to fetch DB info for coin ${coinId}:`, dbError)
-      // Fallback: leave description empty or assign a default value
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Unknown error'))
+      throw err
+    } finally {
+      setLoading(false)
+      setLoaded(true)
     }
-
-    return {
-      id: coinId,
-      name: coinData.name,
-      symbol: coinData.symbol,
-      supply: coinData.supply,
-      contractAddress: coinData.contractAddress,
-      graduated,
-      createdAt: 1738336436, // update as needed
-      twitter,
-      telegram,
-      website,
-      description,
-      creator: coinData.creator,
-    } as Coin
   }
-
-  const fetchCoinsCreated = async (): Promise<bigint> => {
-    if (!contract) {
-      if (contractError) {
-        throw new Error(`Error loading contract: ${contractError}`)
-      } else {
-        throw new Error(`Contract not yet loaded`)
-      }
-    }
-    // @ts-expect-error: this returns a bigint
-    const maxCoinId: bigint = await contract.tread.coinsCreated()
-    return maxCoinId
-  }
-
-  const fetchAllCoins = async (): Promise<Coin[]> => {
-    if (!contract) {
-      if (contractError) {
-        console.error(`Error loading contract: ${contractError}`)
-      } else {
-        console.warn(`Contract not yet loaded`)
-      }
-      return []
-    }
-
-    const maxCoinId = await fetchCoinsCreated()
-    if (maxCoinId === 0n) {
-      console.warn('No coins created yet')
-      return []
-    }
-
-    // Create an array of promises for fetching each coin
-    const fetchPromises = Array.from(
-      { length: Number(maxCoinId) },
-      (_, index) => fetchCoin(BigInt(index))
-    )
-
-    return Promise.all(fetchPromises)
-  }
-
-  useEffect(() => {
-    if (!contract) {
-      return
-    }
-    setLoaded(true)
-  }, [contract])
 
   const fetchCoins = async (): Promise<Coin[]> => {
     setLoading(true)
-    setError(null)
-
     try {
-      const coins = await fetchAllCoins()
-      return coins
+      // Fetch from the allCoins endpoint
+      const response = await fetch(endpoints.allCoins)
+      if (response.ok) {
+        const data = (await response.json()) as Coin[]
+        // Map over the array to provide default values for nullable fields
+        return data.map((coin) => ({
+          ...coin,
+          created_at: coin.created_at || '', // use coin.created_at here
+          description: coin.description || '',
+          twitter: coin.twitter || '',
+          website: coin.website || '',
+          telegram: coin.telegram || '',
+        }))
+      } else {
+        throw new Error(`Failed to fetch coins`)
+      }
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Unknown error occurred'))
-      return []
+      setError(err instanceof Error ? err : new Error('Unknown error'))
+      throw err
     } finally {
       setLoading(false)
+      setLoaded(true)
     }
   }
 
+  // Optionally, mark as loaded on mount
+  useEffect(() => {
+    setLoaded(true)
+  }, [])
+
   return {
-    fetchCoinsCreated,
     fetchCoin,
     fetchCoins,
     loaded,
