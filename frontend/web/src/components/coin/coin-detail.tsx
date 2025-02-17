@@ -202,14 +202,17 @@ const CoinDetail: React.FC = () => {
           setModalOpen={setModalOpen}
         />
       </div>
-      <div className="status-icon-container bg-[var(--bgColor)] flex justify-center mt-4">
+      <div className="status-icon-container bg-[var(--bgColor)] flex justify-center ">
         {coin.graduated ? (
           <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
             {/* <Candles symbol={`${coin.symbol}/ETH`} /> */}
             CHART
           </div>
         ) : (
-          <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
+          <div className="chart-container flex-col  flex justify-center items-center h-[350px] w-[350px] border">
+            <h3 className="text-[var(--creamWhite)] text-center mb-12">
+              CHART LOCKED UNTIL GRADUATION
+            </h3>
             <div className="lock-container w-[130px] border-2 border-red-500 rounded-full p-4">
               <LockIcon
                 className="lock-icon text-red-500 animate-pulse"
