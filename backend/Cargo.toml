@@ -32,3 +32,7 @@ alloy-provider = { version = "=0.8.0", features = [
     "ipc",
     "trace-api",
 ] }
+alloy-rpc-types-eth = { version = "=0.8.0" }
+alloy-primitives = { version = "0.8" }
+alloy-sol-types = { version = "0.8" }
+reqwest = "0.12.12"
