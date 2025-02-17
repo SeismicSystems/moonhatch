@@ -111,6 +111,37 @@ export function useFetchCoin() {
     })
   }
 
+  const uploadImage = async (
+    coinId: number,
+    image: File | null
+  ): Promise<string | null> => {
+    if (!image) {
+      return null
+    }
+    const body = new FormData()
+    body.append('file', image)
+    // Send a POST request to the backend
+    return fetch(`${BASE_API_URL}/coin/${coinId}/upload`, {
+      method: 'POST',
+      body,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Upload failed with status ${response.status}`)
+        }
+        // Assuming the backend returns the URL as plain text.
+        return response.text()
+      })
+      .then((publicUrl) => {
+        console.log('Uploaded image is available at:', publicUrl)
+        return publicUrl
+      })
+      .catch((error) => {
+        console.error('Error uploading image:', error)
+        return null
+      })
+  }
+
   const verifyCoin = (coinId: number): Promise<Response> => {
     return fetch(`${BASE_API_URL}/coin/${coinId}/verify`, { method: 'POST' })
   }
@@ -120,6 +151,7 @@ export function useFetchCoin() {
     fetchCoins,
     postCreatedCoin,
     verifyCoin,
+    uploadImage,
     loaded,
     loading,
     error,
