@@ -9,6 +9,7 @@ import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
 
 import NavBar from '../NavBar'
+import { Candles } from '../chart/Candles'
 import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
 
@@ -203,10 +204,9 @@ const CoinDetail: React.FC = () => {
         />
       </div>
       <div className="status-icon-container bg-[var(--bgColor)] flex justify-center ">
-        {coin.graduated ? (
+        {coin.graduated && coin.deployedPool ? (
           <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
-            {/* <Candles symbol={`${coin.symbol}/ETH`} /> */}
-            CHART
+            <Candles pool={`${coin.deployedPool}`} />
           </div>
         ) : (
           <div className="chart-container flex-col  flex justify-center items-center h-[350px] w-[350px] border">

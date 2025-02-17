@@ -53,48 +53,91 @@ INSERT INTO coins (
 
 -- 3. Create price data
 -- We'll create 100 minute-by-minute data points for each pool
+
 WITH RECURSIVE price_generator AS (
-    -- Generate timestamps for last 100 minutes, 60 seconds apart
     SELECT 
         generate_series(
             EXTRACT(EPOCH FROM NOW() - INTERVAL '100 minutes')::BIGINT,
             EXTRACT(EPOCH FROM NOW())::BIGINT,
-            60 -- 60 seconds interval
+            60
         ) as time
 ),
 btc_prices AS (
-    -- Generate BTC price data with some randomization
+    -- Initial price
     SELECT 
         '0x12345678901234567890123456789012345678aa' as pool,
         time,
-        30000 + random() * 5000 as base_price
+        30000.0::double precision as open_price,
+        30300.0::double precision as close_price,  -- Start slightly up
+        row_number() OVER (ORDER BY time) as rn
     FROM price_generator
+    WHERE time = (SELECT MIN(time) FROM price_generator)
+    
+    UNION ALL
+    
+    SELECT 
+        pool,
+        pg.time,
+        bp.close_price as open_price,
+        -- Explicitly force up/down movement
+        CASE 
+            WHEN random() > 0.5 THEN 
+                bp.close_price * (1.0 + (random() * 0.003))  -- Up up to 0.3%
+            ELSE 
+                bp.close_price * (1.0 - (random() * 0.003))  -- Down up to 0.3%
+        END::double precision as close_price,
+        bp.rn + 1
+    FROM btc_prices bp
+    JOIN price_generator pg ON pg.time = (
+        SELECT MIN(time) 
+        FROM price_generator 
+        WHERE time > bp.time
+    )
+    WHERE bp.rn < 100
 ),
 eth_prices AS (
-    -- Generate ETH price data with some randomization
+    -- Initial price
     SELECT 
         '0x12345678901234567890123456789012345678bb' as pool,
         time,
-        2000 + random() * 300 as base_price
+        2000.0::double precision as open_price,
+        2020.0::double precision as close_price,  -- Start slightly up
+        row_number() OVER (ORDER BY time) as rn
     FROM price_generator
+    WHERE time = (SELECT MIN(time) FROM price_generator)
+    
+    UNION ALL
+    
+    SELECT 
+        pool,
+        pg.time,
+        ep.close_price as open_price,
+        -- Explicitly force up/down movement
+        CASE 
+            WHEN random() > 0.5 THEN 
+                ep.close_price * (1.0 + (random() * 0.004))  -- Up up to 0.4%
+            ELSE 
+                ep.close_price * (1.0 - (random() * 0.004))  -- Down up to 0.4%
+        END::double precision as close_price,
+        ep.rn + 1
+    FROM eth_prices ep
+    JOIN price_generator pg ON pg.time = (
+        SELECT MIN(time) 
+        FROM price_generator 
+        WHERE time > ep.time
+    )
+    WHERE ep.rn < 100
 )
 INSERT INTO pool_prices (pool, time, open, high, low, close)
--- BTC prices
 SELECT 
     pool,
     time,
-    base_price as open,
-    base_price * (1 + random() * 0.005) as high,
-    base_price * (1 - random() * 0.005) as low,
-    base_price * (1 + (random() * 0.01 - 0.005)) as close
-FROM btc_prices
-UNION ALL
--- ETH prices
-SELECT 
-    pool,
-    time,
-    base_price as open,
-    base_price * (1 + random() * 0.005) as high,
-    base_price * (1 - random() * 0.005) as low,
-    base_price * (1 + (random() * 0.01 - 0.005)) as close
-FROM eth_prices;
+    open_price as open,
+    GREATEST(open_price, close_price) * (1.0 + random() * 0.0005)::double precision as high,
+    LEAST(open_price, close_price) * (1.0 - random() * 0.0005)::double precision as low,
+    close_price as close
+FROM (
+    SELECT pool, time, open_price, close_price FROM btc_prices
+    UNION ALL
+    SELECT pool, time, open_price, close_price FROM eth_prices
+) combined_prices;

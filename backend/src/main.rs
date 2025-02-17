@@ -314,7 +314,7 @@ async fn main() {
     // Define the main router.
     let app = Router::new()
         .nest("/coin/:id", coin_routes)
-        .nest("/pool/:id", pool_routes)
+        .nest("/pool/:pool", pool_routes)
         .route("/coins", get(get_all_coins_handler))
         .with_state(app_state)
         .layer(cors);

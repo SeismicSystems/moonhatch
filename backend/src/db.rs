@@ -8,7 +8,8 @@ use crate::schema::pool_prices::dsl::pool_prices as pool_prices_table;
 use bigdecimal::BigDecimal;
 use diesel::prelude::*;
 use diesel::result::QueryResult;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use bigdecimal::ToPrimitive;
 
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name = coins_schema)]
@@ -28,6 +29,27 @@ pub struct NewCoin {
     pub telegram: Option<String>,
 }
 
+fn serialize_decimal_as_f64<S>(decimal: &BigDecimal, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    serializer.serialize_f64(decimal.to_f64().unwrap_or(0.0))
+}
+
+#[derive(Serialize, Queryable, Selectable)]
+#[diesel(table_name = pool_prices_schema)]
+pub struct PoolPriceData {
+    pub time: i64,
+    #[serde(serialize_with = "serialize_decimal_as_f64")]
+    pub open: BigDecimal,
+    #[serde(serialize_with = "serialize_decimal_as_f64")]
+    pub high: BigDecimal,
+    #[serde(serialize_with = "serialize_decimal_as_f64")]
+    pub low: BigDecimal,
+    #[serde(serialize_with = "serialize_decimal_as_f64")]
+    pub close: BigDecimal,
+}
+
 pub fn create_coin(conn: &mut PgConnection, new_coin: NewCoin) -> QueryResult<Coin> {
     diesel::insert_into(coins_table)
         .values(&new_coin)
@@ -45,7 +67,7 @@ pub fn get_all_coins(conn: &mut PgConnection) -> QueryResult<Vec<Coin>> {
     coins_table.order(coins_schema::created_at.desc()).load::<Coin>(conn)
 }
 
-pub fn get_pool_prices(conn: &mut PgConnection, pool: String, max_ts: Option<i64>, min_ts: Option<i64>, limit: usize) -> QueryResult<Vec<PoolPrices>> { 
+pub fn get_pool_prices(conn: &mut PgConnection, pool: String, max_ts: Option<i64>, min_ts: Option<i64>, limit: usize) -> QueryResult<Vec<PoolPriceData>> { 
     // first make sure the pool exists
     let _pool = pools_table.filter(pools_schema::address.eq(&pool)).first::<Pool>(conn)?;
 
@@ -65,7 +87,14 @@ pub fn get_pool_prices(conn: &mut PgConnection, pool: String, max_ts: Option<i64
 
     // Add ordering and limit
     query
-        .order_by(pool_prices_schema::time.desc())
+        .select((
+            pool_prices_schema::time,
+            pool_prices_schema::open,
+            pool_prices_schema::high,
+            pool_prices_schema::low,
+            pool_prices_schema::close,
+        ))
+        .order_by(pool_prices_schema::time.asc())
         .limit(limit as i64)
-        .load::<PoolPrices>(conn)
+        .load::<PoolPriceData>(conn)
 }

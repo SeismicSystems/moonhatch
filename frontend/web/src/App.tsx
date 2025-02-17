@@ -59,7 +59,7 @@ const App: React.FC = () => {
           <Route
             path="/candles"
             element={
-              <Candles pool="0x5E07afD1A8Abd7c3A723396C55a165B23C09844f" />
+              <Candles pool="0x12345678901234567890123456789012345678aa" />
             }
           />
           <Route path="*" element={<NotFound />} />

@@ -1,8 +1,7 @@
+import { useState } from 'react'
 import type { Hex } from 'viem'
 
-import { initialData } from './mockPriceData'
-
-// import { BASE_API_URL } from './useFetchCoin'
+import { BASE_API_URL } from './useFetchCoin'
 
 type FetchTimeseriesParams = {
   pool: Hex
@@ -25,20 +24,22 @@ const encodeGetParams = (p: { [key: string]: string | number | boolean }) =>
     .join('&')
 
 export const useTimeseries = () => {
+  const [error, setError] = useState<string | null>(null)
+
   const fetchTimeseries = async (
     params: FetchTimeseriesParams
   ): Promise<TimeseriesDatapoint[]> => {
     const { pool, ...toEncode } = params
     const encodedParams = encodeGetParams(toEncode)
-    // return fetch(`${BASE_API_URL}/pools/${pool}?${encodedParams}`).then((r) =>
-    //   r.json()
-    // )
-    // TODO: remove
-    if (pool || encodedParams) {
-      return initialData
-    }
-    return initialData
+    return fetch(`${BASE_API_URL}/pool/${pool}/prices?${encodedParams}`).then(
+      async (r) => {
+        if (!r.ok) {
+          setError(await r.text())
+        }
+        return r.json()
+      }
+    )
   }
 
-  return { fetchTimeseries }
+  return { fetchTimeseries, error }
 }
