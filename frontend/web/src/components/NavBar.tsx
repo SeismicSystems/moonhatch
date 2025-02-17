@@ -13,14 +13,18 @@ const NavBar: React.FC = () => {
 
   return (
     <>
-      <nav className="w-full bg-[var(--darkBlue)] shadow-md py-4 px-8 flex justify-between text-lg font-medium text-[var(--creamWhite)] ">
+      <nav className="w-auto bg-[var(--darkBlue)] shadow-md py-4 px-8 flex justify-between text-lg font-medium text-[var(--creamWhite)] ">
         <button
           onClick={() => navigate('/')}
-          className="hover:text-blue-600 transition"
+          className="text-[var(--creamWhite)] hover:text-[var(--midBlue)] transition"
         >
-          <HomeIcon />
+          <HomeIcon
+            sx={{
+              fontSize: { xs: '20px', sm: '30px', md: '34px' },
+            }}
+          />
         </button>
-        <div className="self-center">UNPREDICTA-PUMP</div>
+        <h1 className="self-center md:text-2xl lg:text-3xl">UNPREDICTA-PUMP</h1>
         <div className="w-[67px] rounded-3xl">
           <MyStyledConnectButton />
           {/* <ConnectButton /> */}
