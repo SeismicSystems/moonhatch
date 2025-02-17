@@ -12,8 +12,9 @@ interface CoinCardProps {
 }
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
+  console.log(coin)
   //implement Z to correct timezone issue
-  const createdTimestamp = new Date(coin.created_at + 'Z').getTime()
+  const createdTimestamp = coin.created_at
   const relativeTime = formatRelativeTime(createdTimestamp)
   const [buyAmount, setBuyAmount] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
@@ -139,7 +140,6 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                   </p>
                 </div>
               </div>
-
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {coin.website && (
@@ -160,13 +160,6 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                 <SocialLink href={coin.twitter} type="twitter" label="𝕏" />
               )}
             </div>
-          </div>
-          <div className=" flex flex-col items-center justify-center flex-wrap gap-2 text-center">
-            {coin.website && <SocialLink href={coin.website} type="website" />}
-            {coin.telegram && (
-              <SocialLink href={coin.telegram} type="telegram" />
-            )}
-            {coin.twitter && <SocialLink href={coin.twitter} type="twitter" />}
           </div>
         </div>
       </div>

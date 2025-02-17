@@ -52,7 +52,9 @@ export function useFetchCoin() {
         // Map over the array to provide default values for nullable fields
         return data.map((coin) => ({
           ...coin,
-          created_at: coin.created_at || '', // use coin.created_at here
+          created_at: coin.created_at
+            ? new Date(coin.created_at + 'Z').getTime()
+            : 0,
           description: coin.description || '',
           twitter: coin.twitter || '',
           website: coin.website || '',
