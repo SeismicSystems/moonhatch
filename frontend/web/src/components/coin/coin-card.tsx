@@ -18,16 +18,10 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
 
   const [imgSrc, setImgSrc] = useState(coin.imageUrl)
 
-  // State for scrambled text elements
+  // State for scrambled text elements (only name & ticker)
   const [scrambledName, setScrambledName] = useState(coin.name.toUpperCase())
   const [scrambledSymbol, setScrambledSymbol] = useState(
     `$${coin.symbol.toUpperCase()}`
-  )
-  const [scrambledDescription, setScrambledDescription] = useState(
-    coin.description.substring(0, 50)
-  )
-  const [scrambledAge, setScrambledAge] = useState(
-    formatRelativeTime(coin.createdAt)
   )
 
   useEffect(() => {
@@ -65,9 +59,9 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
       }, duration / text.length)
     }
 
-    // Run the scramble effect on all elements simultaneously for 500ms
-    scrambleText(coin.name.toUpperCase(), setScrambledName, 500)
-    scrambleText(`$${coin.symbol.toUpperCase()}`, setScrambledSymbol, 750)
+    // Scramble only the name and ticker for 500ms
+    scrambleText(coin.name.toUpperCase(), setScrambledName, 1000)
+    scrambleText(`$${coin.symbol.toUpperCase()}`, setScrambledSymbol, 1000)
   }, [coin])
 
   return (
@@ -113,14 +107,16 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                   {scrambledSymbol}
                 </span>
                 <div className="self-end text-[10px] text-[var(--lightBlue)]">
-                  AGE: {scrambledAge}
+                  AGE: {formatRelativeTime(coin.createdAt)}
                 </div>
                 <div className="desc-container w-5/6">
                   <p className="text-[9px] -mb-2 text-[var(--lightBlue)]">
                     DESCRIPTION:
                   </p>
                   <p className="mt-2 text-[var(--lightBlue)] text-xs">
-                    {scrambledDescription}
+                    {coin.description.length > 50
+                      ? `${coin.description.substring(0, 50)}...`
+                      : coin.description}
                   </p>
                 </div>
               </div>
