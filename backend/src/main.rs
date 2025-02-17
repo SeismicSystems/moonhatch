@@ -1,11 +1,12 @@
 // src/main.rs
 use crate::db::create_coin;
 use crate::models::Coin;
-use crate::schema::coins::dsl::coins as coins_table;
 use crate::schema::coins as coins_schema;
+use crate::schema::coins::dsl::coins as coins_table;
 
 use abi::get_coin_tx;
 use alloy_primitives::Address;
+use alloy_provider::{create_seismic_provider_without_wallet, Provider, SeismicPublicClient};
 use alloy_sol_types::SolValue;
 use axum::{
     extract::{Multipart, Path, State},
@@ -14,20 +15,19 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use reqwest::Url;
 use db::NewCoin;
 use dotenv::dotenv;
+use reqwest::Url;
 use std::str::FromStr;
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
-use alloy_provider::{create_seismic_provider_without_wallet, Provider, SeismicPublicClient};
 
 // Declare our modules.
+mod abi;
 mod db;
 mod db_pool;
 mod models;
 mod schema;
-mod abi;
 
 use abi::Coin as SolidityCoin;
 use aws_config::meta::region::RegionProviderChain;
@@ -70,6 +70,29 @@ async fn get_coin_handler(
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
     }
 }
+
+/// Handler for GET /coin/:id/snippet?length=50
+async fn get_pool_prices(
+    Path(pool): Path<String>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let mut conn = match state.db_pool.get() {
+        Ok(conn) => conn,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("DB error: {}", e),
+            )
+                .into_response()
+        }
+    };
+
+    match db::get_pool_prices(&mut conn, pool, None, None, 100) {
+        Ok(prices) => Json(prices).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
+    }
+}
+
 async fn verify_coin_handler(
     Path(coin_id): Path<i64>,
     State(state): State<AppState>,
@@ -91,11 +114,19 @@ async fn verify_coin_handler(
         Ok(response_bytes) => match SolidityCoin::abi_decode(&response_bytes, true) {
             Ok(coin) => coin,
             Err(_) => {
-                return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to parse coin id {}", coin_id)).into_response()    
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to parse coin id {}", coin_id),
+                )
+                    .into_response()
             }
         },
         Err(_e) => {
-            return (StatusCode::NOT_FOUND, format!("Coin with id {} not found", coin_id)).into_response();
+            return (
+                StatusCode::NOT_FOUND,
+                format!("Coin with id {} not found", coin_id),
+            )
+                .into_response();
         }
     };
 
@@ -103,11 +134,12 @@ async fn verify_coin_handler(
     match diesel::update(coins_table.filter(schema::coins::id.eq(coin_id)))
         .set((
             coins_schema::verified.eq(true),
-            coins_schema::supply.eq(bigdecimal::BigDecimal::from_str(&coin.supply.to_string()).unwrap()),
+            coins_schema::supply
+                .eq(bigdecimal::BigDecimal::from_str(&coin.supply.to_string()).unwrap()),
             coins_schema::name.eq(coin.name),
             coins_schema::symbol.eq(coin.symbol),
             coins_schema::contract_address.eq(coin.contractAddress.to_string()),
-            coins_schema::creator.eq(coin.creator.to_string())
+            coins_schema::creator.eq(coin.creator.to_string()),
         ))
         .execute(&mut conn)
     {
@@ -267,7 +299,7 @@ async fn main() {
         s3_client: shared_s3_client,
         db_pool,
         seismic_client: Arc::new(seismic_client),
-        contract_address
+        contract_address,
     };
 
     // Set up CORS.
@@ -284,9 +316,12 @@ async fn main() {
         .route("/", post(create_coin_handler)) // POST /coin/create
         .route("/verify", post(verify_coin_handler));
 
+    let pool_routes = Router::new().route("/prices", get(get_pool_prices));
+
     // Define the main router.
     let app = Router::new()
         .nest("/coin/:id", coin_routes)
+        .nest("/pool/:pool", pool_routes)
         .route("/coins", get(get_all_coins_handler))
         .with_state(app_state)
         .layer(cors);

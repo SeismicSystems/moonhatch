@@ -9,6 +9,7 @@ import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
 
 import NavBar from '../NavBar'
+import { Candles } from '../chart/Candles'
 import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
 
@@ -38,15 +39,19 @@ const CoinDetail: React.FC = () => {
     if (cachedWei) setWeiIn(BigInt(cachedWei))
   }, [coinId])
 
-  useEffect(() => {
-    if (!loaded || !coinId) return
+  useEffect(
+    () => {
+      if (!loaded || !coinId) return
 
-    console.log(`coinId = ${coinId}`)
+      console.log(`coinId = ${coinId}`)
 
-    fetchCoin(BigInt(coinId))
-      .then((foundCoin) => setCoin(foundCoin || null))
-      .catch((err) => console.error('Error fetching coin:', err))
-  }, [loaded, coinId])
+      fetchCoin(BigInt(coinId))
+        .then((foundCoin) => setCoin(foundCoin || null))
+        .catch((err) => console.error('Error fetching coin:', err))
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [loaded, coinId]
+  )
 
   // useEffect(() => {
   //   if (!coinId || !contract) return
@@ -199,9 +204,9 @@ const CoinDetail: React.FC = () => {
         />
       </div>
       <div className="status-icon-container bg-[var(--bgColor)] flex justify-center ">
-        {coin.graduated ? (
+        {coin.graduated && coin.deployedPool ? (
           <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
-            CHART
+            <Candles pool={`${coin.deployedPool}`} />
           </div>
         ) : (
           <div className="chart-container flex-col  flex justify-center items-center h-[350px] w-[350px] border">

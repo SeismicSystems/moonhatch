@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useShieldedWallet } from 'seismic-react'
 
 // Import navigate hook
 import { Coin } from '@/types/coin'
@@ -15,7 +14,6 @@ interface CoinCardProps {
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   const navigate = useNavigate() // Navigation hook
-  const { walletClient } = useShieldedWallet()
   const defaultImage =
     'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
 

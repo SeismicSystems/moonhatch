@@ -14,10 +14,25 @@ diesel::table! {
         verified -> Bool,
         description -> Nullable<Text>,
         image_url -> Nullable<Text>,
-        created_at -> Timestamp,
-        twitter -> Nullable<Text>,
         website -> Nullable<Text>,
         telegram -> Nullable<Text>,
+        twitter -> Nullable<Text>,
+        created_at -> Timestamp,
+        #[max_length = 42]
+        deployed_pool -> Nullable<Bpchar>,
+    }
+}
+
+diesel::table! {
+    pool_prices (id) {
+        id -> Int8,
+        #[max_length = 42]
+        pool -> Bpchar,
+        time -> Int8,
+        open -> Numeric,
+        high -> Numeric,
+        low -> Numeric,
+        close -> Numeric,
     }
 }
 
@@ -36,7 +51,7 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
-    coins,
-    pools,
-);
+diesel::joinable!(coins -> pools (deployed_pool));
+diesel::joinable!(pool_prices -> pools (pool));
+
+diesel::allow_tables_to_appear_in_same_query!(coins, pool_prices, pools,);

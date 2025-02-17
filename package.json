@@ -22,12 +22,5 @@
     "rimraf": "^6.0.1",
     "vite-tsconfig-paths": "^5.1.4"
   },
-  "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
-    "@mui/icons-material": "^6.4.4",
-    "@mui/material": "^6.4.3",
-    "framer-motion": "^12.4.2",
-    "seismic-viem": "1.0.13"
-  }
+  "dependencies": {}
 }
