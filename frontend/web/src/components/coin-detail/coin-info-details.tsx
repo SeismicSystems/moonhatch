@@ -18,6 +18,7 @@ interface CoinInfoDetailsProps {
 }
 
 const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
+
   const createdTimestamp = new Date(coin.created_at + 'Z').getTime()
   const relativeTime = formatRelativeTime(createdTimestamp)
 
