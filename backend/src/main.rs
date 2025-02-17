@@ -70,6 +70,31 @@ async fn get_coin_handler(
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
     }
 }
+
+/// Handler for GET /coin/:id/snippet?length=50
+async fn get_pool_prices(
+    Path(pool): Path<String>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let mut conn = match state.db_pool.get() {
+        Ok(conn) => conn,
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("DB error: {}", e),
+            )
+                .into_response()
+        }
+    };
+
+    match db::get_pool_prices(&mut conn, pool, None, None, 100) {
+        Ok(prices) => Json(prices).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
+    }
+}
+
+
+
 async fn verify_coin_handler(
     Path(coin_id): Path<i64>,
     State(state): State<AppState>,
@@ -284,9 +309,12 @@ async fn main() {
         .route("/", post(create_coin_handler)) // POST /coin/create
         .route("/verify", post(verify_coin_handler));
 
+    let pool_routes = Router::new().route("/prices", get(get_pool_prices));
+
     // Define the main router.
     let app = Router::new()
         .nest("/coin/:id", coin_routes)
+        .nest("/pool/:pool", pool_routes)
         .route("/coins", get(get_all_coins_handler))
         .with_state(app_state)
         .layer(cors);

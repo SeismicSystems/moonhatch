@@ -16,3 +16,5 @@ CREATE TABLE pools (
     -- Timestamp for when this record was created
     created_at TIMESTAMP DEFAULT NOW() NOT NULL
 );
+
+CREATE INDEX idx_pools_dex ON pools(chain_id, dex);

@@ -9,5 +9,8 @@ CREATE TABLE coins (
     verified BOOLEAN DEFAULT FALSE NOT NULL,
     description TEXT,       -- To store the text description from the front end
     image_url TEXT,
+    website TEXT,
+    telegram TEXT,
+    twitter TEXT,
     created_at TIMESTAMP DEFAULT NOW() NOT NULL
 );
