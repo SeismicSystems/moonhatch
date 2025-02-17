@@ -18,7 +18,10 @@ const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
 
 const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
-  const { fetchCoin, loaded, loading, error } = useFetchCoin()
+  const { fetchCoin, loaded, loading, error } = useFetchCoin({
+    coinDetail: 'http://127.0.0.1:3000/coin',
+    allCoins: 'http://127.0.0.1:3000/coins',
+  })
   const { publicClient, walletClient } = useShieldedWallet()
   const { contract } = useContract()
 
@@ -70,6 +73,7 @@ const CoinDetail: React.FC = () => {
   /**
    * Fetch the ETH balance (weiIn) for non-graduated coins.
    */
+
   const viewEthIn = async () => {
     if (!walletClient || !contract || !coin || loadingEthIn) return
 
@@ -177,6 +181,7 @@ const CoinDetail: React.FC = () => {
     <>
       <div className="mb-8">
         <NavBar />
+
       </div>
       <div className="page-container bg-[var(--darkBlue)] rounded-3xl  w-[350px] max-w-full mx-auto p-4 h-overflow-x-hidden overflow-y-hidden">
         <CoinInfoDetails coin={{ ...coin, id: coin.id }} />

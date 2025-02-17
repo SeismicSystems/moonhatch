@@ -24,7 +24,7 @@ export type CoinFormData = {
 
 export type Coin = {
   id: bigint
-  createdAt: number
+  created_at: number
   imageUrl?: string
   graduated: boolean
 } & OnChainCoin &

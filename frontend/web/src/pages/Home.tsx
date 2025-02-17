@@ -8,15 +8,17 @@ import type { Coin } from '@/types/coin'
 
 const Home: React.FC = () => {
   const [coins, setCoins] = useState<Coin[]>([])
-  const { loaded, fetchCoins } = useFetchCoin()
-
+  const { loaded, fetchCoins } = useFetchCoin({
+    coinDetail: 'http://127.0.0.1:3000/coin',
+    allCoins: 'http://127.0.0.1:3000/coins',
+  })
   useEffect(
     () => {
       if (!loaded) {
         console.log('no public client')
         return
       }
-      fetchCoins().then((c) => setCoins(c))
+      fetchCoins().then((c) => setCoins([...c].reverse()))
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [loaded]

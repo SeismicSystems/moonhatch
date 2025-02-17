@@ -12,11 +12,9 @@ interface CoinCardProps {
 }
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
-  // Our coin.createdAt is in seconds; convert to ms.
-  const createdTimestamp = coin.createdAt * 1000
+  //implement Z to correct timezone issue
+  const createdTimestamp = new Date(coin.created_at + 'Z').getTime()
   const relativeTime = formatRelativeTime(createdTimestamp)
-
-  // Local state for the buy input, error message and loading indicator.
   const [buyAmount, setBuyAmount] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
@@ -141,6 +139,26 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                   </p>
                 </div>
               </div>
+
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {coin.website && (
+                <SocialLink
+                  href={coin.website}
+                  type="website"
+                  label="Website"
+                />
+              )}
+              {coin.telegram && (
+                <SocialLink
+                  href={coin.telegram}
+                  type="telegram"
+                  label="Telegram"
+                />
+              )}
+              {coin.twitter && (
+                <SocialLink href={coin.twitter} type="twitter" label="𝕏" />
+              )}
             </div>
           </div>
           <div className=" flex flex-col items-center justify-center flex-wrap gap-2 text-center">

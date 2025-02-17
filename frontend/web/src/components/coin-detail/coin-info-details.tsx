@@ -1,13 +1,15 @@
 import React from 'react'
 
+import { formatRelativeTime } from '@/util'
+
 interface CoinInfoDetailsProps {
   coin: {
     id: bigint
     name: string
     symbol: string
     contractAddress: { toString: () => string }
-    image?: string
-    createdAt: { toString: () => string }
+    image_url?: string
+    created_at: { toString: () => string }
     supply: { toString: () => string }
     graduated: boolean
     creator: { toString: () => string }
@@ -16,6 +18,10 @@ interface CoinInfoDetailsProps {
 }
 
 const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
+
+  const createdTimestamp = new Date(coin.created_at + 'Z').getTime()
+  const relativeTime = formatRelativeTime(createdTimestamp)
+
   return (
     <>
       <div className="flex justify-center">
@@ -23,8 +29,8 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           <div className="w-24 h-24">
             <img
               src={
-                coin.image
-                  ? `https://seismic-public-assets.s3.us-east-1.amazonaws.com/pump/${coin.id.toString()}`
+                coin.image_url
+                  ? coin.image_url
                   : 'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
               }
               alt="Coin Logo"
@@ -43,7 +49,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
               {coin.creator?.toString().slice(-4) || 'N/A'}
             </div>
             <div className="text-[var(--lightBlue)] text-xs">
-              TIMESTAMP:{coin.createdAt.toString()}
+              TIMESTAMP:{relativeTime}
             </div>
           </div>
         </div>
