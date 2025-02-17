@@ -24,7 +24,10 @@ const ImageUpload: React.FC<{
 
   return (
     <div className="mb-4">
-      <label className="block text-blue-400 mb-2 text-sm">image or video</label>
+      <label className="block text-[var(--lightBlue)] mb-2 text-sm">
+        {' '}
+        IMG / VIDEO
+      </label>
       <div
         className="border-2 border-dashed border-gray-700 rounded p-8 text-center"
         onDragOver={(e) => e.preventDefault()}

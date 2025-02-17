@@ -1,0 +1,38 @@
+[package]
+name = "pump-rand-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Axum: enable the multipart extractor feature.
+axum = { version = "0.6.20", features = ["multipart"] }
+# Tower HTTP: enable CORS support.
+tower-http = { version = "0.4.4", features = ["cors"] }
+# Diesel with PostgreSQL, r2d2, chrono, and numeric support.
+diesel = { version = "2.2.7", features = ["postgres", "r2d2", "chrono", "numeric"] }
+r2d2 = "0.8.10"
+# BigDecimal and Chrono with serde support.
+bigdecimal = { version = "0.4.7", features = ["serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+# Serde for serializing/deserializing.
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+dotenv = "0.15"
+
+# AWS SDK dependencies.
+aws-config = "0.55.3"
+aws-sdk-s3 = "0.27.0"
+
+# Tokio runtime.
+tokio = { version = "1.28", features = ["full"] }
+
+alloy-provider = { version = "=0.8.0", features = [
+    "reqwest",
+    "ws",
+    "ipc",
+    "trace-api",
+] }
+alloy-rpc-types-eth = { version = "=0.8.0" }
+alloy-primitives = { version = "0.8" }
+alloy-sol-types = { version = "0.8" }
+reqwest = "0.12.12"
