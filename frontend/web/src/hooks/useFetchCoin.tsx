@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import { TransactionReceipt } from 'viem'
 
-import type { Coin } from '@/types/coin'
+import type { Coin, CoinFormData } from '@/types/coin'
 
 interface APIEndpoints {
   coinDetail: string
@@ -74,9 +75,49 @@ export function useFetchCoin() {
     setLoaded(true)
   }, [])
 
+  const postCreatedCoin = ({
+    coinId,
+    formData,
+    imgUpload,
+    receipt,
+  }: {
+    coinId: number
+    formData: CoinFormData
+    imgUpload: string | null
+    receipt: TransactionReceipt
+  }) => {
+    return fetch(`${BASE_API_URL}/coin/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: coinId,
+        name: formData.name,
+        symbol: formData.symbol,
+        supply: '21000000000000000000000', // as a string for BigDecimal
+        contract_address: receipt.to,
+        creator: receipt.from,
+        graduated: false,
+        verified: false,
+        description: formData.description || null,
+        image_url: imgUpload, // result of the image upload
+        twitter: formData.twitter || null,
+        website: formData.website || null,
+        telegram: formData.telegram || null,
+      }),
+    })
+  }
+
+  const verifyCoin = (coinId: number): Promise<Response> => {
+    return fetch(`${BASE_API_URL}/coin/${coinId}/verify`, { method: 'POST' })
+  }
+
   return {
     fetchCoin,
     fetchCoins,
+    postCreatedCoin,
+    verifyCoin,
     loaded,
     loading,
     error,
