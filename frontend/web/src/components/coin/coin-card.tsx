@@ -13,7 +13,7 @@ interface CoinCardProps {
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   //implement Z to correct timezone issue
-  const createdTimestamp = coin.created_at
+  const createdTimestamp = coin.createdAt
   const relativeTime = formatRelativeTime(createdTimestamp)
   const [buyAmount, setBuyAmount] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
