@@ -1,7 +1,7 @@
-use alloy_sol_types::{sol, SolCall};
 use alloy_primitives::Address;
 use alloy_provider::network::TransactionBuilder;
 use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
+use alloy_sol_types::{sol, SolCall};
 
 sol! {
     #[derive(Debug)]
@@ -10,7 +10,7 @@ sol! {
         string symbol;
         uint256 supply;
         address contractAddress;
-        address creator;    
+        address creator;
         // TODO: add decimals?
         // uint8 decimals;
     }
@@ -33,12 +33,13 @@ mod tests {
     use alloy_sol_types::SolType;
     use reqwest::Url;
 
-    use crate::abi::get_coin_tx;
     use super::*;
+    use crate::abi::get_coin_tx;
 
     #[test]
     fn test_calldata() {
-        let contract_address = Address::from_str("0x5FbDB2315678afecb367f032d93F642f64180aa3").unwrap();
+        let contract_address =
+            Address::from_str("0x5FbDB2315678afecb367f032d93F642f64180aa3").unwrap();
         println!("{:?}", get_coin_tx(contract_address, 0))
     }
 
@@ -47,8 +48,8 @@ mod tests {
         let rpc_url = Url::from_str("http://127.0.0.1:8545").expect("invalid RPC_URL");
         let seismic_client = create_seismic_provider_without_wallet(rpc_url);
 
-
-        let contract_address = Address::from_str("0x5FbDB2315678afecb367f032d93F642f64180aa3").unwrap();
+        let contract_address =
+            Address::from_str("0x5FbDB2315678afecb367f032d93F642f64180aa3").unwrap();
         let coin_id = 0;
         let tx = &get_coin_tx(contract_address, coin_id);
         let response_bytes = seismic_client.call(tx).await.unwrap();
