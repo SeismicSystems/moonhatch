@@ -25,3 +25,18 @@ pub struct Coin {
     pub website: Option<String>,
     pub telegram: Option<String>,
 }
+
+#[derive(Queryable, Serialize, Deserialize, Debug)]
+pub struct Pool {
+    pub address: String,
+    #[serde(rename = "chainId")]
+    pub chain_id: i32,
+    pub dex: String,
+    #[serde(rename = "tokenA")]
+    pub token_a: String,
+    #[serde(rename = "tokenB")]
+    pub token_b: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: NaiveDateTime,
+}
+
