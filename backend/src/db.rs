@@ -28,11 +28,11 @@ pub struct NewCoin {
     pub twitter: Option<String>,
     pub website: Option<String>,
     pub telegram: Option<String>,
+    pub deployed_pool: Option<String>,
 }
 
 pub fn create_coin(conn: &mut PgConnection, new_coin: NewCoin) -> QueryResult<Coin> {
-    use crate::schema::coins::dsl::*;
-    diesel::insert_into(coins)
+    diesel::insert_into(coins_table)
         .values(&new_coin)
         .get_result(conn)
 }

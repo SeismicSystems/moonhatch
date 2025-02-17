@@ -19,11 +19,11 @@ pub struct Coin {
     pub description: Option<String>,
     #[serde(rename = "imageUrl")]
     pub image_url: Option<String>,
-    #[serde(rename = "createdAt")]
-    pub created_at: NaiveDateTime,
     pub twitter: Option<String>,
     pub website: Option<String>,
     pub telegram: Option<String>,
+    #[serde(rename = "createdAt")]
+    pub created_at: NaiveDateTime,
     #[serde(rename = "deployedPool")]
     pub deployed_pool: Option<String>,
 }
