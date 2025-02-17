@@ -20,3 +20,23 @@ diesel::table! {
         telegram -> Nullable<Text>,
     }
 }
+
+diesel::table! {
+    pools (address) {
+        #[max_length = 42]
+        address -> Bpchar,
+        chain_id -> Int4,
+        #[max_length = 42]
+        dex -> Bpchar,
+        #[max_length = 42]
+        token_a -> Bpchar,
+        #[max_length = 42]
+        token_b -> Bpchar,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::allow_tables_to_appear_in_same_query!(
+    coins,
+    pools,
+);
