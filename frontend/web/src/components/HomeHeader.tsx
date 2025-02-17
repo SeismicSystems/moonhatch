@@ -50,7 +50,7 @@ export default function HomeHeader() {
       </motion.button>
 
       {/* Right section: Empty placeholder to balance the grid */}
-      <div className="justify-self-end"></div>
+      <div className="justify-self-end flex-col flex text-[var(--creamWhite)]"></div>
 
       {showHowItWorks && (
         <HowItWorks

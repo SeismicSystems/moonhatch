@@ -111,7 +111,7 @@ export default function TradeSection({
               className="bg-green-500 text-white px-4 py-2 rounded"
               onClick={handleBuy}
             >
-              Buy
+              BUY
             </button>
           </div>
         )}

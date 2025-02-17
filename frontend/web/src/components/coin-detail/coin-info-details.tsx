@@ -37,10 +37,10 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           </div>
           <div className="right-column flex flex-col text-left">
             <div className="text-[18px] text-[var(--creamWhite)]">
-              {coin.name}
+              {coin.name.toUpperCase()}
             </div>
             <div className="text-[16px] text-[var(--creamWhite)] ">
-              $:{coin.symbol}
+              $:{coin.symbol.toUpperCase()}
             </div>
             <div className=" text-[var(--lightBlue)] text-xs">
               AUTHOR: {coin.creator?.toString().slice(0, 4)}...

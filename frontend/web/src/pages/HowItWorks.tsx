@@ -9,12 +9,14 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react'
+import LockIcon from '@mui/icons-material/Lock'
+import SchoolIcon from '@mui/icons-material/School'
 
 const Step: React.FC<React.PropsWithChildren<{ number: number }>> = ({
   number,
   children,
 }) => (
-  <div className="text-gray-200 text-sm sm:text-base mb-4">
+  <div className="text-[var(--creamWhite)]  text-sm sm:text-base mb-4">
     step {number}: {children}
   </div>
 )
@@ -23,14 +25,17 @@ const Link: React.FC<React.PropsWithChildren<{ href: string }>> = ({
   href,
   children,
 }) => (
-  <a href={href} className="text-gray-200 hover:text-gray-300 underline">
+  <a
+    href={href}
+    className="text-[var(--creamWhite)] hover:text-gray-300 underline"
+  >
     {children}
   </a>
 )
 
 const Description: React.FC = () => (
   <div className="text-center mb-6">
-    <p className="text-gray-200 text-sm sm:text-base">
+    <p className="text-[var(--creamWhite)] text-sm sm:text-base">
       pump ensures that all created tokens are safe to trade through a secure
       and battle-tested token launching system. each coin on pump is a{' '}
       <span className="text-green-400">fair-launch</span> with{' '}
@@ -47,7 +52,7 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
   const { acceptTerms } = useAppState()
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <Dialog as="div" className="relative z-50 " onClose={onClose}>
         <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
@@ -71,7 +76,7 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="bg-gray-900 rounded-lg w-full max-w-lg p-6 relative">
+              <DialogPanel className="bg-[var(--darkBlue)] rounded-lg w-full max-w-lg p-6 relative">
                 <button
                   onClick={onClose}
                   className="absolute right-4 top-4 text-gray-400 hover:text-gray-300"
@@ -79,13 +84,33 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                   <X size={20} />
                 </button>
 
-                <DialogTitle className="text-gray-200 text-xl mb-6 text-center">
+                <DialogTitle className="text-[var(--creamWhite)] text-xl mb-6 text-center">
                   how it works
                 </DialogTitle>
 
                 <Description />
 
                 <div className="space-y-4 mb-6">
+                  <div className="flex grad-icons-container gap-2 justify-center ">
+                    <div className="flex items-center">
+                      <LockIcon
+                        className="lock-icon text-red-500 mx-1  "
+                        style={{ fontSize: '20px' }}
+                      />
+                      <p className="text-[10px] text-[var(--creamWhite)]">
+                        = not graduated to raydium
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <SchoolIcon
+                        className="lock-icon text-green-500 mx-1 "
+                        style={{ fontSize: '20px' }}
+                      />
+                      <p className="text-[10px] text-[var(--creamWhite)]">
+                        = graduated to raydium
+                      </p>
+                    </div>
+                  </div>
                   <Step number={1}>pick a coin that you like</Step>
                   <Step number={2}>buy the coin on the bonding curve</Step>
                   <Step number={3}>
@@ -117,7 +142,7 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                     acceptTerms()
                     onClose()
                   }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  className="w-full bg-[var(--midBlue)] hover:bg-blue-700 text-[var(--creamWhite)] font-medium py-2 px-4 rounded-lg transition-colors"
                 >
                   I'm ready to pump
                 </button>

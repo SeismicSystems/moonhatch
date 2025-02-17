@@ -10,6 +10,7 @@ interface CoinCardProps {
 }
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
+  console.log(coin)
   //implement Z to correct timezone issue
   const relativeTime = formatRelativeTime(coin.createdAt)
   const { walletClient } = useShieldedWallet()
@@ -65,25 +66,21 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                 </div>
               </div>
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {coin.website && (
-                <SocialLink
-                  href={coin.website}
-                  type="website"
-                  label="Website"
-                />
-              )}
-              {coin.telegram && (
-                <SocialLink
-                  href={coin.telegram}
-                  type="telegram"
-                  label="Telegram"
-                />
-              )}
-              {coin.twitter && (
-                <SocialLink href={coin.twitter} type="twitter" label="𝕏" />
-              )}
-            </div>
+          </div>
+          <div className=" flex flex-col items-center justify-center flex-wrap gap-2 text-center">
+            {coin.website && (
+              <SocialLink href={coin.website} type="website" label="website" />
+            )}
+            {coin.telegram && (
+              <SocialLink
+                href={coin.telegram}
+                type="telegram"
+                label="telegram"
+              />
+            )}
+            {coin.twitter && (
+              <SocialLink href={coin.twitter} type="twitter" label="twitter" />
+            )}
           </div>
         </div>
       </div>
