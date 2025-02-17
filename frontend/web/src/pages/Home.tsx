@@ -8,10 +8,7 @@ import type { Coin } from '@/types/coin'
 
 const Home: React.FC = () => {
   const [coins, setCoins] = useState<Coin[]>([])
-  const { loaded, fetchCoins } = useFetchCoin({
-    coinDetail: 'http://127.0.0.1:3000/coin',
-    allCoins: 'http://127.0.0.1:3000/coins',
-  })
+  const { loaded, fetchCoins } = useFetchCoin()
   useEffect(
     () => {
       if (!loaded) {

@@ -10,12 +10,11 @@ interface APIEndpoints {
 const BASE_API_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:3000'
 
-export function useFetchCoin(
-  endpoints: APIEndpoints = {
+export function useFetchCoin() {
+  const endpoints: APIEndpoints = {
     coinDetail: `${BASE_API_URL}/coin`,
     allCoins: `${BASE_API_URL}/coins`,
   }
-) {
   const [loading, setLoading] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState<Error | null>(null)
