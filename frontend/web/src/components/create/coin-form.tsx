@@ -52,7 +52,6 @@ const CoinForm: React.FC = () => {
 
     console.info(`Created coinId=${coinId}`)
 
-    const imageUrl: string | null = await uploadImage(coinId, formData.image)
     const backendResponse = await postCreatedCoin({
       coinId,
       formData,
