@@ -142,7 +142,12 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    width: { xs: '150px', sm: '150px' },
+                    width: {
+                      xs: '150px',
+                      sm: '150px',
+                      md: '200px',
+                      lg: '200px',
+                    },
                   }}
                 >
                   <Typography
@@ -219,7 +224,12 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                 <Box
                   component="div"
                   sx={{
-                    width: { xs: '150px', sm: '150px' },
+                    width: {
+                      xs: '150px',
+                      sm: '150px',
+                      md: '200px',
+                      lg: '200px',
+                    },
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                   }}

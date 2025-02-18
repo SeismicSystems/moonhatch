@@ -19,7 +19,7 @@ export default function HomeHeader() {
         {/* Left section: Help Icon */}
         <button
           onClick={() => setShowHowItWorks(true)}
-          className="text-orange-300  md:ml-40 lg:ml-96  ml-12 hover:text-blue-600 transition justify-self-start"
+          className="text-orange-300  md:ml-40 lg:ml-48 xl:ml-96  ml-12 hover:text-blue-600 transition justify-self-start"
         >
           <HelpIcon
             sx={{
