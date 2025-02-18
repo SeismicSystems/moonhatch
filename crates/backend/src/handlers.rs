@@ -90,6 +90,7 @@ pub(crate) async fn verify_coin_handler(
             coins_schema::verified.eq(true),
             coins_schema::supply
                 .eq(bigdecimal::BigDecimal::from_str(&coin.supply.to_string()).unwrap()),
+            coins_schema::decimals.eq(coin.decimals as i32),
             coins_schema::name.eq(coin.name),
             coins_schema::symbol.eq(coin.symbol),
             coins_schema::contract_address.eq(coin.contractAddress.to_string()),

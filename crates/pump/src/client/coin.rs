@@ -10,6 +10,7 @@ sol! {
         string name;
         string symbol;
         uint256 supply;
+        uint8 decimals;
         address contractAddress;
         address creator;
     }
