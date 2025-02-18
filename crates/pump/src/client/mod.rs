@@ -3,8 +3,6 @@ pub mod dex;
 pub mod factory;
 pub mod pump;
 
-use std::str::FromStr;
-
 use alloy_primitives::Address;
 use alloy_provider::{
     create_seismic_provider_without_wallet, network::TransactionBuilder, Provider,
@@ -12,14 +10,15 @@ use alloy_provider::{
 };
 use alloy_rpc_types_eth::{Filter, TransactionInput, TransactionRequest};
 use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolEvent, SolType};
-use coin::{getCoinCall, get_coin_calldata};
-use dex::UniswapV2Router02::{self, factoryCall, WETHCall};
+use reqwest::Url;
+use std::str::FromStr;
+
+use coin::get_coin_calldata;
+use dex::UniswapV2Router02::{factoryCall, WETHCall};
 use factory::get_pair_calldata;
 use pump::PumpRand::{CoinCreated, CoinGraduated};
-use reqwest::Url;
 
 pub use coin::SolidityCoin;
-
 
 pub fn build_tx(to: Address, calldata: Vec<u8>) -> TransactionRequest {
     TransactionRequest::default()
@@ -103,10 +102,7 @@ impl PumpClient {
     }
 
     pub async fn get_coin(&self, coin_id: u32) -> Result<SolidityCoin, PumpError> {
-        let tx = build_tx(
-            self.contracts.pump,
-            getCoinCall { coinId: coin_id }.abi_encode(),
-        );
+        let tx = build_tx(self.contracts.pump, get_coin_calldata(coin_id));
         let bytes = self
             .provider
             .call(&tx)
