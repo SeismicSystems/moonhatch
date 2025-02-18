@@ -7,11 +7,13 @@ import { usePumpContract } from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
+import { Box, Typography } from '@mui/material'
 
 import NavBar from '../NavBar'
 import { Candles } from '../chart/Candles'
 import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
+import CoinSocials from './coin-social'
 
 const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
 
@@ -186,49 +188,127 @@ const CoinDetail: React.FC = () => {
       <div className="mb-8">
         <NavBar />
       </div>
-      <div className="coin-container  border border-[var(--creamWhite)] border-2 bg-[var(--darkBlue)] rounded-3xl  w-[350px] max-w-full mx-auto p-4 h-overflow-x-hidden overflow-y-hidden">
-        <CoinInfoDetails
-          coin={{
-            ...coin,
-            id: coin.id,
-            twitter: coin.twitter || '',
-            telegram: coin.telegram || '',
-            website: coin.website || '',
+      <div className="flex w-full lg:justify-around xl:justify-around  items-center  lg:pr-24 xl:pr-60  lg:-pl-24 xl:gap-60  lg:gap-12 flex-col lg:flex-row mb-24">
+        <Box
+          sx={{
+            width: { xs: '350px', sm: '550px', md: '450px', lg: '550px' },
+            height: { xs: 'auto', sm: 'auto', md: 'auto', lg: 'auto' },
+
+            maxWidth: '100%',
+            mx: 'auto',
+            p: 4,
+            border: 2,
+            borderColor: 'var(--creamWhite)',
+            bgcolor: 'var(--darkBlue)',
+            borderRadius: '24px',
+            overflowX: 'hidden',
+            overflowY: 'hidden',
+            marginBottom: { xs: '0', sm: '50px', md: '0px', lg: '0', xl: '0' },
           }}
-        />
-        <TradeSection
-          coin={{ ...coin, id: coin.id }}
-          weiIn={weiIn}
-          loadingEthIn={loadingEthIn}
-          viewEthIn={viewEthIn}
-          refreshWeiIn={refreshWeiIn}
-          buyAmount={buyAmount}
-          setBuyAmount={setBuyAmount}
-          buyError={buyError}
-          handleBuy={handleBuy}
-          modalOpen={modalOpen}
-          modalMessage={modalMessage}
-          setModalOpen={setModalOpen}
-        />
-      </div>
-      <div className="status-icon-container bg-[var(--bgColor)] flex justify-center ">
-        {coin.graduated && coin.deployedPool ? (
-          <div className="chart-container  flex justify-center items-center h-[350px] w-[350px] border">
-            <Candles pool={`${coin.deployedPool}`} />
+        >
+          <CoinInfoDetails
+            coin={{
+              ...coin,
+              id: coin.id,
+              twitter: coin.twitter || '',
+              telegram: coin.telegram || '',
+              website: coin.website || '',
+            }}
+          />
+          <TradeSection
+            coin={{ ...coin, id: coin.id }}
+            weiIn={weiIn}
+            loadingEthIn={loadingEthIn}
+            viewEthIn={viewEthIn}
+            refreshWeiIn={refreshWeiIn}
+            buyAmount={buyAmount}
+            setBuyAmount={setBuyAmount}
+            buyError={buyError}
+            handleBuy={handleBuy}
+            modalOpen={modalOpen}
+            modalMessage={modalMessage}
+            setModalOpen={setModalOpen}
+          />
+          <div className="coin-socials-container -mb-8 mt-6 lg:mt-24">
+            <CoinSocials
+              coin={{
+                ...coin,
+                id: coin.id,
+                twitter: coin.twitter || '',
+                telegram: coin.telegram || '',
+                website: coin.website || '',
+              }}
+            />
           </div>
-        ) : (
-          <div className="chart-container flex-col  flex justify-center items-center h-[350px] w-[350px] border">
-            <h3 className="text-[var(--creamWhite)] text-center mb-12">
-              CHART LOCKED UNTIL GRADUATION
-            </h3>
-            <div className="lock-container w-[130px] border-2 border-red-500 rounded-full p-4">
-              <LockIcon
-                className="lock-icon text-red-500 animate-pulse"
-                style={{ fontSize: '96px' }}
-              />
-            </div>
-          </div>
-        )}
+        </Box>
+        <div className="status-icon-container bg-[var(--bgColor)] flex justify-center  items-center">
+          {coin.graduated && coin.deployedPool ? (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '350px',
+                width: '350px',
+
+                border: 1,
+                '& .chart-container': {
+                  width: '100%',
+                  height: '100%',
+                },
+              }}
+            >
+              <div className="-mt-24 md:mt-12 lg:mt-0">
+                <Candles pool={`${coin.deployedPool}`} />
+              </div>
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '350px',
+                width: '350px',
+                border: 1,
+
+                '& .lock-container': {
+                  width: '130px',
+                  border: '2px solid',
+                  borderColor: 'error.main',
+                  borderRadius: '9999px',
+                  padding: '16px',
+                },
+                '& .lock-icon': {
+                  color: 'error.main',
+                  fontSize: '96px',
+                  animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                },
+                '@keyframes pulse': {
+                  '0%, 100%': {
+                    opacity: 1,
+                  },
+                  '50%': {
+                    opacity: 0.5,
+                  },
+                },
+              }}
+            >
+              {/* 16px */}
+              <Typography
+                variant="h3"
+                component="h3"
+                sx={{ mb: 2, color: 'error.main' }}
+              >
+                CHART LOCKED UNTIL GRADUATION
+              </Typography>
+              <div className="lock-container">
+                <LockIcon className="lock-icon" />
+              </div>
+            </Box>
+          )}
+        </div>
       </div>
     </>
   )

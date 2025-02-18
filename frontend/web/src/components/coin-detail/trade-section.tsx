@@ -50,28 +50,88 @@ export default function TradeSection({
 
   return (
     <>
-      <div className="flex justify-center gap-x-2 items-center">
-        <Box height="100px" width="100px" sx={{}}>
-          <div className="text-[var(--creamWhite)]">BALANCE</div>
+      <div className="flex justify-center gap-x-2 w-full items-center">
+        <Box
+          sx={{
+            marginBottom: 4,
+            height: '100px',
+            width: { xs: '300px', sm: '450px' },
+          }}
+        >
           {coin.graduated ? (
-            // If coin is graduated, use a different UI.
-            <button
-              className="text-[var(--creamWhite)]"
-              onClick={() => console.log('View Balance (0)')}
-            >
-              Balance ({weiIn ? formatEther(weiIn) : 0})
-            </button>
+            <div className="w-full   flex flex-col items-center text-center gap-2">
+              <div className="text-[var(--creamWhite)]">BALANCE</div>
+              <button
+                className="w-full mb-2 text-[var(--creamWhite)]"
+                onClick={() => console.log('View Balance (0)')}
+              >
+                ({weiIn ? formatEther(weiIn) : 0})
+              </button>
+              <input
+                type="text"
+                value={buyAmount} // need logic for sell
+                onChange={(e) => setBuyAmount(e.target.value)}
+                placeholder="Enter amount (max 1 ETH)"
+                className="w-full p-2 bg-[var(--lightBlue)] text-center  rounded mb-2 text-[var(--midBlue)]"
+              />
+              {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
+              <div className="w-full flex items-center justify-center gap-2">
+                <button
+                  className="hover:bg-white hover:text-green-500 w-full bg-green-500 text-white px-4 py-2 rounded"
+                  onClick={handleBuy}
+                >
+                  BUY
+                </button>
+                <button
+                  className="w-full hover:bg-white hover:text-red-500 bg-red-500 text-white px-4 py-2 rounded"
+                  onClick={handleBuy}
+                >
+                  SELL
+                </button>
+              </div>
+            </div>
           ) : (
             // For non-graduated coins, handle visibility and refresh UI.
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col  items-center">
               {/* When the balance is hidden and not loading, show the VisibilityIcon */}
-              {!isBalanceVisible && !loadingEthIn && (
-                <button
-                  className="bg-[var(--midBlue)] text-[var(--creamWhite)] py-2 px-4 rounded flex items-center"
-                  onClick={handleViewBalance}
-                >
-                  <VisibilityIcon />
-                </button>
+              {!isBalanceVisible && !loadingEthIn && !coin.graduated && (
+                <>
+                  <div className="small-container flex flex-col items-center lg:hidden">
+                    <div className="text-[var(--creamWhite)]">BALANCE</div>
+                    <button
+                      className="bg-[var(--midBlue)] text-[var(--creamWhite)] py-2 px-4 rounded flex items-center"
+                      onClick={handleViewBalance}
+                    >
+                      <VisibilityIcon />
+                    </button>
+                  </div>
+                  <div className="lg-container hidden lg:flex flex-col w-[400px] items-center space-y-2  ">
+                    <button
+                      className="w-full bg-[var(--midBlue)] text-[var(--creamWhite)] py-2 px-4 mt-4 rounded "
+                      onClick={handleViewBalance}
+                    >
+                      VIEW BALANCE
+                    </button>
+                    <div className="trade flex flex-col w-[400px]  ">
+                      <input
+                        type="text"
+                        value={buyAmount}
+                        onChange={(e) => setBuyAmount(e.target.value)}
+                        placeholder="Enter amount (max 1 ETH)"
+                        className=" p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
+                      />
+                      {buyError && (
+                        <p className="text-red-500 text-sm">{buyError}</p>
+                      )}
+                      <button
+                        className="bg-green-500 text-white px-4 py-2 rounded"
+                        onClick={handleBuy}
+                      >
+                        BUY
+                      </button>
+                    </div>
+                  </div>
+                </>
               )}
               {/* Show a waiting message if the balance is loading */}
               {loadingEthIn && (
@@ -98,7 +158,7 @@ export default function TradeSection({
           )}
         </Box>
         {!coin.graduated && (
-          <div className="trade flex flex-col">
+          <div className="trade flex flex-col lg:hidden">
             <input
               type="text"
               value={buyAmount}
