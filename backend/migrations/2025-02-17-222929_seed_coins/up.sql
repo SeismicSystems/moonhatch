@@ -180,11 +180,11 @@ sol_prices AS (
         -- Explicitly force up/down movement
         CASE 
             WHEN random() > 0.5 THEN 
-                ep.close_price * (1.0 + (random() * 0.004))  -- Up up to 0.4%
+                sp.close_price * (1.0 + (random() * 0.004))  -- Up up to 0.4%
             ELSE 
-                ep.close_price * (1.0 - (random() * 0.004))  -- Down up to 0.4%
+                sp.close_price * (1.0 - (random() * 0.004))  -- Down up to 0.4%
         END::double precision as close_price,
-        ep.rn + 1
+        sp.rn + 1
     FROM sol_prices sp
     JOIN price_generator pg ON pg.time = (
         SELECT MIN(time) 
