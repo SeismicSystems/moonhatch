@@ -11,27 +11,22 @@ contract WETH9 is ISRC20, IERC20Uniswap, IWETH {
     string public override(ISRC20, IERC20Uniswap) symbol = "WETH";
     uint8 public override(ISRC20, IERC20Uniswap) decimals = 18;
 
-    // event Approval(address indexed src, address indexed guy, uint256 wad);
-    // event Transfer(address indexed src, address indexed dst, uint256 wad);
-    // event Deposit(address indexed dst, uint256 wad);
-    // event Withdrawal(address indexed src, uint256 wad);
+    event Deposit(address indexed dst, uint256 wad);
+    event Withdrawal(address indexed src, uint256 wad);
 
     mapping(address => uint256) internal _balanceOf;
     mapping(address => mapping(address => uint256)) internal _allowance;
 
-    /*fallback () external payable {
-        deposit();
-    }*/
     function deposit() public payable {
         _balanceOf[msg.sender] = _balanceOf[msg.sender] + msg.value;
-        // emit Deposit(msg.sender, msg.value);
+        emit Deposit(msg.sender, msg.value);
     }
 
     function withdraw(uint256 wad) public {
         require(_balanceOf[msg.sender] >= wad, "WETH9: Error");
         _balanceOf[msg.sender] -= wad;
         payable(msg.sender).transfer(wad);
-        // emit Withdrawal(msg.sender, wad);
+        emit Withdrawal(msg.sender, wad);
     }
 
     function totalSupply() public view override(ISRC20, IERC20Uniswap) returns (uint256) {
