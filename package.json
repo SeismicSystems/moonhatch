@@ -11,14 +11,15 @@
     "contract:deploy": "source .env && VITE_CHAIN_ID=$VITE_CHAIN_ID bun contract:dev && DEPLOYER_PRIVATE_KEY=$DEPLOYER_PRIVATE_KEY bun run --cwd ./contracts sforge script script/PumpRand.s.sol --rpc-url $RPC_URL --broadcast && VITE_CHAIN_ID=$VITE_CHAIN_ID bun contract:addresses",
     "contract:dev": "bun contract:build && bun contract:iabis && bun contract:abis",
     "contract:build": "bun run --cwd ./contracts sforge build",
-    "contract:abis": "CONTRACT=PumpRand bun contract:abi && CONTRACT=UniswapV2Factory bun contract:abi && CONTRACT=UniswapV2Router02 bun contract:abi",
+    "contract:abis": "CONTRACT=PumpRand bun contract:abi && CONTRACT=WETH9 bun contract:abi && CONTRACT=UniswapV2Factory bun contract:abi && CONTRACT=UniswapV2Router02 bun contract:abi",
     "contract:iabis": "CONTRACT=ISRC20 bun contract:iabi && CONTRACT=UniswapV2ERC20 bun contract:iabi && CONTRACT=IPumpCoin bun contract:iabi",
     "contract:abi": "mkdir -p ./frontend/web/public/chains/$VITE_CHAIN_ID/contracts && jq '{methodIdentifiers: .methodIdentifiers, abi: .abi}' ./contracts/out/$CONTRACT.sol/$CONTRACT.json > ./frontend/web/public/chains/$VITE_CHAIN_ID/contracts/$CONTRACT.json",
     "contract:iabi": "mkdir -p ./frontend/web/public/chains/$VITE_CHAIN_ID/interfaces && jq '{methodIdentifiers: .methodIdentifiers, abi: .abi}' ./contracts/out/$CONTRACT.sol/$CONTRACT.json > ./frontend/web/public/chains/$VITE_CHAIN_ID/interfaces/$CONTRACT.json",
-    "contract:addresses": "bun contract:address:pump && bun contract:address:factory && bun contract:address:dex",
+    "contract:addresses": "bun contract:address:pump && bun contract:address:weth && bun contract:address:factory && bun contract:address:router",
     "contract:address:pump": "CONTRACT=PumpRand BROADCAST=PumpRand RECEIPT=3 bun contract:address",
+    "contract:address:weth": "CONTRACT=WETH9 BROADCAST=PumpRand RECEIPT=0 bun contract:address",
     "contract:address:factory": "CONTRACT=UniswapV2Factory BROADCAST=PumpRand RECEIPT=1 bun contract:address",
-    "contract:address:dex": "CONTRACT=UniswapV2Router02 BROADCAST=PumpRand RECEIPT=2 bun contract:address",
+    "contract:address:router": "CONTRACT=UniswapV2Router02 BROADCAST=PumpRand RECEIPT=2 bun contract:address",
     "contract:address": "jq --arg receipt \"$RECEIPT\" -s '{\"address\": .[0].receipts[($receipt | tonumber)].contractAddress} * .[1]' ./contracts/broadcast/$BROADCAST.s.sol/$VITE_CHAIN_ID/run-latest.json ./frontend/web/public/chains/$VITE_CHAIN_ID/contracts/$CONTRACT.json > temp.json && mv temp.json ./frontend/web/public/chains/$VITE_CHAIN_ID/contracts/$CONTRACT.json"
   },
   "devDependencies": {

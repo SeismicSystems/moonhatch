@@ -6,6 +6,7 @@ diesel::table! {
         name -> Text,
         symbol -> Text,
         supply -> Numeric,
+        decimals -> Int4,
         #[max_length = 42]
         contract_address -> Bpchar,
         #[max_length = 42]

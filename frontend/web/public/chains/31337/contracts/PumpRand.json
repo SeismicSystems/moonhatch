@@ -7,7 +7,6 @@
     "createCoin(string,string,uint256)": "2931b63d",
     "deployGraduated(uint32)": "7891d8dd",
     "deployer()": "d5f39488",
-    "dex()": "692058c2",
     "getCoin(uint32)": "3e0a6fb0",
     "getCoinAddress(uint32)": "f1e66e1d",
     "getCoinContract(uint32)": "6d73402f",
@@ -16,6 +15,7 @@
     "getWeiIn(uint32)": "bb056e73",
     "graduated(uint32)": "4974faf0",
     "isGraduated(uint32)": "83e6ad52",
+    "router()": "f887ea40",
     "sweepFees()": "d113b95c"
   },
   "abi": [
@@ -28,7 +28,7 @@
           "internalType": "uint16"
         },
         {
-          "name": "dex_",
+          "name": "router_",
           "type": "address",
           "internalType": "address"
         }
@@ -137,19 +137,6 @@
     },
     {
       "type": "function",
-      "name": "dex",
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
       "name": "getCoin",
       "inputs": [
         {
@@ -178,6 +165,11 @@
               "name": "supply",
               "type": "uint256",
               "internalType": "uint256"
+            },
+            {
+              "name": "decimals",
+              "type": "uint8",
+              "internalType": "uint8"
             },
             {
               "name": "contractAddress",
@@ -262,6 +254,11 @@
               "name": "supply",
               "type": "uint256",
               "internalType": "uint256"
+            },
+            {
+              "name": "decimals",
+              "type": "uint8",
+              "internalType": "uint8"
             },
             {
               "name": "contractAddress",
@@ -361,6 +358,19 @@
     },
     {
       "type": "function",
+      "name": "router",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
       "name": "sweepFees",
       "inputs": [],
       "outputs": [],
@@ -388,6 +398,25 @@
           "type": "uint32",
           "indexed": false,
           "internalType": "uint32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "DeployedToDex",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "indexed": false,
+          "internalType": "uint32"
+        },
+        {
+          "name": "lpToken",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
         }
       ],
       "anonymous": false
