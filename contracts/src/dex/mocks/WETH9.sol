@@ -4,8 +4,9 @@ pragma solidity ^0.8.27;
 
 import { ISRC20 } from "../../token/ISRC20.sol";
 import { IERC20Uniswap } from "../interfaces/IERC20.sol";
+import { IWETH } from "../interfaces/IWETH.sol";
 
-contract WETH9 is ISRC20, IERC20Uniswap {
+contract WETH9 is ISRC20, IERC20Uniswap, IWETH {
     string public override(ISRC20, IERC20Uniswap) name = "Wrapped Ether";
     string public override(ISRC20, IERC20Uniswap) symbol = "WETH";
     uint8 public override(ISRC20, IERC20Uniswap) decimals = 18;
@@ -15,21 +16,21 @@ contract WETH9 is ISRC20, IERC20Uniswap {
     // event Deposit(address indexed dst, uint256 wad);
     // event Withdrawal(address indexed src, uint256 wad);
 
-    mapping(saddress => suint256) internal _balanceOf;
-    mapping(saddress => mapping(saddress => suint256)) internal _allowance;
+    mapping(address => uint256) internal _balanceOf;
+    mapping(address => mapping(address => uint256)) internal _allowance;
 
     /*fallback () external payable {
         deposit();
     }*/
     function deposit() public payable {
-        _balanceOf[saddress(msg.sender)] = _balanceOf[saddress(msg.sender)] + suint256(msg.value);
+        _balanceOf[msg.sender] = _balanceOf[msg.sender] + msg.value;
         // emit Deposit(msg.sender, msg.value);
     }
 
-    function withdraw(suint256 wad) public {
-        require(_balanceOf[saddress(msg.sender)] >= wad, "WETH9: Error");
-        _balanceOf[saddress(msg.sender)] -= wad;
-        payable(msg.sender).transfer(uint256(wad));
+    function withdraw(uint256 wad) public {
+        require(_balanceOf[msg.sender] >= wad, "WETH9: Error");
+        _balanceOf[msg.sender] -= wad;
+        payable(msg.sender).transfer(wad);
         // emit Withdrawal(msg.sender, wad);
     }
 
@@ -37,61 +38,69 @@ contract WETH9 is ISRC20, IERC20Uniswap {
         return address(this).balance;
     }
 
-    function approve(saddress guy, suint256 wad) public returns (bool) {
-        _allowance[saddress(msg.sender)][guy] = wad;
-        // emit Approval(msg.sender, guy, wad);
+    function approve(address guy, uint256 wad) public returns (bool) {
+        _allowance[msg.sender][guy] = wad;
+        emit Approval(msg.sender, guy, wad);
         return true;
     }
 
-    function approve(address spender, uint value) external returns (bool) {
-        return approve(saddress(spender), suint256(value));
+    function approve(saddress spender, suint value) external returns (bool) {
+        return approve(address(spender), uint256(value));
     }
 
     function transfer(saddress dst, suint256 wad) public returns (bool) {
-        return transferFrom(saddress(msg.sender), dst, wad);
+        return _transferFrom(msg.sender, address(dst), uint256(wad));
     }
 
-    function transfer(address to, uint value) external returns (bool) {
-        return transferFrom(saddress(msg.sender), saddress(to), suint256(value));
-    }
-
-    function transferFrom(address from, address to, uint value) external returns (bool) {
-        return transferFrom(saddress(from), saddress(to), suint256(value));
+    function transfer(address to, uint value) external override(IWETH, IERC20Uniswap) returns (bool) {
+        return _transferFrom(msg.sender, to, value);
     }
 
     function transferFrom(
-        saddress src,
-        saddress dst,
-        suint256 wad
+        saddress from,
+        saddress to,
+        suint256 value
     ) public returns (bool) {
-        require(_balanceOf[src] >= wad, "WETH9: Error");
+        return _transferFrom(address(from), address(to), uint256(value));
+    }
 
-        if (src != saddress(msg.sender) && _allowance[src][saddress(msg.sender)] != suint256(type(uint256).max)) {
-            require(_allowance[src][saddress(msg.sender)] >= wad, "WETH9: Error");
-            _allowance[src][saddress(msg.sender)] -= wad;
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) public returns (bool) {
+        return _transferFrom(address(from), address(to), uint256(value));
+    }
+
+    function _transferFrom(address from, address to, uint value) internal returns (bool) {
+        require(_balanceOf[from] >= value, "WETH9: Error");
+
+        if (from != msg.sender && _allowance[from][msg.sender] != type(uint256).max) {
+            require(_allowance[from][msg.sender] >= value, "WETH9: Error");
+            _allowance[from][msg.sender] -= value;
         }
 
-        _balanceOf[src] -= wad;
-        _balanceOf[dst] += wad;
+        _balanceOf[from] -= value;
+        _balanceOf[to] += value;
 
-        // emit Transfer(src, dst, wad);
+        emit Transfer(from, to, value);
 
         return true;
     }
 
     function balanceOf() external view returns (uint256) {
-        return uint256(_balanceOf[saddress(msg.sender)]);
+        return uint256(_balanceOf[msg.sender]);
     }
 
     function balanceOf(address owner) external view returns (uint) {
-        return uint(_balanceOf[saddress(owner)]);
+        return uint(_balanceOf[owner]);
     }
 
     function allowance(address owner, address spender) external view returns (uint) {
-        return uint256(_allowance[saddress(owner)][saddress(spender)]);
+        return uint256(_allowance[owner][spender]);
     }
 
     function allowance(saddress spender) external view returns (uint256) {
-        return uint256(_allowance[saddress(msg.sender)][spender]);
+        return uint256(_allowance[msg.sender][address(spender)]);
     }
 }

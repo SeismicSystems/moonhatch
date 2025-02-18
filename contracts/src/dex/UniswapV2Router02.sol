@@ -94,7 +94,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         address pair = UniswapV2Library.pairFor(factory, token, WETH);
         TransferHelper.safeTransferFrom(token, msg.sender, pair, amountToken);
         IWETH(WETH).deposit{value: amountETH}();
-        assert(IWETH(WETH).transfer(saddress(pair), suint256(amountETH)));
+        assert(IWETH(WETH).transfer(pair, amountETH));
         liquidity = IUniswapV2Pair(pair).mint(to);
         // refund dust eth, if any
         if (msg.value > amountETH) TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
@@ -262,7 +262,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         amounts = UniswapV2Library.getAmountsOut(factory, msg.value, path);
         require(amounts[amounts.length - 1] >= amountOutMin, 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
-        assert(IWETH(WETH).transfer(saddress(UniswapV2Library.pairFor(factory, path[0], path[1])), suint256(amounts[0])));
+        assert(IWETH(WETH).transfer(UniswapV2Library.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
     }
     function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
@@ -311,7 +311,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         amounts = UniswapV2Library.getAmountsIn(factory, amountOut, path);
         require(amounts[0] <= msg.value, 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
-        assert(IWETH(WETH).transfer(saddress(UniswapV2Library.pairFor(factory, path[0], path[1])), suint256(amounts[0])));
+        assert(IWETH(WETH).transfer(UniswapV2Library.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
         // refund dust eth, if any
         if (msg.value > amounts[0]) TransferHelper.safeTransferETH(msg.sender, msg.value - amounts[0]);
@@ -369,7 +369,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         require(path[0] == WETH, 'UniswapV2Router: INVALID_PATH');
         uint amountIn = msg.value;
         IWETH(WETH).deposit{value: amountIn}();
-        assert(IWETH(WETH).transfer(saddress(UniswapV2Library.pairFor(factory, path[0], path[1])), suint256(amountIn)));
+        assert(IWETH(WETH).transfer(UniswapV2Library.pairFor(factory, path[0], path[1]), amountIn));
         uint balanceBefore = IERC20Uniswap(path[path.length - 1]).balanceOf(to);
         _swapSupportingFeeOnTransferTokens(path, to);
         require(
