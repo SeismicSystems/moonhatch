@@ -1,0 +1,19 @@
+[package]
+name = "pump"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+alloy-provider = { version = "=0.8.0", features = [
+    "reqwest",
+    "ws",
+    "ipc",
+    "trace-api",
+] }
+alloy-rpc-types-eth = { version = "=0.8.0" }
+alloy-primitives = { version = "0.8" }
+alloy-sol-types = { version = "0.8" }
+
+axum.workspace = true
+reqwest = "0.12.12"
+tokio = { version = "1.28", features = ["full"] }

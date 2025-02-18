@@ -1,6 +1,9 @@
 [workspace]
-members = ["backend"]
+members = ["crates/backend", "crates/listener", "crates/pump"]
 resolver = "2"
+
+[workspace.dependencies]
+axum = "0.6.20"
 
 [patch.crates-io]
 # seismic-alloy-core
