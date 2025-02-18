@@ -20,12 +20,12 @@ const CoinSocials: React.FC<CoinSocialsProps> = ({ coin }) => {
       <Box
         sx={{
           display: 'flex',
-          marginTop: 2,
+          marginTop: { xs: 2, sm: 2, md: 6, lg: 6, xl: 8 },
           marginBottom: 4,
           alignItems: 'center',
           justifyContent: 'center',
           flexWrap: 'wrap',
-          gap: 2,
+          gap: { xs: 2, sm: 8, lg: 6 },
           textAlign: 'center',
         }}
         onClick={(e) => e.stopPropagation()}

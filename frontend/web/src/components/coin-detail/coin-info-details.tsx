@@ -39,11 +39,11 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           justifyContent: 'center',
 
           '& .left-column': {
-            width: '350px',
+            width: { xs: '350px', sm: '450px', md: '450px', lg: '450px' },
             display: 'flex',
             paddingBottom: 2,
             alignItems: 'center',
-            justifyContent: 'center',
+            justifyContent: 'start',
             gap: 4,
             borderRadius: '16px',
             backgroundColor: 'var(--darkBlue)',
@@ -59,9 +59,9 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           '& .right-column': {
             width: {
               xs: '100px',
-              sm: '100px',
-              md: '120px',
-              lg: '120px',
+              sm: '250px',
+              md: '180px',
+              lg: '250px',
             },
             display: 'flex',
             flexDirection: 'column',
@@ -95,10 +95,12 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           </div>
           <div className="right-column">
             <Typography
-              noWrap
               variant="h4"
               component="h4"
               sx={{
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
                 fontSize: {
                   xs: '1.2rem',
                   sm: '1.2rem',
@@ -150,8 +152,9 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           },
         }}
       >
-        <div className="coin-desc">
-          "{coin.description || 'creator did not provide description'}"
+        <div className="coin-desc flex flex-col items-center justify-center">
+          <div className="flex text-xs text-orange-300">DESCRIPTION: </div>"{' '}
+          {coin.description || 'creator did not provide description'}"
         </div>
       </Box>
     </>

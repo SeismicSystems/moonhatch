@@ -192,7 +192,7 @@ const CoinDetail: React.FC = () => {
         <Box
           sx={{
             width: { xs: '350px', sm: '550px', md: '450px', lg: '550px' },
-            height: { xs: 'auto', sm: '450px', md: '710px', lg: '710px' },
+            height: { xs: 'auto', sm: 'auto', md: '710px', lg: '710px' },
 
             maxWidth: '100%',
             mx: 'auto',
@@ -229,15 +229,17 @@ const CoinDetail: React.FC = () => {
             modalMessage={modalMessage}
             setModalOpen={setModalOpen}
           />
-          <CoinSocials
-            coin={{
-              ...coin,
-              id: coin.id,
-              twitter: coin.twitter || '',
-              telegram: coin.telegram || '',
-              website: coin.website || '',
-            }}
-          />
+          <div className="coin-socials-container -mb-8 mt-6">
+            <CoinSocials
+              coin={{
+                ...coin,
+                id: coin.id,
+                twitter: coin.twitter || '',
+                telegram: coin.telegram || '',
+                website: coin.website || '',
+              }}
+            />
+          </div>
         </Box>
         <div className="status-icon-container bg-[var(--bgColor)] flex justify-center  items-center">
           {coin.graduated && coin.deployedPool ? (

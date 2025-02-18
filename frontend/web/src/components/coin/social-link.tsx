@@ -32,13 +32,13 @@ const SocialLink: React.FC<SocialLinkProps> = ({ href, type, label }) => {
   const getIcon = () => {
     switch (type) {
       case 'website':
-        return <LanguageIcon className="h-4 w-4" />
+        return <LanguageIcon sx={{ fontSize: { xs: 30, sm: 34, md: 48 } }} />
       case 'telegram':
-        return <TelegramIcon className="h-4 w-4" />
+        return <TelegramIcon sx={{ fontSize: { xs: 30, sm: 34, md: 48 } }} />
       case 'twitter':
-        return <XIcon className="h-4 w-4" />
+        return <XIcon sx={{ fontSize: { xs: 30, sm: 34, md: 48 } }} />
       default:
-        return <ExternalLink className="h-4 w-4" />
+        return <ExternalLink style={{ fontSize: 24 }} /> // or you can apply similar sx if supported
     }
   }
 
@@ -47,8 +47,8 @@ const SocialLink: React.FC<SocialLinkProps> = ({ href, type, label }) => {
       href={getFormattedHref()}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center justify-center gap-2 px-2 py-1.5 rounded-full text-[var(--lightBlue)] text-sm 
-                bg-[var(--midBlue)] hover:bg-gray-200 transition-colors"
+      className="inline-flex items-center justify-center gap-2  px-2 py-1.5 rounded-full text-[var(--lightBlue)] text-sm 
+                bg-[var(--midBlue)] hover:bg-orange-300 transition-colors"
       title={label}
     >
       {getIcon()}
