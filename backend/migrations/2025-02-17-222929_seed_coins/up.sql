@@ -26,7 +26,10 @@ INSERT INTO coins (
     image_url,
     created_at,
     graduated,
-    deployed_pool
+    deployed_pool,
+    website,
+    telegram,
+    twitter
 ) VALUES
     (-1,
      'Bitcoin',
@@ -38,7 +41,11 @@ INSERT INTO coins (
      'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png',
      NOW(),
      true,
-     '0x12345678901234567890123456789012345678aa'),
+     '0x12345678901234567890123456789012345678aa',
+     'https://bitcoin.org/',
+     'https://t.me/bitcoin',
+     'https://x.com/bitcoin'
+     ),
     (-2,
      'Ethereum',
      'ETH',
@@ -49,7 +56,11 @@ INSERT INTO coins (
      'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png',
      NOW(),
      true,
-     '0x12345678901234567890123456789012345678bb');
+     '0x12345678901234567890123456789012345678bb',
+     'https://ethereum.org/',
+     'https://t.me/ethereum',
+     'https://x.com/VitalikButerin'
+     );
 
 -- 3. Create price data
 -- We'll create 100 minute-by-minute data points for each pool
