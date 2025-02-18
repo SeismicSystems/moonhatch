@@ -1,8 +1,8 @@
-use crate::{db::create_coin, AppState};
+use crate::db;
 use crate::models::Coin;
 use crate::schema::coins as coins_schema;
 use crate::schema::coins::dsl::coins as coins_table;
-use crate::db;
+use crate::{db::create_coin, AppState};
 
 use aws_sdk_s3::primitives::ByteStream;
 use axum::{
@@ -11,9 +11,10 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use std::str::FromStr;
+use bigdecimal::BigDecimal;
 use diesel::prelude::*;
 use serde::Serialize;
+use std::str::FromStr;
 
 #[derive(Serialize)]
 struct CoinResponse {
@@ -88,8 +89,7 @@ pub(crate) async fn verify_coin_handler(
     match diesel::update(coins_table.filter(coins_schema::id.eq(coin_id)))
         .set((
             coins_schema::verified.eq(true),
-            coins_schema::supply
-                .eq(bigdecimal::BigDecimal::from_str(&coin.supply.to_string()).unwrap()),
+            coins_schema::supply.eq(BigDecimal::from_str(&coin.supply.to_string()).unwrap()),
             coins_schema::decimals.eq(coin.decimals as i32),
             coins_schema::name.eq(coin.name),
             coins_schema::symbol.eq(coin.symbol),

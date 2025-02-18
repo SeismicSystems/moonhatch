@@ -1,9 +1,9 @@
 // src/main.rs
 mod db;
 mod db_pool;
+mod handlers;
 mod models;
 mod schema;
-mod handlers;
 
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_s3::{config::Region, Client as S3Client};
@@ -27,7 +27,8 @@ pub struct AppState {
 
 impl AppState {
     async fn new() -> AppState {
-        let region_provider = RegionProviderChain::default_provider().or_else(Region::new("us-east-1"));
+        let region_provider =
+            RegionProviderChain::default_provider().or_else(Region::new("us-east-1"));
         let aws_config = aws_config::from_env().region(region_provider).load().await;
         let s3_client = S3Client::new(&aws_config);
         let shared_s3_client = Arc::new(s3_client);
@@ -43,7 +44,6 @@ impl AppState {
         };
     }
 }
-
 
 #[tokio::main]
 async fn main() {
