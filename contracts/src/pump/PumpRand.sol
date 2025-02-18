@@ -202,13 +202,14 @@ contract PumpRand {
         
         address token = getCoinAddress(coinId);
         IPumpCoin coin = IPumpCoin(token);
-        coin.graduate();
 
         // so it goes to pool with same price as average px was before
         // no one wins in EV
         uint256 coinAmountIn = coin.totalSupply();
         coin.mint(saddress(this), suint256(coinAmountIn));
         coin.approve(saddress(router), suint256(coinAmountIn));
+        coin.graduate();
+
         router.addLiquidityETH{value: WEI_GRADUATION}(
             token,
             coinAmountIn,
