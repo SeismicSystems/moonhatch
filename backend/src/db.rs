@@ -1,6 +1,6 @@
 // src/db.rs
 
-use crate::models::{Coin, Pool, PoolPrices};
+use crate::models::{Coin, Pool};
 use crate::schema::coins::dsl::coins as coins_table;
 use crate::schema::pool_prices::dsl::pool_prices as pool_prices_table;
 use crate::schema::pools::dsl::pools as pools_table;
