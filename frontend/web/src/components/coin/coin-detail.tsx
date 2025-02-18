@@ -13,6 +13,7 @@ import NavBar from '../NavBar'
 import { Candles } from '../chart/Candles'
 import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
+import CoinSocials from './coin-social'
 
 const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
 
@@ -227,6 +228,15 @@ const CoinDetail: React.FC = () => {
             modalOpen={modalOpen}
             modalMessage={modalMessage}
             setModalOpen={setModalOpen}
+          />
+          <CoinSocials
+            coin={{
+              ...coin,
+              id: coin.id,
+              twitter: coin.twitter || '',
+              telegram: coin.telegram || '',
+              website: coin.website || '',
+            }}
           />
         </Box>
         <div className="status-icon-container bg-[var(--bgColor)] flex justify-center  items-center">

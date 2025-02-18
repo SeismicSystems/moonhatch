@@ -4,6 +4,8 @@ import { formatRelativeTime } from '@/util'
 import SocialLink from '@components/coin/social-link'
 import { Box, Typography } from '@mui/material'
 
+import CoinSocials from '../coin/coin-social'
+
 export const FALLBACK_COIN_IMAGE_URL =
   'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
 
@@ -65,7 +67,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
             flexDirection: 'column',
             textAlign: 'left',
             '& .coin-name': {
-              fontSize: '18px',
+              fontSize: { xs: '18px', sm: '18px', md: '24px', lg: '24px' },
               color: 'var(--creamWhite)',
             },
             '& .coin-symbol': {
@@ -74,7 +76,12 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
             },
             '& .coin-author, & .coin-age': {
               color: 'var(--lightBlue)',
-              fontSize: '0.75rem',
+              fontSize: {
+                xs: '0.75rem',
+                sm: '0.75rem',
+                md: '1rem',
+                lg: '1rem',
+              },
             },
           },
         }}
@@ -139,36 +146,13 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           fontSize: '0.75rem',
           '& .coin-desc': {
             marginBottom: 2,
+            fontSize: { xs: '1rem', sm: '1rem', md: '1.2rem', lg: '1.4rem' },
           },
         }}
       >
         <div className="coin-desc">
           "{coin.description || 'creator did not provide description'}"
         </div>
-      </Box>
-
-      <Box
-        sx={{
-          display: 'flex',
-          marginTop: 2,
-          marginBottom: 4,
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          gap: 2,
-          textAlign: 'center',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {coin.website && (
-          <SocialLink href={coin.website} type="website" label="website" />
-        )}
-        {coin.telegram && (
-          <SocialLink href={coin.telegram} type="telegram" label="telegram" />
-        )}
-        {coin.twitter && (
-          <SocialLink href={coin.twitter} type="twitter" label="twitter" />
-        )}
       </Box>
     </>
   )
