@@ -2,6 +2,7 @@ import React from 'react'
 
 import { formatRelativeTime } from '@/util'
 import SocialLink from '@components/coin/social-link'
+import { Box } from '@mui/system'
 
 export const FALLBACK_COIN_IMAGE_URL =
   'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
@@ -30,40 +31,92 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
 
   return (
     <>
-      <div className="flex justify-center">
-        <div className="left-column bg-[var(--darkBlue)] w-[300px] p-4 flex items-center justify-center space-x-4 rounded-2xl">
-          <div className="w-24 h-24">
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          '& .left-column': {
+            width: '300px',
+            padding: 4,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 4,
+            borderRadius: '16px',
+            backgroundColor: 'var(--darkBlue)',
+          },
+          '& img': {
+            width: '6rem',
+            height: '6rem',
+            borderRadius: '8px',
+            objectFit: 'cover',
+          },
+          '& .right-column': {
+            display: 'flex',
+            flexDirection: 'column',
+            textAlign: 'left',
+            '& .coin-name': {
+              fontSize: '18px',
+              color: 'var(--creamWhite)',
+            },
+            '& .coin-symbol': {
+              fontSize: '16px',
+              color: 'var(--creamWhite)',
+            },
+            '& .coin-author, & .coin-age': {
+              color: 'var(--lightBlue)',
+              fontSize: '0.75rem',
+            },
+          },
+        }}
+      >
+        <div className="left-column">
+          <div>
             <img
               src={coin.imageUrl ?? FALLBACK_COIN_IMAGE_URL}
               alt="Coin Logo"
-              className="rounded-lg w-full h-full object-cover"
             />
           </div>
-          <div className="right-column flex flex-col text-left">
-            <div className="text-[18px] text-[var(--creamWhite)]">
-              {coin.name.toUpperCase()}
-            </div>
-            <div className="text-[16px] text-[var(--creamWhite)] ">
-              $:{coin.symbol.toUpperCase()}
-            </div>
-            <div className=" text-[var(--lightBlue)] text-xs">
+          <div className="right-column">
+            <div className="coin-name">{coin.name.toUpperCase()}</div>
+            <div className="coin-symbol">$:{coin.symbol.toUpperCase()}</div>
+            <div className="coin-author">
               AUTHOR: {coin.creator?.toString().slice(0, 4)}...
               {coin.creator?.toString().slice(-4) || 'N/A'}
             </div>
-            <div className="text-[var(--lightBlue)] text-xs">
-              AGE:{relativeTime}
-            </div>
+            <div className="coin-age">AGE:{relativeTime}</div>
           </div>
         </div>
-      </div>
-      <div className="text-[var(--lightBlue)] flex flex-col text-xs">
-        <div className="coin-desc mb-2">
+      </Box>
+
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          color: 'var(--lightBlue)',
+          fontSize: '0.75rem',
+          '& .coin-desc': {
+            marginBottom: 2,
+          },
+        }}
+      >
+        <div className="coin-desc">
           "{coin.description || 'creator did not provide description'}"
         </div>
-      </div>
-      <div
-        className="flex mt-2 mb-4 items-center justify-center flex-wrap gap-2 text-center"
-        onClick={(e) => e.stopPropagation()} // Prevents card click from triggering
+      </Box>
+
+      <Box
+        sx={{
+          display: 'flex',
+          marginTop: 2,
+          marginBottom: 4,
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: 2,
+          textAlign: 'center',
+        }}
+        onClick={(e) => e.stopPropagation()}
       >
         {coin.website && (
           <SocialLink href={coin.website} type="website" label="website" />
@@ -74,7 +127,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
         {coin.twitter && (
           <SocialLink href={coin.twitter} type="twitter" label="twitter" />
         )}
-      </div>
+      </Box>
     </>
   )
 }
