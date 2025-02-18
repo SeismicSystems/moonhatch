@@ -192,7 +192,7 @@ const CoinDetail: React.FC = () => {
         <Box
           sx={{
             width: { xs: '350px', sm: '550px', md: '450px', lg: '550px' },
-            height: { xs: 'auto', sm: 'auto', md: '710px', lg: '710px' },
+            height: { xs: 'auto', sm: 'auto', md: 'auto', lg: 'auto' },
 
             maxWidth: '100%',
             mx: 'auto',
@@ -229,7 +229,7 @@ const CoinDetail: React.FC = () => {
             modalMessage={modalMessage}
             setModalOpen={setModalOpen}
           />
-          <div className="coin-socials-container -mb-8 mt-6">
+          <div className="coin-socials-container -mb-8 mt-6 lg:mt-24">
             <CoinSocials
               coin={{
                 ...coin,

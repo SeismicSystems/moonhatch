@@ -20,7 +20,7 @@ const CoinSocials: React.FC<CoinSocialsProps> = ({ coin }) => {
       <Box
         sx={{
           display: 'flex',
-          marginTop: { xs: 2, sm: 2, md: 6, lg: 6, xl: 8 },
+          marginTop: { xs: 8, sm: 8, md: 6, lg: 6, xl: 8 },
           marginBottom: 4,
           alignItems: 'center',
           justifyContent: 'center',
