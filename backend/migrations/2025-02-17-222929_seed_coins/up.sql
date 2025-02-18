@@ -66,7 +66,7 @@ INSERT INTO coins (
      'https://ethereum.org/',
      NULL,
      'https://x.com/VitalikButerin'
-     );
+     ),
     (-3,
      'Solana',
      'SOL',
@@ -89,7 +89,7 @@ INSERT INTO coins (
 WITH RECURSIVE price_generator AS (
     SELECT 
         generate_series(
-            EXTRACT(EPOCH FROM (NOW() - INTERVAL '100 minutes'))::BIGINT,
+            EXTRACT(EPOCH FROM NOW() - INTERVAL '100 minutes')::BIGINT,
             EXTRACT(EPOCH FROM NOW())::BIGINT,
             60
         ) as time
