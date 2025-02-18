@@ -51,22 +51,6 @@ contract WETH9 is ISRC20, IERC20Uniswap, IWETH {
         return _transferFrom(msg.sender, to, value);
     }
 
-    function transferFrom(
-        saddress from,
-        saddress to,
-        suint256 value
-    ) public returns (bool) {
-        return _transferFrom(address(from), address(to), uint256(value));
-    }
-
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) public returns (bool) {
-        return _transferFrom(address(from), address(to), uint256(value));
-    }
-
     function _transferFrom(address from, address to, uint value) internal returns (bool) {
         require(_balanceOf[from] >= value, "WETH9: Error");
 
@@ -81,6 +65,22 @@ contract WETH9 is ISRC20, IERC20Uniswap, IWETH {
         emit Transfer(from, to, value);
 
         return true;
+    }
+
+    function transferFrom(
+        saddress from,
+        saddress to,
+        suint256 value
+    ) public returns (bool) {
+        return _transferFrom(address(from), address(to), uint256(value));
+    }
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) public returns (bool) {
+        return _transferFrom(address(from), address(to), uint256(value));
     }
 
     function balanceOf() external view returns (uint256) {
