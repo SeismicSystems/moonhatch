@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.27;
 
 import { PumpCoin, IPumpCoin } from "./PumpCoin.sol";
+import '../dex/interfaces/IUniswapV2Router02.sol';
+import '../dex/interfaces/IUniswapV2Factory.sol';
 
 struct Coin {
     string name;
@@ -21,6 +23,8 @@ contract PumpRand {
     uint32 public coinsCreated;
     address public deployer;
     uint256 private fees;
+    // sushiswap contract
+    address public dex;
 
     // directory of all coins created
     mapping(uint32 => Coin) private coins;
@@ -41,10 +45,11 @@ contract PumpRand {
     error SweepFeesFailed();
     error FailedToRefundExcessEth();
 
-    constructor(uint16 _feeBps) {
+    constructor(uint16 feeBps_, address dex_) {
         deployer = msg.sender;
         coinsCreated = 0;
-        feeBps = _feeBps;
+        feeBps = feeBps_;
+        dex = dex_;
     }
 
     function sweepFees() public payable {
@@ -92,7 +97,7 @@ contract PumpRand {
     EV[price] = basePrice without knowing any previous prices
     EV[price|allPreviousBuys] = (coin.supply - unitsOut) / (WEI_GRADUATION - weiIn)
     */
-    function randomInRange(uint256 min, uint256 max) internal view returns (uint256) {
+    function randomInRange(uint256 min, uint256 max) internal pure returns (uint256) {
         uint256 diff = max - min;
         // Shift down r to avoid overflow.
         uint256 r = uint256(getRandomUint256()) >> 128;
@@ -160,9 +165,10 @@ contract PumpRand {
 
     function getRandomUint256()
         internal
-        view
+        pure
         returns (suint256 result)
     {
+        // TODO: change pure => view
         return suint256(type(uint256).max / 2);
         // uint16 output_len = 32;
         // bytes memory input = abi.encodePacked(output_len);
@@ -187,7 +193,36 @@ contract PumpRand {
         return graduated[coinId];
     }
 
+    function getCoinAddress(uint32 coinId) public view returns (address) {
+        return coins[coinId].contractAddress;
+    }
+
     function deployGraduated(uint32 coinId) public {
-        // TODO: add to LP pool
+        IUniswapV2Router02 router = IUniswapV2Router02(dex);
+        
+        address token = getCoinAddress(coinId);
+        IPumpCoin coin = IPumpCoin(token);
+
+        // so it goes to pool with same price as average px was before
+        // no one wins in EV
+        uint256 coinAmountIn = coin.totalSupply();
+        coin.mint(saddress(this), suint256(coinAmountIn));
+        coin.approve(saddress(router), suint256(coinAmountIn));
+        coin.graduate();
+
+        router.addLiquidityETH{value: WEI_GRADUATION}(
+            token,
+            coinAmountIn,
+            coinAmountIn,
+            WEI_GRADUATION,
+            // burn all
+            0x000000000000000000000000000000000000dEaD,
+            block.timestamp + 1
+        );
+    }
+
+    function getPair(uint32 coinId) public view returns(address) {
+        IUniswapV2Router02 router = IUniswapV2Router02(dex);
+        return IUniswapV2Factory(router.factory()).getPair(coins[coinId].contractAddress, router.WETH());
     }
 }

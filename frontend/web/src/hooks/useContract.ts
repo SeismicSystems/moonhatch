@@ -15,7 +15,7 @@ const loadContractData = async ({
   }
 
   // Construct the file path (vite makes this load from /public directory)
-  const configPath = `/chains/${chainId}/${name}.json`
+  const configPath = `/chains/${chainId}/contracts/${name}.json`
 
   try {
     const response = await fetch(configPath)
