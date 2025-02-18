@@ -126,19 +126,25 @@ const CoinDetail: React.FC = () => {
 
     const amountInWei = parseEther(buyAmount, 'wei')
     const maxWei = parseEther('1', 'wei') // 1 ETH limit
+
     const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
     const existingWei = localStorage.getItem(localStorageKey)
     const existingWeiBigInt = existingWei ? BigInt(existingWei) : BigInt(0)
 
-    // 🚨 Check isGraduated instead of enforcing a strict 1 ETH limit
-    // Left > maxWei for now but eventually will want this to only check if graduated
-    if (coin.graduated || amountInWei + existingWeiBigInt > maxWei) {
-      setModalMessage(
-        'This coin has graduated. Purchases are no longer allowed.'
-      )
-      setModalOpen(true)
+    // Check if cumulative purchase (existingWei + amountInWei) exceeds 1 ETH
+    if (!coin.graduated && existingWeiBigInt + amountInWei > maxWei) {
+      setBuyError('1 ETH Max purchase allowed pre-graduation.')
       return
     }
+
+    // Prevent purchase if the coin has graduated
+    // if (coin.graduated) {
+    //   setModalMessage(
+    //     'This coin has graduated. Purchases are no longer allowed.'
+    //   )
+    //   setModalOpen(true)
+    //   return
+    // }
 
     try {
       if (isBuying) {
@@ -169,10 +175,9 @@ const CoinDetail: React.FC = () => {
     } catch (err) {
       console.error('❌ Transaction Failed:', err)
       setBuyError(
-        `Transaction failed: ${err instanceof Error ? err.message : 'Unknown error'}`
-      )
-      setBuyError(
-        `Transaction failed: ${err instanceof Error ? err.message : 'Unknown error'}`
+        `Transaction failed: ${
+          err instanceof Error ? err.message : 'Unknown error'
+        }`
       )
     } finally {
       setIsBuying(false)
@@ -182,7 +187,13 @@ const CoinDetail: React.FC = () => {
   if (loading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
   if (!coin) return <div>Coin not found.</div>
-
+  console.log(
+    'pubclient' + publicClient,
+    'walletclient' + walletClient,
+    'contract' + contract,
+    'coin' + coin,
+    'buy amount' + buyAmount
+  )
   return (
     <>
       <div className="mb-8">

@@ -14,6 +14,8 @@ interface TradeSectionProps {
   loadingEthIn: boolean
   viewEthIn: () => void
   refreshWeiIn: () => void
+  buyAmount: string
+  setBuyAmount: (value: string) => void
   buyError: string | null
   handleBuy: (amount: string, tradeType: 'buy' | 'sell') => void
   modalOpen: boolean
@@ -27,6 +29,8 @@ export default function TradeSection({
   loadingEthIn,
   viewEthIn,
   refreshWeiIn,
+  buyAmount,
+  setBuyAmount,
   buyError,
   handleBuy,
   modalOpen,
@@ -34,25 +38,40 @@ export default function TradeSection({
   setModalOpen,
 }: TradeSectionProps) {
   const [isBalanceVisible, setIsBalanceVisible] = useState(false)
+  // tradeType: either 'buy' or 'sell' (or null if not yet selected)
   const [tradeType, setTradeType] = useState<'buy' | 'sell' | null>(null)
-  const [amount, setAmount] = useState('')
+  // We'll use the parent's buyAmount for BUY orders...
+  // ...and a local state for SELL orders.
+  const [sellAmount, setSellAmount] = useState('')
 
-  // Dummy conversion rate: 1 ETH = 1000 Coin X, and vice versa.
+  // Dummy conversion rate: 1 ETH = 1000 Coin X
   const conversionRate = 1000
 
-  // Calculate the estimated amount dynamically
-  const estimatedAmount = useMemo(() => {
-    const inputValue = parseFloat(amount)
-    if (isNaN(inputValue) || inputValue <= 0) return 0
-    return tradeType === 'buy'
-      ? inputValue * conversionRate // ETH → Coin X
-      : inputValue / conversionRate // Coin X → ETH
-  }, [amount, tradeType])
+  // For BUY mode: use parent's buyAmount
+  const estimatedBuy = useMemo(() => {
+    const inputValue = parseFloat(buyAmount)
+    return isNaN(inputValue) || inputValue <= 0
+      ? 0
+      : inputValue * conversionRate
+  }, [buyAmount, conversionRate])
 
-  // Handle switching the trade type and resetting the amount
+  // For SELL mode: use local sellAmount
+  const estimatedSell = useMemo(() => {
+    const inputValue = parseFloat(sellAmount)
+    return isNaN(inputValue) || inputValue <= 0
+      ? 0
+      : inputValue / conversionRate
+  }, [sellAmount, conversionRate])
+
+  // Handle switching trade type and resetting the appropriate input fields
   const handleTrade = (type: 'buy' | 'sell') => {
     setTradeType(type)
-    setAmount('')
+    if (type === 'buy') {
+      // Optionally reset parent's buyAmount
+      setBuyAmount('')
+    } else {
+      setSellAmount('')
+    }
   }
 
   // Swipe configuration using react-swipeable
@@ -60,12 +79,12 @@ export default function TradeSection({
     onSwipedLeft: () => {
       if (coin.graduated) {
         setTradeType('sell')
-        setAmount('')
+        setSellAmount('')
       }
     },
     onSwipedRight: () => {
       setTradeType('buy')
-      setAmount('')
+      setBuyAmount('')
     },
     preventDefaultTouchmoveEvent: true,
     trackMouse: true,
@@ -95,7 +114,7 @@ export default function TradeSection({
             ({weiIn ? formatEther(weiIn) : 0})
           </button>
 
-          {/* Display current mode from swipe gestures or button click */}
+          {/* Display current mode buttons if tradeType is not selected */}
           <div className="flex justify-center gap-4 w-full mb-4">
             <button
               className={`w-full px-4 py-2 rounded ${
@@ -121,31 +140,46 @@ export default function TradeSection({
             )}
           </div>
 
-          {/* Input and estimated value are displayed only after selecting a trade mode */}
-          {tradeType && (
+          {/* Input and estimated value */}
+          {tradeType === 'buy' && (
             <>
               <input
                 type="text"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder={
-                  tradeType === 'buy' ? 'Enter ETH amount' : 'Enter coin amount'
-                }
+                value={buyAmount}
+                onChange={(e) => setBuyAmount(e.target.value)}
+                placeholder="Enter ETH amount"
                 className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
               />
               <div className="text-[var(--creamWhite)]">
-                {tradeType === 'buy'
-                  ? `You will receive: ${estimatedAmount} Coin X`
-                  : `You will get back: ${estimatedAmount} ETH`}
+                You will receive: {estimatedBuy} Coin X
               </div>
               {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
               <button
-                className={`w-full px-4 py-2 rounded ${
-                  tradeType === 'buy' ? 'bg-green-500' : 'bg-red-500'
-                } text-white`}
-                onClick={() => handleBuy(amount, tradeType)}
+                className="w-full px-4 py-2 rounded bg-green-500 text-white"
+                onClick={() => handleBuy(buyAmount, 'buy')}
               >
-                {tradeType === 'buy' ? 'CONFIRM BUY' : 'CONFIRM SELL'}
+                {`CONFIRM BUY FOR ${estimatedBuy} COIN X`}
+              </button>
+            </>
+          )}
+          {tradeType === 'sell' && (
+            <>
+              <input
+                type="text"
+                value={sellAmount}
+                onChange={(e) => setSellAmount(e.target.value)}
+                placeholder="Enter coin amount"
+                className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
+              />
+              <div className="text-[var(--creamWhite)]">
+                You will get back: {estimatedSell} ETH
+              </div>
+              {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
+              <button
+                className="w-full px-4 py-2 rounded bg-red-500 text-white"
+                onClick={() => handleBuy(sellAmount, 'sell')}
+              >
+                {`CONFIRM SELL FOR ${estimatedSell} ETH`}
               </button>
             </>
           )}
