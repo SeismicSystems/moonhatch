@@ -49,6 +49,10 @@ contract PumpRandTest is Test {
         assertEq(refunded, 100);
 
         address token = pump.getCoinAddress(coinId);
+
+        address pair = UniswapV2Library.pairFor(address(factory), address(weth9), token);
+        console.log("pair", pair);
+
         pump.deployGraduated(coinId);
 
         UniswapV2Library.getReserves(address(factory), token, address(weth9));

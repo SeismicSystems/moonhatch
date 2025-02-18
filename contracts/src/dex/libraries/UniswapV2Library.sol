@@ -24,7 +24,7 @@ library UniswapV2Library {
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
                 // NOTE: IMPORTANT: change this if you change deployed code of UniswapV2Pair
-                hex'b2ce0b815132538b2eb7669f4bf348bde4153fa8ebc1bd18602a245a41587e1d' // init code hash
+                hex'a30aeaf908f430c7c92906991ae3eff15326ee27f982cd2c78d167e4bb23434b' // init code hash
             )))));
         // 
     }
