@@ -17,6 +17,7 @@ contract PumpRandTest is Test {
     UniswapV2Factory public factory;
     UniswapV2Router02 public router;
 
+    uint256 deadline_ = 1861851600;
 
     function setUp() public {
         weth9 = new WETH9();
@@ -52,13 +53,24 @@ contract PumpRandTest is Test {
 
         UniswapV2Library.getReserves(address(factory), token, address(weth9));
 
-        address[] memory path = new address[](2);
-        path[0] = address(weth9);
-        path[1] = token;
-        uint256[] memory amounts = router.swapExactETHForTokens{value: 100 wei}(2e6, path, address(this), 1861851600);
-        assertEq(amounts.length, 2);
-        assertEq(amounts[0], 100);
-        assertGe(amounts[1], 2e6);
+        address[] memory buyPath = new address[](2);
+        buyPath[0] = address(weth9);
+        buyPath[1] = token;
+        uint256[] memory amountsBuy = router.swapExactETHForTokens{value: 100 wei}(2e6, buyPath, address(this), deadline_);
+        assertEq(amountsBuy.length, 2);
+        assertEq(amountsBuy[0], 100);
+        assertGe(amountsBuy[1], 2e6);
+
+        address[] memory sellPath = new address[](2);
+        sellPath[0] = token;
+        sellPath[1] = address(weth9);
+
+        IPumpCoin(token).approve(address(router), amountsBuy[1]);
+
+        uint256[] memory amountsSell = router.swapExactTokensForETH(amountsBuy[1], 90, sellPath, address(this), deadline_);
+        assertEq(amountsSell.length, 2);
+        assertEq(amountsSell[0], amountsBuy[1]);
+        assertLe(amountsSell[1], 100);
     }
 
     /// Once the coin has graduated, no further buys should be allowed.
