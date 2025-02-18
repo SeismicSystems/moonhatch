@@ -61,7 +61,9 @@ const CoinForm: React.FC = () => {
     })
 
     if (!backendResponse.ok) {
-      console.error('Failed to save coin to backend')
+      console.error(
+        `Failed to save coin to backend: ${await backendResponse.text()}`
+      )
       return
     }
 
