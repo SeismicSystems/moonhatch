@@ -3,7 +3,7 @@
 pragma solidity ^0.8.13;
 
 import '../interfaces/IUniswapV2Pair.sol';
-
+import '../UniswapV2Pair.sol';
 import "./SafeMath.sol";
 
 library UniswapV2Library {
@@ -23,8 +23,10 @@ library UniswapV2Library {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'e18a34eb0e04b04f7a0ac29a6e80748dca96319b42c54d679cb821dca90c6303' // init code hash
+                // NOTE: IMPORTANT: change this if you change deployed code of UniswapV2Pair
+                hex'a30aeaf908f430c7c92906991ae3eff15326ee27f982cd2c78d167e4bb23434b' // init code hash
             )))));
+        // 
     }
 
     // fetches and sorts the reserves for a pair
