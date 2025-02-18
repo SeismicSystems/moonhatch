@@ -9,6 +9,8 @@ import LockIcon from '@mui/icons-material/Lock'
 import SchoolIcon from '@mui/icons-material/School'
 import { Box, Typography } from '@mui/material'
 
+import CoinSocials from './coin-social'
+
 interface CoinCardProps {
   coin: Coin
 }
@@ -275,30 +277,16 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
             }}
             onClick={(e) => e.stopPropagation()} // Prevent card click from triggering
           >
-            {coin.website && (
-              <SocialLink
-                href={coin.website}
-                type="website"
-                label="website"
-                onClick={(e) => e.stopPropagation()}
-              />
-            )}
-            {coin.telegram && (
-              <SocialLink
-                href={coin.telegram}
-                type="telegram"
-                label="telegram"
-                onClick={(e) => e.stopPropagation()}
-              />
-            )}
-            {coin.twitter && (
-              <SocialLink
-                href={coin.twitter}
-                type="twitter"
-                label="twitter"
-                onClick={(e) => e.stopPropagation()}
-              />
-            )}
+            <CoinSocials
+              coin={{
+                ...coin,
+                id: coin.id,
+                twitter: coin.twitter || '',
+                telegram: coin.telegram || '',
+                website: coin.website || '',
+              }}
+              isCardPage={true}
+            />
           </Box>
         </Box>
       </Box>
