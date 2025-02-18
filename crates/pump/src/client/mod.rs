@@ -36,24 +36,26 @@ struct ContractAddresses {
 }
 
 impl ContractAddresses {
-    async fn new(provider: &SeismicPublicClient) -> Result<ContractAddresses, PumpError> {
+    fn new() -> ContractAddresses {
         let pump = Address::from_str("0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9").unwrap();
         let dex = Address::from_str("0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0").unwrap();
-        let factory = ContractAddresses::get_factory(provider, dex).await?;
-        let weth = ContractAddresses::get_weth(provider, dex).await?;
-        Ok(ContractAddresses {
+        let factory = Address::from_str("0xe7f1725e7734ce288f8367e1bb143e90bb3f0512").unwrap();
+        let weth = Address::from_str("0x5fbdb2315678afecb367f032d93f642f64180aa3").unwrap();
+        ContractAddresses {
             pump,
             dex,
             factory,
             weth,
-        })
+        }
     }
 
+    #[allow(dead_code)]
     async fn get_weth(provider: &SeismicPublicClient, dex: Address) -> Result<Address, PumpError> {
         let calldata = WETHCall {}.abi_encode();
         ContractAddresses::get_address(provider, dex, calldata).await
     }
 
+    #[allow(dead_code)]
     async fn get_factory(
         provider: &SeismicPublicClient,
         dex: Address,
@@ -111,14 +113,13 @@ pub struct PumpClient {
 }
 
 impl PumpClient {
-    pub async fn new() -> Result<PumpClient, PumpError> {
+    pub fn new() -> PumpClient {
         let rpc_url = Url::from_str("http://127.0.0.1:8545").expect("invalid RPC_URL");
         let provider = create_seismic_provider_without_wallet(rpc_url);
-        let contracts = ContractAddresses::new(&provider).await?;
-        return Ok(PumpClient {
+        PumpClient {
             provider,
-            contracts,
-        });
+            contracts: ContractAddresses::new(),
+        }
     }
 
     pub async fn get_coin(&self, coin_id: u32) -> Result<SolidityCoin, PumpError> {
@@ -140,13 +141,13 @@ impl PumpClient {
             .map_err(|_| PumpError::PairNotFound)
     }
 
-    pub async fn created_filter(&self) -> Filter {
+    pub fn created_filter(&self) -> Filter {
         Filter::new()
             .address(self.contracts.pump)
             .event_signature(CoinGraduated::SIGNATURE_HASH)
     }
 
-    pub async fn graduated_filter(&self) -> Filter {
+    pub fn graduated_filter(&self) -> Filter {
         Filter::new()
             .address(self.contracts.pump)
             .event_signature(CoinCreated::SIGNATURE_HASH)

@@ -3,25 +3,18 @@ mod db;
 mod db_pool;
 mod models;
 mod schema;
+mod handlers;
 
-use crate::db::create_coin;
-use crate::models::Coin;
-use crate::schema::coins as coins_schema;
-use crate::schema::coins::dsl::coins as coins_table;
 use aws_config::meta::region::RegionProviderChain;
-use aws_sdk_s3::{config::Region, primitives::ByteStream, Client as S3Client};
+use aws_sdk_s3::{config::Region, Client as S3Client};
 use axum::{
-    extract::{Multipart, Path, State},
-    http::{HeaderValue, Method, StatusCode},
-    response::IntoResponse,
+    http::{HeaderValue, Method},
     routing::{get, post},
-    Json, Router,
+    Router,
 };
-use db::NewCoin;
 use db_pool::{establish_pool, PgPool};
 use dotenv::dotenv;
 use pump::client::PumpClient;
-use std::str::FromStr;
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
 
@@ -32,246 +25,32 @@ pub struct AppState {
     pub pump_client: Arc<PumpClient>,
 }
 
-use diesel::prelude::*;
-use serde::Serialize;
-#[derive(Serialize)]
-struct CoinResponse {
-    coin: Coin,
-}
+impl AppState {
+    async fn new() -> AppState {
+        let region_provider = RegionProviderChain::default_provider().or_else(Region::new("us-east-1"));
+        let aws_config = aws_config::from_env().region(region_provider).load().await;
+        let s3_client = S3Client::new(&aws_config);
+        let shared_s3_client = Arc::new(s3_client);
 
-/// Handler for GET /coin/:id/snippet?length=50
-async fn get_coin_handler(
-    Path(coin_id): Path<i64>,
-    State(state): State<AppState>,
-) -> impl IntoResponse {
-    let mut conn = match state.db_pool.get() {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("DB error: {}", e),
-            )
-                .into_response()
-        }
-    };
+        let pump_client = PumpClient::new();
 
-    match db::get_coin(&mut conn, coin_id) {
-        Ok(coin) => Json(CoinResponse { coin }).into_response(),
-        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
+        // Establish the database pool.
+        let db_pool = establish_pool();
+        let app_state = AppState {
+            s3_client: shared_s3_client,
+            db_pool,
+            pump_client: Arc::new(pump_client),
+        };
     }
 }
 
-/// Handler for GET /coin/:id/snippet?length=50
-async fn get_pool_prices(
-    Path(pool): Path<String>,
-    State(state): State<AppState>,
-) -> impl IntoResponse {
-    let mut conn = match state.db_pool.get() {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("DB error: {}", e),
-            )
-                .into_response()
-        }
-    };
-
-    match db::get_pool_prices(&mut conn, pool, None, None, 100) {
-        Ok(prices) => Json(prices).into_response(),
-        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
-    }
-}
-
-async fn verify_coin_handler(
-    Path(coin_id): Path<i64>,
-    State(state): State<AppState>,
-) -> impl IntoResponse {
-    let mut conn = match state.db_pool.get() {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("DB error: {}", e),
-            )
-                .into_response()
-        }
-    };
-
-    let client = &state.pump_client;
-    let coin = match client.get_coin(coin_id as u32).await {
-        Ok(coin) => coin,
-        Err(pe) => return pe.into_response(),
-    };
-    // Perform the update operation
-    match diesel::update(coins_table.filter(schema::coins::id.eq(coin_id)))
-        .set((
-            coins_schema::verified.eq(true),
-            coins_schema::supply
-                .eq(bigdecimal::BigDecimal::from_str(&coin.supply.to_string()).unwrap()),
-            coins_schema::name.eq(coin.name),
-            coins_schema::symbol.eq(coin.symbol),
-            coins_schema::contract_address.eq(coin.contractAddress.to_string()),
-            coins_schema::creator.eq(coin.creator.to_string()),
-        ))
-        .execute(&mut conn)
-    {
-        Ok(rows_affected) if rows_affected > 0 => (
-            StatusCode::OK,
-            Json(format!("Coin {} verified successfully!", coin_id)),
-        )
-            .into_response(),
-        Ok(_) => (
-            StatusCode::NOT_FOUND,
-            format!("Coin with id {} not found", coin_id),
-        )
-            .into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Error updating coin: {}", e),
-        )
-            .into_response(),
-    }
-}
-
-async fn get_all_coins_handler(State(state): State<AppState>) -> impl IntoResponse {
-    let mut conn = match state.db_pool.get() {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("DB error: {}", e),
-            )
-                .into_response()
-        }
-    };
-
-    match db::get_all_coins(&mut conn) {
-        Ok(coin_list) => Json(coin_list).into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Error fetching coins: {}", e),
-        )
-            .into_response(),
-    }
-}
-/// Handler for POST /coin/create
-async fn create_coin_handler(
-    State(state): State<AppState>,
-    Json(payload): Json<NewCoin>,
-) -> impl IntoResponse {
-    let mut conn = match state.db_pool.get() {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("DB error: {}", e),
-            )
-                .into_response()
-        }
-    };
-
-    match create_coin(&mut conn, payload) {
-        Ok(coin) => Json(CoinResponse { coin }).into_response(),
-        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
-    }
-}
-
-async fn upload_file(
-    // Extract the S3 client from shared state.
-    State(state): State<AppState>,
-    // Extract the coin id from the URL path.
-    Path(coin_id): Path<String>,
-    // Extract the multipart form data.
-    mut multipart: Multipart,
-) -> impl IntoResponse {
-    let s3_client = state.s3_client;
-    // Look for the file field in the multipart form.
-    let mut file_bytes: Option<Vec<u8>> = None;
-    while let Some(field) = multipart.next_field().await.unwrap() {
-        // Check if this field is a file (it will have a filename).
-        if field.file_name().is_some() {
-            // Read all bytes from the field.
-            let data = if let Ok(bytes) = field.bytes().await {
-                bytes.to_vec()
-            } else {
-                eprintln!("Error reading uploaded file");
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    "Failed to read file as bytes".to_string(),
-                );
-            };
-            file_bytes = Some(data);
-            break;
-        }
-    }
-
-    // If no file was provided, return a 400 error.
-    let file_bytes = match file_bytes {
-        Some(bytes) => bytes,
-        None => {
-            println!("bad request");
-            return (
-                StatusCode::BAD_REQUEST,
-                "No file found in upload".to_string(),
-            );
-        }
-    };
-
-    // Prepare S3 upload parameters.
-    let bucket_name = "seismic-public-assets";
-    // The key will be under the "pump" folder with the filename equal to the coin id.
-    let key = format!("pump/{}", coin_id);
-
-    // Upload the file to S3 with the public-read ACL.
-    let upload_result = s3_client
-        .put_object()
-        .bucket(bucket_name)
-        .key(&key)
-        .body(ByteStream::from(file_bytes))
-        .acl(aws_sdk_s3::types::ObjectCannedAcl::PublicRead)
-        .send()
-        .await;
-
-    // Check if the upload was successful.
-    match upload_result {
-        Ok(_) => {
-            // Construct the public URL. (This example assumes the default AWS S3 endpoint.)
-            let public_url = format!("https://{}.s3.amazonaws.com/{}", bucket_name, key);
-            (StatusCode::OK, public_url)
-        }
-        Err(e) => {
-            eprintln!("Error uploading to S3: {:?}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Upload failed".to_string(),
-            )
-        }
-    }
-}
 
 #[tokio::main]
 async fn main() {
     dotenv().ok();
 
     // Set up AWS S3.
-    let region_provider = RegionProviderChain::default_provider().or_else(Region::new("us-east-1"));
-    let aws_config = aws_config::from_env().region(region_provider).load().await;
-    let s3_client = S3Client::new(&aws_config);
-    let shared_s3_client = Arc::new(s3_client);
-
-    let pump_client = match PumpClient::new().await {
-        Ok(pc) => pc,
-        Err(pe) => panic!("Failed to initialize client: {:?}", pe),
-    };
-
-    // Establish the database pool.
-    let db_pool = establish_pool();
-    let app_state = AppState {
-        s3_client: shared_s3_client,
-        db_pool,
-        pump_client: Arc::new(pump_client),
-    };
+    let state = AppState::new().await;
 
     // Set up CORS.
     let origin = "http://localhost:5173".parse::<HeaderValue>().unwrap();
@@ -282,18 +61,18 @@ async fn main() {
 
     // Define coin-related routes in a sub-router.
     let coin_routes = Router::new()
-        .route("/upload", post(upload_file)) // POST /coin/:id
-        .route("/", get(get_coin_handler)) // GET /coin/:id/snippet
-        .route("/", post(create_coin_handler)) // POST /coin/create
-        .route("/verify", post(verify_coin_handler));
+        .route("/upload", post(handlers::upload_file)) // POST /coin/:id
+        .route("/", get(handlers::get_coin_handler)) // GET /coin/:id/snippet
+        .route("/", post(handlers::create_coin_handler)) // POST /coin/create
+        .route("/verify", post(handlers::verify_coin_handler));
 
-    let pool_routes = Router::new().route("/prices", get(get_pool_prices));
+    let pool_routes = Router::new().route("/prices", get(handlers::get_pool_prices));
 
     // Define the main router.
     let app = Router::new()
         .nest("/coin/:id", coin_routes)
         .nest("/pool/:pool", pool_routes)
-        .route("/coins", get(get_all_coins_handler))
+        .route("/coins", get(handlers::get_all_coins_handler))
         .with_state(app_state)
         .layer(cors);
 
