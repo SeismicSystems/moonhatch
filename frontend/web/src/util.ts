@@ -8,21 +8,21 @@ export const formatRelativeTime = (timestamp: number): string => {
   const diff = now - timestamp
   const seconds = Math.floor(diff / 1000)
   if (seconds < 60) {
-    return `${seconds}s ago`
+    return `${seconds}s `
   }
   const minutes = Math.floor(seconds / 60)
   const remainingSeconds = seconds % 60
   if (minutes < 60) {
     return remainingSeconds > 0
-      ? `${minutes}m${remainingSeconds}s ago`
-      : `${minutes}m ago`
+      ? `${minutes}m${remainingSeconds}s `
+      : `${minutes}m `
   }
   const hours = Math.floor(minutes / 60)
   const remainingMinutes = minutes % 60
   if (hours < 24) {
     return remainingMinutes > 0
-      ? `${hours}h${remainingMinutes}m ago`
-      : `${hours}h ago`
+      ? `${hours}h${remainingMinutes}m `
+      : `${hours}h `
   }
   const days = Math.floor(hours / 24)
   let remainingHours = hours % 24
@@ -30,5 +30,5 @@ export const formatRelativeTime = (timestamp: number): string => {
   if (remainingMinutes >= 30 && remainingHours > 0) {
     remainingHours = remainingHours - 1
   }
-  return remainingHours > 0 ? `${days}d${remainingHours}h ago` : `${days}d ago`
+  return remainingHours > 0 ? `${days}d${remainingHours}h ` : `${days}d `
 }
