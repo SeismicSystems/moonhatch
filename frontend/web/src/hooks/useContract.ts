@@ -1,13 +1,16 @@
 import { useShieldedContract } from 'seismic-react'
+import { Hex } from 'viem'
 
 import type { ContractData } from '@/types/contract'
 
+export const CHAIN_ID = import.meta.env.VITE_CHAIN_ID
+
 const loadContractData = async ({
   name,
-  chainId,
+  chainId = CHAIN_ID,
 }: {
   name: string
-  chainId: string | undefined
+  chainId?: Hex | undefined
 }): Promise<ContractData> => {
   // Check if VITE_CHAIN_ID is set
   if (!chainId) {
@@ -15,7 +18,7 @@ const loadContractData = async ({
   }
 
   // Construct the file path (vite makes this load from /public directory)
-  const configPath = `/chains/${chainId}/contracts/${name}.json`
+  const configPath = `/chains/${CHAIN_ID}/contracts/${name}.json`
 
   try {
     const response = await fetch(configPath)
@@ -34,18 +37,18 @@ const loadContractData = async ({
   }
 }
 
-const CHAIN_ID = import.meta.env.VITE_CHAIN_ID
-
-const pumpContractData = await loadContractData({
-  name: 'PumpRand',
-  chainId: CHAIN_ID,
-})
+const pumpContractData = await loadContractData({ name: 'PumpRand' })
+const dexContractData = await loadContractData({ name: 'UniswapV2Router02' })
 
 export const PUMP_CONTRACT_ADDRESS = pumpContractData.address
 export const PUMP_CONTRACT_ABI = pumpContractData.abi
-
-export const useContract = () =>
+export const usePumpContract = () =>
   useShieldedContract({
     abi: PUMP_CONTRACT_ABI,
     address: PUMP_CONTRACT_ADDRESS,
   })
+
+export const DEX_CONTRACT_ADDRESS = dexContractData.address
+export const DEX_CONTRACT_ABI = dexContractData.abi
+export const useDexContract = () =>
+  useShieldedContract({ abi: DEX_CONTRACT_ABI, address: DEX_CONTRACT_ADDRESS })
