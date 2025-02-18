@@ -40,8 +40,7 @@ export default function TradeSection({
   const [isBalanceVisible, setIsBalanceVisible] = useState(false)
   // tradeType: either 'buy' or 'sell' (or null if not yet selected)
   const [tradeType, setTradeType] = useState<'buy' | 'sell' | null>(null)
-  // We'll use the parent's buyAmount for BUY orders...
-  // ...and a local state for SELL orders.
+  // Use parent's buyAmount for BUY orders and local state for SELL orders.
   const [sellAmount, setSellAmount] = useState('')
 
   // Dummy conversion rate: 1 ETH = 1000 Coin X
@@ -67,7 +66,6 @@ export default function TradeSection({
   const handleTrade = (type: 'buy' | 'sell') => {
     setTradeType(type)
     if (type === 'buy') {
-      // Optionally reset parent's buyAmount
       setBuyAmount('')
     } else {
       setSellAmount('')
@@ -106,39 +104,58 @@ export default function TradeSection({
         }}
       >
         <div className="w-full flex flex-col items-center text-center gap-2">
+          {/* Balance Display & Refresh Section */}
           <div className="text-[var(--creamWhite)]">BALANCE</div>
-          <button
-            className="w-full mb-2 text-[var(--creamWhite)]"
-            onClick={() => console.log('View Balance (0)')}
-          >
-            ({weiIn ? formatEther(weiIn) : 0})
-          </button>
-
-          {/* Display current mode buttons if tradeType is not selected */}
-          <div className="flex justify-center gap-4 w-full mb-4">
+          <div className="flex items-center gap-2">
             <button
-              className={`w-full px-4 py-2 rounded ${
-                tradeType === 'buy'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-700 text-gray-300'
-              }`}
-              onClick={() => handleTrade('buy')}
+              className="w-full text-[var(--creamWhite)]"
+              onClick={handleViewBalance}
             >
-              BUY
+              ({weiIn ? formatEther(weiIn) : 0})
             </button>
-            {coin.graduated && (
+            <button
+              className="bg-[var(--midBlue)] text-[var(--creamWhite)] py-2 px-4 rounded flex items-center"
+              onClick={refreshWeiIn}
+            >
+              <CachedIcon />
+            </button>
+          </div>
+          {loadingEthIn && (
+            <div className="text-gray-500 text-sm">Waiting...</div>
+          )}
+          {isBalanceVisible && !loadingEthIn && (
+            <div className="text-green-600 font-bold">
+              {weiIn !== null ? formatEther(weiIn) : 'No balance available'}
+            </div>
+          )}
+
+          {/* Trade Mode Toggle */}
+          {!tradeType && (
+            <div className="flex justify-center gap-4 w-full mb-4">
               <button
                 className={`w-full px-4 py-2 rounded ${
-                  tradeType === 'sell'
-                    ? 'bg-red-500 text-white'
+                  tradeType === 'buy'
+                    ? 'bg-green-500 text-white'
                     : 'bg-gray-700 text-gray-300'
                 }`}
-                onClick={() => handleTrade('sell')}
+                onClick={() => handleTrade('buy')}
               >
-                SELL
+                BUY
               </button>
-            )}
-          </div>
+              {coin.graduated && (
+                <button
+                  className={`w-full px-4 py-2 rounded ${
+                    tradeType === 'sell'
+                      ? 'bg-red-500 text-white'
+                      : 'bg-gray-700 text-gray-300'
+                  }`}
+                  onClick={() => handleTrade('sell')}
+                >
+                  SELL
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Input and estimated value */}
           {tradeType === 'buy' && (

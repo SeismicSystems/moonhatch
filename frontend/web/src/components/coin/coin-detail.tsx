@@ -138,13 +138,13 @@ const CoinDetail: React.FC = () => {
     }
 
     // Prevent purchase if the coin has graduated
-    // if (coin.graduated) {
-    //   setModalMessage(
-    //     'This coin has graduated. Purchases are no longer allowed.'
-    //   )
-    //   setModalOpen(true)
-    //   return
-    // }
+    if (coin.graduated) {
+      setModalMessage(
+        'This coin has graduated. Purchases are no longer allowed.'
+      )
+      setModalOpen(true)
+      return
+    }
 
     try {
       if (isBuying) {

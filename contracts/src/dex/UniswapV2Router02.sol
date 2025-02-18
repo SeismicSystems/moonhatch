@@ -250,6 +250,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         );
         _swap(amounts, path, to);
     }
+    //use this for buys, first arg is slippage param ,will be zero for now, second apram is an array of two addresses, first addy is WETH (), second is tokens ddy LAST ARG is a lagre timestamsp far in future
     function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
         external
         virtual
@@ -282,6 +283,8 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         IWETH(WETH).withdraw(amounts[amounts.length - 1]);
         TransferHelper.safeTransferETH(to, amounts[amounts.length - 1]);
     }
+
+    //not passing any value at all, need to prompt for token/wallet  approval by calling 
     function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
         external
         virtual

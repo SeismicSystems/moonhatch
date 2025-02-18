@@ -145,7 +145,7 @@ contract PumpCoin is IPumpCoin {
         emit Approval(msg.sender, address(spender), uint(amount));
         return true;
     }
-
+//THIS GETS CALLED BEFORE ETH SELL 
     function approve(address spender, uint value) external returns (bool) {
         _approve(saddress(spender), suint256(value));
         emit Approval(address(msg.sender), spender, value);
