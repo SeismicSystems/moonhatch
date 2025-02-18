@@ -98,6 +98,7 @@ export function useFetchCoin() {
         name: formData.name,
         symbol: formData.symbol,
         supply: '21000000000000000000000', // as a string for BigDecimal
+        decimals: 18,
         contractAddress: receipt.to,
         creator: receipt.from,
         graduated: false,
