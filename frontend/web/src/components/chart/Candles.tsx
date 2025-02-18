@@ -5,6 +5,7 @@ import {
   createChart,
 } from 'lightweight-charts'
 import React, { useEffect, useRef } from 'react'
+import type { Hex } from 'viem'
 
 import { useTimeseries } from '@/hooks/useTimeseries'
 
@@ -14,7 +15,7 @@ type ChartColors = {
 }
 
 type ChartProps = {
-  pool: string // Assuming Hex is a string alias
+  pool: Hex // Assuming Hex is a string alias
   colors?: ChartColors
 }
 

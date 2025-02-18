@@ -20,6 +20,8 @@ const theme = createTheme({
   },
   typography: {
     h1: {
+      fontFamily: "'Tomorrow', sans-serif",
+
       fontSize: {
         xs: '1.6rem',
         sm: '2rem',
@@ -29,6 +31,8 @@ const theme = createTheme({
       fontWeight: 600,
     },
     h2: {
+      fontFamily: "'Tomorrow', sans-serif",
+
       fontSize: {
         xs: '1.4rem',
         sm: '1.7rem',
@@ -48,15 +52,19 @@ const theme = createTheme({
       fontWeight: 500,
     },
     h4: {
+      fontFamily: "'Tomorrow', sans-serif",
+
       fontSize: {
-        xs: '1.1rem',
+        xs: '2.5rem',
         sm: '1.3rem',
         md: '1.5rem',
-        lg: '1.75rem',
+        lg: '2.75rem',
       },
       fontWeight: 500,
     },
     body1: {
+      fontFamily: "'Tomorrow', sans-serif",
+
       fontSize: {
         xs: '0.875rem',
         sm: '0.9rem',
@@ -66,6 +74,8 @@ const theme = createTheme({
       lineHeight: 1.5,
     },
     body2: {
+      fontFamily: "'Tomorrow', sans-serif",
+
       fontSize: {
         xs: '0.75rem',
         sm: '0.8rem',
