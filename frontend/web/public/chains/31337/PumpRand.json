@@ -1,5 +1,5 @@
 {
-  "address": "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9",
+  "address": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
   "methodIdentifiers": {
     "WEI_GRADUATION()": "cc67b0e8",
     "buy(uint32)": "7db5bd52",
@@ -7,12 +7,9 @@
     "createCoin(string,string,uint256)": "2931b63d",
     "deployGraduated(uint32)": "7891d8dd",
     "deployer()": "d5f39488",
-    "dex()": "692058c2",
     "getCoin(uint32)": "3e0a6fb0",
-    "getCoinAddress(uint32)": "f1e66e1d",
     "getCoinContract(uint32)": "6d73402f",
     "getCoinData(uint32)": "88558e31",
-    "getPair(uint32)": "b6680f12",
     "getWeiIn(uint32)": "bb056e73",
     "graduated(uint32)": "4974faf0",
     "isGraduated(uint32)": "83e6ad52",
@@ -23,14 +20,9 @@
       "type": "constructor",
       "inputs": [
         {
-          "name": "feeBps_",
+          "name": "_feeBps",
           "type": "uint16",
           "internalType": "uint16"
-        },
-        {
-          "name": "dex_",
-          "type": "address",
-          "internalType": "address"
         }
       ],
       "stateMutability": "nonpayable"
@@ -137,19 +129,6 @@
     },
     {
       "type": "function",
-      "name": "dex",
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
       "name": "getCoin",
       "inputs": [
         {
@@ -190,25 +169,6 @@
               "internalType": "address"
             }
           ]
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "getCoinAddress",
-      "inputs": [
-        {
-          "name": "coinId",
-          "type": "uint32",
-          "internalType": "uint32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "address",
-          "internalType": "address"
         }
       ],
       "stateMutability": "view"
@@ -279,25 +239,6 @@
           "name": "graduatedStatus",
           "type": "bool",
           "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "getPair",
-      "inputs": [
-        {
-          "name": "coinId",
-          "type": "uint32",
-          "internalType": "uint32"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "address",
-          "internalType": "address"
         }
       ],
       "stateMutability": "view"
