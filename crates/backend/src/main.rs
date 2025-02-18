@@ -101,15 +101,7 @@ async fn verify_coin_handler(
     let client = &state.pump_client;
     let coin = match client.get_coin(coin_id as u32).await {
         Ok(coin) => coin,
-        Err(pe) => {
-            let code = match pe {
-                PumpError::CoinNotFound | PumpError::WethNotFound | PumpError::PairNotFound => {
-                    StatusCode::NOT_FOUND
-                }
-                PumpError::FailedToDecodeAbi => StatusCode::INTERNAL_SERVER_ERROR,
-            };
-            return (code, format!("{:?}", pe)).into_response();
-        }
+        Err(pe) => return pe.into_response()
     };
     // Perform the update operation
     match diesel::update(coins_table.filter(schema::coins::id.eq(coin_id)))

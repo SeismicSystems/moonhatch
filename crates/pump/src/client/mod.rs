@@ -10,6 +10,7 @@ use alloy_provider::{
 };
 use alloy_rpc_types_eth::{Filter, TransactionInput, TransactionRequest};
 use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolEvent, SolType};
+use axum::{http::StatusCode, response::IntoResponse};
 use reqwest::Url;
 use std::str::FromStr;
 
@@ -67,13 +68,13 @@ impl ContractAddresses {
         calldata: Vec<u8>,
     ) -> Result<Address, PumpError> {
         let tx = build_tx(to, calldata);
-        let weth_bytes = provider
+        let address_bytes = provider
             .call(&tx)
             .await
             .map_err(|_e| PumpError::WethNotFound)?;
-        let weth_address =
-            SolAddress::abi_decode(&weth_bytes, true).map_err(|_| PumpError::FailedToDecodeAbi)?;
-        Ok(weth_address)
+        let address =
+            SolAddress::abi_decode(&address_bytes, true).map_err(|_| PumpError::FailedToDecodeAbi)?;
+        Ok(address)
     }
 }
 
@@ -83,6 +84,23 @@ pub enum PumpError {
     WethNotFound,
     PairNotFound,
     FailedToDecodeAbi,
+}
+
+impl IntoResponse for PumpError {
+    fn into_response(self) -> axum::response::Response {
+        let msg = format!("{:?}", self);
+        let code: StatusCode = self.into();
+        return (code, msg).into_response();
+    }
+}
+
+impl Into<StatusCode> for PumpError {
+    fn into(self) -> StatusCode {
+        match self {
+            PumpError::FailedToDecodeAbi => StatusCode::INTERNAL_SERVER_ERROR,
+            PumpError::CoinNotFound | PumpError::PairNotFound | PumpError::WethNotFound => StatusCode::NOT_FOUND
+        }
+    }
 }
 
 pub struct PumpClient {

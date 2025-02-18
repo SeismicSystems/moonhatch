@@ -2,6 +2,9 @@
 members = ["crates/backend", "crates/listener", "crates/pump"]
 resolver = "2"
 
+[workspace.dependencies]
+axum = "0.6.20"
+
 [patch.crates-io]
 # seismic-alloy-core
 alloy-dyn-abi = { git = "https://github.com/SeismicSystems/seismic-alloy-core.git", rev = "77693d2" }
