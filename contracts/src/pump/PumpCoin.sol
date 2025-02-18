@@ -3,14 +3,19 @@ pragma solidity ^0.8.27;
 
 import { ISRC20 } from "../token/ISRC20.sol";
 import { SRC20 } from "../token/SRC20.sol";
+import { IERC20Uniswap } from "../dex/interfaces/IERC20.sol";
 
 /*//////////////////////////////////////////////////////////////
 //                       IPumpCoin Interface
 //////////////////////////////////////////////////////////////*/
-
 // IPumpCoin extends ISRC20 by adding the mint function.
-interface IPumpCoin is ISRC20 {
+interface IPumpCoin is ISRC20, IERC20Uniswap {
+    function decimals() external view override(ISRC20, IERC20Uniswap) returns (uint8);
+    function name() external view override(ISRC20, IERC20Uniswap) returns (string memory);
+    function symbol() external view override(ISRC20, IERC20Uniswap) returns (string memory);
+    function totalSupply() external view override(ISRC20, IERC20Uniswap) returns (uint256);
     function mint(saddress to, suint256 amount) external;
+    function graduate() external;
 }
 /*//////////////////////////////////////////////////////////////
 //                         PumpCoin Contract
@@ -41,13 +46,17 @@ contract PumpCoin is SRC20, IPumpCoin {
     }
 
     /// @notice Enable token transfers/queries after graduation.
-    function graduate() public onlyOwner {
+    function graduate() external onlyOwner {
         graduated = true;
     }
 
     /// @notice Mints new tokens to the specified address.
     function mint(saddress to, suint256 amount) public onlyOwner {
         _mint(to, amount);
+    }
+
+    function totalSupply() external view override(SRC20, IPumpCoin) returns (uint256) {
+        return SRC20.totalSupply;
     }
 
     /// @notice Returns the balance of msg.sender.
@@ -66,5 +75,26 @@ contract PumpCoin is SRC20, IPumpCoin {
     /// @dev Only available after graduation.
     function transferFrom(saddress from, saddress to, suint256 amount) public override(ISRC20, SRC20) onlyGraduated returns (bool) {
         return SRC20.transferFrom(from, to, amount);
+    }
+
+    function balanceOf(address owner_) external view returns (uint) {
+        return uint256(balance[saddress(owner_)]);
+    }
+
+    function allowance(address owner_, address spender) external view returns (uint) {
+        return uint256(_allowance[saddress(owner_)][saddress(spender)]);
+    }
+
+    function approve(address spender, uint value) external returns (bool) {
+        SRC20.approve(saddress(spender), suint256(value));
+        return true;
+    }
+
+    function transfer(address to, uint value) external returns (bool) {
+        return SRC20.transfer(saddress(to), suint256(value));
+    }
+
+    function transferFrom(address from, address to, uint value) external returns (bool) {
+        return SRC20.transferFrom(saddress(from), saddress(to), suint256(value));
     }
 }

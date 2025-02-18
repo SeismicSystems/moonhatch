@@ -4,13 +4,25 @@ pragma solidity ^0.8.27;
 import {Test, console} from "forge-std/Test.sol";
 import { PumpRand, Coin } from "../src/pump/PumpRand.sol";
 import { IPumpCoin } from "../src/pump/PumpCoin.sol";
+import { WETH9 } from "../src/dex/mocks/WETH9.sol";
+import { UniswapV2Factory } from "../src/dex/UniswapV2Factory.sol";
+import { UniswapV2Router02 } from "../src/dex/UniswapV2Router02.sol";
+import { UniswapV2Library } from "../src/dex/libraries/UniswapV2Library.sol";
 
 contract PumpRandTest is Test {
     PumpRand public pump;
     uint256 balance;
 
+    WETH9 public weth9;
+    UniswapV2Factory public factory;
+    UniswapV2Router02 public router;
+
+
     function setUp() public {
-        pump = new PumpRand(0);
+        weth9 = new WETH9();
+        factory = new UniswapV2Factory(address(this));
+        router = new UniswapV2Router02(address(factory), address(weth9)); 
+        pump = new PumpRand(0, address(router));
     }
 
     // so our contract can receive funds
@@ -34,6 +46,20 @@ contract PumpRandTest is Test {
         uint256 refunded = pump.buy{value: 0.1 ether}(coinId);
         assertTrue(pump.isGraduated(coinId));
         assertEq(refunded, 100);
+
+        address token = pump.getCoinAddress(coinId);
+
+        address pair = UniswapV2Library.pairFor(address(factory), token, address(weth9));
+        console.log('pair is', pair);
+
+        pump.deployGraduated(coinId);
+        
+        UniswapV2Library.getReserves(address(factory), token, address(weth9));
+
+        address[] memory path = new address[](2);
+        path[0] = address(weth9);
+        path[1] = pair;
+        router.swapETHForExactTokens(1, path, address(this), 1861851600);
     }
 
     /// Once the coin has graduated, no further buys should be allowed.

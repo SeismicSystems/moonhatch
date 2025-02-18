@@ -1,5 +1,5 @@
 {
-  "address": "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9",
+  "address": "0x0165878a594ca255338adfa4d48449f69242eb8f",
   "methodIdentifiers": {
     "WEI_GRADUATION()": "cc67b0e8",
     "buy(uint32)": "7db5bd52",
@@ -7,6 +7,7 @@
     "createCoin(string,string,uint256)": "2931b63d",
     "deployGraduated(uint32)": "7891d8dd",
     "deployer()": "d5f39488",
+    "dex()": "692058c2",
     "getCoin(uint32)": "3e0a6fb0",
     "getCoinContract(uint32)": "6d73402f",
     "getCoinData(uint32)": "88558e31",
@@ -20,9 +21,14 @@
       "type": "constructor",
       "inputs": [
         {
-          "name": "_feeBps",
+          "name": "feeBps_",
           "type": "uint16",
           "internalType": "uint16"
+        },
+        {
+          "name": "dex_",
+          "type": "address",
+          "internalType": "address"
         }
       ],
       "stateMutability": "nonpayable"
@@ -117,6 +123,19 @@
     {
       "type": "function",
       "name": "deployer",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "dex",
       "inputs": [],
       "outputs": [
         {

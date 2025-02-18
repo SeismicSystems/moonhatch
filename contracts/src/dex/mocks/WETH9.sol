@@ -3,11 +3,12 @@
 pragma solidity ^0.8.27;
 
 import { ISRC20 } from "../../token/ISRC20.sol";
+import { IERC20Uniswap } from "../interfaces/IERC20.sol";
 
-contract WETH9 is ISRC20 {
-    string public name = "Wrapped Ether";
-    string public symbol = "WETH";
-    uint8 public decimals = 18;
+contract WETH9 is ISRC20, IERC20Uniswap {
+    string public override(ISRC20, IERC20Uniswap) name = "Wrapped Ether";
+    string public override(ISRC20, IERC20Uniswap) symbol = "WETH";
+    uint8 public override(ISRC20, IERC20Uniswap) decimals = 18;
 
     // event Approval(address indexed src, address indexed guy, uint256 wad);
     // event Transfer(address indexed src, address indexed dst, uint256 wad);
@@ -32,7 +33,7 @@ contract WETH9 is ISRC20 {
         // emit Withdrawal(msg.sender, wad);
     }
 
-    function totalSupply() public view returns (uint256) {
+    function totalSupply() public view override(ISRC20, IERC20Uniswap) returns (uint256) {
         return address(this).balance;
     }
 
@@ -42,8 +43,20 @@ contract WETH9 is ISRC20 {
         return true;
     }
 
+    function approve(address spender, uint value) external returns (bool) {
+        return approve(saddress(spender), suint256(value));
+    }
+
     function transfer(saddress dst, suint256 wad) public returns (bool) {
         return transferFrom(saddress(msg.sender), dst, wad);
+    }
+
+    function transfer(address to, uint value) external returns (bool) {
+        return transferFrom(saddress(msg.sender), saddress(to), suint256(value));
+    }
+
+    function transferFrom(address from, address to, uint value) external returns (bool) {
+        return transferFrom(saddress(from), saddress(to), suint256(value));
     }
 
     function transferFrom(
@@ -68,6 +81,14 @@ contract WETH9 is ISRC20 {
 
     function balanceOf() external view returns (uint256) {
         return uint256(_balanceOf[saddress(msg.sender)]);
+    }
+
+    function balanceOf(address owner) external view returns (uint) {
+        return uint(_balanceOf[saddress(owner)]);
+    }
+
+    function allowance(address owner, address spender) external view returns (uint) {
+        return uint256(_allowance[saddress(owner)][saddress(spender)]);
     }
 
     function allowance(saddress spender) external view returns (uint256) {
