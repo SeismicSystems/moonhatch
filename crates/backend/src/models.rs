@@ -11,6 +11,7 @@ pub struct Coin {
     pub name: String,
     pub symbol: String,
     pub supply: BigDecimal,
+    pub decimals: i32,
     #[serde(rename = "contractAddress")]
     pub contract_address: String,
     pub creator: String,

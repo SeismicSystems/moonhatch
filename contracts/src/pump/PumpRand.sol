@@ -2,29 +2,28 @@
 pragma solidity ^0.8.27;
 
 import { PumpCoin, IPumpCoin } from "./PumpCoin.sol";
-import '../dex/interfaces/IUniswapV2Router02.sol';
-import '../dex/interfaces/IUniswapV2Factory.sol';
+import { IUniswapV2Router02 } from '../dex/interfaces/IUniswapV2Router02.sol';
+import { IUniswapV2Factory } from '../dex/interfaces/IUniswapV2Factory.sol';
 
 struct Coin {
     string name;
     string symbol;
     uint256 supply;
+    uint8 decimals;
     address contractAddress;
-    address creator;    
-    // TODO: add decimals?
-    // uint8 decimals;
+    address creator;
 }
 
 contract PumpRand {
     // 1 eth to graduate
-    uint256 public constant WEI_GRADUATION = 1_000_000_000_000_000_000;
+    uint256 public constant WEI_GRADUATION = 1e18;
 
     uint16 feeBps;
     uint32 public coinsCreated;
     address public deployer;
     uint256 private fees;
     // sushiswap contract
-    address public dex;
+    address public router;
 
     // directory of all coins created
     mapping(uint32 => Coin) private coins;
@@ -36,6 +35,7 @@ contract PumpRand {
 
     event CoinCreated(uint32 coinId);
     event CoinGraduated(uint32 coinId);
+    event DeployedToDex(uint32 coinId, address lpToken);
 
     error NoCoinWithId(uint32 coinId);
     error RngPrecompileCallFailed();
@@ -45,11 +45,11 @@ contract PumpRand {
     error SweepFeesFailed();
     error FailedToRefundExcessEth();
 
-    constructor(uint16 feeBps_, address dex_) {
+    constructor(uint16 feeBps_, address router_) {
         deployer = msg.sender;
         coinsCreated = 0;
         feeBps = feeBps_;
-        dex = dex_;
+        router = router_;
     }
 
     function sweepFees() public payable {
@@ -66,7 +66,7 @@ contract PumpRand {
         }
         PumpCoin pc = new PumpCoin(address(this), name, symbol, 18);
         coinId = coinsCreated;
-        coins[coinId] = Coin(name, symbol, supply, address(pc),msg.sender);
+        coins[coinId] = Coin(name, symbol, supply, 18, address(pc),msg.sender);
         weisIn[coinId] = suint256(0);
         unitsOut[coinId] = suint256(0);
         emit CoinCreated(coinId);
@@ -134,6 +134,7 @@ contract PumpRand {
                     revert FailedToRefundExcessEth();
                 }
             }
+            emit CoinGraduated(coinId);
             return refund;
         }
 
@@ -198,7 +199,7 @@ contract PumpRand {
     }
 
     function deployGraduated(uint32 coinId) public {
-        IUniswapV2Router02 router = IUniswapV2Router02(dex);
+        IUniswapV2Router02 router_ = IUniswapV2Router02(router);
         
         address token = getCoinAddress(coinId);
         IPumpCoin coin = IPumpCoin(token);
@@ -207,10 +208,13 @@ contract PumpRand {
         // no one wins in EV
         uint256 coinAmountIn = coin.totalSupply();
         coin.mint(saddress(this), suint256(coinAmountIn));
-        coin.approve(saddress(router), suint256(coinAmountIn));
+        coin.approve(saddress(router_), suint256(coinAmountIn));
         coin.graduate();
 
-        router.addLiquidityETH{value: WEI_GRADUATION}(
+        address lpToken = getPair(coinId);
+        emit DeployedToDex(coinId, lpToken);
+
+        router_.addLiquidityETH{value: WEI_GRADUATION}(
             token,
             coinAmountIn,
             coinAmountIn,
@@ -219,10 +223,11 @@ contract PumpRand {
             0x000000000000000000000000000000000000dEaD,
             block.timestamp + 1
         );
+        
     }
 
     function getPair(uint32 coinId) public view returns(address) {
-        IUniswapV2Router02 router = IUniswapV2Router02(dex);
-        return IUniswapV2Factory(router.factory()).getPair(coins[coinId].contractAddress, router.WETH());
+        IUniswapV2Router02 router_ = IUniswapV2Router02(router);
+        return IUniswapV2Factory(router_.factory()).getPair(coins[coinId].contractAddress, router_.WETH());
     }
 }
