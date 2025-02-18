@@ -37,11 +37,11 @@ impl AppState {
 
         // Establish the database pool.
         let db_pool = establish_pool();
-        let app_state = AppState {
+        AppState {
             s3_client: shared_s3_client,
             db_pool,
             pump_client: Arc::new(pump_client),
-        };
+        }
     }
 }
 
@@ -50,7 +50,7 @@ async fn main() {
     dotenv().ok();
 
     // Set up AWS S3.
-    let state = AppState::new().await;
+    let app_state = AppState::new().await;
 
     // Set up CORS.
     let origin = "http://localhost:5173".parse::<HeaderValue>().unwrap();
