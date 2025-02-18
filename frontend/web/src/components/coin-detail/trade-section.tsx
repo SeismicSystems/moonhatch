@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useSwipeable } from 'react-swipeable'
 import { formatEther } from 'viem'
 
 import CachedIcon from '@mui/icons-material/Cached'
@@ -13,10 +14,8 @@ interface TradeSectionProps {
   loadingEthIn: boolean
   viewEthIn: () => void
   refreshWeiIn: () => void
-  buyAmount: string
-  setBuyAmount: (value: string) => void
   buyError: string | null
-  handleBuy: () => void
+  handleBuy: (amount: string, tradeType: 'buy' | 'sell') => void
   modalOpen: boolean
   modalMessage: string
   setModalOpen: (open: boolean) => void
@@ -28,8 +27,6 @@ export default function TradeSection({
   loadingEthIn,
   viewEthIn,
   refreshWeiIn,
-  buyAmount,
-  setBuyAmount,
   buyError,
   handleBuy,
   modalOpen,
@@ -37,10 +34,43 @@ export default function TradeSection({
   setModalOpen,
 }: TradeSectionProps) {
   const [isBalanceVisible, setIsBalanceVisible] = useState(false)
+  const [tradeType, setTradeType] = useState<'buy' | 'sell' | null>(null)
+  const [amount, setAmount] = useState('')
 
-  // Called when the user clicks the VisibilityIcon button.
-  // We set the state to true (so that CachedIcon remains visible)
-  // and trigger the fetching of the balance.
+  // Dummy conversion rate: 1 ETH = 1000 Coin X, and vice versa.
+  const conversionRate = 1000
+
+  // Calculate the estimated amount dynamically
+  const estimatedAmount = useMemo(() => {
+    const inputValue = parseFloat(amount)
+    if (isNaN(inputValue) || inputValue <= 0) return 0
+    return tradeType === 'buy'
+      ? inputValue * conversionRate // ETH → Coin X
+      : inputValue / conversionRate // Coin X → ETH
+  }, [amount, tradeType])
+
+  // Handle switching the trade type and resetting the amount
+  const handleTrade = (type: 'buy' | 'sell') => {
+    setTradeType(type)
+    setAmount('')
+  }
+
+  // Swipe configuration using react-swipeable
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (coin.graduated) {
+        setTradeType('sell')
+        setAmount('')
+      }
+    },
+    onSwipedRight: () => {
+      setTradeType('buy')
+      setAmount('')
+    },
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true,
+  })
+
   const handleViewBalance = () => {
     if (!isBalanceVisible) {
       setIsBalanceVisible(true)
@@ -49,145 +79,91 @@ export default function TradeSection({
   }
 
   return (
-    <>
-      <div className="flex justify-center gap-x-2 w-full items-center">
-        <Box
-          sx={{
-            marginBottom: 4,
-            height: '100px',
-            width: { xs: '300px', sm: '450px' },
-          }}
-        >
-          {coin.graduated ? (
-            <div className="w-full   flex flex-col items-center text-center gap-2">
-              <div className="text-[var(--creamWhite)]">BALANCE</div>
-              <button
-                className="w-full mb-2 text-[var(--creamWhite)]"
-                onClick={() => console.log('View Balance (0)')}
-              >
-                ({weiIn ? formatEther(weiIn) : 0})
-              </button>
-              <input
-                type="text"
-                value={buyAmount} // need logic for sell
-                onChange={(e) => setBuyAmount(e.target.value)}
-                placeholder="Enter amount (max 1 ETH)"
-                className="w-full p-2 bg-[var(--lightBlue)] text-center  rounded mb-2 text-[var(--midBlue)]"
-              />
-              {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
-              <div className="w-full flex items-center justify-center gap-2">
-                <button
-                  className="hover:bg-white hover:text-green-500 w-full bg-green-500 text-white px-4 py-2 rounded"
-                  onClick={handleBuy}
-                >
-                  BUY
-                </button>
-                <button
-                  className="w-full hover:bg-white hover:text-red-500 bg-red-500 text-white px-4 py-2 rounded"
-                  onClick={handleBuy}
-                >
-                  SELL
-                </button>
-              </div>
-            </div>
-          ) : (
-            // For non-graduated coins, handle visibility and refresh UI.
-            <div className="flex flex-col  items-center">
-              {/* When the balance is hidden and not loading, show the VisibilityIcon */}
-              {!isBalanceVisible && !loadingEthIn && !coin.graduated && (
-                <>
-                  <div className="small-container flex flex-col items-center lg:hidden">
-                    <div className="text-[var(--creamWhite)]">BALANCE</div>
-                    <button
-                      className="bg-[var(--midBlue)] text-[var(--creamWhite)] py-2 px-4 rounded flex items-center"
-                      onClick={handleViewBalance}
-                    >
-                      <VisibilityIcon />
-                    </button>
-                  </div>
-                  <div className="lg-container hidden lg:flex flex-col w-[400px] items-center space-y-2  ">
-                    <button
-                      className="w-full bg-[var(--midBlue)] text-[var(--creamWhite)] py-2 px-4 mt-4 rounded "
-                      onClick={handleViewBalance}
-                    >
-                      VIEW BALANCE
-                    </button>
-                    <div className="trade flex flex-col w-[400px]  ">
-                      <input
-                        type="text"
-                        value={buyAmount}
-                        onChange={(e) => setBuyAmount(e.target.value)}
-                        placeholder="Enter amount (max 1 ETH)"
-                        className=" p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
-                      />
-                      {buyError && (
-                        <p className="text-red-500 text-sm">{buyError}</p>
-                      )}
-                      <button
-                        className="bg-green-500 text-white px-4 py-2 rounded"
-                        onClick={handleBuy}
-                      >
-                        BUY
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
-              {/* Show a waiting message if the balance is loading */}
-              {loadingEthIn && (
-                <div className="text-gray-500 text-sm">Waiting...</div>
-              )}
-              {/* Once the balance is visible (isBalanceVisible true) and not loading,
-                  display the balance and the CachedIcon for refreshing */}
-              {isBalanceVisible && !loadingEthIn && (
-                <>
-                  <div className="text-green-600 font-bold">
-                    {weiIn !== null
-                      ? formatEther(weiIn)
-                      : 'No balance available'}
-                  </div>
-                  <button
-                    className="bg-[var(--midBlue)] text-[var(--creamWhite)] py-2 px-4 rounded flex items-center mt-2"
-                    onClick={refreshWeiIn}
-                  >
-                    <CachedIcon />
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </Box>
-        {!coin.graduated && (
-          <div className="trade flex flex-col lg:hidden">
-            <input
-              type="text"
-              value={buyAmount}
-              onChange={(e) => setBuyAmount(e.target.value)}
-              placeholder="Enter amount (max 1 ETH)"
-              className=" p-2 bg-[var(--lightBlue)] rounded mb-2 text-[var(--midBlue)]"
-            />
-            {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
+    <div {...swipeHandlers} className="flex flex-col items-center w-full">
+      <Box
+        sx={{
+          marginBottom: 4,
+          width: { xs: '300px', sm: '450px' },
+        }}
+      >
+        <div className="w-full flex flex-col items-center text-center gap-2">
+          <div className="text-[var(--creamWhite)]">BALANCE</div>
+          <button
+            className="w-full mb-2 text-[var(--creamWhite)]"
+            onClick={() => console.log('View Balance (0)')}
+          >
+            ({weiIn ? formatEther(weiIn) : 0})
+          </button>
+
+          {/* Display current mode from swipe gestures or button click */}
+          <div className="flex justify-center gap-4 w-full mb-4">
             <button
-              className="bg-green-500 text-white px-4 py-2 rounded"
-              onClick={handleBuy}
+              className={`w-full px-4 py-2 rounded ${
+                tradeType === 'buy'
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-700 text-gray-300'
+              }`}
+              onClick={() => handleTrade('buy')}
             >
               BUY
             </button>
+            {coin.graduated && (
+              <button
+                className={`w-full px-4 py-2 rounded ${
+                  tradeType === 'sell'
+                    ? 'bg-red-500 text-white'
+                    : 'bg-gray-700 text-gray-300'
+                }`}
+                onClick={() => handleTrade('sell')}
+              >
+                SELL
+              </button>
+            )}
           </div>
-        )}
-        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-          <Box className="p-4 bg-white border rounded shadow-lg text-center">
-            <h2 className="text-lg font-bold">Warning</h2>
-            <p>{modalMessage}</p>
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
-              onClick={() => setModalOpen(false)}
-            >
-              OK
-            </button>
-          </Box>
-        </Modal>
-      </div>
-    </>
+
+          {/* Input and estimated value are displayed only after selecting a trade mode */}
+          {tradeType && (
+            <>
+              <input
+                type="text"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder={
+                  tradeType === 'buy' ? 'Enter ETH amount' : 'Enter coin amount'
+                }
+                className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
+              />
+              <div className="text-[var(--creamWhite)]">
+                {tradeType === 'buy'
+                  ? `You will receive: ${estimatedAmount} Coin X`
+                  : `You will get back: ${estimatedAmount} ETH`}
+              </div>
+              {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
+              <button
+                className={`w-full px-4 py-2 rounded ${
+                  tradeType === 'buy' ? 'bg-green-500' : 'bg-red-500'
+                } text-white`}
+                onClick={() => handleBuy(amount, tradeType)}
+              >
+                {tradeType === 'buy' ? 'CONFIRM BUY' : 'CONFIRM SELL'}
+              </button>
+            </>
+          )}
+        </div>
+      </Box>
+
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <Box className="p-4 bg-white border rounded shadow-lg text-center">
+          <h2 className="text-lg font-bold">Warning</h2>
+          <p>{modalMessage}</p>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+            onClick={() => setModalOpen(false)}
+          >
+            OK
+          </button>
+        </Box>
+      </Modal>
+    </div>
   )
 }
