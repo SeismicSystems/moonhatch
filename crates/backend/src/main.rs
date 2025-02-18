@@ -20,7 +20,7 @@ use axum::{
 use db::NewCoin;
 use db_pool::{establish_pool, PgPool};
 use dotenv::dotenv;
-use pump::client::{PumpClient, PumpError};
+use pump::client::PumpClient;
 use std::str::FromStr;
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
@@ -101,7 +101,7 @@ async fn verify_coin_handler(
     let client = &state.pump_client;
     let coin = match client.get_coin(coin_id as u32).await {
         Ok(coin) => coin,
-        Err(pe) => return pe.into_response()
+        Err(pe) => return pe.into_response(),
     };
     // Perform the update operation
     match diesel::update(coins_table.filter(schema::coins::id.eq(coin_id)))

@@ -72,8 +72,8 @@ impl ContractAddresses {
             .call(&tx)
             .await
             .map_err(|_e| PumpError::WethNotFound)?;
-        let address =
-            SolAddress::abi_decode(&address_bytes, true).map_err(|_| PumpError::FailedToDecodeAbi)?;
+        let address = SolAddress::abi_decode(&address_bytes, true)
+            .map_err(|_| PumpError::FailedToDecodeAbi)?;
         Ok(address)
     }
 }
@@ -98,7 +98,9 @@ impl Into<StatusCode> for PumpError {
     fn into(self) -> StatusCode {
         match self {
             PumpError::FailedToDecodeAbi => StatusCode::INTERNAL_SERVER_ERROR,
-            PumpError::CoinNotFound | PumpError::PairNotFound | PumpError::WethNotFound => StatusCode::NOT_FOUND
+            PumpError::CoinNotFound | PumpError::PairNotFound | PumpError::WethNotFound => {
+                StatusCode::NOT_FOUND
+            }
         }
     }
 }
