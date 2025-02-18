@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
 import { parseEther } from 'viem'
 
-import { useContract } from '@/hooks/useContract'
+import { usePumpContract } from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
@@ -19,7 +19,7 @@ const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
   const { fetchCoin, loaded, loading, error } = useFetchCoin()
   const { publicClient, walletClient } = useShieldedWallet()
-  const { contract } = useContract()
+  const { contract } = usePumpContract()
 
   const [coin, setCoin] = useState<Coin | null>(null)
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
