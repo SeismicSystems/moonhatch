@@ -71,16 +71,17 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
       component="div"
       sx={{
         backgroundColor: 'var(--darkBlue)',
+        border: '2px solid var(--creamWhite)',
         width: '100%',
-        borderRadius: '8px', // Tailwind rounded-lg
-        boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', // approximate shadow-md
-        p: 2, // Tailwind p-4 (assuming 1 unit = 4px or 8px; adjust accordingly)
+        borderRadius: '8px',
+        boxShadow: '0px 4px 6px rgba(255,165,0,0.)',
+        p: 2,
         display: 'flex',
         gap: 2,
         cursor: 'pointer',
         transition: 'box-shadow 0.3s ease-in-out',
         '&:hover': {
-          boxShadow: '0px 8px 12px rgba(0,0,0,0.2)', // Tailwind hover:shadow-lg
+          boxShadow: '0px 8px 12px rgba(0,0,0,0.2)',
         },
       }}
       onClick={() => navigate(`/coins/${coin.id}`)}
@@ -93,8 +94,9 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
             display: 'flex',
             alignItems: 'center',
             gap: 2,
+            width: '100%',
             justifyContent: 'center',
-            height: '150px ',
+            height: { xs: '150px', sm: '150px', md: '180px' },
           }}
         >
           {/* Image container */}
@@ -140,19 +142,21 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
+                    width: { xs: '150px', sm: '150px' },
                   }}
                 >
                   <Typography
+                    noWrap
                     variant="h4"
                     component="h4"
                     sx={{
                       fontSize: {
                         xs: '1.2rem',
-                        sm: '1.3rem',
+                        sm: '1.2rem',
                         md: '1.5rem',
                         lg: '1.6rem',
                       },
-                      mb: '0',
+
                       color: 'var(--creamWhite)',
                     }}
                   >
@@ -186,15 +190,22 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                     )}
                   </Box>
                 </Box>
-                <Typography
-                  variant="body2"
+                <Box
                   sx={{
-                    fontSize: { xs: '0.875rem', md: '1rem' },
-                    color: 'var(--midBlue)',
+                    width: { xs: '150px', sm: '150px' },
                   }}
                 >
-                  {scrambledSymbol}
-                </Typography>
+                  <Typography
+                    noWrap
+                    variant="body2"
+                    sx={{
+                      fontSize: { xs: '0.875rem', md: '1rem' },
+                      color: 'var(--midBlue)',
+                    }}
+                  >
+                    {scrambledSymbol}
+                  </Typography>
+                </Box>
                 <Typography
                   component="div"
                   sx={{
@@ -208,15 +219,16 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                 <Box
                   component="div"
                   sx={{
-                    width: '83.33%', // Tailwind w-5/6
+                    width: { xs: '150px', sm: '150px' },
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
                   }}
                 >
                   <Typography
                     variant="caption"
                     sx={{
                       fontSize: { xs: '9px', md: '10px' }, // Tailwind text-[9px] md:text-[10px]
-                      mb: '-0.125rem', // Tailwind -mb-2 approximated
-                      color: 'var(--creamWhite)',
+                      color: 'orange',
                     }}
                   >
                     DESCRIPTION:
@@ -224,9 +236,10 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                   <Typography
                     variant="body2"
                     sx={{
-                      mt: 1, // Tailwind mt-2 (adjust spacing if needed)
+                      // Tailwind mt-2 (adjust spacing if needed)
                       fontSize: { xs: '0.75rem', md: '14px' }, // Tailwind text-xs md:text-[14px]
                       color: 'var(--lightBlue)',
+                      whiteSpace: 'pre-wrap',
                     }}
                   >
                     {coin.description.length > 50
