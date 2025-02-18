@@ -48,18 +48,17 @@ contract PumpRandTest is Test {
         assertEq(refunded, 100);
 
         address token = pump.getCoinAddress(coinId);
-
-        address pair = UniswapV2Library.pairFor(address(factory), token, address(weth9));
-        console.log('pair is', pair);
-
         pump.deployGraduated(coinId);
-        
+
         UniswapV2Library.getReserves(address(factory), token, address(weth9));
 
         address[] memory path = new address[](2);
         path[0] = address(weth9);
-        path[1] = pair;
-        router.swapETHForExactTokens(1, path, address(this), 1861851600);
+        path[1] = token;
+        uint256[] memory amounts = router.swapExactETHForTokens{value: 100 wei}(2e6, path, address(this), 1861851600);
+        assertEq(amounts.length, 2);
+        assertEq(amounts[0], 100);
+        assertGe(amounts[1], 2e6);
     }
 
     /// Once the coin has graduated, no further buys should be allowed.
