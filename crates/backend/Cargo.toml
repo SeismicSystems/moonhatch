@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 # Axum: enable the multipart extractor feature.
-axum = { version = "0.6.20", features = ["multipart"] }
+axum = { workspace = true, features = ["multipart"] }
 # Tower HTTP: enable CORS support.
 tower-http = { version = "0.4.4", features = ["cors"] }
 # Diesel with PostgreSQL, r2d2, chrono, and numeric support.
@@ -36,3 +36,5 @@ alloy-rpc-types-eth = { version = "=0.8.0" }
 alloy-primitives = { version = "0.8" }
 alloy-sol-types = { version = "0.8" }
 reqwest = "0.12.12"
+
+pump = { path = "../pump" }
