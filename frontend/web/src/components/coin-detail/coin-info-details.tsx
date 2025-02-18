@@ -2,7 +2,7 @@ import React from 'react'
 
 import { formatRelativeTime } from '@/util'
 import SocialLink from '@components/coin/social-link'
-import { Box } from '@mui/system'
+import { Box, Typography } from '@mui/material'
 
 export const FALLBACK_COIN_IMAGE_URL =
   'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
@@ -35,23 +35,32 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
         sx={{
           display: 'flex',
           justifyContent: 'center',
+
           '& .left-column': {
-            width: '300px',
-            padding: 4,
+            width: '350px',
             display: 'flex',
+            paddingBottom: 2,
             alignItems: 'center',
             justifyContent: 'center',
             gap: 4,
             borderRadius: '16px',
             backgroundColor: 'var(--darkBlue)',
           },
+          '& .img-container': {},
           '& img': {
-            width: '6rem',
-            height: '6rem',
+            width: '9rem',
+            height: '9rem',
+            aspectRatio: '1/1',
             borderRadius: '8px',
             objectFit: 'cover',
           },
           '& .right-column': {
+            width: {
+              xs: '100px',
+              sm: '100px',
+              md: '120px',
+              lg: '120px',
+            },
             display: 'flex',
             flexDirection: 'column',
             textAlign: 'left',
@@ -71,20 +80,53 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
         }}
       >
         <div className="left-column">
-          <div>
+          <div className=" img-container w-auto h-auto aspect-square ">
             <img
               src={coin.imageUrl ?? FALLBACK_COIN_IMAGE_URL}
               alt="Coin Logo"
             />
           </div>
           <div className="right-column">
-            <div className="coin-name">{coin.name.toUpperCase()}</div>
-            <div className="coin-symbol">$:{coin.symbol.toUpperCase()}</div>
+            <Typography
+              noWrap
+              variant="h4"
+              component="h4"
+              sx={{
+                fontSize: {
+                  xs: '1.2rem',
+                  sm: '1.2rem',
+                  md: '1.5rem',
+                  lg: '1.6rem',
+                },
+
+                color: 'var(--creamWhite)',
+              }}
+            >
+              <div className="coin-name">{coin.name.toUpperCase()}</div>
+            </Typography>
+            <Typography
+              noWrap
+              variant="h4"
+              component="h4"
+              sx={{
+                fontSize: {
+                  xs: '1.2rem',
+                  sm: '1.2rem',
+                  md: '1.5rem',
+                  lg: '1.6rem',
+                },
+                textOverflow: 'ellipsis',
+
+                color: 'var(--creamWhite)',
+              }}
+            >
+              <div className="coin-symbol">$:{coin.symbol.toUpperCase()}</div>
+            </Typography>
             <div className="coin-author">
               AUTHOR: {coin.creator?.toString().slice(0, 4)}...
               {coin.creator?.toString().slice(-4) || 'N/A'}
             </div>
-            <div className="coin-age">AGE:{relativeTime}</div>
+            <div className="coin-age">AGE:::{relativeTime}</div>
           </div>
         </div>
       </Box>

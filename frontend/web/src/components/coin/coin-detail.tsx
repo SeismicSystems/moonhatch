@@ -187,10 +187,12 @@ const CoinDetail: React.FC = () => {
       <div className="mb-8">
         <NavBar />
       </div>
-      <div className="flex w-full   flex-col md:flex-row gap-4">
+      <div className="flex w-full lg:justify-around xl:justify-around  items-center  lg:pr-24 xl:pr-60  lg:-pl-24 xl:gap-60  lg:gap-12 flex-col lg:flex-row mb-24">
         <Box
           sx={{
-            width: '350px',
+            width: { xs: '350px', sm: '550px', md: '450px', lg: '550px' },
+            height: { xs: 'auto', sm: '450px', md: '710px', lg: '710px' },
+
             maxWidth: '100%',
             mx: 'auto',
             p: 4,
@@ -200,6 +202,7 @@ const CoinDetail: React.FC = () => {
             borderRadius: '24px',
             overflowX: 'hidden',
             overflowY: 'hidden',
+            marginBottom: { xs: '0', sm: '50px', md: '0px', lg: '0', xl: '0' },
           }}
         >
           <CoinInfoDetails
@@ -226,7 +229,7 @@ const CoinDetail: React.FC = () => {
             setModalOpen={setModalOpen}
           />
         </Box>
-        <div className="status-icon-container bg-[var(--bgColor)] flex justify-center ">
+        <div className="status-icon-container bg-[var(--bgColor)] flex justify-center  items-center">
           {coin.graduated && coin.deployedPool ? (
             <Box
               sx={{
@@ -235,6 +238,7 @@ const CoinDetail: React.FC = () => {
                 alignItems: 'center',
                 height: '350px',
                 width: '350px',
+
                 border: 1,
                 '& .chart-container': {
                   width: '100%',
@@ -242,7 +246,9 @@ const CoinDetail: React.FC = () => {
                 },
               }}
             >
-              <Candles pool={`${coin.deployedPool}`} />
+              <div className="-mt-24 md:mt-12 lg:mt-0">
+                <Candles pool={`${coin.deployedPool}`} />
+              </div>
             </Box>
           ) : (
             <Box

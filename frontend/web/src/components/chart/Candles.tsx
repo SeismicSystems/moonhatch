@@ -37,7 +37,7 @@ export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
       layout: {
         background: { type: ColorType.Solid, color: backgroundColor },
         textColor,
-        fontFamily: 'Roboto, sans-serif',
+        fontFamily: 'Tomorrow, sans-serif',
       },
       grid: {
         vertLines: { color: '#2B2B43' },
@@ -79,7 +79,7 @@ export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
           return date.toLocaleDateString()
         },
         visible: true,
-        ticksVisible: false,
+        ticksVisible: true,
         uniformDistribution: false,
         minimumHeight: 0,
         allowBoldLabels: true,
@@ -96,7 +96,7 @@ export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
     // Add a candlestick series with custom colors.
     const newSeries = chart.addSeries(CandlestickSeries, {
       upColor: '#4CAF50',
-      downColor: '#F44336',
+      downColor: '#F44136',
       borderUpColor: '#4CAF50',
       borderDownColor: '#F44336',
       wickUpColor: '#4CAF50',
@@ -129,7 +129,18 @@ export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
     }
   }, [pool, backgroundColor, textColor, fetchTimeseries])
 
-  return <div ref={chartContainerRef} className="   w-[350px] h-[350px]" />
+  return (
+    <>
+      <div className="border-[var(--creamWhite)] border-2 rounded-3xl z-50">
+        <div className="m-2">
+          <div
+            ref={chartContainerRef}
+            className="w-[330px] h-[330px] md:w-[530px] md:h-[450px] lg:w-[450px] lg:h-[700px] xl:w-[750px]  "
+          />
+        </div>
+      </div>
+    </>
+  )
 }
 
 export function Candles(props: ChartProps) {
@@ -137,7 +148,7 @@ export function Candles(props: ChartProps) {
     <div>
       {/* Toolbar placeholder – extend with time range or other controls as needed */}
       <div className="chart-toolbar w-full flex gap-2 mt-30 md:mt-0  mb-2">
-        <button className="px-2 py-1 bg-gray-700 text-white rounded text-sm">
+        {/* <button className="px-2 py-1 bg-gray-700 text-white rounded text-sm">
           1D
         </button>
         <button className="px-2 py-1 bg-gray-700 text-white rounded text-sm">
@@ -148,7 +159,7 @@ export function Candles(props: ChartProps) {
         </button>
         <button className="px-2 py-1 bg-gray-700 text-white rounded text-sm">
           1Y
-        </button>
+        </button> */}
       </div>
       <ChartComponent {...props} />
     </div>
