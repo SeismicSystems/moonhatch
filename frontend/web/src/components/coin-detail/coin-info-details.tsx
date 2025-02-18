@@ -18,6 +18,7 @@ interface CoinInfoDetailsProps {
     imageUrl?: string
     createdAt: { toString: () => string }
     supply: { toString: () => string }
+    decimals: number
     graduated: boolean
     creator: { toString: () => string }
     description: string
