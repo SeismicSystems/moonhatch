@@ -36,3 +36,5 @@ alloy-rpc-types-eth = { version = "=0.8.0" }
 alloy-primitives = { version = "0.8" }
 alloy-sol-types = { version = "0.8" }
 reqwest = "0.12.12"
+
+pump = { path = "../pump" }

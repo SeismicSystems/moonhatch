@@ -1,13 +1,15 @@
 // src/main.rs
+mod db;
+mod db_pool;
+mod models;
+mod schema;
+
 use crate::db::create_coin;
 use crate::models::Coin;
 use crate::schema::coins as coins_schema;
 use crate::schema::coins::dsl::coins as coins_table;
-
-use abi::get_coin_tx;
-use alloy_primitives::Address;
-use alloy_provider::{create_seismic_provider_without_wallet, Provider, SeismicPublicClient};
-use alloy_sol_types::SolValue;
+use aws_config::meta::region::RegionProviderChain;
+use aws_sdk_s3::{config::Region, primitives::ByteStream, Client as S3Client};
 use axum::{
     extract::{Multipart, Path, State},
     http::{HeaderValue, Method, StatusCode},
@@ -16,30 +18,18 @@ use axum::{
     Json, Router,
 };
 use db::NewCoin;
+use db_pool::{establish_pool, PgPool};
 use dotenv::dotenv;
-use reqwest::Url;
+use pump::client::{PumpClient, PumpError};
 use std::str::FromStr;
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
-
-// Declare our modules.
-mod abi;
-mod db;
-mod db_pool;
-mod models;
-mod schema;
-
-use abi::Coin as SolidityCoin;
-use aws_config::meta::region::RegionProviderChain;
-use aws_sdk_s3::{config::Region, primitives::ByteStream, Client as S3Client};
-use db_pool::{establish_pool, PgPool};
 
 #[derive(Clone)]
 pub struct AppState {
     pub s3_client: Arc<S3Client>,
     pub db_pool: PgPool,
-    pub seismic_client: Arc<SeismicPublicClient>,
-    pub contract_address: Address,
+    pub pump_client: Arc<PumpClient>,
 }
 
 use diesel::prelude::*;
@@ -108,28 +98,19 @@ async fn verify_coin_handler(
         }
     };
 
-    let client = state.seismic_client;
-    let tx_req = get_coin_tx(state.contract_address, coin_id as u32);
-    let coin = match client.call(&tx_req).await {
-        Ok(response_bytes) => match SolidityCoin::abi_decode(&response_bytes, true) {
-            Ok(coin) => coin,
-            Err(_) => {
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Failed to parse coin id {}", coin_id),
-                )
-                    .into_response()
-            }
-        },
-        Err(_e) => {
-            return (
-                StatusCode::NOT_FOUND,
-                format!("Coin with id {} not found", coin_id),
-            )
-                .into_response();
+    let client = &state.pump_client;
+    let coin = match client.get_coin(coin_id as u32).await {
+        Ok(coin) => coin,
+        Err(pe) => {
+            let code = match pe {
+                PumpError::CoinNotFound | PumpError::WethNotFound | PumpError::PairNotFound => {
+                    StatusCode::NOT_FOUND
+                }
+                PumpError::FailedToDecodeAbi => StatusCode::INTERNAL_SERVER_ERROR,
+            };
+            return (code, format!("{:?}", pe)).into_response();
         }
     };
-
     // Perform the update operation
     match diesel::update(coins_table.filter(schema::coins::id.eq(coin_id)))
         .set((
@@ -287,19 +268,17 @@ async fn main() {
     let s3_client = S3Client::new(&aws_config);
     let shared_s3_client = Arc::new(s3_client);
 
-    // TODO: load from .env
-    // TODO: .env or load from file
-    let contract_address = Address::from_str("0x5FbDB2315678afecb367f032d93F642f64180aa3").unwrap();
-    let rpc_url = Url::from_str("http://127.0.0.1:8545").expect("invalid RPC_URL");
-    let seismic_client = create_seismic_provider_without_wallet(rpc_url);
+    let pump_client = match PumpClient::new().await {
+        Ok(pc) => pc,
+        Err(pe) => panic!("Failed to initialize client: {:?}", pe),
+    };
 
     // Establish the database pool.
     let db_pool = establish_pool();
     let app_state = AppState {
         s3_client: shared_s3_client,
         db_pool,
-        seismic_client: Arc::new(seismic_client),
-        contract_address,
+        pump_client: Arc::new(pump_client),
     };
 
     // Set up CORS.

@@ -1,28 +1,28 @@
 use alloy_primitives::Address;
-use alloy_provider::network::TransactionBuilder;
-use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
+use alloy_rpc_types_eth::TransactionRequest;
 use alloy_sol_types::{sol, SolCall};
+
+use super::build_tx;
 
 sol! {
     #[derive(Debug)]
-    struct Coin {
+    struct SolidityCoin {
         string name;
         string symbol;
         uint256 supply;
         address contractAddress;
         address creator;
-        // TODO: add decimals?
-        // uint8 decimals;
     }
 
-    function getCoin(uint32 coinId) public view returns (Coin memory);
+    function getCoin(uint32 coinId) public view returns (SolidityCoin memory);
 }
 
-pub fn get_coin_tx(contract_address: Address, coin_id: u32) -> TransactionRequest {
-    let calldata = getCoinCall { coinId: coin_id }.abi_encode();
-    TransactionRequest::default()
-        .with_to(contract_address)
-        .input(TransactionInput::new(calldata.into()))
+pub fn get_coin_calldata(coin_id: u32) -> Vec<u8> {
+    getCoinCall { coinId: coin_id }.abi_encode()
+}
+
+pub fn get_coin_tx(to: Address, coin_id: u32) -> TransactionRequest {
+    build_tx(to, get_coin_calldata(coin_id))
 }
 
 #[cfg(test)]
@@ -34,7 +34,6 @@ mod tests {
     use reqwest::Url;
 
     use super::*;
-    use crate::abi::get_coin_tx;
 
     #[test]
     fn test_calldata() {
@@ -53,7 +52,7 @@ mod tests {
         let coin_id = 0;
         let tx = &get_coin_tx(contract_address, coin_id);
         let response_bytes = seismic_client.call(tx).await.unwrap();
-        let coin = Coin::abi_decode(&response_bytes, true).unwrap();
+        let coin = SolidityCoin::abi_decode(&response_bytes, true).unwrap();
         println!("Coin = {:#?}", coin);
     }
 }

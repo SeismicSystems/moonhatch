@@ -1,5 +1,5 @@
 [workspace]
-members = ["backend"]
+members = ["crates/backend", "crates/listener", "crates/pump"]
 resolver = "2"
 
 [patch.crates-io]
