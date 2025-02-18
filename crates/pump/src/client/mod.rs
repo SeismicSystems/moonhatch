@@ -17,7 +17,7 @@ use std::str::FromStr;
 use coin::get_coin_calldata;
 use dex::UniswapV2Router02::{factoryCall, WETHCall};
 use factory::get_pair_calldata;
-use pump::PumpRand::{CoinCreated, CoinGraduated};
+use pump::PumpRand::{CoinCreated, CoinGraduated, DeployedToDex};
 
 pub use coin::SolidityCoin;
 
@@ -151,5 +151,11 @@ impl PumpClient {
         Filter::new()
             .address(self.contracts.pump)
             .event_signature(CoinCreated::SIGNATURE_HASH)
+    }
+
+    pub fn deployed_filter(&self) -> Filter {
+        Filter::new()
+            .address(self.contracts.pump)
+            .event_signature(DeployedToDex::SIGNATURE_HASH)
     }
 }
