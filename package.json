@@ -9,6 +9,8 @@
     "db:migrate": "bun run --cwd ./crates/backend diesel migration run",
     "db:migrate:revert": "bun run --cwd ./crates/backend diesel migration revert",
     "db:migrate:reset": "bun run --cwd ./crates/backend diesel migration revert --all",
+    "server:dev": "cargo run --bin server",
+    "listener:dev": "cargo run --bin listener",
     "web:dev": "bun run --cwd ./frontend/web dev",
     "web:build": "bun run --cwd ./frontend/web build",
     "web:lint": "bun run --cwd ./frontend/web lint",
