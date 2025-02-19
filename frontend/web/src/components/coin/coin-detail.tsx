@@ -3,8 +3,13 @@ import { useParams } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
 import { parseEther } from 'viem'
 
-import { usePumpContract } from '@/hooks/useContract'
-import { useDexContract } from '@/hooks/useContract'
+import {
+  DEX_CONTRACT_ADDRESS,
+  WETH_CONTRACT_ADDRESS,
+  loadContractData,
+  useDexContract,
+  usePumpContract,
+} from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
@@ -23,7 +28,7 @@ const CoinDetail: React.FC = () => {
   const { fetchCoin, loaded, loading, error } = useFetchCoin()
   const { publicClient, walletClient } = useShieldedWallet()
   const { contract } = usePumpContract()
-  const { dexContract } = useDexContract()
+  const { contract: dexContract } = useDexContract()
 
   const [coin, setCoin] = useState<Coin | null>(null)
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
@@ -138,14 +143,15 @@ const CoinDetail: React.FC = () => {
       return
     }
 
-    if (coin.graduated) {
-      setModalMessage(
-        'This coin has graduated. Purchases are no longer allowed.'
-      )
-      setModalOpen(true)
-      return
-    }
+    // if (coin.graduated) {
+    //   setModalMessage(
+    //     'This coin has graduated. Purchases are no longer allowed.'
+    //   )
+    //   setModalOpen(true)
+    //   return
+    // }
 
+    //if not gruadteed
     try {
       if (isBuying) {
         setBuyError('Already buying')
@@ -165,8 +171,30 @@ const CoinDetail: React.FC = () => {
         gas: 1_000_000,
         value: amountInWei,
       })
+      //if it is graduated
+      console.log('dex addy', DEX_CONTRACT_ADDRESS)
+      console.log('WETH9Address', WETH_CONTRACT_ADDRESS)
+      console.log('coin addy', coin.contractAddress)
+
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 2000)
+
+      const routerWETHAddress = await dexContract.tread.WETH()
+      console.log('routerWETHAddress', routerWETHAddress)
+
+      const path = [WETH_CONTRACT_ADDRESS, coin.contractAddress]
+      //add slippage
+      const dexHash = await dexContract.twrite.swapExactETHForTokens(
+        [
+          0,
+          path,
+          walletClient.account.address, // recipient address
+          deadline,
+        ],
+        { gas: 1_000_000, value: amountInWei }
+      )
 
       console.log(`✅ Transaction sent! Hash: ${hash}`)
+      console.log(`✅ Transaction sent! dexHash: ${dexHash}`)
 
       const newTotalWei = existingWeiBigInt + amountInWei
       localStorage.setItem(localStorageKey, newTotalWei.toString())
@@ -187,13 +215,6 @@ const CoinDetail: React.FC = () => {
   if (loading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
   if (!coin) return <div>Coin not found.</div>
-  console.log(
-    'pubclient' + publicClient,
-    'walletclient' + walletClient,
-    'contract' + contract,
-    'coin' + coin,
-    'buy amount' + buyAmount
-  )
   return (
     <>
       <div className="mb-8">
