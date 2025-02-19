@@ -2,16 +2,14 @@ use bigdecimal::BigDecimal;
 use diesel::prelude::*;
 use std::str::FromStr;
 
-use crate::{
-    client::PumpError,
-    contract::SolidityCoin,
-    db::{
-        models::{Coin, NewCoin, Pool, PoolPriceData},
-        schema::{
-            coins::{self as coins_schema, dsl::coins as coins_table},
-            pool_prices::{self as pool_prices_schema, dsl::pool_prices as pool_prices_table},
-            pools::{self as pools_schema, dsl::pools as pools_table},
-        },
+use crate::{contract::SolidityCoin, error::PumpError};
+
+use crate::db::{
+    models::{Coin, NewCoin, Pool, PoolPriceData},
+    schema::{
+        coins::{self as coins_schema, dsl::coins as coins_table},
+        pool_prices::{self as pool_prices_schema, dsl::pool_prices as pool_prices_table},
+        pools::{self as pools_schema, dsl::pools as pools_table},
     },
 };
 

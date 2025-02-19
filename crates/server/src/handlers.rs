@@ -8,8 +8,8 @@ use axum::{
 use serde::Serialize;
 
 use pump::{
-    client::{FileUploadError, PumpError},
     db::{models, pool::connect, store},
+    error::{FileUploadError, PumpError},
 };
 
 use crate::AppState;

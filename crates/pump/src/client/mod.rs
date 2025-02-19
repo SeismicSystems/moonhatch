@@ -9,11 +9,14 @@ use axum::{extract::multipart::MultipartError, http::StatusCode, response::IntoR
 use reqwest::Url;
 use std::str::FromStr;
 
-use crate::contract::{
-    coin::get_coin_calldata,
-    dex::UniswapV2Router02::{factoryCall, WETHCall},
-    factory::get_pair_calldata,
-    SolidityCoin,
+use crate::{
+    contract::{
+        coin::get_coin_calldata,
+        dex::UniswapV2Router02::{factoryCall, WETHCall},
+        factory::get_pair_calldata,
+        SolidityCoin,
+    },
+    error::PumpError,
 };
 
 pub fn build_tx(to: Address, calldata: Vec<u8>) -> TransactionRequest {
@@ -62,59 +65,6 @@ impl ContractAddresses {
         let address = SolAddress::abi_decode(&address_bytes, true)
             .map_err(|_| PumpError::FailedToDecodeAbi)?;
         Ok(address)
-    }
-}
-
-#[derive(Debug)]
-pub enum FileUploadError {
-    Multipart(MultipartError),
-    NoFileUploaded,
-}
-
-#[derive(Debug)]
-pub enum PumpError {
-    CoinNotFound,
-    WethNotFound,
-    PairNotFound,
-    FailedToDecodeAbi,
-    FileUpload(FileUploadError),
-    R2D2(r2d2::Error),
-    Diesel(diesel::result::Error),
-}
-
-impl From<MultipartError> for PumpError {
-    fn from(value: MultipartError) -> Self {
-        PumpError::FileUpload(FileUploadError::Multipart(value))
-    }
-}
-
-impl From<diesel::result::Error> for PumpError {
-    fn from(value: diesel::result::Error) -> Self {
-        PumpError::Diesel(value)
-    }
-}
-
-impl IntoResponse for PumpError {
-    fn into_response(self) -> axum::response::Response {
-        let msg = format!("{:?}", self);
-        let code: StatusCode = self.into();
-        return (code, msg).into_response();
-    }
-}
-
-impl Into<StatusCode> for PumpError {
-    fn into(self) -> StatusCode {
-        match self {
-            PumpError::FailedToDecodeAbi | PumpError::R2D2(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            PumpError::CoinNotFound | PumpError::PairNotFound | PumpError::WethNotFound => {
-                StatusCode::NOT_FOUND
-            }
-            PumpError::FileUpload(_) => StatusCode::BAD_REQUEST,
-            PumpError::Diesel(e) => match e {
-                // TODO
-                _ => StatusCode::NOT_FOUND,
-            },
-        }
     }
 }
 
