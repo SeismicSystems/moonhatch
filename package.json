@@ -22,7 +22,7 @@
     "contract:dev": "bun contract:build && bun contract:iabis && bun contract:abis",
     "contract:build": "bun run --cwd ./contracts sforge build",
     "contract:abis": "CONTRACT=PumpRand bun contract:abi && CONTRACT=WETH9 bun contract:abi && CONTRACT=UniswapV2Factory bun contract:abi && CONTRACT=UniswapV2Router02 bun contract:abi",
-    "contract:iabis": "CONTRACT=ISRC20 bun contract:iabi && CONTRACT=UniswapV2ERC20 bun contract:iabi && CONTRACT=IPumpCoin bun contract:iabi",
+    "contract:iabis": "CONTRACT=ISRC20 bun contract:iabi && CONTRACT=UniswapV2ERC20 bun contract:iabi && CONTRACT=UniswapV2Pair bun contract:iabi && CONTRACT=IPumpCoin bun contract:iabi",
     "contract:abi": "mkdir -p ./frontend/web/public/chains/$VITE_CHAIN_ID/contracts && jq '{methodIdentifiers: .methodIdentifiers, abi: .abi}' ./contracts/out/$CONTRACT.sol/$CONTRACT.json > ./frontend/web/public/chains/$VITE_CHAIN_ID/contracts/$CONTRACT.json",
     "contract:iabi": "mkdir -p ./frontend/web/public/chains/$VITE_CHAIN_ID/interfaces && jq '{methodIdentifiers: .methodIdentifiers, abi: .abi}' ./contracts/out/$CONTRACT.sol/$CONTRACT.json > ./frontend/web/public/chains/$VITE_CHAIN_ID/interfaces/$CONTRACT.json",
     "contract:addresses": "bun contract:address:pump && bun contract:address:weth && bun contract:address:factory && bun contract:address:router",
