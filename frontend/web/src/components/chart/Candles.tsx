@@ -33,11 +33,11 @@ export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
     // Create the chart with advanced options.
     const chart = createChart(chartContainerRef.current, {
       autoSize: true, // Automatically resize to container dimensions
-      height: 500, // Fallback height in pixels
       layout: {
         background: { type: ColorType.Solid, color: backgroundColor },
         textColor,
         fontFamily: 'Tomorrow, sans-serif',
+        attributionLogo: false,
       },
       grid: {
         vertLines: { color: '#2B2B43' },
@@ -131,11 +131,11 @@ export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
 
   return (
     <>
-      <div className="border-[var(--creamWhite)] border-2 rounded-3xl z-50">
+      <div className="border-[var(--creamWhite)] z-50">
         <div className="m-2">
           <div
             ref={chartContainerRef}
-            className="w-[330px] h-[330px] md:w-[530px] md:h-[450px] lg:w-[450px] lg:h-[700px] xl:w-[750px]  "
+            className="md:-mt-12 lg:mt-0 w-[350px] h-[350px] md:w-[550px] md:h-[550px] lg:w-[450px] lg:h-[600px] xl:h-[600px] xl:w-[750px]  "
           />
         </div>
       </div>

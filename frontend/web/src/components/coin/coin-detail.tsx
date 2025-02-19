@@ -199,7 +199,7 @@ const CoinDetail: React.FC = () => {
       <div className="mb-8">
         <NavBar />
       </div>
-      <div className="flex w-full lg:justify-around xl:justify-around  items-center  lg:pr-24 xl:pr-60  lg:-pl-24 xl:gap-60  lg:gap-12 flex-col lg:flex-row mb-24">
+      <div className="flex w-full lg:justify-around xl:justify-around  items-center    flex-col lg:flex-row mb-24">
         <Box
           sx={{
             width: { xs: '350px', sm: '550px', md: '450px', lg: '550px' },
@@ -252,24 +252,16 @@ const CoinDetail: React.FC = () => {
             />
           </div>
         </Box>
-        <div className="status-icon-container bg-[var(--bgColor)] flex justify-center  items-center">
+        <div className="status-icon-container bg-[var(--bgColor)] flex justify-around  mx-auto  items-center">
           {coin.graduated && coin.deployedPool ? (
             <Box
               sx={{
                 display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '350px',
-                width: '350px',
 
-                border: 1,
-                '& .chart-container': {
-                  width: '100%',
-                  height: '100%',
-                },
+                '& .chart-container': {},
               }}
             >
-              <div className="-mt-24 md:mt-12 lg:mt-0">
+              <div className="-mt-24 md:mt-12 lg:mt-0 justify-center items-center ">
                 <Candles pool={`${coin.deployedPool}`} />
               </div>
             </Box>
