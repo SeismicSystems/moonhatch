@@ -1,17 +1,11 @@
 use alloy_primitives::Address;
-use alloy_provider::{network::TransactionBuilder, Provider, SeismicPublicClient};
-use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
+use alloy_provider::{Provider, SeismicPublicClient};
 use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
 use std::str::FromStr;
 
-use crate::{
-    contract::dex::UniswapV2Router02::{factoryCall, WETHCall},
-    error::PumpError,
-};
-
-pub(crate) fn build_tx(to: Address, calldata: Vec<u8>) -> TransactionRequest {
-    TransactionRequest::default().with_to(to).input(TransactionInput::new(calldata.into()))
-}
+use crate::error::PumpError;
+use crate::contract::dex::UniswapV2Router02::{factoryCall, WETHCall};
+use crate::client::build_tx;
 
 pub(crate) struct ContractAddresses {
     pub(crate) pump: Address,

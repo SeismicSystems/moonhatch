@@ -1,13 +1,10 @@
-mod error;
 mod handler;
 
-use alloy_provider::Provider;
 use futures_util::stream::StreamExt;
 use handler::LogHandler;
 
-use pump::{client::PumpClient, db::pool::establish_pool};
+use pump::{client::PumpClient, db::pool::establish_pool, error::ListenerError};
 
-use crate::error::ListenerError;
 
 #[tokio::main]
 async fn main() -> Result<(), ListenerError> {
@@ -15,7 +12,7 @@ async fn main() -> Result<(), ListenerError> {
     let db_pool = establish_pool();
     let handler = LogHandler::new(db_pool);
 
-    let sub = match client.provider.subscribe_logs(&client.pump_filter()).await {
+    let sub = match client.pump_logs().await {
         Ok(sub) => sub,
         Err(e) => {
             panic!("Error subscribing to logs: {:?}", e)

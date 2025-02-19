@@ -5,7 +5,8 @@ use alloy_provider::{
     create_seismic_provider_without_wallet, network::TransactionBuilder, Provider,
     SeismicPublicClient,
 };
-use alloy_rpc_types_eth::{Filter, TransactionInput, TransactionRequest};
+use alloy_pubsub::Subscription;
+use alloy_rpc_types_eth::{Filter, Log, TransactionInput, TransactionRequest};
 use alloy_sol_types::SolType;
 use contract_address::ContractAddresses;
 use reqwest::Url;
@@ -47,7 +48,9 @@ impl PumpClient {
             .map_err(|_| PumpError::PairNotFound)
     }
 
-    pub fn pump_filter(&self) -> Filter {
-        Filter::new().address(self.ca.pump)
+    pub async fn pump_logs(&self) -> Result<Subscription<Log>, PumpError> {
+        let pump_filter = Filter::new().address(self.ca.pump);
+        let sub = self.provider.subscribe_logs(&pump_filter).await?;
+        Ok(sub)
     }
 }

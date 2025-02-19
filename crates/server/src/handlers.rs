@@ -9,7 +9,7 @@ use serde::Serialize;
 
 use pump::{
     db::{models, pool::connect, store},
-    error::{FileUploadError, PumpError},
+    error::PumpError,
 };
 
 use crate::AppState;
@@ -90,7 +90,7 @@ async fn parse_upload(mut multipart: Multipart) -> Result<Vec<u8>, PumpError> {
     // If no file was provided, return a 400 error.
     match file_bytes {
         Some(bytes) => Ok(bytes),
-        None => return Err(PumpError::FileUpload(FileUploadError::NoFileUploaded)),
+        None => return Err(PumpError::no_upload()),
     }
 }
 

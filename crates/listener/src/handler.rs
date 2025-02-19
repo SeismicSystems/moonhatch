@@ -4,8 +4,7 @@ use pump::{
     contract::pump::PumpRand::{CoinCreated, CoinGraduated, DeployedToDex},
     db::pool::PgPool,
 };
-
-use crate::error::ListenerError;
+use pump::error::ListenerError;
 
 pub struct LogHandler {
     pool: PgPool,

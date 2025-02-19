@@ -1,3 +1,4 @@
+use alloy_transport::TransportError;
 use axum::{extract::multipart::MultipartError, http::StatusCode, response::IntoResponse};
 
 #[derive(Debug)]
@@ -15,6 +16,7 @@ pub enum PumpError {
     FileUpload(FileUploadError),
     R2D2(r2d2::Error),
     Diesel(diesel::result::Error),
+    Alloy(TransportError)
 }
 
 impl From<MultipartError> for PumpError {
@@ -26,6 +28,12 @@ impl From<MultipartError> for PumpError {
 impl From<diesel::result::Error> for PumpError {
     fn from(value: diesel::result::Error) -> Self {
         PumpError::Diesel(value)
+    }
+}
+
+impl From<TransportError> for PumpError {
+    fn from(value: TransportError) -> Self {
+        PumpError::Alloy(value)
     }
 }
 
@@ -49,6 +57,13 @@ impl Into<StatusCode> for PumpError {
                 // TODO
                 _ => StatusCode::NOT_FOUND,
             },
+            PumpError::Alloy(_) => StatusCode::INTERNAL_SERVER_ERROR
         }
+    }
+}
+
+impl PumpError {
+    pub fn no_upload() -> PumpError {
+        PumpError::FileUpload(FileUploadError::NoFileUploaded)
     }
 }

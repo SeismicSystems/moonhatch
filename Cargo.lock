@@ -2809,7 +2809,6 @@ dependencies = [
  "alloy-transport",
  "futures-util",
  "pump",
- "thiserror 2.0.11",
  "tokio",
 ]
 
@@ -3332,8 +3331,10 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "alloy-provider",
+ "alloy-pubsub",
  "alloy-rpc-types-eth",
  "alloy-sol-types",
+ "alloy-transport",
  "axum",
  "bigdecimal",
  "chrono",
@@ -3342,6 +3343,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "thiserror 2.0.11",
  "tokio",
 ]
 

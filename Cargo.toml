@@ -4,7 +4,7 @@ resolver = "2"
 
 [workspace.dependencies]
 # web
-axum = "0.6.20"
+axum = { version = "0.6.20", features = ["multipart"]}
 futures-util = "0.3"
 tokio = { version = "1.28", features = ["full"] }
 
@@ -27,9 +27,11 @@ alloy-provider = { version = "=0.8.0", features = [
     "ipc",
     "trace-api",
 ] }
-alloy-rpc-types-eth = { version = "=0.8.0" }
-alloy-primitives = { version = "0.8" }
-alloy-sol-types = { version = "0.8" }
+alloy-rpc-types-eth = "=0.8.0"
+alloy-primitives = "0.8"
+alloy-sol-types = "0.8"
+alloy-pubsub = "0.8"
+alloy-transport = "0.8"
 
 [patch.crates-io]
 # seismic-alloy-core
