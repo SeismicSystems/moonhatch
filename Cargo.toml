@@ -4,6 +4,11 @@ resolver = "2"
 
 [workspace.dependencies]
 axum = "0.6.20"
+futures-util = "0.3"
+tokio = { version = "1.28", features = ["full"] }
+diesel = { version = "2.2.7", features = ["postgres", "r2d2", "chrono", "numeric"] }
+r2d2 = "0.8.10"
+thiserror = "2.0.11"
 
 [patch.crates-io]
 # seismic-alloy-core

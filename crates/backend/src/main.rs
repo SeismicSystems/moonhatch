@@ -1,6 +1,5 @@
 // src/main.rs
 mod db;
-mod db_pool;
 mod handlers;
 mod models;
 mod schema;
@@ -12,9 +11,9 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use db_pool::{establish_pool, PgPool};
 use dotenv::dotenv;
 use pump::client::PumpClient;
+use pump::db_pool::{establish_pool, PgPool};
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
 

@@ -16,4 +16,7 @@ alloy-sol-types = { version = "0.8" }
 
 axum.workspace = true
 reqwest = "0.12.12"
-tokio = { version = "1.28", features = ["full"] }
+tokio.workspace = true
+
+diesel.workspace = true
+r2d2.workspace = true

@@ -141,21 +141,7 @@ impl PumpClient {
             .map_err(|_| PumpError::PairNotFound)
     }
 
-    pub fn created_filter(&self) -> Filter {
-        Filter::new()
-            .address(self.contracts.pump)
-            .event_signature(CoinGraduated::SIGNATURE_HASH)
-    }
-
-    pub fn graduated_filter(&self) -> Filter {
-        Filter::new()
-            .address(self.contracts.pump)
-            .event_signature(CoinCreated::SIGNATURE_HASH)
-    }
-
-    pub fn deployed_filter(&self) -> Filter {
-        Filter::new()
-            .address(self.contracts.pump)
-            .event_signature(DeployedToDex::SIGNATURE_HASH)
+    pub fn pump_filter(&self) -> Filter {
+        Filter::new().address(self.contracts.pump)
     }
 }
