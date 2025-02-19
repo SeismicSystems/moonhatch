@@ -3,6 +3,8 @@
     "frontend/**"
   ],
   "scripts": {
+    "rust:fmt": "cargo +nightly fmt --all",
+    "rust:fmt:check": "cargo +nightly fmt --all --check",
     "web:dev": "bun run --cwd ./frontend/web dev",
     "web:build": "bun run --cwd ./frontend/web build",
     "web:lint": "bun run --cwd ./frontend/web lint",
