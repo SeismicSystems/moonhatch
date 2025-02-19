@@ -88,7 +88,7 @@ export function useFetchCoin() {
     imageUrl: string | null
     receipt: TransactionReceipt
   }) => {
-    return fetch(`${BASE_API_URL}/coin/create`, {
+    return fetch(`${BASE_API_URL}/coins/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
