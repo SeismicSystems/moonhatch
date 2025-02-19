@@ -40,9 +40,6 @@ const loadContractData = async ({
 const pumpContractData = await loadContractData({ name: 'PumpRand' })
 const dexContractData = await loadContractData({ name: 'UniswapV2Router02' })
 
-export const WETH_CONTRACT_ADDRESS = await loadContractData({
-  name: 'WETH9',
-}).then((data) => data.address)
 export const PUMP_CONTRACT_ADDRESS = pumpContractData.address
 export const PUMP_CONTRACT_ABI = pumpContractData.abi
 export const usePumpContract = () =>
