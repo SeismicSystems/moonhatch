@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
 import { parseEther } from 'viem'
 
+import { useCoinActions } from '@/hooks/useCoinActions'
 import {
   DEX_CONTRACT_ADDRESS,
   WETH_CONTRACT_ADDRESS,
@@ -21,8 +22,6 @@ import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
 import CoinSocials from './coin-social'
 
-const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
-
 const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
   const { fetchCoin, loaded, loading, error } = useFetchCoin()
@@ -32,182 +31,34 @@ const CoinDetail: React.FC = () => {
 
   const [coin, setCoin] = useState<Coin | null>(null)
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
-  const [loadingEthIn, setLoadingEthIn] = useState(false)
   const [buyAmount, setBuyAmount] = useState<string>('')
-  const [isBuying, setIsBuying] = useState(false)
   const [buyError, setBuyError] = useState<string | null>(null)
-
-  // Modal state for purchase warnings
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalMessage, setModalMessage] = useState('')
+  const [modalOpen, setModalOpen] = useState<boolean>(false)
+  const [modalMessage, setModalMessage] = useState<string>('')
 
   useEffect(() => {
-    const cachedWei = localStorage.getItem(
-      `${LOCAL_STORAGE_KEY_PREFIX}${coinId}`
-    )
+    const cachedWei = localStorage.getItem(`weiIn_coin_${coinId}`)
     if (cachedWei) setWeiIn(BigInt(cachedWei))
   }, [coinId])
 
-  useEffect(
-    () => {
-      if (!loaded || !coinId) return
+  useEffect(() => {
+    if (!loaded || !coinId) return
+    fetchCoin(BigInt(coinId))
+      .then((foundCoin) => setCoin(foundCoin || null))
+      .catch((err) => console.error('Error fetching coin:', err))
+  }, [loaded, coinId])
 
-      console.log(`coinId = ${coinId}`)
-
-      fetchCoin(BigInt(coinId))
-        .then((foundCoin) => setCoin(foundCoin || null))
-        .catch((err) => console.error('Error fetching coin:', err))
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [loaded, coinId]
-  )
-
-  // useEffect(() => {
-  //   if (!coinId || !contract) return
-
-  // const fetchGraduatedStatus = async () => {
-  //   try {
-  //     const updatedCoin = await fetchCoin(BigInt(coinId))
-  //     setCoin(updatedCoin || null)
-  //   } catch (err) {
-  //     console.error('Error fetching graduated status:', err)
-  //   }
-  // }
-
-  // const intervalId = setInterval(fetchGraduatedStatus, 5000) // Poll every 5 seconds
-
-  //   return () => clearInterval(intervalId) // Cleanup on unmount
-  // }, [coinId, contract, fetchCoin])
-
-  /**
-   * Fetch the ETH balance (weiIn) for non-graduated coins.
-   */
-
-  const viewEthIn = async () => {
-    if (!walletClient || !pumpContract || !coin || loadingEthIn) return
-
-    setLoadingEthIn(true)
-    try {
-      const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
-      const cachedWei = localStorage.getItem(localStorageKey)
-
-      if (cachedWei) {
-        setWeiIn(BigInt(cachedWei))
-      } else {
-        const weisBought = (await pumpContract.tread.getWeiIn([
-          coin.id,
-        ])) as bigint
-        localStorage.setItem(localStorageKey, weisBought.toString())
-        setWeiIn(weisBought)
-      }
-    } catch (err) {
-      console.error('Error fetching ethIn:', err)
-      setWeiIn(null)
-    } finally {
-      setLoadingEthIn(false)
-    }
-  }
-
-  const refreshWeiIn = async () => {
-    if (!walletClient || !pumpContract || !coin || loadingEthIn) return
-
-    setLoadingEthIn(true)
-    try {
-      const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
-      const weisBought = (await pumpContract.read.getWeiIn([coin.id])) as bigint
-      console.log(weisBought)
-      localStorage.setItem(localStorageKey, weisBought.toString())
-      setWeiIn(weisBought)
-    } catch (err) {
-      console.error('Error refreshing weiIn:', err)
-    } finally {
-      setLoadingEthIn(false)
-    }
-  }
-
-  const handleBuy = async () => {
-    setBuyError(null)
-
-    if (
-      !publicClient ||
-      !walletClient ||
-      !pumpContract ||
-      !coin ||
-      !buyAmount
-    ) {
-      setBuyError('Required data is missing.')
-      return
-    }
-
-    const amountInWei = parseEther(buyAmount, 'wei')
-    const maxWei = parseEther('1', 'wei')
-
-    const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
-    const existingWei = localStorage.getItem(localStorageKey)
-    const existingWeiBigInt = existingWei ? BigInt(existingWei) : BigInt(0)
-
-    if (!coin.graduated && existingWeiBigInt + amountInWei > maxWei) {
-      setBuyError('1 ETH Max purchase allowed pre-graduation.')
-      return
-    }
-
-    try {
-      if (isBuying) {
-        setBuyError('Already buying')
-        return
-      }
-      const balance = await publicClient.getBalance({
-        address: walletClient.account.address,
-      })
-
-      if (amountInWei > BigInt(balance)) {
-        setBuyError('Insufficient balance.')
-        return
-      }
-
-      setIsBuying(true)
-      let txHash
-
-      if (!coin.graduated) {
-        txHash = await pumpContract.twrite.buy([coin.id], {
-          gas: 1_000_000,
-          value: amountInWei,
-        })
-        console.log('✅ Transaction sent via pumpContract! Hash:', txHash)
-      } else {
-        if (!dexContract) {
-          setBuyError('DEX contract not initialized')
-          return
-        }
-
-        //temporary deadline to be changed
-        const deadline = Math.floor(Date.now() / 1000) + 60 * 20
-
-        const path = [WETH_CONTRACT_ADDRESS, coin.contractAddress]
-
-        txHash = await dexContract.write.swapExactETHForTokens(
-          [0, path, walletClient.account.address, deadline],
-          { gas: 1_000_000, value: amountInWei }
-        )
-        console.log('✅ Dex transaction sent! Hash:', txHash)
-      }
-
-      // Update local storage with the new total wei bought
-      const newTotalWei = existingWeiBigInt + amountInWei
-      localStorage.setItem(localStorageKey, newTotalWei.toString())
-      setWeiIn(newTotalWei)
-      setBuyAmount('')
-    } catch (err) {
-      console.error('❌ Transaction Failed:', err)
-      setBuyError(
-        `Transaction failed: ${
-          err instanceof Error ? err.message : 'Unknown error'
-        }`
-      )
-    } finally {
-      setIsBuying(false)
-    }
-  }
+  const { viewEthIn, refreshWeiIn, handleBuy, loadingEthIn } = useCoinActions({
+    coin,
+    walletClient,
+    publicClient,
+    pumpContract,
+    dexContract,
+    buyAmount,
+    setBuyAmount,
+    setBuyError,
+    setWeiIn,
+  })
 
   if (loading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
