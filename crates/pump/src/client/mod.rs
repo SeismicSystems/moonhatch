@@ -5,7 +5,7 @@ use alloy_provider::{
     create_seismic_provider_without_wallet, network::TransactionBuilder, Provider,
     SeismicPublicClient,
 };
-use alloy_pubsub::Subscription;
+use alloy_pubsub::SubscriptionStream;
 use alloy_rpc_types_eth::{Filter, Log, TransactionInput, TransactionRequest};
 use alloy_sol_types::SolType;
 use contract_address::ContractAddresses;
@@ -35,7 +35,7 @@ impl PumpClient {
 
     pub async fn get_coin(&self, coin_id: u32) -> Result<SolidityCoin, PumpError> {
         let tx = build_tx(self.ca.pump, get_coin_calldata(coin_id));
-        let bytes = self.provider.call(&tx).await.map_err(|_| PumpError::CoinNotFound)?;
+        let bytes = self.provider.call(&tx).await.map_err(|_| PumpError::CoinNotFound(coin_id))?;
         let coin =
             SolidityCoin::abi_decode(&bytes, true).map_err(|_| PumpError::FailedToDecodeAbi)?;
         Ok(coin)
@@ -45,12 +45,12 @@ impl PumpClient {
         let calldata = get_pair_calldata(token, self.ca.weth);
         ContractAddresses::get_address(&self.provider, self.ca.factory, calldata)
             .await
-            .map_err(|_| PumpError::PairNotFound)
+            .map_err(|_| PumpError::PairNotFound(token))
     }
 
-    pub async fn pump_logs(&self) -> Result<Subscription<Log>, PumpError> {
+    pub async fn pump_logs(&self) -> Result<SubscriptionStream<Log>, PumpError> {
         let pump_filter = Filter::new().address(self.ca.pump);
         let sub = self.provider.subscribe_logs(&pump_filter).await?;
-        Ok(sub)
+        Ok(sub.into_stream())
     }
 }

@@ -2,7 +2,11 @@ use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_s3::{config::Region, Client as S3Client};
 use std::sync::Arc;
 
-use pump::{client::PumpClient, db::pool};
+use pump::{
+    client::PumpClient,
+    db::pool::{self, connect, PgConn},
+    error::PumpError,
+};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -24,5 +28,9 @@ impl AppState {
         // Establish the database pool.
         let db_pool = pool::establish_pool();
         AppState { s3_client: shared_s3_client, db_pool, pump_client: Arc::new(pump_client) }
+    }
+
+    pub fn db_conn(&self) -> Result<PgConn, PumpError> {
+        Ok(connect(&self.db_pool)?)
     }
 }

@@ -1,17 +1,13 @@
+use alloy_primitives::Address;
 use bigdecimal::BigDecimal;
 use diesel::prelude::*;
 use std::str::FromStr;
 
 use crate::{contract::SolidityCoin, error::PumpError};
-
-use crate::db::{
-    models::{Coin, NewCoin, Pool, PoolPriceData},
-    schema::{
-        coins::{self as coins_schema, dsl::coins as coins_table},
-        pool_prices::{self as pool_prices_schema, dsl::pool_prices as pool_prices_table},
-        pools::{self as pools_schema, dsl::pools as pools_table},
-    },
-};
+use crate::db::models::{Coin, NewCoin, Pool, PoolPriceData};
+use crate::db::schema::coins::{self as coins_schema, dsl::coins as coins_table};
+use crate::db::schema::pool_prices::{self as pool_prices_schema, dsl::pool_prices as pool_prices_table};
+use crate::db::schema::pools::{self as pools_schema, dsl::pools as pools_table};
 
 pub fn create_coin(conn: &mut PgConnection, new_coin: NewCoin) -> Result<Coin, PumpError> {
     Ok(diesel::insert_into(coins_table).values(&new_coin).get_result(conn)?)
@@ -79,7 +75,31 @@ pub fn update_coin(
         ))
         .execute(conn)?;
     match coins_updated {
-        0 => Err(PumpError::CoinNotFound),
+        0 => Err(PumpError::CoinNotFound(coin_id as u32)),
+        _ => Ok(()),
+    }
+}
+
+pub fn graduate_coin(conn: &mut PgConnection, coin_id: i64) -> Result<(), PumpError> {
+    let coins_updated = diesel::update(coins_table.filter(coins_schema::id.eq(coin_id)))
+        .set((
+            coins_schema::graduated.eq(true),
+        ))
+        .execute(conn)?;
+    match coins_updated {
+        0 => Err(PumpError::CoinNotFound(coin_id as u32)),
+        _ => Ok(()),
+    }
+}
+
+pub fn update_deployed_pool(conn: &mut PgConnection, coin_id: i64, pool: Address) -> Result<(), PumpError> {
+    let coins_updated = diesel::update(coins_table.filter(coins_schema::id.eq(coin_id)))
+        .set((
+            coins_schema::deployed_pool.eq(pool.to_string()),
+        ))
+        .execute(conn)?;
+    match coins_updated {
+        0 => Err(PumpError::CoinNotFound(coin_id as u32)),
         _ => Ok(()),
     }
 }

@@ -3,9 +3,11 @@ use alloy_provider::{Provider, SeismicPublicClient};
 use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
 use std::str::FromStr;
 
-use crate::error::PumpError;
-use crate::contract::dex::UniswapV2Router02::{factoryCall, WETHCall};
-use crate::client::build_tx;
+use crate::{
+    client::build_tx,
+    contract::dex::UniswapV2Router02::{factoryCall, WETHCall},
+    error::PumpError,
+};
 
 pub(crate) struct ContractAddresses {
     pub(crate) pump: Address,

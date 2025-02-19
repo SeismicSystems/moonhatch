@@ -1,11 +1,9 @@
-use ::r2d2::PooledConnection;
+use diesel::r2d2::PooledConnection;
 use diesel::{
     prelude::*,
-    r2d2::{self, ConnectionManager},
+    r2d2::ConnectionManager,
 };
 use std::env;
-
-use crate::error::PumpError;
 
 pub type PgPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type PgConn = PooledConnection<ConnectionManager<PgConnection>>;
@@ -16,9 +14,9 @@ pub fn establish_pool() -> PgPool {
     r2d2::Pool::builder().build(manager).expect("Failed to create pool.")
 }
 
-pub fn connect(pool: PgPool) -> Result<PgConn, PumpError> {
+pub fn connect(pool: &PgPool) -> Result<PgConn, r2d2::Error> {
     match pool.get() {
         Ok(conn_) => Ok(conn_),
-        Err(e) => Err(PumpError::R2D2(e)),
+        Err(e) => Err(e),
     }
 }

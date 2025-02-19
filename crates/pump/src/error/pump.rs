@@ -1,22 +1,61 @@
+use alloy_primitives::Address;
 use alloy_transport::TransportError;
 use axum::{extract::multipart::MultipartError, http::StatusCode, response::IntoResponse};
 
-#[derive(Debug)]
+use crate::error::listener::ListenerError;
+
+#[derive(Debug, thiserror::Error)]
 pub enum FileUploadError {
+    #[error("Multipart upload error: {0:?}")]
     Multipart(MultipartError),
+    #[error("No file uploaded")]
     NoFileUploaded,
 }
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum PumpError {
-    CoinNotFound,
+    #[error("Coin not found: {0:?}")]
+    CoinNotFound(u32),
+    #[error("WETH contract not found")]
     WethNotFound,
-    PairNotFound,
+    #[error("Pair not found: {0:?}")]
+    PairNotFound(Address),
+    #[error("Failed to decode ABI")]
     FailedToDecodeAbi,
+    #[error("{0:?}")]
     FileUpload(FileUploadError),
+    #[error("R2D2 error: {0:?}")]
     R2D2(r2d2::Error),
+    #[error("Diesel error: {0:?}")]
     Diesel(diesel::result::Error),
-    Alloy(TransportError)
+    #[error("Listener error: {0:?}")]
+    Listener(ListenerError),
+    #[error("Transport error: {0:?}")]
+    TransportError(TransportError),
+}
+
+impl From<ListenerError> for PumpError {
+    fn from(value: ListenerError) -> Self {
+        PumpError::Listener(value)
+    }
+}
+
+impl From<alloy_sol_types::Error> for PumpError {
+    fn from(value: alloy_sol_types::Error) -> Self {
+        PumpError::Listener(value.into())
+    }
+}
+
+impl From<r2d2::Error> for PumpError {
+    fn from(value: r2d2::Error) -> Self {
+        PumpError::R2D2(value)
+    }
+}
+
+impl From<TransportError> for PumpError {
+    fn from(value: TransportError) -> Self {
+        PumpError::TransportError(value)
+    }
 }
 
 impl From<MultipartError> for PumpError {
@@ -28,12 +67,6 @@ impl From<MultipartError> for PumpError {
 impl From<diesel::result::Error> for PumpError {
     fn from(value: diesel::result::Error) -> Self {
         PumpError::Diesel(value)
-    }
-}
-
-impl From<TransportError> for PumpError {
-    fn from(value: TransportError) -> Self {
-        PumpError::Alloy(value)
     }
 }
 
@@ -49,7 +82,7 @@ impl Into<StatusCode> for PumpError {
     fn into(self) -> StatusCode {
         match self {
             PumpError::FailedToDecodeAbi | PumpError::R2D2(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            PumpError::CoinNotFound | PumpError::PairNotFound | PumpError::WethNotFound => {
+            PumpError::CoinNotFound(_) | PumpError::PairNotFound(_) | PumpError::WethNotFound => {
                 StatusCode::NOT_FOUND
             }
             PumpError::FileUpload(_) => StatusCode::BAD_REQUEST,
@@ -57,7 +90,8 @@ impl Into<StatusCode> for PumpError {
                 // TODO
                 _ => StatusCode::NOT_FOUND,
             },
-            PumpError::Alloy(_) => StatusCode::INTERNAL_SERVER_ERROR
+            PumpError::Listener(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            PumpError::TransportError(_) => StatusCode::INTERNAL_SERVER_ERROR
         }
     }
 }
@@ -65,5 +99,9 @@ impl Into<StatusCode> for PumpError {
 impl PumpError {
     pub fn no_upload() -> PumpError {
         PumpError::FileUpload(FileUploadError::NoFileUploaded)
+    }
+
+    pub fn unknown_topic(topic: Option<alloy_primitives::FixedBytes<32>>) -> PumpError {
+        PumpError::Listener(ListenerError::UnknownTopic(topic))
     }
 }
