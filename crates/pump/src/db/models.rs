@@ -1,11 +1,12 @@
 // src/models.rs
 
-use bigdecimal::{BigDecimal, ToPrimitive};
+use alloy_primitives::Address;
+use bigdecimal::{BigDecimal, ToPrimitive, Zero};
 use chrono::NaiveDateTime;
 use diesel::{prelude::*, Queryable};
 use serde::{Deserialize, Serialize};
 
-use crate::db::schema;
+use crate::{client::block::Block, db::schema, error::PumpError};
 
 #[derive(Queryable, Serialize, Deserialize, Debug)]
 pub struct Coin {
@@ -45,15 +46,32 @@ pub struct Pool {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Queryable, Serialize, Deserialize, Debug)]
-pub struct PoolPrices {
-    pub id: i64,
+#[derive(Insertable)]
+#[diesel(table_name = schema::pool_prices)]
+pub struct NewPoolPrice {
     pub pool: String,
     pub time: i64,
     pub open: BigDecimal,
     pub high: BigDecimal,
     pub low: BigDecimal,
     pub close: BigDecimal,
+}
+
+impl NewPoolPrice {
+    pub fn try_new(lp_token: &Address, block: Block, prices: &Vec<BigDecimal>) -> Result<NewPoolPrice, PumpError> {
+        if prices.is_empty() {
+            return Err(PumpError::no_prices(block.number, lp_token.clone()));
+        }
+        let price = NewPoolPrice {
+            pool: lp_token.to_string(),
+            time: block.timestamp,
+            open: BigDecimal::zero(),
+            high: BigDecimal::zero(),
+            low: BigDecimal::zero(),
+            close: BigDecimal::zero(),
+        };
+        Ok(price)
+    }
 }
 
 #[derive(Insertable, Deserialize)]

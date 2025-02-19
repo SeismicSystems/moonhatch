@@ -1,4 +1,4 @@
-use alloy_primitives::Address;
+use alloy_primitives::{Address, FixedBytes};
 use alloy_transport::TransportError;
 use axum::{extract::multipart::MultipartError, http::StatusCode, response::IntoResponse};
 
@@ -102,6 +102,22 @@ impl PumpError {
     }
 
     pub fn unknown_topic(topic: Option<alloy_primitives::FixedBytes<32>>) -> PumpError {
-        PumpError::Listener(ListenerError::UnknownTopic(topic))
+        ListenerError::UnknownTopic(topic).into()
+    }
+
+    pub fn no_block_timestamp() -> PumpError {
+        ListenerError::NoBlockTimestamp.into()
+    }
+
+    pub fn no_prices(block: u64, pool: Address) -> PumpError {
+        ListenerError::NoPrices(block, pool).into()
+    }
+
+    pub fn no_swap_price(pool: Address, tx: Option<FixedBytes<32>>) -> PumpError {
+        ListenerError::NoSwapPrice(pool, tx).into()
+    }
+
+    pub fn wrong_block(log_block: u64, current_block: u64) -> PumpError {
+        ListenerError::WrongBlock(log_block, current_block).into()
     }
 }

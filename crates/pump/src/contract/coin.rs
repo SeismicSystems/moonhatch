@@ -1,8 +1,5 @@
-use alloy_primitives::Address;
-use alloy_rpc_types_eth::TransactionRequest;
 use alloy_sol_types::{sol, SolCall};
 
-use crate::client::build_tx;
 
 sol! {
     #[derive(Debug)]
@@ -22,25 +19,28 @@ pub fn get_coin_calldata(coin_id: u32) -> Vec<u8> {
     getCoinCall { coinId: coin_id }.abi_encode()
 }
 
-pub fn get_coin_tx(to: Address, coin_id: u32) -> TransactionRequest {
-    build_tx(to, get_coin_calldata(coin_id))
-}
-
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
+    use super::*;
 
+    use std::str::FromStr;
     use alloy_provider::{create_seismic_provider_without_wallet, Provider};
     use alloy_sol_types::SolType;
     use reqwest::Url;
+    use alloy_primitives::Address;
+    use alloy_rpc_types_eth::TransactionRequest;
 
-    use super::*;
+    use crate::client::build_tx;
+
+    pub fn get_coin_tx(to: &Address, coin_id: u32) -> TransactionRequest {
+        build_tx(to, get_coin_calldata(coin_id))
+    }
 
     #[test]
     fn test_calldata() {
         let contract_address =
             Address::from_str("0x5FbDB2315678afecb367f032d93F642f64180aa3").unwrap();
-        println!("{:?}", get_coin_tx(contract_address, 0))
+        println!("{:?}", get_coin_tx(&contract_address, 0))
     }
 
     #[tokio::test]
@@ -51,8 +51,8 @@ mod tests {
         let contract_address =
             Address::from_str("0x5FbDB2315678afecb367f032d93F642f64180aa3").unwrap();
         let coin_id = 0;
-        let tx = &get_coin_tx(contract_address, coin_id);
-        let response_bytes = seismic_client.call(tx).await.unwrap();
+        let tx = get_coin_tx(&contract_address, coin_id);
+        let response_bytes = seismic_client.call(&tx).await.unwrap();
         let coin = SolidityCoin::abi_decode(&response_bytes, true).unwrap();
         println!("Coin = {:#?}", coin);
     }

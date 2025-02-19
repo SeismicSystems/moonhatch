@@ -9,6 +9,8 @@ use crate::db::schema::coins::{self as coins_schema, dsl::coins as coins_table};
 use crate::db::schema::pool_prices::{self as pool_prices_schema, dsl::pool_prices as pool_prices_table};
 use crate::db::schema::pools::{self as pools_schema, dsl::pools as pools_table};
 
+use super::models::NewPoolPrice;
+
 pub fn create_coin(conn: &mut PgConnection, new_coin: NewCoin) -> Result<Coin, PumpError> {
     Ok(diesel::insert_into(coins_table).values(&new_coin).get_result(conn)?)
 }
@@ -102,4 +104,9 @@ pub fn update_deployed_pool(conn: &mut PgConnection, coin_id: i64, pool: Address
         0 => Err(PumpError::CoinNotFound(coin_id as u32)),
         _ => Ok(()),
     }
+}
+
+pub fn add_price(conn: &mut PgConnection, price: NewPoolPrice) -> Result<usize, PumpError> {
+    let count = diesel::insert_into(pool_prices_table).values(&price).execute(conn)?;
+    Ok(count)
 }
