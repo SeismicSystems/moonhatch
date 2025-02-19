@@ -4,19 +4,3 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-pump = { path = "../pump" }
-
-alloy-provider = { version = "=0.8.0", features = [
-    "reqwest",
-    "ws",
-    "ipc",
-    "trace-api",
-] }
-alloy-rpc-types-eth = { version = "=0.8.0" }
-alloy-primitives = { version = "0.8" }
-alloy-sol-types = { version = "0.8" }
-alloy-transport = { version = "0.8" }
-
-futures-util.workspace = true
-tokio.workspace = true
-thiserror.workspace = true
