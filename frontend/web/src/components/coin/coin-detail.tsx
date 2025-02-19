@@ -125,19 +125,17 @@ const CoinDetail: React.FC = () => {
     }
 
     const amountInWei = parseEther(buyAmount, 'wei')
-    const maxWei = parseEther('1', 'wei') // 1 ETH limit
+    const maxWei = parseEther('1', 'wei')
 
     const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
     const existingWei = localStorage.getItem(localStorageKey)
     const existingWeiBigInt = existingWei ? BigInt(existingWei) : BigInt(0)
 
-    // Check if cumulative purchase (existingWei + amountInWei) exceeds 1 ETH
     if (!coin.graduated && existingWeiBigInt + amountInWei > maxWei) {
       setBuyError('1 ETH Max purchase allowed pre-graduation.')
       return
     }
 
-    // Prevent purchase if the coin has graduated
     if (coin.graduated) {
       setModalMessage(
         'This coin has graduated. Purchases are no longer allowed.'
@@ -171,7 +169,7 @@ const CoinDetail: React.FC = () => {
       const newTotalWei = existingWeiBigInt + amountInWei
       localStorage.setItem(localStorageKey, newTotalWei.toString())
       setWeiIn(newTotalWei)
-      setBuyAmount('') // Clear input after success
+      setBuyAmount('')
     } catch (err) {
       console.error('❌ Transaction Failed:', err)
       setBuyError(
