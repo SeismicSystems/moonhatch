@@ -1,12 +1,16 @@
 import { useMemo, useState } from 'react'
-import SwipeableViews from 'react-swipeable-views'
+import { useSwipeable } from 'react-swipeable'
 import { formatEther } from 'viem'
 
 import CachedIcon from '@mui/icons-material/Cached'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { Box, Modal } from '@mui/material'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
 import { Coin } from '../../types/coin'
+import TransactionGraduated from '../trade/transaction-graduated'
+import TransactionNonGraduated from '../trade/transaction-nongraduated'
 
 interface TradeSectionProps {
   coin: Pick<Coin, 'id' | 'graduated'>
@@ -38,19 +42,15 @@ export default function TradeSection({
   setModalOpen,
 }: TradeSectionProps) {
   const [isBalanceVisible, setIsBalanceVisible] = useState(false)
-  // For BUY orders we use the parent's buyAmount,
-  // for SELL orders we use a local sellAmount.
+  // tradeType: either 'buy' or 'sell' (or null if not yet selected)
+  const [tradeType, setTradeType] = useState<'buy' | 'sell' | null>(null)
+  // Use parent's buyAmount for BUY orders and local state for SELL orders.
   const [sellAmount, setSellAmount] = useState('')
-  // swipeIndex 0 is Buy; 1 is Sell.
-  const [swipeIndex, setSwipeIndex] = useState(0)
-
-  // Determine tradeType from swipeIndex.
-  const tradeType = swipeIndex === 0 ? 'buy' : 'sell'
 
   // Dummy conversion rate: 1 ETH = 1000 Coin X
   const conversionRate = 1000
 
-  // Estimated value for BUY mode: multiply ETH by conversion rate.
+  // For BUY mode: use parent's buyAmount
   const estimatedBuy = useMemo(() => {
     const inputValue = parseFloat(buyAmount)
     return isNaN(inputValue) || inputValue <= 0
@@ -58,13 +58,53 @@ export default function TradeSection({
       : inputValue * conversionRate
   }, [buyAmount, conversionRate])
 
-  // Estimated value for SELL mode: divide coin amount by conversion rate.
+  // For SELL mode: use local sellAmount
   const estimatedSell = useMemo(() => {
     const inputValue = parseFloat(sellAmount)
     return isNaN(inputValue) || inputValue <= 0
       ? 0
       : inputValue / conversionRate
   }, [sellAmount, conversionRate])
+
+  // Handle switching trade type and resetting the appropriate input fields
+  const handleTrade = (type: 'buy' | 'sell') => {
+    setTradeType(type)
+    if (type === 'buy') {
+      setBuyAmount('')
+    } else {
+      setSellAmount('')
+    }
+  }
+
+  // Overall swipe for the component (you can still have this if you wish)
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (coin.graduated) {
+        setTradeType('sell')
+        setSellAmount('')
+      }
+    },
+    onSwipedRight: () => {
+      setTradeType('buy')
+      setBuyAmount('')
+    },
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true,
+  })
+
+  // Dedicated swipe handlers for the toggle group
+  const toggleSwipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (coin.graduated) {
+        handleTrade('sell')
+      }
+    },
+    onSwipedRight: () => {
+      handleTrade('buy')
+    },
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true,
+  })
 
   const handleViewBalance = () => {
     if (!isBalanceVisible) {
@@ -74,7 +114,7 @@ export default function TradeSection({
   }
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div {...swipeHandlers} className="flex flex-col items-center w-full">
       <Box
         sx={{
           marginBottom: 4,
@@ -82,7 +122,7 @@ export default function TradeSection({
         }}
       >
         <div className="w-full flex flex-col items-center text-center gap-2">
-          {/* Balance Display & Always-Visible Refresh */}
+          {/* Balance Display & Refresh Section */}
           <div className="text-[var(--creamWhite)]">BALANCE</div>
           <div className="flex items-center gap-2">
             <button
@@ -107,93 +147,38 @@ export default function TradeSection({
             </div>
           )}
 
-          {/* Header Toggle for Trade Mode */}
-          <div className="flex w-full mb-4">
-            <button
-              onClick={() => setSwipeIndex(0)}
-              className={`flex-1 px-4 py-2 rounded-l text-center uppercase font-bold ${
-                swipeIndex === 0
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-300 text-gray-700'
-              }`}
-            >
-              Buy
-            </button>
-            {coin.graduated && (
-              <button
-                onClick={() => setSwipeIndex(1)}
-                className={`flex-1 px-4 py-2 rounded-r text-center uppercase font-bold ${
-                  swipeIndex === 1
-                    ? 'bg-red-500 text-white'
-                    : 'bg-gray-300 text-gray-700'
-                }`}
-              >
-                Sell
-              </button>
-            )}
-          </div>
-
-          {/* Swipeable Views for Trade Panels */}
-          <SwipeableViews
-            index={swipeIndex}
-            onChangeIndex={(index) => setSwipeIndex(index)}
-            enableMouseEvents
-            containerStyle={{ width: '100%', marginBottom: '16px' }}
-          >
-            {/* BUY Panel */}
-            <div className="p-4">
-              <div className="text-[var(--creamWhite)] font-bold uppercase mb-2">
-                Buy
-              </div>
-              <input
-                type="text"
-                value={buyAmount}
-                onChange={(e) => setBuyAmount(e.target.value)}
-                placeholder="Enter ETH amount"
-                className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
-              />
-              <div className="text-[var(--creamWhite)]">
-                You will receive: {estimatedBuy} Coin X
-              </div>
-              {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
-              <button
-                className="w-full px-4 py-2 rounded bg-green-500 text-white mt-2"
-                onClick={() => handleBuy(buyAmount, 'buy')}
-              >
-                {`CONFIRM BUY FOR ${estimatedBuy} COIN X`}
-              </button>
-            </div>
-
-            {/* SELL Panel */}
-            {coin.graduated ? (
-              <div className="p-4">
-                <div className="text-[var(--creamWhite)] font-bold uppercase mb-2">
-                  Sell
-                </div>
-                <input
-                  type="text"
-                  value={sellAmount}
-                  onChange={(e) => setSellAmount(e.target.value)}
-                  placeholder="Enter coin amount"
-                  className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
-                />
-                <div className="text-[var(--creamWhite)]">
-                  You will get back: {estimatedSell} ETH
-                </div>
-                {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
-                <button
-                  className="w-full px-4 py-2 rounded bg-red-500 text-white mt-2"
-                  onClick={() => handleBuy(sellAmount, 'sell')}
-                >
-                  {`CONFIRM SELL FOR ${estimatedSell} ETH`}
-                </button>
-              </div>
-            ) : (
-              <div className="p-4">
-                <p className="text-gray-400">Selling not available</p>
-              </div>
-            )}
-          </SwipeableViews>
+          {/* Stylized Trade Mode Toggle with Swipe */}
+          {coin && coin.graduated ? (
+            <TransactionGraduated
+              coin={coin}
+              weiIn={weiIn}
+              loadingEthIn={loadingEthIn}
+              viewEthIn={viewEthIn}
+              refreshWeiIn={refreshWeiIn}
+              buyAmount={buyAmount}
+              setBuyAmount={setBuyAmount}
+              buyError={buyError}
+              handleBuy={handleBuy}
+              modalOpen={modalOpen}
+              modalMessage={modalMessage}
+              setModalOpen={setModalOpen}
+            />
+          ) : (
+            <TransactionNonGraduated
+              coin={coin}
+              weiIn={weiIn}
+              loadingEthIn={loadingEthIn}
+              viewEthIn={viewEthIn}
+              refreshWeiIn={refreshWeiIn}
+              buyAmount={buyAmount}
+              setBuyAmount={setBuyAmount}
+              buyError={buyError}
+              handleBuy={handleBuy}
+              modalOpen={modalOpen}
+              modalMessage={modalMessage}
+              setModalOpen={setModalOpen}
+            />
+          )}
         </div>
       </Box>
 
