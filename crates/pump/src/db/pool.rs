@@ -5,7 +5,7 @@ use diesel::{
 };
 use std::env;
 
-use crate::client::PumpError;
+use crate::error::PumpError;
 
 pub type PgPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type PgConn = PooledConnection<ConnectionManager<PgConnection>>;
