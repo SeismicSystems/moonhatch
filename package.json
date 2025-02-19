@@ -3,6 +3,12 @@
     "frontend/**"
   ],
   "scripts": {
+    "rust:fmt": "cargo +nightly fmt --all",
+    "rust:fmt:check": "cargo +nightly fmt --all --check",
+    "db:shell": "source .env && psql -d $DATABASE_URL",
+    "db:migrate": "bun run --cwd ./crates/backend diesel migration run",
+    "db:migrate:revert": "bun run --cwd ./crates/backend diesel migration revert",
+    "db:migrate:reset": "bun run --cwd ./crates/backend diesel migration revert --all",
     "web:dev": "bun run --cwd ./frontend/web dev",
     "web:build": "bun run --cwd ./frontend/web build",
     "web:lint": "bun run --cwd ./frontend/web lint",
