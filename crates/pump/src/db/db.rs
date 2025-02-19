@@ -1,6 +1,6 @@
 // src/db.rs
 
-use crate::{
+use crate::db::{
     models::{Coin, Pool},
     schema::{
         coins as coins_schema, coins::dsl::coins as coins_table, pool_prices as pool_prices_schema,

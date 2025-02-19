@@ -1,10 +1,9 @@
-use crate::{
-    db,
-    db::create_coin,
+use pump::db::{
+    db::{self, PoolPriceData},
     models::Coin,
-    schema::{coins as coins_schema, coins::dsl::coins as coins_table},
-    AppState,
+    schema::coins::{self as coins_schema, dsl::coins as coins_table},
 };
+use crate::AppState;
 
 use aws_sdk_s3::primitives::ByteStream;
 use axum::{
@@ -54,7 +53,7 @@ pub(crate) async fn get_pool_prices(
     };
 
     match db::get_pool_prices(&mut conn, pool, None, None, 100) {
-        Ok(prices) => Json(prices).into_response(),
+        Ok(prices) => Json::<Vec<PoolPriceData>>(prices).into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
     }
 }
@@ -126,7 +125,7 @@ pub(crate) async fn create_coin_handler(
         }
     };
 
-    match create_coin(&mut conn, payload) {
+    match db::create_coin(&mut conn, payload) {
         Ok(coin) => Json(CoinResponse { coin }).into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
     }

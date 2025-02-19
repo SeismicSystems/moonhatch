@@ -3324,7 +3324,13 @@ dependencies = [
  "alloy-rpc-types-eth",
  "alloy-sol-types",
  "axum",
+ "bigdecimal",
+ "chrono",
+ "diesel",
+ "r2d2",
  "reqwest",
+ "serde",
+ "serde_json",
  "tokio",
 ]
 

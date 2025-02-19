@@ -9,15 +9,15 @@ axum = { workspace = true, features = ["multipart"] }
 # Tower HTTP: enable CORS support.
 tower-http = { version = "0.4.4", features = ["cors"] }
 # Diesel with PostgreSQL, r2d2, chrono, and numeric support.
-diesel = { version = "2.2.7", features = ["postgres", "r2d2", "chrono", "numeric"] }
-r2d2 = "0.8.10"
+diesel.workspace = true
+r2d2.workspace = true
 # BigDecimal and Chrono with serde support.
-bigdecimal = { version = "0.4.7", features = ["serde"] }
-chrono = { version = "0.4", features = ["serde"] }
+bigdecimal.workspace = true
+chrono.workspace = true
 # Serde for serializing/deserializing.
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-dotenv = "0.15"
+serde.workspace = true
+serde_json.workspace = true
+dotenv.workspace = true
 
 # AWS SDK dependencies.
 aws-config = "0.55.3"

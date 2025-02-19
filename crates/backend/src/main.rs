@@ -1,9 +1,5 @@
 // src/main.rs
-mod db;
-mod db_pool;
 mod handlers;
-mod models;
-mod schema;
 
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_s3::{config::Region, Client as S3Client};
@@ -12,7 +8,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use db_pool::{establish_pool, PgPool};
+use pump::db::db_pool::{establish_pool, PgPool};
 use dotenv::dotenv;
 use pump::client::PumpClient;
 use std::{net::SocketAddr, sync::Arc};
