@@ -2,6 +2,7 @@ pub mod coin;
 pub mod dex;
 pub mod factory;
 pub mod pump;
+pub use coin::SolidityCoin;
 
 use alloy_primitives::Address;
 use alloy_provider::{
@@ -17,9 +18,6 @@ use std::str::FromStr;
 use coin::get_coin_calldata;
 use dex::UniswapV2Router02::{factoryCall, WETHCall};
 use factory::get_pair_calldata;
-use pump::PumpRand::{CoinCreated, CoinGraduated, DeployedToDex};
-
-pub use coin::SolidityCoin;
 
 pub fn build_tx(to: Address, calldata: Vec<u8>) -> TransactionRequest {
     TransactionRequest::default()
