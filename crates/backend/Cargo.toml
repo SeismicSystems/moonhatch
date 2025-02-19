@@ -1,5 +1,5 @@
 [package]
-name = "pump-rand-server"
+name = "server"
 version = "0.1.0"
 edition = "2021"
 

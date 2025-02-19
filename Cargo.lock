@@ -3329,30 +3329,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pump-rand-server"
-version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "alloy-provider",
- "alloy-rpc-types-eth",
- "alloy-sol-types",
- "aws-config",
- "aws-sdk-s3",
- "axum",
- "bigdecimal",
- "chrono",
- "diesel",
- "dotenv",
- "pump",
- "r2d2",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "tower-http",
-]
-
-[[package]]
 name = "quick-error"
 version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3978,6 +3954,30 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "server"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-rpc-types-eth",
+ "alloy-sol-types",
+ "aws-config",
+ "aws-sdk-s3",
+ "axum",
+ "bigdecimal",
+ "chrono",
+ "diesel",
+ "dotenv",
+ "pump",
+ "r2d2",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tower-http",
 ]
 
 [[package]]
