@@ -50,16 +50,19 @@ async fn handle_log(log: Log, db_pool: &PgPool) -> Result<(), ListenerError> {
 }
 
 async fn handle_creation(log: Log<CoinCreated>, db_pool: &PgPool) -> Result<(), ListenerError> {
+    // TODO: move db models & schema here
     println!("Log: {:?} {:?}", log, db_pool);
     Ok(())
 }
 
 async fn handle_graduation(log: Log<CoinGraduated>, db_pool: &PgPool) -> Result<(), ListenerError> {
+    // TODO: move db models & schema here
     println!("Log: {:?} {:?}", log, db_pool);
     Ok(())
 }
 
 async fn handle_deploy(log: Log<DeployedToDex>, db_pool: &PgPool) -> Result<(), ListenerError> {
+    // TODO: move db models & schema here
     println!("Log: {:?} {:?}", log, db_pool);
     Ok(())
 }
