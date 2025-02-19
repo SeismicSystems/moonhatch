@@ -5,15 +5,14 @@ import { formatEther } from 'viem'
 import CachedIcon from '@mui/icons-material/Cached'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { Box, Modal } from '@mui/material'
-import ToggleButton from '@mui/material/ToggleButton'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
 import { Coin } from '../../types/coin'
+import BalanceDisplay from '../trade/balance-section'
 import TransactionGraduated from '../trade/transaction-graduated'
 import TransactionNonGraduated from '../trade/transaction-nongraduated'
 
 interface TradeSectionProps {
-  coin: Pick<Coin, 'id' | 'graduated'>
+  coin: Coin
   weiIn: bigint | null
   loadingEthIn: boolean
   viewEthIn: () => void
@@ -123,30 +122,13 @@ export default function TradeSection({
       >
         <div className="w-full flex flex-col items-center text-center gap-2">
           {/* Balance Display & Refresh Section */}
-          <div className="text-[var(--creamWhite)]">BALANCE</div>
-          <div className="flex items-center gap-2">
-            <button
-              className="w-full text-[var(--creamWhite)]"
-              onClick={handleViewBalance}
-            >
-              ({weiIn ? formatEther(weiIn) : 0})
-            </button>
-            <button
-              className="bg-[var(--midBlue)] text-[var(--creamWhite)] py-2 px-4 rounded flex items-center"
-              onClick={refreshWeiIn}
-            >
-              <CachedIcon />
-            </button>
-          </div>
-          {loadingEthIn && (
-            <div className="text-gray-500 text-sm">Waiting...</div>
-          )}
-          {isBalanceVisible && !loadingEthIn && (
-            <div className="text-green-600 font-bold">
-              {weiIn !== null ? formatEther(weiIn) : 'No balance available'}
-            </div>
-          )}
-
+          <BalanceDisplay
+            coin={coin}
+            balance={weiIn ? formatEther(weiIn) : null}
+            refreshBalance={refreshWeiIn}
+            loading={loadingEthIn}
+            onReveal={viewEthIn} // optional: call viewEthIn when the balance is revealed
+          />
           {/* Stylized Trade Mode Toggle with Swipe */}
           {coin && coin.graduated ? (
             <TransactionGraduated

@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useSwipeable } from 'react-swipeable'
 
 import { Box, Modal } from '@mui/material'
-import ToggleButton from '@mui/material/ToggleButton'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
 import { Coin } from '../../types/coin'
 
@@ -36,7 +33,7 @@ export default function TransactionGraduated({
   // Dummy conversion rate: 1 ETH = 1000 Coin X
   const conversionRate = 1000
 
-  // Estimated value for BUY
+  // Estimated value for BUY: parent's buyAmount * conversionRate
   const estimatedBuy = useMemo(() => {
     const inputValue = parseFloat(buyAmount)
     return isNaN(inputValue) || inputValue <= 0
@@ -44,7 +41,7 @@ export default function TransactionGraduated({
       : inputValue * conversionRate
   }, [buyAmount, conversionRate])
 
-  // Estimated value for SELL
+  // Estimated value for SELL: local sellAmount / conversionRate
   const estimatedSell = useMemo(() => {
     const inputValue = parseFloat(sellAmount)
     return isNaN(inputValue) || inputValue <= 0
@@ -52,79 +49,63 @@ export default function TransactionGraduated({
       : inputValue / conversionRate
   }, [sellAmount, conversionRate])
 
-  // When trade type changes, optionally reset the corresponding input
+  // Optionally reset input for SELL when tradeType changes
   useEffect(() => {
     if (tradeType === 'sell') {
       setSellAmount('')
     }
   }, [tradeType])
 
-  // Swipe handlers for the toggle area
-  const toggleSwipeHandlers = useSwipeable({
-    onSwipedLeft: () => setTradeType('sell'),
-    onSwipedRight: () => setTradeType('buy'),
-    preventDefaultTouchmoveEvent: true,
-    trackMouse: true,
+  // Custom styles for the toggle buttons
+  const toggleContainerStyle: React.CSSProperties = {
+    display: 'flex',
+    width: '100%',
+    borderRadius: '9999px',
+    overflow: 'hidden',
+  }
+
+  const toggleButtonStyle = (
+    active: boolean,
+    activeBg: string,
+    inactiveBg: string
+  ): React.CSSProperties => ({
+    flex: 1,
+    padding: '10px 0',
+    border: 'none',
+    cursor: 'pointer',
+    backgroundColor: active ? activeBg : inactiveBg,
+    color: active ? 'white' : 'gray',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   })
 
   return (
     <Box sx={{ width: { xs: '300px', sm: '450px' }, mx: 'auto', p: 4 }}>
-      <div className="flex flex-col items-center text-center gap-2">
-        {/* Stylized Trade Mode Toggle with Swipe */}
-        <div {...toggleSwipeHandlers} className="w-full mb-4">
-          <ToggleButtonGroup
-            exclusive
-            value={tradeType}
-            onChange={(_, newValue) => {
-              if (newValue !== null) setTradeType(newValue)
-            }}
-            sx={{
-              backgroundColor: 'var(--lightBlue)',
-              borderRadius: '9999px',
-              padding: '4px',
-              width: '100%',
-            }}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px',
+        }}
+      >
+        {/* Custom Toggle */}
+        <div style={toggleContainerStyle}>
+          <button
+            style={toggleButtonStyle(tradeType === 'buy', 'green', '#e0e0e0')}
+            onClick={() => setTradeType('buy')}
           >
-            <ToggleButton
-              value="buy"
-              sx={{
-                flex: 1,
-                border: 'none',
-                borderRadius: '9999px',
-                textTransform: 'uppercase',
-                fontWeight: 'bold',
-                color: tradeType === 'buy' ? 'white' : 'gray',
-                backgroundColor: tradeType === 'buy' ? 'green' : 'transparent',
-                '&:hover': {
-                  backgroundColor:
-                    tradeType === 'buy' ? 'darkgreen' : 'rgba(0,0,0,0.1)',
-                },
-              }}
-            >
-              Buy
-            </ToggleButton>
-            <ToggleButton
-              value="sell"
-              sx={{
-                flex: 1,
-                border: 'none',
-                borderRadius: '9999px',
-                textTransform: 'uppercase',
-                fontWeight: 'bold',
-                color: tradeType === 'sell' ? 'white' : 'gray',
-                backgroundColor: tradeType === 'sell' ? 'red' : 'transparent',
-                '&:hover': {
-                  backgroundColor:
-                    tradeType === 'sell' ? 'darkred' : 'rgba(0,0,0,0.1)',
-                },
-              }}
-            >
-              Sell
-            </ToggleButton>
-          </ToggleButtonGroup>
+            Buy
+          </button>
+          <button
+            style={toggleButtonStyle(tradeType === 'sell', 'red', '#e0e0e0')}
+            onClick={() => setTradeType('sell')}
+          >
+            Sell
+          </button>
         </div>
 
-        {/* Input and estimated value */}
+        {/* Trade Input and Confirm Button */}
         {tradeType === 'buy' && (
           <>
             <input
@@ -132,12 +113,28 @@ export default function TransactionGraduated({
               value={buyAmount}
               onChange={(e) => setBuyAmount(e.target.value)}
               placeholder="Enter ETH amount"
-              className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
+              style={{
+                width: '100%',
+                padding: '8px',
+                borderRadius: '4px',
+                textAlign: 'center',
+                border: '1px solid #ccc',
+              }}
             />
-            <div className="text-[var(--creamWhite)]"></div>
-            {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
+            <div style={{ color: '#fff' }}>
+              You will receive: {estimatedBuy} {coin.name.toUpperCase()}
+            </div>
+            {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
             <button
-              className="w-full px-4 py-2 rounded bg-green-500 text-white"
+              style={{
+                width: '100%',
+                padding: '10px',
+                backgroundColor: 'green',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
               onClick={() => handleBuy(buyAmount, 'buy')}
             >
               {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
@@ -151,12 +148,28 @@ export default function TransactionGraduated({
               value={sellAmount}
               onChange={(e) => setSellAmount(e.target.value)}
               placeholder="Enter coin amount"
-              className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
+              style={{
+                width: '100%',
+                padding: '8px',
+                borderRadius: '4px',
+                textAlign: 'center',
+                border: '1px solid #ccc',
+              }}
             />
-            <div className="text-[var(--creamWhite)]"></div>
-            {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
+            <div style={{ color: '#fff' }}>
+              You will get back: {estimatedSell} ETH
+            </div>
+            {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
             <button
-              className="w-full px-4 py-2 rounded bg-red-500 text-white"
+              style={{
+                width: '100%',
+                padding: '10px',
+                backgroundColor: 'red',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
               onClick={() => handleBuy(sellAmount, 'sell')}
             >
               {`CONFIRM SELL FOR ${estimatedSell} ETH`}
@@ -166,11 +179,27 @@ export default function TransactionGraduated({
       </div>
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <Box className="p-4 bg-white border rounded shadow-lg text-center">
-          <h2 className="text-lg font-bold">Warning</h2>
+        <Box
+          sx={{
+            p: 4,
+            bgcolor: 'white',
+            border: '1px solid',
+            borderRadius: 2,
+            textAlign: 'center',
+          }}
+        >
+          <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
           <p>{modalMessage}</p>
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+            style={{
+              backgroundColor: 'blue',
+              color: 'white',
+              padding: '8px 16px',
+              border: 'none',
+              borderRadius: '4px',
+              marginTop: '16px',
+              cursor: 'pointer',
+            }}
             onClick={() => setModalOpen(false)}
           >
             OK

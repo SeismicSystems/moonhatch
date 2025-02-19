@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { formatEther } from 'viem'
 
 import { Box, Modal } from '@mui/material'
 
@@ -26,10 +25,8 @@ export default function TransactionNonGraduated({
   modalMessage,
   setModalOpen,
 }: TransactionNonGraduatedProps) {
-  // Dummy conversion rate: 1 ETH = 1000 Coin X
   const conversionRate = 1000
 
-  // Estimated value for BUY: multiply ETH by conversionRate
   const estimatedBuy = useMemo(() => {
     const inputValue = parseFloat(buyAmount)
     return isNaN(inputValue) || inputValue <= 0
@@ -38,32 +35,77 @@ export default function TransactionNonGraduated({
   }, [buyAmount, conversionRate])
 
   return (
-    <Box sx={{ width: { xs: '300px', sm: '450px' }, mx: 'auto', p: 4 }}>
-      <div className="flex flex-col items-center text-center gap-2">
-        {/* Always-visible Buy Input */}
+    <Box
+      sx={{
+        width: { xs: '300px', sm: '450px' },
+        mx: 'auto',
+        paddingBottom: { xs: 2, sm: 2, md: 0, lg: 2, xl: 2 },
+        marginBottom: { xs: 2, sm: 2, md: 0, lg: 2, xl: 2 },
+      }}
+    >
+      <Box
+        style={{
+          height: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px',
+        }}
+      >
         <input
           type="text"
           value={buyAmount}
+          className="h-[40px] lg:h-[80px]"
           onChange={(e) => setBuyAmount(e.target.value)}
           placeholder="Enter ETH amount"
-          className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
+          style={{
+            width: '85%',
+            padding: '8px',
+            borderRadius: '4px',
+            textAlign: 'center',
+            border: '1px solid var(--midBlue)',
+            backgroundColor: 'var(--lightBlue)',
+          }}
         />
-
-        {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
+        {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
         <button
-          className="w-full px-4 py-2 rounded bg-green-500 text-white"
+          className="h-[10dvh] "
+          style={{
+            width: '85%',
+            padding: '10px',
+            backgroundColor: 'green',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            color: 'var(--creamWhite)',
+          }}
           onClick={() => handleBuy(buyAmount, 'buy')}
         >
           {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
         </button>
-      </div>
-
+      </Box>
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <Box className="p-4 bg-white border rounded shadow-lg text-center">
-          <h2 className="text-lg font-bold">Warning</h2>
+        <Box
+          sx={{
+            p: 4,
+            bgcolor: 'white',
+            border: '1px solid',
+            borderRadius: 2,
+            textAlign: 'center',
+          }}
+        >
+          <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
           <p>{modalMessage}</p>
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+            style={{
+              backgroundColor: 'blue',
+              color: 'white',
+              padding: '8px 16px',
+              border: 'none',
+              borderRadius: '4px',
+              marginTop: '16px',
+              cursor: 'pointer',
+            }}
             onClick={() => setModalOpen(false)}
           >
             OK
