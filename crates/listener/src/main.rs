@@ -9,7 +9,7 @@ use pump::{
         pump::PumpRand::{CoinCreated, CoinGraduated, DeployedToDex},
         PumpClient,
     },
-    db_pool::{establish_pool, PgPool},
+    db::pool::{establish_pool, PgPool},
 };
 
 #[derive(Debug, thiserror::Error)]

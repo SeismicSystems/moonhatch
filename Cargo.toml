@@ -3,12 +3,33 @@ members = ["crates/backend", "crates/listener", "crates/pump"]
 resolver = "2"
 
 [workspace.dependencies]
+# web
 axum = "0.6.20"
 futures-util = "0.3"
 tokio = { version = "1.28", features = ["full"] }
+
+# db
+bigdecimal = { version = "0.4.7", features = ["serde"] }
+chrono = { version = "0.4", features = ["serde"] }
 diesel = { version = "2.2.7", features = ["postgres", "r2d2", "chrono", "numeric"] }
 r2d2 = "0.8.10"
+
+dotenv = "0.15"
+reqwest = "0.12.12"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 thiserror = "2.0.11"
+
+# web3
+alloy-provider = { version = "=0.8.0", features = [
+    "reqwest",
+    "ws",
+    "ipc",
+    "trace-api",
+] }
+alloy-rpc-types-eth = { version = "=0.8.0" }
+alloy-primitives = { version = "0.8" }
+alloy-sol-types = { version = "0.8" }
 
 [patch.crates-io]
 # seismic-alloy-core

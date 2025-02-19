@@ -4,19 +4,22 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-alloy-provider = { version = "=0.8.0", features = [
-    "reqwest",
-    "ws",
-    "ipc",
-    "trace-api",
-] }
-alloy-rpc-types-eth = { version = "=0.8.0" }
-alloy-primitives = { version = "0.8" }
-alloy-sol-types = { version = "0.8" }
-
+# web
 axum.workspace = true
-reqwest = "0.12.12"
 tokio.workspace = true
 
+# db
 diesel.workspace = true
 r2d2.workspace = true
+bigdecimal.workspace = true
+chrono.workspace = true
+
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+# web3
+alloy-provider.workspace = true
+alloy-rpc-types-eth.workspace = true
+alloy-primitives.workspace = true
+alloy-sol-types.workspace = true
