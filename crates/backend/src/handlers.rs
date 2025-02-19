@@ -7,7 +7,10 @@ use axum::{
 };
 use serde::Serialize;
 
-use pump::db::{models, store};
+use pump::{
+    client::{FileUploadError, PumpError},
+    db::{models, pool::connect, store},
+};
 
 use crate::AppState;
 
@@ -20,97 +23,74 @@ struct CoinResponse {
 pub(crate) async fn get_coin_handler(
     Path(coin_id): Path<i64>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
-    let mut conn = match state.db_pool.get() {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)).into_response()
-        }
-    };
-
-    match store::get_coin(&mut conn, coin_id) {
-        Ok(coin) => Json(CoinResponse { coin }).into_response(),
-        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
-    }
+) -> Result<impl IntoResponse, PumpError> {
+    let mut conn = connect(state.db_pool)?;
+    let coin = store::get_coin(&mut conn, coin_id)?;
+    Ok(Json(CoinResponse { coin }).into_response())
 }
 
 /// Handler for GET /coin/:id/snippet?length=50
 pub(crate) async fn get_pool_prices(
     Path(pool): Path<String>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
-    let mut conn = match state.db_pool.get() {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)).into_response()
-        }
-    };
-
-    match store::get_pool_prices(&mut conn, pool, None, None, 100) {
-        Ok(prices) => Json::<Vec<models::PoolPriceData>>(prices).into_response(),
-        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
-    }
+) -> Result<impl IntoResponse, PumpError> {
+    let mut conn = connect(state.db_pool)?;
+    let prices = store::get_pool_prices(&mut conn, pool, None, None, 100)?;
+    Ok(Json::<Vec<models::PoolPriceData>>(prices).into_response())
 }
 
 pub(crate) async fn verify_coin_handler(
     Path(coin_id): Path<i64>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
-    let mut conn = match state.db_pool.get() {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)).into_response()
-        }
-    };
+) -> Result<impl IntoResponse, PumpError> {
+    let mut conn = connect(state.db_pool)?;
 
     let client = &state.pump_client;
-    let coin = match client.get_coin(coin_id as u32).await {
-        Ok(coin) => coin,
-        Err(pe) => return pe.into_response(),
-    };
+    let coin = client.get_coin(coin_id as u32).await?;
+
     // Perform the update operation
-    match store::update_coin(&mut conn, coin_id, coin) {
-        Ok(rows_affected) if rows_affected > 0 => {
-            (StatusCode::OK, Json(format!("Coin {} verified successfully!", coin_id)))
-                .into_response()
-        }
-        Ok(_) => {
-            (StatusCode::NOT_FOUND, format!("Coin with id {} not found", coin_id)).into_response()
-        }
-        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error updating coin: {}", e))
-            .into_response(),
-    }
+    store::update_coin(&mut conn, coin_id, coin)?;
+    Ok((StatusCode::OK, Json(format!("Coin {} verified successfully!", coin_id))).into_response())
 }
 
-pub(crate) async fn get_all_coins_handler(State(state): State<AppState>) -> impl IntoResponse {
-    let mut conn = match state.db_pool.get() {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)).into_response()
-        }
-    };
-
-    match store::get_all_coins(&mut conn) {
-        Ok(coin_list) => Json(coin_list).into_response(),
-        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error fetching coins: {}", e))
-            .into_response(),
-    }
+pub(crate) async fn get_all_coins_handler(
+    State(state): State<AppState>,
+) -> Result<impl IntoResponse, PumpError> {
+    let mut conn = connect(state.db_pool)?;
+    let coin_list = store::get_all_coins(&mut conn)?;
+    Ok(Json(coin_list).into_response())
 }
 /// Handler for POST /coin/create
 pub(crate) async fn create_coin_handler(
     State(state): State<AppState>,
     Json(payload): Json<models::NewCoin>,
-) -> impl IntoResponse {
-    let mut conn = match state.db_pool.get() {
-        Ok(conn) => conn,
-        Err(e) => {
-            return (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)).into_response()
-        }
-    };
+) -> Result<impl IntoResponse, PumpError> {
+    let mut conn = connect(state.db_pool)?;
+    let coin = store::create_coin(&mut conn, payload)?;
+    Ok(Json(CoinResponse { coin }).into_response())
+}
 
-    match store::create_coin(&mut conn, payload) {
-        Ok(coin) => Json(CoinResponse { coin }).into_response(),
-        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
+async fn parse_upload(mut multipart: Multipart) -> Result<Vec<u8>, PumpError> {
+    // Look for the file field in the multipart form.
+    let mut file_bytes: Option<Vec<u8>> = None;
+    while let Some(field) = multipart.next_field().await.unwrap() {
+        // Check if this field is a file (it will have a filename).
+        if field.file_name().is_some() {
+            // Read all bytes from the field.
+            match field.bytes().await {
+                Ok(bytes) => {
+                    file_bytes = Some(bytes.to_vec());
+                    break;
+                }
+                Err(e) => return Err(e.into()),
+            };
+        }
+    }
+
+    // If no file was provided, return a 400 error.
+    match file_bytes {
+        Some(bytes) => Ok(bytes),
+        None => return Err(PumpError::FileUpload(FileUploadError::NoFileUploaded)),
     }
 }
 
@@ -120,42 +100,16 @@ pub(crate) async fn upload_file(
     // Extract the coin id from the URL path.
     Path(coin_id): Path<String>,
     // Extract the multipart form data.
-    mut multipart: Multipart,
-) -> impl IntoResponse {
+    multipart: Multipart,
+) -> Result<impl IntoResponse, PumpError> {
     let s3_client = state.s3_client;
-    // Look for the file field in the multipart form.
-    let mut file_bytes: Option<Vec<u8>> = None;
-    while let Some(field) = multipart.next_field().await.unwrap() {
-        // Check if this field is a file (it will have a filename).
-        if field.file_name().is_some() {
-            // Read all bytes from the field.
-            let data = if let Ok(bytes) = field.bytes().await {
-                bytes.to_vec()
-            } else {
-                eprintln!("Error reading uploaded file");
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    "Failed to read file as bytes".to_string(),
-                );
-            };
-            file_bytes = Some(data);
-            break;
-        }
-    }
-
-    // If no file was provided, return a 400 error.
-    let file_bytes = match file_bytes {
-        Some(bytes) => bytes,
-        None => {
-            println!("bad request");
-            return (StatusCode::BAD_REQUEST, "No file found in upload".to_string());
-        }
-    };
 
     // Prepare S3 upload parameters.
     let bucket_name = "seismic-public-assets";
     // The key will be under the "pump" folder with the filename equal to the coin id.
     let key = format!("pump/{}", coin_id);
+
+    let file_bytes = parse_upload(multipart).await?;
 
     // Upload the file to S3 with the public-read ACL.
     let upload_result = s3_client
@@ -172,11 +126,11 @@ pub(crate) async fn upload_file(
         Ok(_) => {
             // Construct the public URL. (This example assumes the default AWS S3 endpoint.)
             let public_url = format!("https://{}.s3.amazonaws.com/{}", bucket_name, key);
-            (StatusCode::OK, public_url)
+            Ok((StatusCode::OK, public_url).into_response())
         }
         Err(e) => {
             eprintln!("Error uploading to S3: {:?}", e);
-            (StatusCode::INTERNAL_SERVER_ERROR, "Upload failed".to_string())
+            Ok((StatusCode::INTERNAL_SERVER_ERROR, "Upload failed".to_string()).into_response())
         }
     }
 }

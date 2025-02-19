@@ -1,25 +1,20 @@
-pub mod coin;
-pub mod dex;
-pub mod factory;
-pub mod pump;
-
 use alloy_primitives::Address;
 use alloy_provider::{
     create_seismic_provider_without_wallet, network::TransactionBuilder, Provider,
     SeismicPublicClient,
 };
 use alloy_rpc_types_eth::{Filter, TransactionInput, TransactionRequest};
-use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolEvent, SolType};
-use axum::{http::StatusCode, response::IntoResponse};
+use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
+use axum::{extract::multipart::MultipartError, http::StatusCode, response::IntoResponse};
 use reqwest::Url;
 use std::str::FromStr;
 
-use coin::get_coin_calldata;
-use dex::UniswapV2Router02::{factoryCall, WETHCall};
-use factory::get_pair_calldata;
-use pump::PumpRand::{CoinCreated, CoinGraduated, DeployedToDex};
-
-pub use coin::SolidityCoin;
+use crate::contract::{
+    coin::get_coin_calldata,
+    dex::UniswapV2Router02::{factoryCall, WETHCall},
+    factory::get_pair_calldata,
+    SolidityCoin,
+};
 
 pub fn build_tx(to: Address, calldata: Vec<u8>) -> TransactionRequest {
     TransactionRequest::default().with_to(to).input(TransactionInput::new(calldata.into()))
@@ -71,11 +66,32 @@ impl ContractAddresses {
 }
 
 #[derive(Debug)]
+pub enum FileUploadError {
+    Multipart(MultipartError),
+    NoFileUploaded,
+}
+
+#[derive(Debug)]
 pub enum PumpError {
     CoinNotFound,
     WethNotFound,
     PairNotFound,
     FailedToDecodeAbi,
+    FileUpload(FileUploadError),
+    R2D2(r2d2::Error),
+    Diesel(diesel::result::Error),
+}
+
+impl From<MultipartError> for PumpError {
+    fn from(value: MultipartError) -> Self {
+        PumpError::FileUpload(FileUploadError::Multipart(value))
+    }
+}
+
+impl From<diesel::result::Error> for PumpError {
+    fn from(value: diesel::result::Error) -> Self {
+        PumpError::Diesel(value)
+    }
 }
 
 impl IntoResponse for PumpError {
@@ -89,10 +105,15 @@ impl IntoResponse for PumpError {
 impl Into<StatusCode> for PumpError {
     fn into(self) -> StatusCode {
         match self {
-            PumpError::FailedToDecodeAbi => StatusCode::INTERNAL_SERVER_ERROR,
+            PumpError::FailedToDecodeAbi | PumpError::R2D2(_) => StatusCode::INTERNAL_SERVER_ERROR,
             PumpError::CoinNotFound | PumpError::PairNotFound | PumpError::WethNotFound => {
                 StatusCode::NOT_FOUND
             }
+            PumpError::FileUpload(_) => StatusCode::BAD_REQUEST,
+            PumpError::Diesel(e) => match e {
+                // TODO
+                _ => StatusCode::NOT_FOUND,
+            },
         }
     }
 }
@@ -124,15 +145,7 @@ impl PumpClient {
             .map_err(|_| PumpError::PairNotFound)
     }
 
-    pub fn created_filter(&self) -> Filter {
-        Filter::new().address(self.contracts.pump).event_signature(CoinGraduated::SIGNATURE_HASH)
-    }
-
-    pub fn graduated_filter(&self) -> Filter {
-        Filter::new().address(self.contracts.pump).event_signature(CoinCreated::SIGNATURE_HASH)
-    }
-
-    pub fn deployed_filter(&self) -> Filter {
-        Filter::new().address(self.contracts.pump).event_signature(DeployedToDex::SIGNATURE_HASH)
+    pub fn pump_filter(&self) -> Filter {
+        Filter::new().address(self.contracts.pump)
     }
 }
