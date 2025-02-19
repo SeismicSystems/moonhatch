@@ -18,8 +18,20 @@ use crate::{
 
 use super::models::NewPoolPrice;
 
-pub fn create_coin(conn: &mut PgConnection, new_coin: NewCoin) -> Result<Coin, PumpError> {
-    Ok(diesel::insert_into(coins_table).values(&new_coin).get_result(conn)?)
+pub fn upsert_unverified_coin(conn: &mut PgConnection, new_coin: NewCoin) -> Result<Coin, PumpError> {
+    let coin = diesel::insert_into(coins_table)
+        .values(&new_coin.clone())
+        .on_conflict(coins_schema::id)
+        .do_update()
+        .set((
+            coins_schema::description.eq(new_coin.description),
+            coins_schema::website.eq(new_coin.website),
+            coins_schema::telegram.eq(new_coin.telegram),
+            coins_schema::image_url.eq(new_coin.image_url),
+            coins_schema::twitter.eq(new_coin.twitter),
+        ))
+        .get_result(conn)?;
+    Ok(coin)
 }
 
 pub fn get_coin(conn: &mut PgConnection, coin_id: i64) -> Result<Coin, PumpError> {
@@ -89,6 +101,42 @@ pub fn update_coin(
     }
 }
 
+pub fn upsert_verified(
+    conn: &mut PgConnection,
+    coin_id: i64,
+    coin: SolidityCoin,
+) -> Result<usize, PumpError> {
+    let new_coin = NewCoin {
+        id: coin_id,
+        name: coin.name.clone(),
+        symbol: coin.symbol.clone(),
+        supply: BigDecimal::from_str(&coin.supply.to_string()).unwrap(),
+        decimals: coin.decimals as i32,
+        contract_address: coin.contractAddress.to_string(),
+        creator: coin.creator.to_string(),
+        description: None,
+        website: None,
+        telegram: None,
+        image_url: None,
+        twitter: None,
+    };
+    let rows_affected = diesel::insert_into(coins_table)
+        .values(&new_coin)
+        .on_conflict(coins_schema::id)
+        .do_update()
+        .set((
+            coins_schema::verified.eq(true),
+            coins_schema::supply.eq(BigDecimal::from_str(&coin.supply.to_string()).unwrap()),
+            coins_schema::decimals.eq(coin.decimals as i32),
+            coins_schema::name.eq(coin.name),
+            coins_schema::symbol.eq(coin.symbol),
+            coins_schema::contract_address.eq(coin.contractAddress.to_string()),
+            coins_schema::creator.eq(coin.creator.to_string()),
+        ))
+        .execute(conn)?;
+    Ok(rows_affected)
+}
+
 pub fn graduate_coin(conn: &mut PgConnection, coin_id: i64) -> Result<(), PumpError> {
     let coins_updated = diesel::update(coins_table.filter(coins_schema::id.eq(coin_id)))
         .set((coins_schema::graduated.eq(true),))
@@ -111,6 +159,11 @@ pub fn update_deployed_pool(
         0 => Err(PumpError::CoinNotFound(coin_id as u32)),
         _ => Ok(()),
     }
+}
+
+pub fn upsert_deployed_pool(conn: &mut PgConnection, pool: Pool) -> Result<usize, PumpError> {
+    let rows_affected = diesel::insert_into(pools_table).values(pool).on_conflict(pools_schema::address).do_nothing().execute(conn)?;
+    Ok(rows_affected)
 }
 
 pub fn add_price(conn: &mut PgConnection, price: NewPoolPrice) -> Result<usize, PumpError> {

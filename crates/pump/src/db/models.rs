@@ -32,7 +32,8 @@ pub struct Coin {
     pub deployed_pool: Option<String>,
 }
 
-#[derive(Queryable, Serialize, Deserialize, Debug)]
+#[derive(Insertable, Queryable, Serialize, Deserialize, Debug)]
+#[diesel(table_name = schema::pools)]
 pub struct Pool {
     pub address: String,
     #[serde(rename = "chainId")]
@@ -78,7 +79,7 @@ impl NewPoolPrice {
     }
 }
 
-#[derive(Insertable, Deserialize)]
+#[derive(Insertable, Deserialize, Clone)]
 #[diesel(table_name = schema::coins)]
 pub struct NewCoin {
     pub id: i64,

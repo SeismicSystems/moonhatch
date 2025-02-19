@@ -3,13 +3,14 @@ use alloy_pubsub::SubscriptionStream;
 use alloy_rpc_types_eth::{Header, Log};
 use alloy_sol_types::SolEvent;
 use bigdecimal::BigDecimal;
+use chrono::{DateTime, NaiveDateTime};
 use std::collections::HashMap;
 
 use pump::{
-    client::{block::Block, pool::Pool, PumpClient},
+    client::{block::Block, pool::Pool, PumpClient, PumpWsClient},
     contract::{pair::UniswapV2Pair, pump::PumpRand},
     db::{
-        models::NewPoolPrice,
+        models,
         pool::{connect, PgConn, PgPool},
         store,
     },
@@ -19,20 +20,23 @@ use pump::{
 pub struct LogHandler {
     pool: PgPool,
     client: PumpClient,
+    ws: PumpWsClient,
     block: Block,
     prices: HashMap<Address, Vec<BigDecimal>>,
     pools: HashMap<Address, Pool>,
 }
 
 impl LogHandler {
-    pub fn new(pool: PgPool, client: PumpClient) -> LogHandler {
-        LogHandler {
+    pub async fn new(pool: PgPool, client: PumpClient) -> Result<LogHandler, PumpError> {
+        let ws = PumpWsClient::new().await?;
+        Ok(LogHandler {
             pool,
             client,
+            ws,
             block: Block::default(),
             prices: HashMap::new(),
             pools: HashMap::new(),
-        }
+        })
     }
 
     pub async fn handle_log(&mut self, log: Log) -> Result<(), PumpError> {
@@ -60,18 +64,36 @@ impl LogHandler {
         let mut conn = self.conn()?;
         let coin_id = log.data().coinId;
         let coin = self.client.get_coin(coin_id).await?;
-        store::update_coin(&mut conn, coin_id as i64, coin)
+        log::info!("Coin[{}] created at {} by {}", coin_id, coin.contractAddress, coin.creator);
+        store::upsert_verified(&mut conn, coin_id as i64, coin)?;
+        Ok(())
     }
 
     async fn handle_graduation(&self, log: Log<PumpRand::CoinGraduated>) -> Result<(), PumpError> {
         let coin_id = log.data().coinId;
         let mut conn = self.conn()?;
-        store::graduate_coin(&mut conn, coin_id as i64)
+        log::info!("Coin[{}] graduated in block {}", coin_id, log.block_number.unwrap_or_default());
+        store::graduate_coin(&mut conn, coin_id as i64)?;
+        let tx = self.client.deploy_graduated(coin_id).await?;
+        log::info!("Called graduate({}), tx={}", coin_id, tx);
+        Ok(())
     }
 
-    async fn handle_deploy(&self, log: Log<PumpRand::DeployedToDex>) -> Result<(), PumpError> {
+    async fn handle_deploy(&mut self, log: Log<PumpRand::DeployedToDex>) -> Result<(), PumpError> {
         let data = log.data();
         let mut conn = self.conn()?;
+        let pool = self.get_pool(data.lpToken).await?;
+        log::info!("Coin[{}] was to deployed to dex with LP address {}", data.coinId, data.lpToken);
+        let created_at = DateTime::from_timestamp(log.block_timestamp.unwrap() as i64, 0).unwrap().naive_utc();
+        let pool = models::Pool {
+            address: pool.lp_token.to_string(),
+            chain_id: 31337,
+            dex: self.client.router().to_string(),
+            token_a: pool.token_0.to_string(),
+            token_b: pool.token_1.to_string(),
+            created_at
+        };
+        store::upsert_deployed_pool(&mut conn, pool)?;
         store::update_deployed_pool(&mut conn, data.coinId as i64, data.lpToken)
     }
 
@@ -101,10 +123,10 @@ impl LogHandler {
         }
     }
 
-    fn insert_price(&mut self, pool: &Pool, dex_price: BigDecimal) -> Result<(), PumpError> {
+    fn insert_price(&mut self, pool: &Pool, dex_price: BigDecimal) -> Result<BigDecimal, PumpError> {
         let price = pool.to_ui_price(self.client.weth(), dex_price);
-        self.prices.entry(pool.lp_token).or_insert(vec![]).push(price);
-        Ok(())
+        self.prices.entry(pool.lp_token).or_insert(vec![]).push(price.clone());
+        Ok(price)
     }
 
     async fn handle_swap(&mut self, log: Log<UniswapV2Pair::Swap>) -> Result<(), PumpError> {
@@ -116,7 +138,9 @@ impl LogHandler {
             Some(px) => px,
             None => return Err(PumpError::no_swap_price(lp_token, log.transaction_hash)),
         };
-        self.insert_price(&pool, dex_price)
+        let ui_price = self.insert_price(&pool, dex_price)?;
+        log::info!("Pool {} traded to price {} at top of block {}", lp_token, ui_price, log.block_number.unwrap_or_default());
+        Ok(())
     }
 
     async fn handle_sync(&mut self, log: Log<UniswapV2Pair::Sync>) -> Result<(), PumpError> {
@@ -125,7 +149,9 @@ impl LogHandler {
         let pool = self.get_pool(lp_token).await?;
         let data = log.data();
         let dex_price = Pool::sync_price(data);
-        self.insert_price(&pool, dex_price)
+        let ui_price = self.insert_price(&pool, dex_price)?;
+        log::info!("Pool {} price is {} at top of block {}", lp_token, ui_price, log.block_number.unwrap_or_default());
+        Ok(())
     }
 
     pub async fn flush_candle(
@@ -133,7 +159,7 @@ impl LogHandler {
         lp_token: Address,
         prices: Vec<BigDecimal>,
     ) -> Result<(), PumpError> {
-        let price = NewPoolPrice::try_new(&lp_token, self.block, &prices)?;
+        let price = models::NewPoolPrice::try_new(&lp_token, self.block, &prices)?;
         let mut conn = self.conn()?;
         store::add_price(&mut conn, price)?;
         Ok(())
@@ -157,10 +183,10 @@ impl LogHandler {
     }
 
     pub async fn block_stream(&self) -> Result<SubscriptionStream<Header>, PumpError> {
-        self.client.blocks().await
+        self.ws.blocks().await
     }
 
     pub async fn log_stream(&self) -> Result<SubscriptionStream<Log>, PumpError> {
-        self.client.pump_logs().await
+        self.ws.pump_logs().await
     }
 }

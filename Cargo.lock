@@ -94,7 +94,7 @@ dependencies = [
 [[package]]
 name = "alloy-consensus"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-dyn-abi",
  "alloy-eips",
@@ -112,7 +112,7 @@ dependencies = [
 [[package]]
 name = "alloy-consensus-any"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -165,7 +165,7 @@ dependencies = [
 [[package]]
 name = "alloy-eips"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-dyn-abi",
  "alloy-eip2930",
@@ -194,7 +194,7 @@ dependencies = [
 [[package]]
 name = "alloy-json-rpc"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-primitives",
  "alloy-sol-types",
@@ -207,7 +207,7 @@ dependencies = [
 [[package]]
 name = "alloy-network"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-consensus",
  "alloy-consensus-any",
@@ -231,7 +231,7 @@ dependencies = [
 [[package]]
 name = "alloy-network-primitives"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -270,7 +270,7 @@ dependencies = [
 [[package]]
 name = "alloy-provider"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-chains",
  "alloy-consensus",
@@ -311,7 +311,7 @@ dependencies = [
 [[package]]
 name = "alloy-pubsub"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-json-rpc",
  "alloy-primitives",
@@ -351,7 +351,7 @@ dependencies = [
 [[package]]
 name = "alloy-rpc-client"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-json-rpc",
  "alloy-primitives",
@@ -376,7 +376,7 @@ dependencies = [
 [[package]]
 name = "alloy-rpc-types-any"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-consensus-any",
  "alloy-rpc-types-eth",
@@ -386,7 +386,7 @@ dependencies = [
 [[package]]
 name = "alloy-rpc-types-eth"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-consensus",
  "alloy-consensus-any",
@@ -405,7 +405,7 @@ dependencies = [
 [[package]]
 name = "alloy-rpc-types-trace"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-primitives",
  "alloy-rpc-types-eth",
@@ -418,7 +418,7 @@ dependencies = [
 [[package]]
 name = "alloy-serde"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-primitives",
  "serde",
@@ -428,13 +428,28 @@ dependencies = [
 [[package]]
 name = "alloy-signer"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-primitives",
  "async-trait",
  "auto_impl",
  "elliptic-curve",
  "k256",
+ "thiserror 2.0.11",
+]
+
+[[package]]
+name = "alloy-signer-local"
+version = "0.8.0"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
+dependencies = [
+ "alloy-consensus",
+ "alloy-network",
+ "alloy-primitives",
+ "alloy-signer",
+ "async-trait",
+ "k256",
+ "rand",
  "thiserror 2.0.11",
 ]
 
@@ -506,7 +521,7 @@ dependencies = [
 [[package]]
 name = "alloy-transport"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-json-rpc",
  "base64 0.22.1",
@@ -525,7 +540,7 @@ dependencies = [
 [[package]]
 name = "alloy-transport-http"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-json-rpc",
  "alloy-transport",
@@ -539,7 +554,7 @@ dependencies = [
 [[package]]
 name = "alloy-transport-ipc"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-json-rpc",
  "alloy-pubsub",
@@ -557,7 +572,7 @@ dependencies = [
 [[package]]
 name = "alloy-transport-ws"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=4451cd6#4451cd643e93e3b0065ee930831b1b9ab9fa4ce6"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=8004de83#8004de836d12a8d7d368e34b2b836b63118c5afc"
 dependencies = [
  "alloy-pubsub",
  "alloy-transport",
@@ -2900,6 +2915,8 @@ dependencies = [
  "alloy-sol-types",
  "alloy-transport",
  "bigdecimal",
+ "chrono",
+ "dotenv",
  "env_logger",
  "futures-util",
  "log",
@@ -3424,16 +3441,19 @@ dependencies = [
 name = "pump"
 version = "0.1.0"
 dependencies = [
+ "alloy-network",
  "alloy-primitives",
  "alloy-provider",
  "alloy-pubsub",
  "alloy-rpc-types-eth",
+ "alloy-signer-local",
  "alloy-sol-types",
  "alloy-transport",
  "axum",
  "bigdecimal",
  "chrono",
  "diesel",
+ "log",
  "r2d2",
  "reqwest",
  "serde",
@@ -4085,6 +4105,8 @@ dependencies = [
  "chrono",
  "diesel",
  "dotenv",
+ "env_logger",
+ "log",
  "pump",
  "r2d2",
  "reqwest",

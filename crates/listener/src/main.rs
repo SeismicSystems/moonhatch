@@ -1,5 +1,6 @@
 mod handler;
 
+use dotenv::dotenv;
 use futures_util::{select, stream::StreamExt};
 use handler::LogHandler;
 use pump::{
@@ -10,14 +11,20 @@ use pump::{
 
 #[tokio::main]
 async fn main() -> Result<(), PumpError> {
+    dotenv().ok();
     env_logger::init();
 
-    let client = PumpClient::new();
+    let rpc_url = std::env::var("RPC_URL").expect("Must set RPC_URL in .env");
+    let client = PumpClient::new(&rpc_url);
     let db_pool = establish_pool();
-    let mut handler = LogHandler::new(db_pool, client);
+    let mut handler = LogHandler::new(db_pool, client).await?;
+
+    log::info!("Initializing pubsub streams");
 
     let mut block_stream = handler.block_stream().await?.fuse();
     let mut log_stream = handler.log_stream().await?.fuse();
+
+    log::info!("Listening to streams...");
 
     loop {
         select! {

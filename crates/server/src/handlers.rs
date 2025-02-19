@@ -67,7 +67,7 @@ pub(crate) async fn create_coin_handler(
     Json(payload): Json<models::NewCoin>,
 ) -> Result<impl IntoResponse, PumpError> {
     let mut conn = state.db_conn()?;
-    let coin = store::create_coin(&mut conn, payload)?;
+    let coin = store::upsert_unverified_coin(&mut conn, payload)?;
     Ok(Json(CoinResponse { coin }).into_response())
 }
 

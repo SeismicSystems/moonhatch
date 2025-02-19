@@ -14,15 +14,18 @@ r2d2.workspace = true
 bigdecimal.workspace = true
 chrono.workspace = true
 
+log.workspace = true
 reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 
 # web3
+alloy-network.workspace = true
 alloy-provider.workspace = true
 alloy-rpc-types-eth.workspace = true
 alloy-primitives.workspace = true
 alloy-sol-types.workspace = true
 alloy-pubsub.workspace = true
+alloy-signer-local.workspace = true
 alloy-transport.workspace = true

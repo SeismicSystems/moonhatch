@@ -23,7 +23,8 @@ impl AppState {
         let s3_client = S3Client::new(&aws_config);
         let shared_s3_client = Arc::new(s3_client);
 
-        let pump_client = PumpClient::new();
+        let pump_client =
+            PumpClient::new(&std::env::var("RPC_URL").expect("Must set RPC_URL in .env"));
 
         // Establish the database pool.
         let db_pool = pool::establish_pool();

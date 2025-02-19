@@ -16,6 +16,7 @@ use crate::state::AppState;
 #[tokio::main]
 async fn main() {
     dotenv().ok();
+    env_logger::init();
 
     // Set up AWS S3.
     let app_state = AppState::new().await;
