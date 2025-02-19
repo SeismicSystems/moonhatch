@@ -11,6 +11,8 @@
     "db:migrate:reset": "bun run --cwd ./crates/backend diesel migration revert --all",
     "server:dev": "cargo run --bin server",
     "listener:dev": "cargo run --bin listener",
+    "anvil:new": "rimraf ~/.anvil/state.json && mkdir -p ~/.anvil && sanvil --state ~/.anvil",
+    "anvil:state": "mkdir -p ~/.anvil && sanvil --state ~/.anvil",
     "web:dev": "bun run --cwd ./frontend/web dev",
     "web:build": "bun run --cwd ./frontend/web build",
     "web:lint": "bun run --cwd ./frontend/web lint",
