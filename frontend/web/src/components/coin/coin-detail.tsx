@@ -27,7 +27,7 @@ const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
   const { fetchCoin, loaded, loading, error } = useFetchCoin()
   const { publicClient, walletClient } = useShieldedWallet()
-  const { contract } = usePumpContract()
+  const { contract: pumpContract } = usePumpContract()
   const { contract: dexContract } = useDexContract()
 
   const [coin, setCoin] = useState<Coin | null>(null)
@@ -84,7 +84,7 @@ const CoinDetail: React.FC = () => {
    */
 
   const viewEthIn = async () => {
-    if (!walletClient || !contract || !coin || loadingEthIn) return
+    if (!walletClient || !pumpContract || !coin || loadingEthIn) return
 
     setLoadingEthIn(true)
     try {
@@ -94,26 +94,28 @@ const CoinDetail: React.FC = () => {
       if (cachedWei) {
         setWeiIn(BigInt(cachedWei))
       } else {
-        const weisBought = (await contract.read.getWeiIn([coin.id])) as bigint
+        const weisBought = (await pumpContract.tread.getWeiIn([
+          coin.id,
+        ])) as bigint
         localStorage.setItem(localStorageKey, weisBought.toString())
         setWeiIn(weisBought)
       }
     } catch (err) {
       console.error('Error fetching ethIn:', err)
-      setWeiIn(null) // Changed from 5 to null
+      setWeiIn(null)
     } finally {
       setLoadingEthIn(false)
     }
   }
 
   const refreshWeiIn = async () => {
-    if (!walletClient || !contract || !coin || loadingEthIn) return
+    if (!walletClient || !pumpContract || !coin || loadingEthIn) return
 
     setLoadingEthIn(true)
     try {
       const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
-      const weisBought = (await contract.read.getWeiIn([coin.id])) as bigint
-
+      const weisBought = (await pumpContract.read.getWeiIn([coin.id])) as bigint
+      console.log(weisBought)
       localStorage.setItem(localStorageKey, weisBought.toString())
       setWeiIn(weisBought)
     } catch (err) {
@@ -126,7 +128,13 @@ const CoinDetail: React.FC = () => {
   const handleBuy = async () => {
     setBuyError(null)
 
-    if (!publicClient || !walletClient || !contract || !coin || !buyAmount) {
+    if (
+      !publicClient ||
+      !walletClient ||
+      !pumpContract ||
+      !coin ||
+      !buyAmount
+    ) {
       setBuyError('Required data is missing.')
       return
     }
@@ -143,15 +151,6 @@ const CoinDetail: React.FC = () => {
       return
     }
 
-    // if (coin.graduated) {
-    //   setModalMessage(
-    //     'This coin has graduated. Purchases are no longer allowed.'
-    //   )
-    //   setModalOpen(true)
-    //   return
-    // }
-
-    //if not gruadteed
     try {
       if (isBuying) {
         setBuyError('Already buying')
@@ -167,35 +166,33 @@ const CoinDetail: React.FC = () => {
       }
 
       setIsBuying(true)
-      const hash = await contract.write.buy([coin.id], {
-        gas: 1_000_000,
-        value: amountInWei,
-      })
-      //if it is graduated
-      console.log('dex addy', DEX_CONTRACT_ADDRESS)
-      console.log('WETH9Address', WETH_CONTRACT_ADDRESS)
-      console.log('coin addy', coin.contractAddress)
+      let txHash
 
-      const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 2000)
+      if (!coin.graduated) {
+        txHash = await pumpContract.twrite.buy([coin.id], {
+          gas: 1_000_000,
+          value: amountInWei,
+        })
+        console.log('✅ Transaction sent via pumpContract! Hash:', txHash)
+      } else {
+        if (!dexContract) {
+          setBuyError('DEX contract not initialized')
+          return
+        }
 
-      const routerWETHAddress = await dexContract.tread.WETH()
-      console.log('routerWETHAddress', routerWETHAddress)
+        //temporary deadline to be changed
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 20
 
-      const path = [WETH_CONTRACT_ADDRESS, coin.contractAddress]
-      //add slippage
-      const dexHash = await dexContract.twrite.swapExactETHForTokens(
-        [
-          0,
-          path,
-          walletClient.account.address, // recipient address
-          deadline,
-        ],
-        { gas: 1_000_000, value: amountInWei }
-      )
+        const path = [WETH_CONTRACT_ADDRESS, coin.contractAddress]
 
-      console.log(`✅ Transaction sent! Hash: ${hash}`)
-      console.log(`✅ Transaction sent! dexHash: ${dexHash}`)
+        txHash = await dexContract.write.swapExactETHForTokens(
+          [0, path, walletClient.account.address, deadline],
+          { gas: 1_000_000, value: amountInWei }
+        )
+        console.log('✅ Dex transaction sent! Hash:', txHash)
+      }
 
+      // Update local storage with the new total wei bought
       const newTotalWei = existingWeiBigInt + amountInWei
       localStorage.setItem(localStorageKey, newTotalWei.toString())
       setWeiIn(newTotalWei)
