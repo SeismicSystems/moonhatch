@@ -4,7 +4,11 @@ import CachedIcon from '@mui/icons-material/Cached'
 import { Box, CircularProgress, IconButton, Typography } from '@mui/material'
 
 interface BalanceDisplayProps {
-  coin: Coin
+  coin: {
+    // Ensure coin includes the 'graduated' property
+    graduated: boolean
+    name: string
+  }
   balance: string | null
   refreshBalance: () => void
   loading: boolean
@@ -33,7 +37,7 @@ const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
         gap: 2,
       }}
     >
-      {/* Header */}
+      {/* Header: If the coin is not graduated, display "ETH IN" */}
       <Typography
         sx={{
           fontSize: {
@@ -45,7 +49,7 @@ const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
           color: 'var(--creamWhite)',
         }}
       >
-        BALANCE
+        {coin.graduated ? 'BALANCE' : 'ETH INVESTED'}
       </Typography>
 
       <Box
