@@ -1,15 +1,13 @@
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_s3::{config::Region, Client as S3Client};
-use pump::{
-    client::PumpClient,
-    db::db_pool::{establish_pool, PgPool},
-};
 use std::sync::Arc;
+
+use pump::{client::PumpClient, db::pool};
 
 #[derive(Clone)]
 pub struct AppState {
     pub s3_client: Arc<S3Client>,
-    pub db_pool: PgPool,
+    pub db_pool: pool::PgPool,
     pub pump_client: Arc<PumpClient>,
 }
 
@@ -24,7 +22,7 @@ impl AppState {
         let pump_client = PumpClient::new();
 
         // Establish the database pool.
-        let db_pool = establish_pool();
+        let db_pool = pool::establish_pool();
         AppState { s3_client: shared_s3_client, db_pool, pump_client: Arc::new(pump_client) }
     }
 }

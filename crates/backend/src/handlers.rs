@@ -1,9 +1,3 @@
-use crate::AppState;
-use pump::db::{
-    db::{self, PoolPriceData},
-    models::Coin,
-};
-
 use aws_sdk_s3::primitives::ByteStream;
 use axum::{
     extract::{Multipart, Path, State},
@@ -13,9 +7,13 @@ use axum::{
 };
 use serde::Serialize;
 
+use pump::db::{models, store};
+
+use crate::AppState;
+
 #[derive(Serialize)]
 struct CoinResponse {
-    coin: Coin,
+    coin: models::Coin,
 }
 
 /// Handler for GET /coin/:id/snippet?length=50
@@ -30,7 +28,7 @@ pub(crate) async fn get_coin_handler(
         }
     };
 
-    match db::get_coin(&mut conn, coin_id) {
+    match store::get_coin(&mut conn, coin_id) {
         Ok(coin) => Json(CoinResponse { coin }).into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
     }
@@ -48,8 +46,8 @@ pub(crate) async fn get_pool_prices(
         }
     };
 
-    match db::get_pool_prices(&mut conn, pool, None, None, 100) {
-        Ok(prices) => Json::<Vec<PoolPriceData>>(prices).into_response(),
+    match store::get_pool_prices(&mut conn, pool, None, None, 100) {
+        Ok(prices) => Json::<Vec<models::PoolPriceData>>(prices).into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
     }
 }
@@ -71,7 +69,7 @@ pub(crate) async fn verify_coin_handler(
         Err(pe) => return pe.into_response(),
     };
     // Perform the update operation
-    match db::update_coin(&mut conn, coin_id, coin) {
+    match store::update_coin(&mut conn, coin_id, coin) {
         Ok(rows_affected) if rows_affected > 0 => {
             (StatusCode::OK, Json(format!("Coin {} verified successfully!", coin_id)))
                 .into_response()
@@ -92,7 +90,7 @@ pub(crate) async fn get_all_coins_handler(State(state): State<AppState>) -> impl
         }
     };
 
-    match db::get_all_coins(&mut conn) {
+    match store::get_all_coins(&mut conn) {
         Ok(coin_list) => Json(coin_list).into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error fetching coins: {}", e))
             .into_response(),
@@ -101,7 +99,7 @@ pub(crate) async fn get_all_coins_handler(State(state): State<AppState>) -> impl
 /// Handler for POST /coin/create
 pub(crate) async fn create_coin_handler(
     State(state): State<AppState>,
-    Json(payload): Json<db::NewCoin>,
+    Json(payload): Json<models::NewCoin>,
 ) -> impl IntoResponse {
     let mut conn = match state.db_pool.get() {
         Ok(conn) => conn,
@@ -110,7 +108,7 @@ pub(crate) async fn create_coin_handler(
         }
     };
 
-    match db::create_coin(&mut conn, payload) {
+    match store::create_coin(&mut conn, payload) {
         Ok(coin) => Json(CoinResponse { coin }).into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error: {}", e)).into_response(),
     }

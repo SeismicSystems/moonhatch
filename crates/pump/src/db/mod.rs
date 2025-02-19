@@ -1,4 +1,4 @@
-pub mod db;
-pub mod db_pool;
 pub mod models;
+pub mod pool;
 pub mod schema;
+pub mod store;

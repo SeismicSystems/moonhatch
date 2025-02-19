@@ -13,49 +13,12 @@ use crate::{
         },
     },
 };
-use bigdecimal::{BigDecimal, ToPrimitive};
+use bigdecimal::BigDecimal;
 use diesel::{prelude::*, result::QueryResult};
-use serde::{Deserialize, Serialize};
 
-#[derive(Insertable, Deserialize)]
-#[diesel(table_name = coins_schema)]
-pub struct NewCoin {
-    pub id: i64,
-    pub name: String,
-    pub symbol: String,
-    pub supply: BigDecimal,
-    pub decimals: i32,
-    #[serde(rename = "contractAddress")]
-    pub contract_address: String,
-    pub creator: String,
-    pub description: Option<String>,
-    #[serde(rename = "imageUrl")]
-    pub image_url: Option<String>,
-    pub twitter: Option<String>,
-    pub website: Option<String>,
-    pub telegram: Option<String>,
-}
+use crate::db::models::NewCoin;
 
-fn serialize_decimal_as_f64<S>(decimal: &BigDecimal, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    serializer.serialize_f64(decimal.to_f64().unwrap_or(0.0))
-}
-
-#[derive(Serialize, Queryable, Selectable)]
-#[diesel(table_name = pool_prices_schema)]
-pub struct PoolPriceData {
-    pub time: i64,
-    #[serde(serialize_with = "serialize_decimal_as_f64")]
-    pub open: BigDecimal,
-    #[serde(serialize_with = "serialize_decimal_as_f64")]
-    pub high: BigDecimal,
-    #[serde(serialize_with = "serialize_decimal_as_f64")]
-    pub low: BigDecimal,
-    #[serde(serialize_with = "serialize_decimal_as_f64")]
-    pub close: BigDecimal,
-}
+use super::models::PoolPriceData;
 
 pub fn create_coin(conn: &mut PgConnection, new_coin: NewCoin) -> QueryResult<Coin> {
     diesel::insert_into(coins_table).values(&new_coin).get_result(conn)
