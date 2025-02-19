@@ -1,56 +1,24 @@
 // src/db.rs
 
+use std::str::FromStr;
+
 use crate::{
-    models::{Coin, Pool},
-    schema::{
-        coins as coins_schema, coins::dsl::coins as coins_table, pool_prices as pool_prices_schema,
-        pool_prices::dsl::pool_prices as pool_prices_table, pools as pools_schema,
-        pools::dsl::pools as pools_table,
+    client::SolidityCoin,
+    db::{
+        models::{Coin, Pool},
+        schema::{
+            coins::{self as coins_schema, dsl::coins as coins_table},
+            pool_prices::{self as pool_prices_schema, dsl::pool_prices as pool_prices_table},
+            pools::{self as pools_schema, dsl::pools as pools_table},
+        },
     },
 };
-use bigdecimal::{BigDecimal, ToPrimitive};
+use bigdecimal::BigDecimal;
 use diesel::{prelude::*, result::QueryResult};
-use serde::{Deserialize, Serialize};
 
-#[derive(Insertable, Deserialize)]
-#[diesel(table_name = coins_schema)]
-pub struct NewCoin {
-    pub id: i64,
-    pub name: String,
-    pub symbol: String,
-    pub supply: BigDecimal,
-    pub decimals: i32,
-    #[serde(rename = "contractAddress")]
-    pub contract_address: String,
-    pub creator: String,
-    pub description: Option<String>,
-    #[serde(rename = "imageUrl")]
-    pub image_url: Option<String>,
-    pub twitter: Option<String>,
-    pub website: Option<String>,
-    pub telegram: Option<String>,
-}
+use crate::db::models::NewCoin;
 
-fn serialize_decimal_as_f64<S>(decimal: &BigDecimal, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    serializer.serialize_f64(decimal.to_f64().unwrap_or(0.0))
-}
-
-#[derive(Serialize, Queryable, Selectable)]
-#[diesel(table_name = pool_prices_schema)]
-pub struct PoolPriceData {
-    pub time: i64,
-    #[serde(serialize_with = "serialize_decimal_as_f64")]
-    pub open: BigDecimal,
-    #[serde(serialize_with = "serialize_decimal_as_f64")]
-    pub high: BigDecimal,
-    #[serde(serialize_with = "serialize_decimal_as_f64")]
-    pub low: BigDecimal,
-    #[serde(serialize_with = "serialize_decimal_as_f64")]
-    pub close: BigDecimal,
-}
+use super::models::PoolPriceData;
 
 pub fn create_coin(conn: &mut PgConnection, new_coin: NewCoin) -> QueryResult<Coin> {
     diesel::insert_into(coins_table).values(&new_coin).get_result(conn)
@@ -101,4 +69,22 @@ pub fn get_pool_prices(
         .order_by(pool_prices_schema::time.asc())
         .limit(limit as i64)
         .load::<PoolPriceData>(conn)
+}
+
+pub fn update_coin(
+    conn: &mut PgConnection,
+    coin_id: i64,
+    coin: SolidityCoin,
+) -> Result<usize, diesel::result::Error> {
+    diesel::update(coins_table.filter(coins_schema::id.eq(coin_id)))
+        .set((
+            coins_schema::verified.eq(true),
+            coins_schema::supply.eq(BigDecimal::from_str(&coin.supply.to_string()).unwrap()),
+            coins_schema::decimals.eq(coin.decimals as i32),
+            coins_schema::name.eq(coin.name),
+            coins_schema::symbol.eq(coin.symbol),
+            coins_schema::contract_address.eq(coin.contractAddress.to_string()),
+            coins_schema::creator.eq(coin.creator.to_string()),
+        ))
+        .execute(conn)
 }
