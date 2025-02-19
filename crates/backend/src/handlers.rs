@@ -1,8 +1,10 @@
-use crate::db;
-use crate::models::Coin;
-use crate::schema::coins as coins_schema;
-use crate::schema::coins::dsl::coins as coins_table;
-use crate::{db::create_coin, AppState};
+use crate::{
+    db,
+    db::create_coin,
+    models::Coin,
+    schema::{coins as coins_schema, coins::dsl::coins as coins_table},
+    AppState,
+};
 
 use aws_sdk_s3::primitives::ByteStream;
 use axum::{
@@ -29,11 +31,7 @@ pub(crate) async fn get_coin_handler(
     let mut conn = match state.db_pool.get() {
         Ok(conn) => conn,
         Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("DB error: {}", e),
-            )
-                .into_response()
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)).into_response()
         }
     };
 
@@ -51,11 +49,7 @@ pub(crate) async fn get_pool_prices(
     let mut conn = match state.db_pool.get() {
         Ok(conn) => conn,
         Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("DB error: {}", e),
-            )
-                .into_response()
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)).into_response()
         }
     };
 
@@ -72,11 +66,7 @@ pub(crate) async fn verify_coin_handler(
     let mut conn = match state.db_pool.get() {
         Ok(conn) => conn,
         Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("DB error: {}", e),
-            )
-                .into_response()
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)).into_response()
         }
     };
 
@@ -98,20 +88,14 @@ pub(crate) async fn verify_coin_handler(
         ))
         .execute(&mut conn)
     {
-        Ok(rows_affected) if rows_affected > 0 => (
-            StatusCode::OK,
-            Json(format!("Coin {} verified successfully!", coin_id)),
-        )
-            .into_response(),
-        Ok(_) => (
-            StatusCode::NOT_FOUND,
-            format!("Coin with id {} not found", coin_id),
-        )
-            .into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Error updating coin: {}", e),
-        )
+        Ok(rows_affected) if rows_affected > 0 => {
+            (StatusCode::OK, Json(format!("Coin {} verified successfully!", coin_id)))
+                .into_response()
+        }
+        Ok(_) => {
+            (StatusCode::NOT_FOUND, format!("Coin with id {} not found", coin_id)).into_response()
+        }
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error updating coin: {}", e))
             .into_response(),
     }
 }
@@ -120,20 +104,13 @@ pub(crate) async fn get_all_coins_handler(State(state): State<AppState>) -> impl
     let mut conn = match state.db_pool.get() {
         Ok(conn) => conn,
         Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("DB error: {}", e),
-            )
-                .into_response()
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)).into_response()
         }
     };
 
     match db::get_all_coins(&mut conn) {
         Ok(coin_list) => Json(coin_list).into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Error fetching coins: {}", e),
-        )
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Error fetching coins: {}", e))
             .into_response(),
     }
 }
@@ -145,11 +122,7 @@ pub(crate) async fn create_coin_handler(
     let mut conn = match state.db_pool.get() {
         Ok(conn) => conn,
         Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("DB error: {}", e),
-            )
-                .into_response()
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)).into_response()
         }
     };
 
@@ -193,10 +166,7 @@ pub(crate) async fn upload_file(
         Some(bytes) => bytes,
         None => {
             println!("bad request");
-            return (
-                StatusCode::BAD_REQUEST,
-                "No file found in upload".to_string(),
-            );
+            return (StatusCode::BAD_REQUEST, "No file found in upload".to_string());
         }
     };
 
@@ -224,10 +194,7 @@ pub(crate) async fn upload_file(
         }
         Err(e) => {
             eprintln!("Error uploading to S3: {:?}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Upload failed".to_string(),
-            )
+            (StatusCode::INTERNAL_SERVER_ERROR, "Upload failed".to_string())
         }
     }
 }

@@ -22,9 +22,7 @@ use pump::PumpRand::{CoinCreated, CoinGraduated, DeployedToDex};
 pub use coin::SolidityCoin;
 
 pub fn build_tx(to: Address, calldata: Vec<u8>) -> TransactionRequest {
-    TransactionRequest::default()
-        .with_to(to)
-        .input(TransactionInput::new(calldata.into()))
+    TransactionRequest::default().with_to(to).input(TransactionInput::new(calldata.into()))
 }
 
 struct ContractAddresses {
@@ -41,12 +39,7 @@ impl ContractAddresses {
         let dex = Address::from_str("0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0").unwrap();
         let factory = Address::from_str("0xe7f1725e7734ce288f8367e1bb143e90bb3f0512").unwrap();
         let weth = Address::from_str("0x5fbdb2315678afecb367f032d93f642f64180aa3").unwrap();
-        ContractAddresses {
-            pump,
-            dex,
-            factory,
-            weth,
-        }
+        ContractAddresses { pump, dex, factory, weth }
     }
 
     #[allow(dead_code)]
@@ -70,10 +63,7 @@ impl ContractAddresses {
         calldata: Vec<u8>,
     ) -> Result<Address, PumpError> {
         let tx = build_tx(to, calldata);
-        let address_bytes = provider
-            .call(&tx)
-            .await
-            .map_err(|_e| PumpError::WethNotFound)?;
+        let address_bytes = provider.call(&tx).await.map_err(|_e| PumpError::WethNotFound)?;
         let address = SolAddress::abi_decode(&address_bytes, true)
             .map_err(|_| PumpError::FailedToDecodeAbi)?;
         Ok(address)
@@ -116,19 +106,12 @@ impl PumpClient {
     pub fn new() -> PumpClient {
         let rpc_url = Url::from_str("http://127.0.0.1:8545").expect("invalid RPC_URL");
         let provider = create_seismic_provider_without_wallet(rpc_url);
-        PumpClient {
-            provider,
-            contracts: ContractAddresses::new(),
-        }
+        PumpClient { provider, contracts: ContractAddresses::new() }
     }
 
     pub async fn get_coin(&self, coin_id: u32) -> Result<SolidityCoin, PumpError> {
         let tx = build_tx(self.contracts.pump, get_coin_calldata(coin_id));
-        let bytes = self
-            .provider
-            .call(&tx)
-            .await
-            .map_err(|_| PumpError::CoinNotFound)?;
+        let bytes = self.provider.call(&tx).await.map_err(|_| PumpError::CoinNotFound)?;
         let coin =
             SolidityCoin::abi_decode(&bytes, true).map_err(|_| PumpError::FailedToDecodeAbi)?;
         Ok(coin)
@@ -142,20 +125,14 @@ impl PumpClient {
     }
 
     pub fn created_filter(&self) -> Filter {
-        Filter::new()
-            .address(self.contracts.pump)
-            .event_signature(CoinGraduated::SIGNATURE_HASH)
+        Filter::new().address(self.contracts.pump).event_signature(CoinGraduated::SIGNATURE_HASH)
     }
 
     pub fn graduated_filter(&self) -> Filter {
-        Filter::new()
-            .address(self.contracts.pump)
-            .event_signature(CoinCreated::SIGNATURE_HASH)
+        Filter::new().address(self.contracts.pump).event_signature(CoinCreated::SIGNATURE_HASH)
     }
 
     pub fn deployed_filter(&self) -> Filter {
-        Filter::new()
-            .address(self.contracts.pump)
-            .event_signature(DeployedToDex::SIGNATURE_HASH)
+        Filter::new().address(self.contracts.pump).event_signature(DeployedToDex::SIGNATURE_HASH)
     }
 }

@@ -1,16 +1,15 @@
 // src/db.rs
 
-use crate::models::{Coin, Pool};
-use crate::schema::coins::dsl::coins as coins_table;
-use crate::schema::pool_prices::dsl::pool_prices as pool_prices_table;
-use crate::schema::pools::dsl::pools as pools_table;
-use crate::schema::{
-    coins as coins_schema, pool_prices as pool_prices_schema, pools as pools_schema,
+use crate::{
+    models::{Coin, Pool},
+    schema::{
+        coins as coins_schema, coins::dsl::coins as coins_table, pool_prices as pool_prices_schema,
+        pool_prices::dsl::pool_prices as pool_prices_table, pools as pools_schema,
+        pools::dsl::pools as pools_table,
+    },
 };
-use bigdecimal::BigDecimal;
-use bigdecimal::ToPrimitive;
-use diesel::prelude::*;
-use diesel::result::QueryResult;
+use bigdecimal::{BigDecimal, ToPrimitive};
+use diesel::{prelude::*, result::QueryResult};
 use serde::{Deserialize, Serialize};
 
 #[derive(Insertable, Deserialize)]
@@ -54,24 +53,18 @@ pub struct PoolPriceData {
 }
 
 pub fn create_coin(conn: &mut PgConnection, new_coin: NewCoin) -> QueryResult<Coin> {
-    diesel::insert_into(coins_table)
-        .values(&new_coin)
-        .get_result(conn)
+    diesel::insert_into(coins_table).values(&new_coin).get_result(conn)
 }
 
 pub fn get_coin(conn: &mut PgConnection, coin_id: i64) -> QueryResult<Coin> {
     // Fetch the coin record.
-    let coin_record: Coin = coins_table
-        .filter(coins_schema::id.eq(coin_id))
-        .first(conn)?;
+    let coin_record: Coin = coins_table.filter(coins_schema::id.eq(coin_id)).first(conn)?;
 
     Ok(coin_record)
 }
 
 pub fn get_all_coins(conn: &mut PgConnection) -> QueryResult<Vec<Coin>> {
-    coins_table
-        .order(coins_schema::created_at.desc())
-        .load::<Coin>(conn)
+    coins_table.order(coins_schema::created_at.desc()).load::<Coin>(conn)
 }
 
 pub fn get_pool_prices(
@@ -82,14 +75,10 @@ pub fn get_pool_prices(
     limit: usize,
 ) -> QueryResult<Vec<PoolPriceData>> {
     // first make sure the pool exists
-    let _pool = pools_table
-        .filter(pools_schema::address.eq(&pool))
-        .first::<Pool>(conn)?;
+    let _pool = pools_table.filter(pools_schema::address.eq(&pool)).first::<Pool>(conn)?;
 
     // Start with base query and pool filter
-    let mut query = pool_prices_table
-        .filter(pool_prices_schema::pool.eq(&pool))
-        .into_boxed();
+    let mut query = pool_prices_table.filter(pool_prices_schema::pool.eq(&pool)).into_boxed();
 
     // Add timestamp filters if provided
     if let Some(max_timestamp) = max_ts {

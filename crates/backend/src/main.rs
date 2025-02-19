@@ -37,11 +37,7 @@ impl AppState {
 
         // Establish the database pool.
         let db_pool = establish_pool();
-        AppState {
-            s3_client: shared_s3_client,
-            db_pool,
-            pump_client: Arc::new(pump_client),
-        }
+        AppState { s3_client: shared_s3_client, db_pool, pump_client: Arc::new(pump_client) }
     }
 }
 
@@ -78,8 +74,5 @@ async fn main() {
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     println!("Listening on http://{}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    axum::Server::bind(&addr).serve(app.into_make_service()).await.unwrap();
 }
