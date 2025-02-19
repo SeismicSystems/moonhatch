@@ -85,7 +85,9 @@ const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
             <CircularProgress size={24} sx={{ color: 'var(--darkBlue)' }} />
           ) : revealed ? (
             <span style={{ color: 'var(--green)', fontWeight: 'bold' }}>
-              {balance ? `${balance} ${coin.name}` : 'No balance available'}
+              {balance
+                ? `${balance} ${coin.name.toUpperCase()}`
+                : 'No balance available'}
             </span>
           ) : (
             <span style={{ color: '#ccc' }}>CLICK TO SEE BALANCE</span>
