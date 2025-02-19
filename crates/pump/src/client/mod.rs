@@ -10,7 +10,7 @@ use alloy_provider::{
     SeismicPublicClient,
 };
 use alloy_rpc_types_eth::{Filter, TransactionInput, TransactionRequest};
-use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolEvent, SolType};
+use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
 use axum::{http::StatusCode, response::IntoResponse};
 use reqwest::Url;
 use std::str::FromStr;
