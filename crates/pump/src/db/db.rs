@@ -1,11 +1,16 @@
 // src/db.rs
 
-use crate::db::{
-    models::{Coin, Pool},
-    schema::{
-        coins as coins_schema, coins::dsl::coins as coins_table, pool_prices as pool_prices_schema,
-        pool_prices::dsl::pool_prices as pool_prices_table, pools as pools_schema,
-        pools::dsl::pools as pools_table,
+use std::str::FromStr;
+
+use crate::{
+    client::SolidityCoin,
+    db::{
+        models::{Coin, Pool},
+        schema::{
+            coins::{self as coins_schema, dsl::coins as coins_table},
+            pool_prices::{self as pool_prices_schema, dsl::pool_prices as pool_prices_table},
+            pools::{self as pools_schema, dsl::pools as pools_table},
+        },
     },
 };
 use bigdecimal::{BigDecimal, ToPrimitive};
@@ -101,4 +106,22 @@ pub fn get_pool_prices(
         .order_by(pool_prices_schema::time.asc())
         .limit(limit as i64)
         .load::<PoolPriceData>(conn)
+}
+
+pub fn update_coin(
+    conn: &mut PgConnection,
+    coin_id: i64,
+    coin: SolidityCoin,
+) -> Result<usize, diesel::result::Error> {
+    diesel::update(coins_table.filter(coins_schema::id.eq(coin_id)))
+        .set((
+            coins_schema::verified.eq(true),
+            coins_schema::supply.eq(BigDecimal::from_str(&coin.supply.to_string()).unwrap()),
+            coins_schema::decimals.eq(coin.decimals as i32),
+            coins_schema::name.eq(coin.name),
+            coins_schema::symbol.eq(coin.symbol),
+            coins_schema::contract_address.eq(coin.contractAddress.to_string()),
+            coins_schema::creator.eq(coin.creator.to_string()),
+        ))
+        .execute(conn)
 }

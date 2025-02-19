@@ -34,7 +34,7 @@ async fn main() {
         .route("/verify", post(handlers::verify_coin_handler));
 
     let coins_routes = Router::new()
-        .route("/", get(handlers::get_all_coins_handler)) // GET /coins    
+        .route("/", get(handlers::get_all_coins_handler)) // GET /coins
         .route("/create", post(handlers::create_coin_handler)); // POST /coins/create
 
     let pool_routes = Router::new().route("/prices", get(handlers::get_pool_prices));

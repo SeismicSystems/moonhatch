@@ -15,6 +15,16 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 dotenv = "0.15"
 
+alloy-provider = { version = "=0.8.0", features = [
+    "reqwest",
+    "ws",
+    "ipc",
+    "trace-api",
+] }
+alloy-rpc-types-eth = { version = "=0.8.0" }
+alloy-primitives = { version = "0.8" }
+alloy-sol-types = { version = "0.8" }
+
 [patch.crates-io]
 # seismic-alloy-core
 alloy-dyn-abi = { git = "https://github.com/SeismicSystems/seismic-alloy-core.git", rev = "77693d2" }

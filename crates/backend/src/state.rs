@@ -1,7 +1,9 @@
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_s3::{config::Region, Client as S3Client};
-use pump::db::db_pool::{establish_pool, PgPool};
-use pump::client::PumpClient;
+use pump::{
+    client::PumpClient,
+    db::db_pool::{establish_pool, PgPool},
+};
 use std::sync::Arc;
 
 #[derive(Clone)]

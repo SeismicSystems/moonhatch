@@ -1,9 +1,8 @@
+use crate::AppState;
 use pump::db::{
     db::{self, PoolPriceData},
     models::Coin,
-    schema::coins::{self as coins_schema, dsl::coins as coins_table},
 };
-use crate::AppState;
 
 use aws_sdk_s3::primitives::ByteStream;
 use axum::{
@@ -12,10 +11,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use bigdecimal::BigDecimal;
-use diesel::prelude::*;
 use serde::Serialize;
-use std::str::FromStr;
 
 #[derive(Serialize)]
 struct CoinResponse {
@@ -75,18 +71,7 @@ pub(crate) async fn verify_coin_handler(
         Err(pe) => return pe.into_response(),
     };
     // Perform the update operation
-    match diesel::update(coins_table.filter(coins_schema::id.eq(coin_id)))
-        .set((
-            coins_schema::verified.eq(true),
-            coins_schema::supply.eq(BigDecimal::from_str(&coin.supply.to_string()).unwrap()),
-            coins_schema::decimals.eq(coin.decimals as i32),
-            coins_schema::name.eq(coin.name),
-            coins_schema::symbol.eq(coin.symbol),
-            coins_schema::contract_address.eq(coin.contractAddress.to_string()),
-            coins_schema::creator.eq(coin.creator.to_string()),
-        ))
-        .execute(&mut conn)
-    {
+    match db::update_coin(&mut conn, coin_id, coin) {
         Ok(rows_affected) if rows_affected > 0 => {
             (StatusCode::OK, Json(format!("Coin {} verified successfully!", coin_id)))
                 .into_response()
