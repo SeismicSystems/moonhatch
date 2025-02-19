@@ -1,12 +1,15 @@
 [package]
-name = "pump"
+name = "server"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# web
-axum.workspace = true
+pump = { path = "../pump" }
+
+# webserver
+axum = { workspace = true, features = ["multipart"] }
 tokio.workspace = true
+tower-http = { version = "0.4.4", features = ["cors"] }
 
 # db
 diesel.workspace = true
@@ -14,9 +17,14 @@ r2d2.workspace = true
 bigdecimal.workspace = true
 chrono.workspace = true
 
+dotenv.workspace = true
 reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+
+# AWS
+aws-config = "0.55.3"
+aws-sdk-s3 = "0.27.0"
 
 # web3
 alloy-provider.workspace = true
