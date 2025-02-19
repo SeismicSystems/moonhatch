@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 
 import { Coin } from '@/types/coin'
 import CoinCard from '@components/coin/coin-card'

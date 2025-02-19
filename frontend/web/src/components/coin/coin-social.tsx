@@ -23,7 +23,7 @@ const CoinSocials: React.FC<CoinSocialsProps> = ({ coin, isCardPage }) => {
   const iconSize = isCardPage ? cardPageIconSize : detailIconSize
   const marginTop = isCardPage
     ? { xs: 2, sm: 2, md: 2, lg: 2 }
-    : { xs: 8, sm: 8, md: 6, lg: 6, xl: 8 }
+    : { xs: 8, sm: 8, md: -10, lg: -10, xl: -10 }
   const marginBottom = isCardPage ? 2 : 4
   const flexDirection = isCardPage ? 'column' : 'row'
   const iconGap = isCardPage ? { xs: 2, sm: 2, lg: 2 } : 8

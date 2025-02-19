@@ -7,9 +7,12 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 import { Box, Modal } from '@mui/material'
 
 import { Coin } from '../../types/coin'
+import BalanceDisplay from '../trade/balance-section'
+import TransactionGraduated from '../trade/transaction-graduated'
+import TransactionNonGraduated from '../trade/transaction-nongraduated'
 
 interface TradeSectionProps {
-  coin: Pick<Coin, 'id' | 'graduated'>
+  coin: Coin
   weiIn: bigint | null
   loadingEthIn: boolean
   viewEthIn: () => void
@@ -72,7 +75,7 @@ export default function TradeSection({
     }
   }
 
-  // Swipe configuration using react-swipeable
+  // Overall swipe for the component (you can still have this if you wish)
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => {
       if (coin.graduated) {
@@ -83,6 +86,20 @@ export default function TradeSection({
     onSwipedRight: () => {
       setTradeType('buy')
       setBuyAmount('')
+    },
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true,
+  })
+
+  // Dedicated swipe handlers for the toggle group
+  const toggleSwipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (coin.graduated) {
+        handleTrade('sell')
+      }
+    },
+    onSwipedRight: () => {
+      handleTrade('buy')
     },
     preventDefaultTouchmoveEvent: true,
     trackMouse: true,
@@ -105,100 +122,44 @@ export default function TradeSection({
       >
         <div className="w-full flex flex-col items-center text-center gap-2">
           {/* Balance Display & Refresh Section */}
-          <div className="text-[var(--creamWhite)]">BALANCE</div>
-          <div className="flex items-center gap-2">
-            <button
-              className="w-full text-[var(--creamWhite)]"
-              onClick={handleViewBalance}
-            >
-              ({weiIn ? formatEther(weiIn) : 0})
-            </button>
-            <button
-              className="bg-[var(--midBlue)] text-[var(--creamWhite)] py-2 px-4 rounded flex items-center"
-              onClick={refreshWeiIn}
-            >
-              <CachedIcon />
-            </button>
-          </div>
-          {loadingEthIn && (
-            <div className="text-gray-500 text-sm">Waiting...</div>
-          )}
-          {isBalanceVisible && !loadingEthIn && (
-            <div className="text-green-600 font-bold">
-              {weiIn !== null ? formatEther(weiIn) : 'No balance available'}
-            </div>
-          )}
-
-          {/* Trade Mode Toggle */}
-          {!tradeType && (
-            <div className="flex justify-center gap-4 w-full mb-4">
-              <button
-                className={`w-full px-4 py-2 rounded ${
-                  tradeType === 'buy'
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-700 text-gray-300'
-                }`}
-                onClick={() => handleTrade('buy')}
-              >
-                BUY
-              </button>
-              {coin.graduated && (
-                <button
-                  className={`w-full px-4 py-2 rounded ${
-                    tradeType === 'sell'
-                      ? 'bg-red-500 text-white'
-                      : 'bg-gray-700 text-gray-300'
-                  }`}
-                  onClick={() => handleTrade('sell')}
-                >
-                  SELL
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Input and estimated value */}
-          {tradeType === 'buy' && (
-            <>
-              <input
-                type="text"
-                value={buyAmount}
-                onChange={(e) => setBuyAmount(e.target.value)}
-                placeholder="Enter ETH amount"
-                className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
-              />
-              <div className="text-[var(--creamWhite)]">
-                You will receive: {estimatedBuy} Coin X
-              </div>
-              {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
-              <button
-                className="w-full px-4 py-2 rounded bg-green-500 text-white"
-                onClick={() => handleBuy(buyAmount, 'buy')}
-              >
-                {`CONFIRM BUY FOR ${estimatedBuy} COIN X`}
-              </button>
-            </>
-          )}
-          {tradeType === 'sell' && (
-            <>
-              <input
-                type="text"
-                value={sellAmount}
-                onChange={(e) => setSellAmount(e.target.value)}
-                placeholder="Enter coin amount"
-                className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
-              />
-              <div className="text-[var(--creamWhite)]">
-                You will get back: {estimatedSell} ETH
-              </div>
-              {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
-              <button
-                className="w-full px-4 py-2 rounded bg-red-500 text-white"
-                onClick={() => handleBuy(sellAmount, 'sell')}
-              >
-                {`CONFIRM SELL FOR ${estimatedSell} ETH`}
-              </button>
-            </>
+          <BalanceDisplay
+            coin={coin}
+            balance={weiIn ? formatEther(weiIn) : null}
+            refreshBalance={refreshWeiIn}
+            loading={loadingEthIn}
+            onReveal={viewEthIn} // optional: call viewEthIn when the balance is revealed
+          />
+          {/* Stylized Trade Mode Toggle with Swipe */}
+          {coin && coin.graduated ? (
+            <TransactionGraduated
+              coin={coin}
+              weiIn={weiIn}
+              loadingEthIn={loadingEthIn}
+              viewEthIn={viewEthIn}
+              refreshWeiIn={refreshWeiIn}
+              buyAmount={buyAmount}
+              setBuyAmount={setBuyAmount}
+              buyError={buyError}
+              handleBuy={handleBuy}
+              modalOpen={modalOpen}
+              modalMessage={modalMessage}
+              setModalOpen={setModalOpen}
+            />
+          ) : (
+            <TransactionNonGraduated
+              coin={coin}
+              weiIn={weiIn}
+              loadingEthIn={loadingEthIn}
+              viewEthIn={viewEthIn}
+              refreshWeiIn={refreshWeiIn}
+              buyAmount={buyAmount}
+              setBuyAmount={setBuyAmount}
+              buyError={buyError}
+              handleBuy={handleBuy}
+              modalOpen={modalOpen}
+              modalMessage={modalMessage}
+              setModalOpen={setModalOpen}
+            />
           )}
         </div>
       </Box>
