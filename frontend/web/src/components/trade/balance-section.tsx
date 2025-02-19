@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 import CachedIcon from '@mui/icons-material/Cached'
-import { Box, CircularProgress, IconButton } from '@mui/material'
+import { Box, CircularProgress, IconButton, Typography } from '@mui/material'
 
 interface BalanceDisplayProps {
   coin: Coin
@@ -34,9 +34,19 @@ const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
       }}
     >
       {/* Header */}
-      <div style={{ fontSize: '1.25rem', color: 'var(--creamWhite)' }}>
+      <Typography
+        sx={{
+          fontSize: {
+            xs: '1rem',
+            sm: '1.5rem',
+            md: '1.2rem',
+            lg: '1.5rem',
+          },
+          color: 'var(--creamWhite)',
+        }}
+      >
         BALANCE
-      </div>
+      </Typography>
 
       <Box
         sx={{
@@ -84,11 +94,22 @@ const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
           {loading ? (
             <CircularProgress size={24} sx={{ color: 'var(--darkBlue)' }} />
           ) : revealed ? (
-            <span style={{ color: 'var(--green)', fontWeight: 'bold' }}>
+            <Typography
+              sx={{
+                color: 'var(--green)',
+                fontWeight: 'bold',
+                fontSize: {
+                  xs: '.8rem',
+                  sm: '.8rem',
+                  md: '1rem',
+                  lg: '1.2rem',
+                },
+              }}
+            >
               {balance
                 ? `${balance} ${coin.name.toUpperCase()}`
-                : 'No balance available'}
-            </span>
+                : 'NO BALANCE AVAILABLE'}
+            </Typography>
           ) : (
             <span style={{ color: '#ccc' }}>CLICK TO SEE BALANCE</span>
           )}

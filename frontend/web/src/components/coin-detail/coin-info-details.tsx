@@ -70,11 +70,11 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
             flexDirection: 'column',
             textAlign: 'left',
             '& .coin-name': {
-              fontSize: { xs: '24px', sm: '34px', md: '24px', lg: '24px' },
+              fontSize: { xs: '24px', sm: '34px', md: '24px', lg: '30px' },
               color: 'var(--creamWhite)',
             },
             '& .coin-symbol': {
-              fontSize: { xs: '14px', sm: '28px', md: '24px', lg: '24px' },
+              fontSize: { xs: '14px', sm: '28px', md: '18px', lg: '20px' },
               color: 'lightgreen',
             },
             '& .coin-author, & .coin-age': {
@@ -147,7 +147,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           <div className="flex text-xs xl:text-lg text-orange-300">
             DESCRIPTION:{' '}
           </div>
-          " {coin.description || 'creator did not provide description'}"
+          "{coin.description || 'creator did not provide description'}"
         </div>
       </Box>
     </>

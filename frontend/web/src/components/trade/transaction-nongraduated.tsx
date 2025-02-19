@@ -57,7 +57,7 @@ export default function TransactionNonGraduated({
           value={buyAmount}
           className="h-[40px] lg:h-[80px]"
           onChange={(e) => setBuyAmount(e.target.value)}
-          placeholder="Enter ETH amount"
+          placeholder="ENTER ETH AMOUNT"
           style={{
             width: '85%',
             padding: '8px',
