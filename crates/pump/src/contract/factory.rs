@@ -9,9 +9,5 @@ sol! {
 }
 
 pub fn get_pair_calldata(token_a: Address, token_b: Address) -> Vec<u8> {
-    getPairCall {
-        _0: token_a,
-        _1: token_b,
-    }
-    .abi_encode()
+    getPairCall { _0: token_a, _1: token_b }.abi_encode()
 }

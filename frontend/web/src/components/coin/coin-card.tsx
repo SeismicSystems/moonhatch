@@ -207,7 +207,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                     variant="body2"
                     sx={{
                       fontSize: { xs: '0.875rem', md: '1rem' },
-                      color: 'var(--midBlue)',
+                      color: 'lightgreen',
                     }}
                   >
                     {scrambledSymbol}

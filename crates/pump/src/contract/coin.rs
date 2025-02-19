@@ -2,7 +2,7 @@ use alloy_primitives::Address;
 use alloy_rpc_types_eth::TransactionRequest;
 use alloy_sol_types::{sol, SolCall};
 
-use super::build_tx;
+use crate::client::build_tx;
 
 sol! {
     #[derive(Debug)]

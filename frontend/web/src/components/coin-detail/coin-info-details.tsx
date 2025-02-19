@@ -40,20 +40,21 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           justifyContent: 'center',
 
           '& .left-column': {
-            width: { xs: '350px', sm: '450px', md: '450px', lg: '450px' },
+            width: { xs: '270px', sm: '450px', md: '450px', lg: '450px' },
             display: 'flex',
             paddingBottom: 2,
             alignItems: 'center',
             justifyContent: 'start',
-            gap: 4,
+            gap: 2,
             borderRadius: '16px',
             backgroundColor: 'var(--darkBlue)',
           },
           '& .img-container': {},
           '& img': {
-            width: '9rem',
-            height: '9rem',
-            aspectRatio: '1/1',
+            width: { xs: '100px', sm: '200px', md: '200px', lg: '200px' },
+            height: { xs: '100px', sm: '200px', md: '200px', lg: '200px' },
+            flexShrink: 0,
+            marginRight: { xs: 0, sm: 2, md: 2, lg: 2 },
             borderRadius: '8px',
             objectFit: 'cover',
           },
@@ -61,25 +62,26 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
             width: {
               xs: '100px',
               sm: '250px',
-              md: '180px',
-              lg: '250px',
+              md: '300px',
+              lg: '350px',
             },
+            flex: 1,
             display: 'flex',
             flexDirection: 'column',
             textAlign: 'left',
             '& .coin-name': {
-              fontSize: { xs: '18px', sm: '18px', md: '24px', lg: '24px' },
+              fontSize: { xs: '24px', sm: '34px', md: '24px', lg: '30px' },
               color: 'var(--creamWhite)',
             },
             '& .coin-symbol': {
-              fontSize: '16px',
-              color: 'var(--creamWhite)',
+              fontSize: { xs: '14px', sm: '28px', md: '18px', lg: '20px' },
+              color: 'lightgreen',
             },
             '& .coin-author, & .coin-age': {
               color: 'var(--lightBlue)',
               fontSize: {
                 xs: '0.75rem',
-                sm: '0.75rem',
+                sm: '1rem',
                 md: '1rem',
                 lg: '1rem',
               },
@@ -102,12 +104,6 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                fontSize: {
-                  xs: '1.2rem',
-                  sm: '1.2rem',
-                  md: '1.5rem',
-                  lg: '1.6rem',
-                },
 
                 color: 'var(--creamWhite)',
               }}
@@ -119,12 +115,6 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
               variant="h4"
               component="h4"
               sx={{
-                fontSize: {
-                  xs: '1.2rem',
-                  sm: '1.2rem',
-                  md: '1.5rem',
-                  lg: '1.6rem',
-                },
                 textOverflow: 'ellipsis',
 
                 color: 'var(--creamWhite)',
@@ -133,10 +123,10 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
               <div className="coin-symbol">$:{coin.symbol.toUpperCase()}</div>
             </Typography>
             <div className="coin-author">
-              AUTHOR: {coin.creator?.toString().slice(0, 4)}...
+              AUTHOR::{coin.creator?.toString().slice(0, 4)}...
               {coin.creator?.toString().slice(-4) || 'N/A'}
             </div>
-            <div className="coin-age">AGE:::{relativeTime}</div>
+            <div className="coin-age">AGE::{relativeTime}</div>
           </div>
         </div>
       </Box>
@@ -153,9 +143,13 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           },
         }}
       >
-        <div className="coin-desc flex flex-col items-center justify-center">
-          <div className="flex text-xs text-orange-300">DESCRIPTION: </div>"{' '}
-          {coin.description || 'creator did not provide description'}"
+        <div className="coin-desc  mt-2 flex flex-col items-center justify-center">
+          <div className="flex text-xs xl:text-lg text-orange-300">
+            DESCRIPTION:{' '}
+          </div>
+          <div className="lg:text-lg">
+            "{coin.description || 'creator did not provide description'}"
+          </div>
         </div>
       </Box>
     </>

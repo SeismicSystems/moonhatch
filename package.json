@@ -3,6 +3,16 @@
     "frontend/**"
   ],
   "scripts": {
+    "rust:fmt": "cargo +nightly fmt --all",
+    "rust:fmt:check": "cargo +nightly fmt --all --check",
+    "db:shell": "source .env && psql -d $DATABASE_URL",
+    "db:migrate": "bun run --cwd ./crates/pump diesel migration run",
+    "db:revert": "bun run --cwd ./crates/pump diesel migration revert",
+    "db:reset": "bun run --cwd ./crates/pump diesel migration revert --all",
+    "server:dev": "cargo run --bin server",
+    "listener:dev": "cargo run --bin listener",
+    "anvil:new": "rimraf ~/.anvil/state.json && mkdir -p ~/.anvil && sanvil --state ~/.anvil",
+    "anvil:state": "mkdir -p ~/.anvil && sanvil --state ~/.anvil",
     "web:dev": "bun run --cwd ./frontend/web dev",
     "web:build": "bun run --cwd ./frontend/web build",
     "web:lint": "bun run --cwd ./frontend/web lint",
@@ -12,7 +22,7 @@
     "contract:dev": "bun contract:build && bun contract:iabis && bun contract:abis",
     "contract:build": "bun run --cwd ./contracts sforge build",
     "contract:abis": "CONTRACT=PumpRand bun contract:abi && CONTRACT=WETH9 bun contract:abi && CONTRACT=UniswapV2Factory bun contract:abi && CONTRACT=UniswapV2Router02 bun contract:abi",
-    "contract:iabis": "CONTRACT=ISRC20 bun contract:iabi && CONTRACT=UniswapV2ERC20 bun contract:iabi && CONTRACT=IPumpCoin bun contract:iabi",
+    "contract:iabis": "CONTRACT=ISRC20 bun contract:iabi && CONTRACT=UniswapV2ERC20 bun contract:iabi && CONTRACT=UniswapV2Pair bun contract:iabi && CONTRACT=IPumpCoin bun contract:iabi",
     "contract:abi": "mkdir -p ./frontend/web/public/chains/$VITE_CHAIN_ID/contracts && jq '{methodIdentifiers: .methodIdentifiers, abi: .abi}' ./contracts/out/$CONTRACT.sol/$CONTRACT.json > ./frontend/web/public/chains/$VITE_CHAIN_ID/contracts/$CONTRACT.json",
     "contract:iabi": "mkdir -p ./frontend/web/public/chains/$VITE_CHAIN_ID/interfaces && jq '{methodIdentifiers: .methodIdentifiers, abi: .abi}' ./contracts/out/$CONTRACT.sol/$CONTRACT.json > ./frontend/web/public/chains/$VITE_CHAIN_ID/interfaces/$CONTRACT.json",
     "contract:addresses": "bun contract:address:pump && bun contract:address:weth && bun contract:address:factory && bun contract:address:router",
@@ -29,6 +39,7 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "dependencies": {
-    "react-swipeable": "^7.0.2"
+    "react-swipeable": "^7.0.2",
+    "react-swipeable-views": "^0.14.0"
   }
 }

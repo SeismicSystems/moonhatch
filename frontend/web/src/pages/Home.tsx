@@ -27,6 +27,11 @@ const Home: React.FC = () => {
         <NavBar />
         <HomeHeader />
         <Coins coins={coins} />
+        {!loaded && (
+          <div className="h-96 flex items-center justify-center">
+            <div className="w-96 h-96 border-4 border-pink-200 rounded-full border-t-transparent animate-spin" />
+          </div>
+        )}
       </div>
     </>
   )
