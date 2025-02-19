@@ -147,7 +147,9 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           <div className="flex text-xs xl:text-lg text-orange-300">
             DESCRIPTION:{' '}
           </div>
-          "{coin.description || 'creator did not provide description'}"
+          <div className="lg:text-lg">
+            "{coin.description || 'creator did not provide description'}"
+          </div>
         </div>
       </Box>
     </>
