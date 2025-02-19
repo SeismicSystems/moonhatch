@@ -23,12 +23,11 @@ fn weight_for(amt: &BigDecimal) -> BigDecimal {
 /// Compute the weighted average of a slice of (price, weight) tuples.
 /// Returns None if the total weight is zero.
 fn weighted_average(price_weight_pairs: &[(BigDecimal, BigDecimal)]) -> Option<BigDecimal> {
-    let (total_weight, weighted_sum) = price_weight_pairs.iter().fold(
-        (BigDecimal::zero(), BigDecimal::zero()),
-        |(w_total, w_sum), (price, weight)| {
+    let (total_weight, weighted_sum) = price_weight_pairs
+        .iter()
+        .fold((BigDecimal::zero(), BigDecimal::zero()), |(w_total, w_sum), (price, weight)| {
             (w_total + weight, w_sum + price * weight)
-        },
-    );
+        });
     if total_weight == BigDecimal::zero() {
         None
     } else {
@@ -39,7 +38,8 @@ fn weighted_average(price_weight_pairs: &[(BigDecimal, BigDecimal)]) -> Option<B
 /// Compute an effective price from the swap event values.
 /// For leg A (token0 in, token1 out) the price is amt1Out / amt0In,
 /// and for leg B (token1 in, token0 out) we convert to token1 per token0 as amt1In / amt0Out.
-/// We then combine any legs that are present using a volume-weighted average (weighted by token0 volume).
+/// We then combine any legs that are present using a volume-weighted average (weighted by token0
+/// volume).
 pub(crate) fn effective_price(
     amt0_in: &BigDecimal,
     amt0_out: &BigDecimal,

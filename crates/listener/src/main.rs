@@ -2,7 +2,11 @@ mod handler;
 
 use futures_util::{select, stream::StreamExt};
 use handler::LogHandler;
-use pump::{client::{block::Block, PumpClient}, db::pool::establish_pool, error::PumpError};
+use pump::{
+    client::{block::Block, PumpClient},
+    db::pool::establish_pool,
+    error::PumpError,
+};
 
 #[tokio::main]
 async fn main() -> Result<(), PumpError> {

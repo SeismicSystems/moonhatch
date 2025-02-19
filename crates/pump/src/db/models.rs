@@ -58,7 +58,11 @@ pub struct NewPoolPrice {
 }
 
 impl NewPoolPrice {
-    pub fn try_new(lp_token: &Address, block: Block, prices: &Vec<BigDecimal>) -> Result<NewPoolPrice, PumpError> {
+    pub fn try_new(
+        lp_token: &Address,
+        block: Block,
+        prices: &Vec<BigDecimal>,
+    ) -> Result<NewPoolPrice, PumpError> {
         if prices.is_empty() {
             return Err(PumpError::no_prices(block.number, lp_token.clone()));
         }

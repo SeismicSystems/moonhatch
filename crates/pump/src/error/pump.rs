@@ -91,7 +91,7 @@ impl Into<StatusCode> for PumpError {
                 _ => StatusCode::NOT_FOUND,
             },
             PumpError::Listener(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            PumpError::TransportError(_) => StatusCode::INTERNAL_SERVER_ERROR
+            PumpError::TransportError(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }

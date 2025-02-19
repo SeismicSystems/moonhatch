@@ -1,5 +1,5 @@
-mod contract_address;
 pub mod block;
+mod contract_address;
 pub mod pool;
 pub(crate) mod price;
 
@@ -17,7 +17,12 @@ use reqwest::Url;
 use std::str::FromStr;
 
 use crate::{
-    contract::{coin::get_coin_calldata, factory::get_pair_calldata, pair::{get_token0_calldata, get_token1_calldata}, SolidityCoin},
+    contract::{
+        coin::get_coin_calldata,
+        factory::get_pair_calldata,
+        pair::{get_token0_calldata, get_token1_calldata},
+        SolidityCoin,
+    },
     error::PumpError,
 };
 
@@ -57,9 +62,11 @@ impl PumpClient {
         let token1_calldata = get_token1_calldata();
 
         let token_0 = ContractAddresses::get_address(&self.provider, &lp_token, token0_calldata)
-            .await.map_err(|_| PumpError::PairNotFound(lp_token.clone()))?;
+            .await
+            .map_err(|_| PumpError::PairNotFound(lp_token.clone()))?;
         let token_1 = ContractAddresses::get_address(&self.provider, &lp_token, token1_calldata)
-            .await.map_err(|_| PumpError::PairNotFound(lp_token.clone()))?;
+            .await
+            .map_err(|_| PumpError::PairNotFound(lp_token.clone()))?;
         Ok(Pool { lp_token, token_0, token_1 })
     }
 

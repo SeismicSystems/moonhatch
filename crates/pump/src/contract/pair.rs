@@ -5,7 +5,7 @@ sol! {
     contract UniswapV2Pair {
         address public token0;
         address public token1;
-    
+
         event Swap(
             address indexed sender,
             uint amount0In,

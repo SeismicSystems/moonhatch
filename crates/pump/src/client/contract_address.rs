@@ -27,7 +27,10 @@ impl ContractAddresses {
     }
 
     #[allow(dead_code)]
-    async fn get_weth(provider: &SeismicPublicClient, router: &Address) -> Result<Address, PumpError> {
+    async fn get_weth(
+        provider: &SeismicPublicClient,
+        router: &Address,
+    ) -> Result<Address, PumpError> {
         let calldata = WETHCall {}.abi_encode();
         ContractAddresses::get_address(provider, router, calldata).await
     }

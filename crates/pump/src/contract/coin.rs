@@ -1,6 +1,5 @@
 use alloy_sol_types::{sol, SolCall};
 
-
 sol! {
     #[derive(Debug)]
     struct SolidityCoin {
@@ -23,12 +22,12 @@ pub fn get_coin_calldata(coin_id: u32) -> Vec<u8> {
 mod tests {
     use super::*;
 
-    use std::str::FromStr;
+    use alloy_primitives::Address;
     use alloy_provider::{create_seismic_provider_without_wallet, Provider};
+    use alloy_rpc_types_eth::TransactionRequest;
     use alloy_sol_types::SolType;
     use reqwest::Url;
-    use alloy_primitives::Address;
-    use alloy_rpc_types_eth::TransactionRequest;
+    use std::str::FromStr;
 
     use crate::client::build_tx;
 

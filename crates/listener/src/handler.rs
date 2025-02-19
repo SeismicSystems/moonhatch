@@ -1,14 +1,19 @@
-use std::collections::HashMap;
 use alloy_primitives::Address;
+use alloy_pubsub::SubscriptionStream;
 use alloy_rpc_types_eth::{Header, Log};
 use alloy_sol_types::SolEvent;
 use bigdecimal::BigDecimal;
-use alloy_pubsub::SubscriptionStream;
+use std::collections::HashMap;
 
 use pump::{
-    client::{block::Block, pool::Pool, PumpClient}, 
-    contract::{pair::UniswapV2Pair, pump::PumpRand}, 
-    db::{models::NewPoolPrice, pool::{connect, PgConn, PgPool}, store}, error::PumpError
+    client::{block::Block, pool::Pool, PumpClient},
+    contract::{pair::UniswapV2Pair, pump::PumpRand},
+    db::{
+        models::NewPoolPrice,
+        pool::{connect, PgConn, PgPool},
+        store,
+    },
+    error::PumpError,
 };
 
 pub struct LogHandler {
@@ -21,13 +26,13 @@ pub struct LogHandler {
 
 impl LogHandler {
     pub fn new(pool: PgPool, client: PumpClient) -> LogHandler {
-        LogHandler { 
-            pool, 
-            client, 
-            block: Block::default(), 
-            prices: HashMap::new(), 
-            pools: HashMap::new()
-         }
+        LogHandler {
+            pool,
+            client,
+            block: Block::default(),
+            prices: HashMap::new(),
+            pools: HashMap::new(),
+        }
     }
 
     pub async fn handle_log(&mut self, log: Log) -> Result<(), PumpError> {
@@ -73,7 +78,7 @@ impl LogHandler {
     fn try_block<T>(log: &Log<T>) -> Result<Block, PumpError> {
         match (log.block_number, log.block_timestamp) {
             (Some(number), Some(ts)) => Ok(Block { number, timestamp: ts as i64 }),
-            _ => Err(PumpError::no_block_timestamp())
+            _ => Err(PumpError::no_block_timestamp()),
         }
     }
 
@@ -81,7 +86,7 @@ impl LogHandler {
         let block = LogHandler::try_block(log)?;
         match block.number == self.block.number {
             true => Ok(()),
-            false => Err(PumpError::wrong_block(block.number, self.block.number))
+            false => Err(PumpError::wrong_block(block.number, self.block.number)),
         }
     }
 
@@ -109,11 +114,9 @@ impl LogHandler {
         let data = log.data();
         let dex_price = match Pool::swap_price(data) {
             Some(px) => px,
-            None => {
-                return Err(PumpError::no_swap_price(lp_token, log.transaction_hash))
-            }
+            None => return Err(PumpError::no_swap_price(lp_token, log.transaction_hash)),
         };
-        self.insert_price(&pool, dex_price)        
+        self.insert_price(&pool, dex_price)
     }
 
     async fn handle_sync(&mut self, log: Log<UniswapV2Pair::Sync>) -> Result<(), PumpError> {
@@ -125,7 +128,11 @@ impl LogHandler {
         self.insert_price(&pool, dex_price)
     }
 
-    pub async fn flush_candle(&mut self, lp_token: Address, prices: Vec<BigDecimal>) -> Result<(), PumpError> {
+    pub async fn flush_candle(
+        &mut self,
+        lp_token: Address,
+        prices: Vec<BigDecimal>,
+    ) -> Result<(), PumpError> {
         let price = NewPoolPrice::try_new(&lp_token, self.block, &prices)?;
         let mut conn = self.conn()?;
         store::add_price(&mut conn, price)?;

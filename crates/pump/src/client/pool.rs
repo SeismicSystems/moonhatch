@@ -1,8 +1,10 @@
 use alloy_primitives::{Address, Uint};
-use bigdecimal::{num_bigint::{BigInt, Sign}, BigDecimal, One};
+use bigdecimal::{
+    num_bigint::{BigInt, Sign},
+    BigDecimal, One,
+};
 
-use crate::contract::pair::UniswapV2Pair;
-use crate::client::price::effective_price;
+use crate::{client::price::effective_price, contract::pair::UniswapV2Pair};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Pool {
@@ -22,7 +24,7 @@ impl Pool {
         let amt0_in = int_to_decimal(swap.amount0In);
         let amt0_out = int_to_decimal(swap.amount0Out);
         let amt1_in = int_to_decimal(swap.amount1In);
-        let amt1_out = int_to_decimal(swap.amount1Out);        
+        let amt1_out = int_to_decimal(swap.amount1Out);
         effective_price(&amt0_in, &amt0_out, &amt1_in, &amt1_out)
     }
 
@@ -41,5 +43,3 @@ impl Pool {
         dex_price
     }
 }
-
-
