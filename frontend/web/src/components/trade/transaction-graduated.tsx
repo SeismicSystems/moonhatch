@@ -134,9 +134,7 @@ export default function TransactionGraduated({
               placeholder="Enter ETH amount"
               className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
             />
-            <div className="text-[var(--creamWhite)]">
-              You will receive: {estimatedBuy} {coin.name}
-            </div>
+            <div className="text-[var(--creamWhite)]"></div>
             {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
             <button
               className="w-full px-4 py-2 rounded bg-green-500 text-white"
@@ -155,9 +153,7 @@ export default function TransactionGraduated({
               placeholder="Enter coin amount"
               className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
             />
-            <div className="text-[var(--creamWhite)]">
-              You will get back: {estimatedSell} ETH
-            </div>
+            <div className="text-[var(--creamWhite)]"></div>
             {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
             <button
               className="w-full px-4 py-2 rounded bg-red-500 text-white"

@@ -48,15 +48,13 @@ export default function TransactionNonGraduated({
           placeholder="Enter ETH amount"
           className="w-full p-2 bg-[var(--lightBlue)] text-center rounded mb-2 text-[var(--midBlue)]"
         />
-        <div className="text-[var(--creamWhite)]">
-          You will receive: {estimatedBuy} Coin X
-        </div>
+
         {buyError && <p className="text-red-500 text-sm">{buyError}</p>}
         <button
           className="w-full px-4 py-2 rounded bg-green-500 text-white"
           onClick={() => handleBuy(buyAmount, 'buy')}
         >
-          {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name}`}
+          {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
         </button>
       </div>
 
