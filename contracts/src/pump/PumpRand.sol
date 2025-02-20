@@ -87,8 +87,8 @@ contract PumpRand {
     }
 
     function getCoinData(uint32 coinId) external view returns (Coin memory coin, bool graduatedStatus) {
-    coin = getCoin(coinId);
-    graduatedStatus = graduated[coinId];
+        coin = getCoin(coinId);
+        graduatedStatus = graduated[coinId];
     }
 
     /**
@@ -211,9 +211,6 @@ contract PumpRand {
         coin.approve(saddress(router_), suint256(coinAmountIn));
         coin.graduate();
 
-        address lpToken = getPair(coinId);
-        emit DeployedToDex(coinId, lpToken);
-
         router_.addLiquidityETH{value: WEI_GRADUATION}(
             token,
             coinAmountIn,
@@ -223,7 +220,9 @@ contract PumpRand {
             0x000000000000000000000000000000000000dEaD,
             block.timestamp + 1
         );
-        
+
+        address lpToken = getPair(coinId);
+        emit DeployedToDex(coinId, lpToken);
     }
 
     function getPair(uint32 coinId) public view returns(address) {

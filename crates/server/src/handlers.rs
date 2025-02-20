@@ -8,8 +8,8 @@ use axum::{
 use serde::Serialize;
 
 use pump::{
-    db::{models, pool::connect, store},
-    error::{FileUploadError, PumpError},
+    db::{models, store},
+    error::PumpError,
 };
 
 use crate::AppState;
@@ -24,7 +24,7 @@ pub(crate) async fn get_coin_handler(
     Path(coin_id): Path<i64>,
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, PumpError> {
-    let mut conn = connect(state.db_pool)?;
+    let mut conn = state.db_conn()?;
     let coin = store::get_coin(&mut conn, coin_id)?;
     Ok(Json(CoinResponse { coin }).into_response())
 }
@@ -34,7 +34,7 @@ pub(crate) async fn get_pool_prices(
     Path(pool): Path<String>,
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, PumpError> {
-    let mut conn = connect(state.db_pool)?;
+    let mut conn = state.db_conn()?;
     let prices = store::get_pool_prices(&mut conn, pool, None, None, 100)?;
     Ok(Json::<Vec<models::PoolPriceData>>(prices).into_response())
 }
@@ -43,7 +43,7 @@ pub(crate) async fn verify_coin_handler(
     Path(coin_id): Path<i64>,
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, PumpError> {
-    let mut conn = connect(state.db_pool)?;
+    let mut conn = state.db_conn()?;
 
     let client = &state.pump_client;
     let coin = client.get_coin(coin_id as u32).await?;
@@ -56,17 +56,18 @@ pub(crate) async fn verify_coin_handler(
 pub(crate) async fn get_all_coins_handler(
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, PumpError> {
-    let mut conn = connect(state.db_pool)?;
+    let mut conn = state.db_conn()?;
     let coin_list = store::get_all_coins(&mut conn)?;
     Ok(Json(coin_list).into_response())
 }
+
 /// Handler for POST /coin/create
 pub(crate) async fn create_coin_handler(
     State(state): State<AppState>,
     Json(payload): Json<models::NewCoin>,
 ) -> Result<impl IntoResponse, PumpError> {
-    let mut conn = connect(state.db_pool)?;
-    let coin = store::create_coin(&mut conn, payload)?;
+    let mut conn = state.db_conn()?;
+    let coin = store::upsert_unverified_coin(&mut conn, payload)?;
     Ok(Json(CoinResponse { coin }).into_response())
 }
 
@@ -90,7 +91,7 @@ async fn parse_upload(mut multipart: Multipart) -> Result<Vec<u8>, PumpError> {
     // If no file was provided, return a 400 error.
     match file_bytes {
         Some(bytes) => Ok(bytes),
-        None => return Err(PumpError::FileUpload(FileUploadError::NoFileUploaded)),
+        None => return Err(PumpError::no_upload()),
     }
 }
 

@@ -9,6 +9,7 @@ import { GetContractReturnType, Hex } from 'viem'
 
 import {
   COIN_CONTRACT_ABI,
+  WETH_CONTRACT_ADDRESS,
   useDexContract,
   usePumpContract,
 } from './useContract'
@@ -18,6 +19,14 @@ export const usePumpClient = () => {
   const { contract: pumpContract } = usePumpContract()
   const { contract: dexContract } = useDexContract()
   const [error, setError] = useState<string | null>(null)
+
+  const walletAddress = (): Hex => {
+    if (!walletClient) {
+      setError('Wallet client not found')
+      throw new Error('Wallet client not found')
+    }
+    return walletClient.account.address
+  }
 
   const getWeiIn = async (coinId: bigint): Promise<bigint> => {
     if (!pumpContract) {
@@ -85,6 +94,31 @@ export const usePumpClient = () => {
       throw new Error('Pump contract not found')
     }
     return pumpContract.twrite.buy([coinId], { value: weiIn, gas: 1_000_000 })
+  }
+
+  const sell = async ({
+    token,
+    amount,
+  }: {
+    token: Hex
+    amount: bigint
+  }): Promise<Hex> => {
+    if (!dexContract) {
+      setError('DEX contract not found')
+      throw new Error('DEX contract not found')
+    }
+
+    // TODO: param
+    const deadline = Math.floor(Date.now() / 1000) + 60 * 20
+
+    // TODO: slippage
+    const minWeiOut = 0
+
+    const path = [token, WETH_CONTRACT_ADDRESS]
+    return dexContract.write.swapExactTokensForETH(
+      [amount, minWeiOut, path, userAddress, deadline],
+      { gas: 1_000_000 }
+    )
   }
 
   const allowanceDex = async (token: Hex) => {

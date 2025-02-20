@@ -207,9 +207,7 @@ const CoinDetail: React.FC = () => {
     }
     refresh()
     const interval = setInterval(refresh, REFRESH_COIN_DETAIL_MS)
-    return () => {
-      clearInterval(interval)
-    }
+    return () => { clearInterval(interval) }
   }, [loaded, coinId])
 
   console.log('coin', coin?.contractAddress)
