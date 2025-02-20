@@ -2,8 +2,7 @@ import { useMemo, useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
 import { formatEther } from 'viem'
 
-import CachedIcon from '@mui/icons-material/Cached'
-import VisibilityIcon from '@mui/icons-material/Visibility'
+import { usePumpClient } from '@/hooks/usePumpClient'
 import { Box, Modal } from '@mui/material'
 
 import { Coin } from '../../types/coin'
@@ -40,6 +39,7 @@ export default function TradeSection({
   modalMessage,
   setModalOpen,
 }: TradeSectionProps) {
+  const { previewBuy, previewSell } = usePumpClient()
   const [isBalanceVisible, setIsBalanceVisible] = useState(false)
   // tradeType: either 'buy' or 'sell' (or null if not yet selected)
   const [tradeType, setTradeType] = useState<'buy' | 'sell' | null>(null)

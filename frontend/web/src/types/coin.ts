@@ -7,7 +7,7 @@ export type CreateCoinParams = {
 }
 
 export type OnChainCoin = CreateCoinParams & {
-  decimals: bigint
+  decimals: bigint | number
   contractAddress: Hex
   graduated: boolean
   creator: Hex
