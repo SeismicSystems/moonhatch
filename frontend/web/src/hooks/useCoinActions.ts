@@ -201,17 +201,16 @@ export const useCoinActions = ({
     const sellAmountWei = parseEther(sellAmount, 'wei')
     setIsSelling(true)
     try {
-      await approveSale({
-        token: coin.contractAddress,
-        amount: sellAmountWei,
-      })
-
       if (!coin.graduated) {
         console.log('Sell logic for non-graduated tokens is not implemented.')
         setModalMessage(
           'Sell logic for non-graduated tokens is not implemented.'
         )
       } else {
+        await approveSale({
+          token: coin.contractAddress,
+          amount: sellAmountWei,
+        })
         const hash = await sell({
           token: coin.contractAddress,
           amountIn: sellAmountWei,
