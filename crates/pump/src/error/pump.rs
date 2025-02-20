@@ -32,6 +32,8 @@ pub enum PumpError {
     Listener(ListenerError),
     #[error("Transport error: {0:?}")]
     TransportError(TransportError),
+    #[error("Invalid address")]
+    InvalidAddress,
 }
 
 impl From<ListenerError> for PumpError {
@@ -92,6 +94,7 @@ impl Into<StatusCode> for PumpError {
             },
             PumpError::Listener(_) => StatusCode::INTERNAL_SERVER_ERROR,
             PumpError::TransportError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            PumpError::InvalidAddress => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }
@@ -119,5 +122,9 @@ impl PumpError {
 
     pub fn wrong_block(log_block: u64, current_block: u64) -> PumpError {
         ListenerError::WrongBlock(log_block, current_block).into()
+    }
+
+    pub fn missing_tx() -> PumpError {
+        ListenerError::MissingTransactionHash.into()
     }
 }

@@ -1,7 +1,8 @@
 use alloy_network::EthereumWallet;
 use alloy_primitives::{hex::FromHex, Address, FixedBytes, B256};
 use alloy_provider::{
-    create_seismic_provider, create_seismic_provider_without_wallet, network::TransactionBuilder, Provider, SeismicPublicHttpClient, SeismicWalletClient
+    create_seismic_provider, create_seismic_provider_without_wallet, network::TransactionBuilder,
+    Provider, SeismicPublicHttpClient, SeismicWalletClient,
 };
 use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
 use alloy_signer_local::LocalSigner;
@@ -10,11 +11,14 @@ use alloy_transport::TransportError;
 use reqwest::Url;
 use std::str::FromStr;
 
-
 use crate::{
     client::{contract_address::ContractAddresses, pool::Pool},
     contract::{
-        coin::get_coin_calldata, factory::get_pair_calldata, pair::{get_token0_calldata, get_token1_calldata}, pump::deploy_graduated_bytecode, SolidityCoin
+        coin::get_coin_calldata,
+        factory::get_pair_calldata,
+        pair::{get_token0_calldata, get_token1_calldata},
+        pump::deploy_graduated_bytecode,
+        SolidityCoin,
     },
     error::PumpError,
 };
@@ -33,19 +37,16 @@ impl PumpClient {
     pub fn new(rpc_url: &str) -> PumpClient {
         let rpc_url = Url::from_str(rpc_url).expect("Missing RPC_URL in .env");
         let provider = create_seismic_provider_without_wallet(rpc_url.clone());
-        
+
         let wallet = {
-            let private_key = std::env::var("DEPLOYER_PRIVATE_KEY").expect("Missing DEPLOYER_PRIVATE_KEY in .env");
+            let private_key = std::env::var("DEPLOYER_PRIVATE_KEY")
+                .expect("Missing DEPLOYER_PRIVATE_KEY in .env");
             let pk_bytes = B256::from_hex(private_key).unwrap();
             let signer = LocalSigner::from_bytes(&pk_bytes).expect("invalid signer");
             let wallet = EthereumWallet::new(signer);
             create_seismic_provider(wallet, rpc_url)
         };
-        PumpClient { 
-            provider, 
-            wallet, 
-            ca: ContractAddresses::new() 
-        }
+        PumpClient { provider, wallet, ca: ContractAddresses::new() }
     }
 
     pub async fn get_coin(&self, coin_id: u32) -> Result<SolidityCoin, PumpError> {
@@ -84,7 +85,7 @@ impl PumpClient {
         self.ca.router
     }
 
-    pub async fn deploy_graduated(&self, coin_id: u32) -> Result<FixedBytes<32>, TransportError>{
+    pub async fn deploy_graduated(&self, coin_id: u32) -> Result<FixedBytes<32>, TransportError> {
         let addresses = self.wallet.get_accounts().await.unwrap();
         let nonce = self.wallet.get_transaction_count(addresses[0]).await.unwrap();
         let input = deploy_graduated_bytecode(coin_id);

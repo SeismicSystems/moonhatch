@@ -45,18 +45,30 @@ diesel::table! {
         #[max_length = 42]
         dex -> Bpchar,
         #[max_length = 42]
-        token_a -> Bpchar,
+        token_0 -> Bpchar,
         #[max_length = 42]
-        token_b -> Bpchar,
+        token_1 -> Bpchar,
         created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    trades (id) {
+        id -> Int8,
+        #[max_length = 66]
+        tx -> Varchar,
+        #[max_length = 42]
+        pool -> Varchar,
+        #[max_length = 42]
+        trader -> Varchar,
+        buy_0 -> Bool,
+        amount_0 -> Numeric,
+        amount_1 -> Numeric,
+        time -> Int8,
     }
 }
 
 diesel::joinable!(coins -> pools (deployed_pool));
 diesel::joinable!(pool_prices -> pools (pool));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    coins,
-    pool_prices,
-    pools,
-);
+diesel::allow_tables_to_appear_in_same_query!(coins, pool_prices, pools, trades,);

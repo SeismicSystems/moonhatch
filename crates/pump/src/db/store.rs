@@ -1,9 +1,10 @@
 use alloy_primitives::Address;
 use bigdecimal::BigDecimal;
 use diesel::prelude::*;
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 use crate::{
+    client::pool,
     contract::SolidityCoin,
     db::{
         models::{Coin, NewCoin, Pool, PoolPriceData},
@@ -11,14 +12,18 @@ use crate::{
             coins::{self as coins_schema, dsl::coins as coins_table},
             pool_prices::{self as pool_prices_schema, dsl::pool_prices as pool_prices_table},
             pools::{self as pools_schema, dsl::pools as pools_table},
+            trades::dsl::trades as trades_table,
         },
     },
     error::PumpError,
 };
 
-use super::models::NewPoolPrice;
+use super::models::{NewPoolPrice, Trade};
 
-pub fn upsert_unverified_coin(conn: &mut PgConnection, new_coin: NewCoin) -> Result<Coin, PumpError> {
+pub fn upsert_unverified_coin(
+    conn: &mut PgConnection,
+    new_coin: NewCoin,
+) -> Result<Coin, PumpError> {
     let coin = diesel::insert_into(coins_table)
         .values(&new_coin.clone())
         .on_conflict(coins_schema::id)
@@ -162,11 +167,32 @@ pub fn update_deployed_pool(
 }
 
 pub fn upsert_deployed_pool(conn: &mut PgConnection, pool: Pool) -> Result<usize, PumpError> {
-    let rows_affected = diesel::insert_into(pools_table).values(pool).on_conflict(pools_schema::address).do_nothing().execute(conn)?;
+    let rows_affected = diesel::insert_into(pools_table)
+        .values(pool)
+        .on_conflict(pools_schema::address)
+        .do_nothing()
+        .execute(conn)?;
     Ok(rows_affected)
 }
 
 pub fn add_price(conn: &mut PgConnection, price: NewPoolPrice) -> Result<usize, PumpError> {
     let count = diesel::insert_into(pool_prices_table).values(&price).execute(conn)?;
     Ok(count)
+}
+
+pub fn load_pools(conn: &mut PgConnection) -> Result<HashMap<Address, pool::Pool>, PumpError> {
+    let pool_vec: Vec<Pool> = pools_table.select(pools_schema::all_columns).load(conn)?;
+
+    let pools = pool_vec
+        .into_iter()
+        .map(|pool| pool.try_into().unwrap())
+        .map(|pool: pool::Pool| (pool.lp_token, pool))
+        .collect();
+
+    Ok(pools)
+}
+
+pub fn add_trade(conn: &mut PgConnection, trade: &Trade) -> Result<(), PumpError> {
+    diesel::insert_into(trades_table).values(trade).execute(conn)?;
+    Ok(())
 }

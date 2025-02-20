@@ -14,6 +14,8 @@ pub enum ListenerError {
     NoSwapPrice(Address, Option<FixedBytes<32>>),
     #[error("Received event for block {0}, but listener is on block {1}")]
     WrongBlock(u64, u64),
+    #[error("Missing transaction hash")]
+    MissingTransactionHash,
 }
 
 impl From<alloy_sol_types::Error> for ListenerError {

@@ -45,8 +45,15 @@ async fn main() -> Result<(), PumpError> {
             maybe_log = log_stream.next() => {
                 match maybe_log {
                     Some(log) => {
-                        if let Err(e) = handler.handle_log(log).await {
-                            log::error!("Error handling log: {:?}", e);
+                        match handler.handle_log(log).await {
+                            Ok(false) =>  {}
+                            Ok(true) => {
+                                // restart the stream
+                                log_stream = handler.log_stream().await?.fuse();
+                            }
+                            Err(e) => {
+                                log::error!("Error handling log: {:?}", e);
+                            }
                         }
                     },
                     None => {

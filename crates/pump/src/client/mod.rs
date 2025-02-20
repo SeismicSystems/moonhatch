@@ -5,7 +5,6 @@ use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
 pub mod block;
 mod contract_address;
 pub mod pool;
-pub(crate) mod price;
 
 mod http;
 mod ws;

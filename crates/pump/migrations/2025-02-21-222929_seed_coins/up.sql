@@ -1,6 +1,6 @@
 
 -- 1. Create pools
-INSERT INTO pools (address, chain_id, dex, token_a, token_b, created_at) VALUES
+INSERT INTO pools (address, chain_id, dex, token_0, token_1, created_at) VALUES
     ('0x12345678901234567890123456789012345678aa', -- BTC pool
      31337,
      '0xdex1111111111111111111111111111111111111',

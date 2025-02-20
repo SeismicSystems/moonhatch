@@ -1,4 +1,5 @@
 use crate::{client::contract_address::ContractAddresses, error::PumpError};
+use alloy_primitives::Address;
 use alloy_provider::{create_seismic_ws_provider, Provider, SeismicPublicWsClient};
 use alloy_pubsub::SubscriptionStream;
 use alloy_rpc_types_eth::{Filter, Header, Log};
@@ -16,8 +17,12 @@ impl PumpWsClient {
         Ok(PumpWsClient { ws, ca: ContractAddresses::new() })
     }
 
-    pub async fn pump_logs(&self) -> Result<SubscriptionStream<Log>, PumpError> {
-        let pump_filter = Filter::new().address(self.ca.pump);
+    pub async fn pump_logs(
+        &self,
+        mut addresses: Vec<Address>,
+    ) -> Result<SubscriptionStream<Log>, PumpError> {
+        addresses.push(self.ca.pump);
+        let pump_filter = Filter::new().address(addresses);
         let sub = self.ws.subscribe_logs(&pump_filter).await?;
         Ok(sub.into_stream())
     }

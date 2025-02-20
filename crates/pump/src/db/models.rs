@@ -40,9 +40,9 @@ pub struct Pool {
     pub chain_id: i32,
     pub dex: String,
     #[serde(rename = "tokenA")]
-    pub token_a: String,
+    pub token_0: String,
     #[serde(rename = "tokenB")]
-    pub token_b: String,
+    pub token_1: String,
     #[serde(rename = "createdAt")]
     pub created_at: NaiveDateTime,
 }
@@ -117,4 +117,16 @@ pub struct PoolPriceData {
     pub low: BigDecimal,
     #[serde(serialize_with = "serialize_decimal_as_f64")]
     pub close: BigDecimal,
+}
+
+#[derive(Queryable, Insertable)]
+#[diesel(table_name = schema::trades)]
+pub struct Trade {
+    pub tx: String,
+    pub pool: String,
+    pub trader: String,
+    pub buy_0: bool,
+    pub amount_0: BigDecimal,
+    pub amount_1: BigDecimal,
+    pub time: i64,
 }
