@@ -28,12 +28,14 @@ const Home: React.FC = () => {
     <div className="home-container">
       <NavBar />
       <HomeHeader />
-      <SearchAndFilter
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        filters={filters}
-        setFilters={setFilters}
-      />
+      <div className="search-and-filter mb-2">
+        <SearchAndFilter
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          filters={filters}
+          setFilters={setFilters}
+        />
+      </div>
       <Coins coins={filteredCoins} />
     </div>
   )
