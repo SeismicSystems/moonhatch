@@ -12,7 +12,7 @@ use crate::{
             coins::{self as coins_schema, dsl::coins as coins_table},
             pool_prices::{self as pool_prices_schema, dsl::pool_prices as pool_prices_table},
             pools::{self as pools_schema, dsl::pools as pools_table},
-            trades::dsl::trades as trades_table,
+            trades::{self as trades_schema, dsl::trades as trades_table},
         },
     },
     error::PumpError,
@@ -193,6 +193,10 @@ pub fn load_pools(conn: &mut PgConnection) -> Result<HashMap<Address, pool::Pool
 }
 
 pub fn add_trade(conn: &mut PgConnection, trade: &Trade) -> Result<(), PumpError> {
-    diesel::insert_into(trades_table).values(trade).execute(conn)?;
+    diesel::insert_into(trades_table)
+        .values(trade)
+        .on_conflict(trades_schema::id)
+        .do_nothing()
+        .execute(conn)?;
     Ok(())
 }
