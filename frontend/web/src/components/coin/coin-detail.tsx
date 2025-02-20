@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
-import { parseEther } from 'viem'
 
 import { useCoinActions } from '@/hooks/useCoinActions'
 import {
-  DEX_CONTRACT_ADDRESS,
-  WETH_CONTRACT_ADDRESS,
-  loadContractData,
+  useCoinContract,
   useDexContract,
   usePumpContract,
 } from '@/hooks/useContract'
@@ -22,34 +19,25 @@ import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
 import CoinSocials from './coin-social'
 
-const CoinDetail: React.FC = () => {
-  const { coinId } = useParams<{ coinId: string }>()
-  const { fetchCoin, loaded, loading, error } = useFetchCoin()
-  const { publicClient, walletClient } = useShieldedWallet()
-  const { contract: pumpContract } = usePumpContract()
-  const { contract: dexContract } = useDexContract()
+const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
+  const { contract: coinContract } = useCoinContract(coin.contractAddress)
 
-  const [coin, setCoin] = useState<Coin | null>(null)
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
-  const [buyAmount, setBuyAmount] = useState<string>('')
   const [buyError, setBuyError] = useState<string | null>(null)
   const [modalOpen, setModalOpen] = useState<boolean>(false)
   const [modalMessage, setModalMessage] = useState<string>('')
 
-  useEffect(() => {
-    const cachedWei = localStorage.getItem(`weiIn_coin_${coinId}`)
-    if (cachedWei) setWeiIn(BigInt(cachedWei))
-  }, [coinId])
+  const { publicClient, walletClient } = useShieldedWallet()
+  const { contract: pumpContract } = usePumpContract()
+  const { contract: dexContract } = useDexContract()
+  const [buyAmount, setBuyAmount] = useState<string>('')
 
-  useEffect(() => {
-    if (!loaded || !coinId) return
-    fetchCoin(BigInt(coinId))
-      .then((foundCoin) => setCoin(foundCoin || null))
-      .catch((err) => console.error('Error fetching coin:', err))
-  }, [loaded, coinId])
-
+  // if (!walletClient || !publicClient || !pumpContract || !dexContract) {
+  //   return <></>
+  // }
   const { viewEthIn, refreshWeiIn, handleBuy, loadingEthIn } = useCoinActions({
     coin,
+    coinContract,
     walletClient,
     publicClient,
     pumpContract,
@@ -60,9 +48,11 @@ const CoinDetail: React.FC = () => {
     setWeiIn,
   })
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
-  if (!coin) return <div>Coin not found.</div>
+  useEffect(() => {
+    const cachedWei = localStorage.getItem(`weiIn_coin_${coin.id}`)
+    if (cachedWei) setWeiIn(BigInt(cachedWei))
+  }, [coin.id])
+
   return (
     <>
       <div className="mb-8">
@@ -186,6 +176,30 @@ const CoinDetail: React.FC = () => {
       </div>
     </>
   )
+}
+
+const CoinDetail: React.FC = () => {
+  const { coinId } = useParams<{ coinId: string }>()
+  const { fetchCoin, loaded, loading, error } = useFetchCoin()
+  const [coin, setCoin] = useState<Coin | null>(null)
+
+  useEffect(() => {
+    if (!loaded || !coinId) return
+    fetchCoin(BigInt(coinId))
+      .then((foundCoin) => setCoin(foundCoin || null))
+      .catch((err) => console.error('Error fetching coin:', err))
+  }, [loaded, coinId])
+
+  console.log('coin', coin?.contractAddress)
+  // Only call useCoinContract when coin is non-null
+  // const coinContract = useCoinContract(coin)
+  // console.log('coinContract', coinContract)
+  //   console.log('coinContract', coinContract)
+
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error: {error.message}</div>
+  if (!coin) return <div>Coin not found.</div>
+  return <CoinDetailContent coin={coin} />
 }
 
 export default CoinDetail

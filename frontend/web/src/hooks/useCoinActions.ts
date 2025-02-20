@@ -1,11 +1,8 @@
 import { useState } from 'react'
 import { parseEther } from 'viem'
 
-import {
-  WETH_CONTRACT_ADDRESS,
-  useDexContract,
-  usePumpContract,
-} from '@/hooks/useContract'
+import { useCoinContract } from '@/hooks/useContract'
+import { WETH_CONTRACT_ADDRESS } from '@/hooks/useContract'
 import type { Coin } from '@/types/coin'
 
 interface UseCoinActionsParams {
@@ -13,17 +10,22 @@ interface UseCoinActionsParams {
   walletClient: any
   publicClient: any
   pumpContract: any
+  coinContract: any
   dexContract: any
   buyAmount: string
   setBuyAmount: React.Dispatch<React.SetStateAction<string>>
   setBuyError: React.Dispatch<React.SetStateAction<string | null>>
   setWeiIn: React.Dispatch<React.SetStateAction<bigint | null>>
+  sellAmount: string
+  setSellAmount: React.Dispatch<React.SetStateAction<string>>
+  setSellError: React.Dispatch<React.SetStateAction<string | null>>
 }
 
 interface UseCoinActionsReturn {
   viewEthIn: () => Promise<void>
   refreshWeiIn: () => Promise<void>
   handleBuy: () => Promise<void>
+  handleSell: () => Promise<void>
   loadingEthIn: boolean
 }
 
@@ -32,14 +34,19 @@ export const useCoinActions = ({
   walletClient,
   publicClient,
   pumpContract,
+  coinContract,
   dexContract,
   buyAmount,
   setBuyAmount,
   setBuyError,
   setWeiIn,
+  sellAmount,
+  setSellAmount,
+  setSellError,
 }: UseCoinActionsParams): UseCoinActionsReturn => {
   const [loadingEthIn, setLoadingEthIn] = useState<boolean>(false)
   const [isBuying, setIsBuying] = useState<boolean>(false)
+  const [isSelling, setIsSelling] = useState<boolean>(false)
   const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
 
   const viewEthIn = async (): Promise<void> => {
@@ -49,10 +56,11 @@ export const useCoinActions = ({
     try {
       const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
       const cachedWei = localStorage.getItem(localStorageKey)
-
       if (cachedWei) {
         setWeiIn(BigInt(cachedWei))
       } else {
+        // Here we use a tread (write) call if that’s what your design requires.
+        console.log(coin)
         const weisBought = (await pumpContract.tread.getWeiIn([
           coin.id,
         ])) as bigint
@@ -72,9 +80,16 @@ export const useCoinActions = ({
 
     setLoadingEthIn(true)
     try {
+      // Get the latest on-chain value from coinContract
+      const userAddress = walletClient.account.address
+      console.log('userAddress:', userAddress)
+      const weiOnChain = await coinContract.tread.balanceOf([userAddress], {
+        gas: 1_000_000,
+      })
+      setWeiIn(weiOnChain)
+      // Optionally update local storage from pumpContract as well if needed
       const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
       const weisBought = (await pumpContract.read.getWeiIn([coin.id])) as bigint
-      console.log(weisBought)
       localStorage.setItem(localStorageKey, weisBought.toString())
       setWeiIn(weisBought)
     } catch (err) {
@@ -86,7 +101,6 @@ export const useCoinActions = ({
 
   const handleBuy = async () => {
     setBuyError(null)
-
     if (
       !publicClient ||
       !walletClient ||
@@ -118,7 +132,6 @@ export const useCoinActions = ({
       const balance = await publicClient.getBalance({
         address: walletClient.account.address,
       })
-
       if (amountInWei > BigInt(balance)) {
         setBuyError('Insufficient balance.')
         return
@@ -126,7 +139,6 @@ export const useCoinActions = ({
 
       setIsBuying(true)
       let txHash
-
       if (!coin.graduated) {
         txHash = await pumpContract.twrite.buy([coin.id], {
           gas: 1_000_000,
@@ -138,19 +150,14 @@ export const useCoinActions = ({
           setBuyError('DEX contract not initialized')
           return
         }
-        //temporary deadline to be changed
         const deadline = Math.floor(Date.now() / 1000) + 60 * 20
-
         const path = [WETH_CONTRACT_ADDRESS, coin.contractAddress]
-
         txHash = await dexContract.write.swapExactETHForTokens(
           [0, path, walletClient.account.address, deadline],
           { gas: 1_000_000, value: amountInWei }
         )
         console.log('✅ Dex transaction sent! Hash:', txHash)
       }
-
-      // Update local storage with the new total wei bought
       const newTotalWei = existingWeiBigInt + amountInWei
       localStorage.setItem(localStorageKey, newTotalWei.toString())
       setWeiIn(newTotalWei)
@@ -158,13 +165,83 @@ export const useCoinActions = ({
     } catch (err) {
       console.error('❌ Transaction Failed:', err)
       setBuyError(
-        `Transaction failed: ${
-          err instanceof Error ? err.message : 'Unknown error'
-        }`
+        `Transaction failed: ${err instanceof Error ? err.message : 'Unknown error'}`
       )
     } finally {
       setIsBuying(false)
     }
   }
-  return { viewEthIn, refreshWeiIn, handleBuy, loadingEthIn }
+
+  const handleSell = async () => {
+    setSellError(null)
+    if (
+      !publicClient ||
+      !walletClient ||
+      !pumpContract ||
+      !coin ||
+      !sellAmount
+    ) {
+      setSellError('Required data is missing.')
+      return
+    }
+    const sellAmountWei = parseEther(sellAmount, 'wei')
+    try {
+      const userAddress = walletClient.account.address
+      const tokenBalance = (await pumpContract.read.balanceOf([
+        userAddress,
+      ])) as bigint
+      if (sellAmountWei > tokenBalance) {
+        setSellError('Insufficient token balance for selling.')
+        return
+      }
+      const spender = dexContract?.read?.address || dexContract?.address
+      if (!spender) {
+        setSellError('DEX contract not initialized')
+        return
+      }
+      const currentAllowance = (await pumpContract.read.allowance([
+        userAddress,
+        spender,
+      ])) as bigint
+      if (sellAmountWei > currentAllowance) {
+        console.log(
+          'Current allowance insufficient. Sending approve transaction...'
+        )
+        const approveTx = await pumpContract.write.approve(
+          [spender, sellAmountWei],
+          {
+            gas: 1_000_000,
+          }
+        )
+        await approveTx.wait()
+        console.log('Approval confirmed.')
+      } else {
+        console.log('Sufficient allowance available.')
+      }
+
+      let txHash
+      setIsSelling(true)
+      if (!coin.graduated) {
+        console.log('Sell logic for non-graduated tokens is not implemented.')
+      } else {
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 20
+        const path = [coin.contractAddress, WETH_CONTRACT_ADDRESS]
+        txHash = await dexContract.write.swapExactTokensForETH(
+          [sellAmountWei, 0, path, userAddress, deadline],
+          { gas: 1_000_000 }
+        )
+        console.log('✅ Sell transaction sent via DEX! Hash:', txHash)
+      }
+      setSellAmount('')
+    } catch (err) {
+      console.error('Sell transaction failed:', err)
+      setSellError(
+        `Transaction failed: ${err instanceof Error ? err.message : 'Unknown error'}`
+      )
+    } finally {
+      setIsSelling(false)
+    }
+  }
+
+  return { viewEthIn, refreshWeiIn, handleBuy, handleSell, loadingEthIn }
 }
