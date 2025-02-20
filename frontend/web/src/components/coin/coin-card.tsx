@@ -113,18 +113,13 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
             }}
           >
             <img
-              src={imgSrc}
+              src={imgSrc || defaultImage}
               alt="Coin Logo"
               style={{
                 borderRadius: '8px',
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-              }}
-              onError={() => {
-                if (imgSrc !== defaultImage) {
-                  setImgSrc(defaultImage)
-                }
               }}
             />
           </Box>
