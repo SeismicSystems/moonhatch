@@ -1,5 +1,5 @@
 use alloy_primitives::Address;
-use alloy_provider::{Provider, SeismicPublicHttpClient};
+use alloy_provider::{Provider, SeismicUnsignedProvider};
 use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
 use std::str::FromStr;
 
@@ -28,7 +28,7 @@ impl ContractAddresses {
 
     #[allow(dead_code)]
     async fn get_weth(
-        provider: &SeismicPublicHttpClient,
+        provider: &SeismicUnsignedProvider,
         router: &Address,
     ) -> Result<Address, PumpError> {
         let calldata = WETHCall {}.abi_encode();
@@ -37,7 +37,7 @@ impl ContractAddresses {
 
     #[allow(dead_code)]
     async fn get_factory(
-        provider: &SeismicPublicHttpClient,
+        provider: &SeismicUnsignedProvider,
         router: &Address,
     ) -> Result<Address, PumpError> {
         let calldata = factoryCall {}.abi_encode();
@@ -45,7 +45,7 @@ impl ContractAddresses {
     }
 
     pub async fn get_address(
-        provider: &SeismicPublicHttpClient,
+        provider: &SeismicUnsignedProvider,
         to: &Address,
         calldata: Vec<u8>,
     ) -> Result<Address, PumpError> {

@@ -2,7 +2,7 @@ use alloy_network::EthereumWallet;
 use alloy_primitives::{hex::FromHex, Address, FixedBytes, B256};
 use alloy_provider::{
     create_seismic_provider, create_seismic_provider_without_wallet, network::TransactionBuilder,
-    Provider, SeismicPublicHttpClient, SeismicWalletClient,
+    Provider, SeismicUnsignedProvider, SeismicSignedProvider,
 };
 use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
 use alloy_signer_local::LocalSigner;
@@ -28,8 +28,8 @@ pub fn build_tx(to: &Address, calldata: Vec<u8>) -> TransactionRequest {
 }
 
 pub struct PumpClient {
-    provider: SeismicPublicHttpClient,
-    wallet: SeismicWalletClient,
+    provider: SeismicUnsignedProvider,
+    wallet: SeismicSignedProvider,
     ca: ContractAddresses,
 }
 
