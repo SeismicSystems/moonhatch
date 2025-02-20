@@ -61,7 +61,7 @@ export const useCoinActions = ({
       } else {
         // Here we use a tread (write) call if that’s what your design requires.
         console.log(coin)
-        const weisBought = (await pumpContract.tread.getWeiIn([
+        const weisBought = (await pumpContract.read.getWeiIn([
           coin.id,
         ])) as bigint
         localStorage.setItem(localStorageKey, weisBought.toString())
@@ -80,18 +80,23 @@ export const useCoinActions = ({
 
     setLoadingEthIn(true)
     try {
-      // Get the latest on-chain value from coinContract
-      const userAddress = walletClient.account.address
-      console.log('userAddress:', userAddress)
-      const weiOnChain = await coinContract.tread.balanceOf([userAddress], {
-        gas: 1_000_000,
-      })
-      setWeiIn(weiOnChain)
-      // Optionally update local storage from pumpContract as well if needed
-      const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
-      const weisBought = (await pumpContract.read.getWeiIn([coin.id])) as bigint
-      localStorage.setItem(localStorageKey, weisBought.toString())
-      setWeiIn(weisBought)
+      // TODO(matt): split balance view into two components,
+      // one for ungraduated and one for graduated
+      if (coin.graduated) {
+        // Get the latest on-chain value from coinContract
+        const userAddress = walletClient.account.address
+        const weiOnChain = await coinContract.tread.balanceOf([userAddress])
+        console.log(weiOnChain)
+        setWeiIn(weiOnChain)
+      } else {
+        // Optionally update local storage from pumpContract as well if needed
+        const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
+        const weisBought = (await pumpContract.read.getWeiIn([
+          coin.id,
+        ])) as bigint
+        localStorage.setItem(localStorageKey, weisBought.toString())
+        setWeiIn(weisBought)
+      }
     } catch (err) {
       console.error('Error refreshing weiIn:', err)
     } finally {
@@ -187,7 +192,7 @@ export const useCoinActions = ({
     const sellAmountWei = parseEther(sellAmount, 'wei')
     try {
       const userAddress = walletClient.account.address
-      const tokenBalance = (await pumpContract.read.balanceOf([
+      const tokenBalance = (await pumpContract.tread.balanceOf([
         userAddress,
       ])) as bigint
       if (sellAmountWei > tokenBalance) {
