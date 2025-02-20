@@ -17,6 +17,8 @@ use pump::{
     error::PumpError,
 };
 
+const CONFIRMATIONS: u64 = 2;
+
 pub fn fmt_hex<T: AsRef<[u8]>>(value: T) -> String {
     let bytes = value.as_ref();
     let hex = hex::encode(bytes);
@@ -41,7 +43,8 @@ pub struct LogHandler {
     ws: PumpWsClient,
     block: Block,
     prices: HashMap<u64, (Block, HashMap<Address, Vec<BigDecimal>>)>,
-    pools: HashMap<Address, Pool>,
+    opening_prices: HashMap<(u64, Address), BigDecimal>,
+    pools: HashMap<Address, Pool>
 }
 
 impl LogHandler {
@@ -54,6 +57,7 @@ impl LogHandler {
             ws,
             block: Block::default(),
             prices: HashMap::new(),
+            opening_prices: HashMap::new(),
             pools: store::load_pools(&mut conn)?,
         })
     }
@@ -196,7 +200,7 @@ impl LogHandler {
             Some(px) => px,
             None => return Err(PumpError::no_swap_price(lp_token, log.transaction_hash)),
         };
-        let ui_price = self.insert_price(&pool, dex_price, block)?;
+        let ui_price = pool.to_ui_price(self.client.weth(), dex_price);
         let (token, weth_0) = pool.other(self.client.weth());
         let (bs, fa) = match buy_0 != weth_0 {
             true => ("BUYS", "FOR"),
@@ -250,22 +254,30 @@ impl LogHandler {
     pub async fn flush_candle(
         &mut self,
         lp_token: Address,
-        prices: Vec<BigDecimal>,
+        mut prices: Vec<BigDecimal>,
         block: Block,
     ) -> Result<(), PumpError> {
+        if let Some(open) = self.opening_prices.remove(&(block.number, lp_token)) {
+            prices.insert(0, open);            
+        };
         let price = models::NewPoolPrice::try_new(&lp_token, block, &prices)?;
         let mut conn = self.conn()?;
+
+        // closing price of block N is opening price of block N+1
+        let close = price.close.clone();
+        self.opening_prices.insert((block.number + 1, lp_token), close);
         store::add_price(&mut conn, price)?;
         Ok(())
     }
 
     /// flush all of the candles we created for N=2 blocks ago
     pub async fn new_block(&mut self, block: Block) -> Result<(), PumpError> {
-        let confirmed_block = block.number - 2;
-        let (confirmed, block_prices) = self.prices.remove(&confirmed_block).unwrap_or_default();
-        for (pool, prices) in block_prices {
-            // this function is &mut self
-            self.flush_candle(pool, prices, confirmed).await?;
+        if let Some(confirmed_block) = block.number.checked_sub(CONFIRMATIONS) {
+            let (confirmed, block_prices) = self.prices.remove(&confirmed_block).unwrap_or_default();
+            for (pool, prices) in block_prices {
+                // this function is &mut self
+                self.flush_candle(pool, prices, confirmed).await?;
+            }
         }
         self.block = block;
         Ok(())
