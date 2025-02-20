@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'framer-motion'
 import Fuse from 'fuse.js'
 import React, { useEffect, useRef, useState } from 'react'
 
@@ -6,6 +7,7 @@ import NavBar from '@/components/NavBar'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import Coins from '@/pages/Coins'
 import type { Coin } from '@/types/coin'
+import FilterListIcon from '@mui/icons-material/FilterList'
 
 const Home: React.FC = () => {
   const [coins, setCoins] = useState<Coin[]>([])
@@ -91,108 +93,114 @@ const Home: React.FC = () => {
         <HomeHeader />
 
         {/* 🔍 Search Bar */}
-        <div className="mt-6 flex flex-col items-center">
+        <div className="mt-6 flex justify-center items-center gap-4">
+          {/* Search Bar */}
           <input
             type="text"
-            placeholder="Search for a coin..."
+            placeholder="SEARCH FOR NAME OR TICKER"
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-64 md:w-80 lg:w-96 p-2 bg-white rounded-md text-black"
+            className="w-64 h-12 md:w-80 lg:w-96 p-2 bg-[var(--lightBlue)] rounded-md text-[var(--midBlue)] text-center"
           />
 
           {/* 🎛 Filter Dropdown */}
-          <div className="relative mt-2" ref={dropdownRef}>
+          <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen((prev) => !prev)}
-              className="px-4 py-2 bg-gray-800 text-white rounded-lg"
+              className="px-4 py-2 h-12 bg-[var(--midBlue)] text-white rounded-lg flex items-center justify-center"
             >
-              Filter & Sort Options ▼
+              <span className="hidden md:inline">FILTER</span>
+              <FilterListIcon className="md:hidden text-white text-lg" />{' '}
+              {/* Mobile icon */}
             </button>
 
-            {isDropdownOpen && (
-              <div className="absolute left-0 mt-2 w-56 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
-                <ul className="p-2">
-                  <li className="flex items-center gap-2 py-2 px-4 hover:bg-gray-100">
-                    <input
-                      type="checkbox"
-                      checked={filters.hasWebsite}
-                      onChange={() =>
-                        setFilters((prev) => ({
-                          ...prev,
-                          hasWebsite: !prev.hasWebsite,
-                        }))
-                      }
-                    />
-                    <label>Has Website</label>
-                  </li>
-                  <li className="flex items-center gap-2 py-2 px-4 hover:bg-gray-100">
-                    <input
-                      type="checkbox"
-                      checked={filters.hasTelegram}
-                      onChange={() =>
-                        setFilters((prev) => ({
-                          ...prev,
-                          hasTelegram: !prev.hasTelegram,
-                        }))
-                      }
-                    />
-                    <label>Has Telegram</label>
-                  </li>
-                  <li className="flex items-center gap-2 py-2 px-4 hover:bg-gray-100">
-                    <input
-                      type="checkbox"
-                      checked={filters.hasTwitter}
-                      onChange={() =>
-                        setFilters((prev) => ({
-                          ...prev,
-                          hasTwitter: !prev.hasTwitter,
-                        }))
-                      }
-                    />
-                    <label>Has Twitter</label>
-                  </li>
-                  <li className="flex items-center gap-2 py-2 px-4 hover:bg-gray-100">
-                    <input
-                      type="checkbox"
-                      checked={filters.hasAllSocials}
-                      onChange={() =>
-                        setFilters((prev) => ({
-                          ...prev,
-                          hasAllSocials: !prev.hasAllSocials,
-                        }))
-                      }
-                    />
-                    <label>Has All Socials</label>
-                  </li>
-                  <li className="flex items-center gap-2 py-2 px-4 hover:bg-gray-100 border-t mt-2 pt-2">
-                    <button
-                      onClick={() =>
-                        setFilters((prev) => ({
-                          ...prev,
-                          sortByCreatedAt: !prev.sortByCreatedAt,
-                        }))
-                      }
-                      className="text-blue-600"
-                    >
-                      Sort by:{' '}
-                      {filters.sortByCreatedAt
-                        ? 'Newest First'
-                        : 'Oldest First'}
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            )}
+            {/* Dropdown with Smooth Animation */}
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                  className="absolute right-0 md:right-auto mt-2 w-56 bg-[var(--lightBlue)] border  border-gray-300 rounded-lg shadow-lg z-50 md:w-max"
+                >
+                  <ul className="p-2 bg-[var(--midBlue)] text-[var(--creamWhite)] rounded-lg">
+                    <li className="flex items-center gap-2 py-2 px-4 hover:bg-[var(--lightBlue)] ">
+                      <input
+                        type="checkbox"
+                        checked={filters.hasWebsite}
+                        onChange={() =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            hasWebsite: !prev.hasWebsite,
+                          }))
+                        }
+                      />
+                      <label>WEBSITE</label>
+                    </li>
+                    <li className="flex items-center gap-2 py-2 px-4 hover:bg-[var(--midBlue)] text-[var(--creamWhite)]">
+                      <input
+                        type="checkbox"
+                        checked={filters.hasTelegram}
+                        onChange={() =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            hasTelegram: !prev.hasTelegram,
+                          }))
+                        }
+                      />
+                      <label>TELEGRAM</label>
+                    </li>
+                    <li className="flex items-center gap-2 py-2 px-4 hover:bg-[var(--midBlue)] text-[var(--creamWhite)]">
+                      <input
+                        type="checkbox"
+                        checked={filters.hasTwitter}
+                        onChange={() =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            hasTwitter: !prev.hasTwitter,
+                          }))
+                        }
+                      />
+                      <label>X</label>
+                    </li>
+                    <li className="flex items-center gap-2 py-2 px-4 hover:bg-[var(--midBlue)] text-[var(--creamWhite)]">
+                      <input
+                        type="checkbox"
+                        checked={filters.hasAllSocials}
+                        onChange={() =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            hasAllSocials: !prev.hasAllSocials,
+                          }))
+                        }
+                      />
+                      <label>ALL SOCIALS</label>
+                    </li>
+                    <li className="flex items-center gap-2 py-2 px-4 hover:bg-[var(--midBlue)] text-[var(--creamWhite)] border-t mt-2 pt-2">
+                      <button
+                        onClick={() =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            sortByCreatedAt: !prev.sortByCreatedAt,
+                          }))
+                        }
+                        className="text-blue-600"
+                      >
+                        Sort by:{' '}
+                        {filters.sortByCreatedAt
+                          ? 'Newest First'
+                          : 'Oldest First'}
+                      </button>
+                    </li>
+                  </ul>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
         {/* 🎯 Display Filtered Coins */}
         <Coins coins={filteredCoins} />
-
-        {!loaded && (
-          <div className="h-96 flex items-center justify-center">
-            <div className="w-96 h-96 border-4 border-pink-200 rounded-full border-t-transparent animate-spin" />
-          </div>
-        )}
       </div>
     </>
   )
