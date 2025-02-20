@@ -160,6 +160,7 @@ contract PumpRand {
                 revert FailedToRefundExcessEth();
             }
         }
+        emit CoinPurchased(coinId, weisIn[coinId]);
         emit CoinGraduated(coinId);
         return refund;
     }
