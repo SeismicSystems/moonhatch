@@ -8,10 +8,10 @@ CREATE TABLE pools (
     dex CHAR(42) NOT NULL,
     
     -- The first token's contract address in the pool
-    token_a CHAR(42) NOT NULL,
+    token_0 CHAR(42) NOT NULL,
     
     -- The second token's contract address in the pool
-    token_b CHAR(42) NOT NULL,
+    token_1 CHAR(42) NOT NULL,
     
     -- Timestamp for when this record was created
     created_at TIMESTAMP DEFAULT NOW() NOT NULL
