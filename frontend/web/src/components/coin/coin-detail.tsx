@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useShieldedWallet } from 'seismic-react'
 
 import { useCoinActions } from '@/hooks/useCoinActions'
-import {
-  useCoinContract,
-  useDexContract,
-  usePumpContract,
-} from '@/hooks/useContract'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
@@ -22,21 +16,13 @@ import CoinSocials from './coin-social'
 const REFRESH_COIN_DETAIL_MS = 5_000
 
 const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
-  const { contract: coinContract } = useCoinContract(coin.contractAddress)
-
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
   const [buyError, setBuyError] = useState<string | null>(null)
   const [modalOpen, setModalOpen] = useState<boolean>(false)
   const [modalMessage, setModalMessage] = useState<string>('')
 
-  const { publicClient, walletClient } = useShieldedWallet()
-  const { contract: pumpContract } = usePumpContract()
-  const { contract: dexContract } = useDexContract()
   const [buyAmount, setBuyAmount] = useState<string>('')
 
-  // if (!walletClient || !publicClient || !pumpContract || !dexContract) {
-  //   return <></>
-  // }
   const {
     viewEthIn,
     refreshWeiInForGraduated,
@@ -45,11 +31,6 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
     loadingEthIn,
   } = useCoinActions({
     coin,
-    coinContract,
-    walletClient,
-    publicClient,
-    pumpContract,
-    dexContract,
     buyAmount,
     setBuyAmount,
     setBuyError,
@@ -57,6 +38,7 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
     sellAmount: '', // pass sell state if needed
     setSellAmount: () => {},
     setSellError: () => {},
+    setModalMessage,
   })
 
   useEffect(() => {
@@ -207,7 +189,10 @@ const CoinDetail: React.FC = () => {
     }
     refresh()
     const interval = setInterval(refresh, REFRESH_COIN_DETAIL_MS)
-    return () => { clearInterval(interval) }
+    return () => {
+      clearInterval(interval)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded, coinId])
 
   console.log('coin', coin?.contractAddress)
