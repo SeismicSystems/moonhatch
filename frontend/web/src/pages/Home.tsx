@@ -21,7 +21,7 @@ const Home: React.FC = () => {
     hasTelegram: false,
     hasTwitter: false,
     hasAllSocials: false,
-    sortByCreatedAt: true, // Default: Sort by newest first
+    sortByCreatedAt: true, // Default: Newest First
   })
 
   // 🔽 Dropdown Menu State
@@ -93,115 +93,123 @@ const Home: React.FC = () => {
         <HomeHeader />
 
         {/* 🔍 Search Bar */}
-        <div className="mt-6 flex justify-center items-center gap-4">
-          {/* Search Bar */}
+        <div className="relative flex w-full justify-center items-center mt-6">
+          {/* Search Bar - Always Centered */}
           <input
             type="text"
-            placeholder="SEARCH FOR NAME OR TICKER"
+            placeholder="SEARCH NAME/TICKER"
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-64 h-12 md:w-80 lg:w-96 p-2 bg-[var(--lightBlue)] rounded-md text-[var(--midBlue)] text-center"
+            className="w-64 text-xs uppercase  text-[var(--creamWhite)] h-12 md:w-80 lg:w-96 p-2 rounded-md  text-center"
           />
 
-          {/* 🎛 Filter Dropdown */}
-          <div className="relative" ref={dropdownRef}>
+          {/* 🎛 Filter Dropdown - Always to the Right */}
+          <div
+            className="absolute right-20  lg:mr-24 xl:mr-72"
+            ref={dropdownRef}
+          >
             <button
               onClick={() => setIsDropdownOpen((prev) => !prev)}
-              className="px-4 py-2 h-12 bg-[var(--midBlue)] text-white rounded-lg flex items-center justify-center"
+              className="px-4 py-2 h-12 bg-[var(--midBlue)] text-[var(--creamWhite)] rounded-lg flex items-center justify-center"
             >
-              <span className="hidden md:inline">FILTER</span>
-              <FilterListIcon className="md:hidden text-white text-lg" />{' '}
+              <span className="hidden md:inline mr-1 ">FILTER</span>
+              <FilterListIcon className="md:hidden text-[var(--creamWhite)] text-lg" />{' '}
               {/* Mobile icon */}
             </button>
-
-            {/* Dropdown with Smooth Animation */}
-            <AnimatePresence>
-              {isDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="absolute right-0 md:right-auto mt-2 w-56 bg-[var(--lightBlue)] border  border-gray-300 rounded-lg shadow-lg z-50 md:w-max"
-                >
-                  <ul className="p-2 bg-[var(--midBlue)] text-[var(--creamWhite)] rounded-lg">
-                    <li className="flex items-center gap-2 py-2 px-4 hover:bg-[var(--lightBlue)] ">
-                      <input
-                        type="checkbox"
-                        checked={filters.hasWebsite}
-                        onChange={() =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            hasWebsite: !prev.hasWebsite,
-                          }))
-                        }
-                      />
-                      <label>WEBSITE</label>
-                    </li>
-                    <li className="flex items-center gap-2 py-2 px-4 hover:bg-[var(--midBlue)] text-[var(--creamWhite)]">
-                      <input
-                        type="checkbox"
-                        checked={filters.hasTelegram}
-                        onChange={() =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            hasTelegram: !prev.hasTelegram,
-                          }))
-                        }
-                      />
-                      <label>TELEGRAM</label>
-                    </li>
-                    <li className="flex items-center gap-2 py-2 px-4 hover:bg-[var(--midBlue)] text-[var(--creamWhite)]">
-                      <input
-                        type="checkbox"
-                        checked={filters.hasTwitter}
-                        onChange={() =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            hasTwitter: !prev.hasTwitter,
-                          }))
-                        }
-                      />
-                      <label>X</label>
-                    </li>
-                    <li className="flex items-center gap-2 py-2 px-4 hover:bg-[var(--midBlue)] text-[var(--creamWhite)]">
-                      <input
-                        type="checkbox"
-                        checked={filters.hasAllSocials}
-                        onChange={() =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            hasAllSocials: !prev.hasAllSocials,
-                          }))
-                        }
-                      />
-                      <label>ALL SOCIALS</label>
-                    </li>
-                    <li className="flex items-center gap-2 py-2 px-4 hover:bg-[var(--midBlue)] text-[var(--creamWhite)] border-t mt-2 pt-2">
-                      <button
-                        onClick={() =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            sortByCreatedAt: !prev.sortByCreatedAt,
-                          }))
-                        }
-                        className="text-blue-600"
-                      >
-                        Sort by:{' '}
-                        {filters.sortByCreatedAt
-                          ? 'Newest First'
-                          : 'Oldest First'}
-                      </button>
-                    </li>
-                  </ul>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         </div>
+        {/* Dropdown with Smooth Animation */}
+        <AnimatePresence>
+          {isDropdownOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="absolute right-0 md:right-10 lg:right-30 xl:right-80  mt-2 w-56 bg-[var(--lightBlue)] border border-gray-300 rounded-lg shadow-lg z-50 md:w-max"
+            >
+              <ul className="p-2 bg-[var(--midBlue)] text-[var(--creamWhite)] rounded-lg">
+                {/* 🏆 SORT BY SECTION */}
+                <li className="flex items-center gap-2 py-2 px-4 rounded-md font-bold text-[var(--creamWhite)]">
+                  SORT BY:
+                </li>
+                <li
+                  className={`flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md ${
+                    filters.sortByCreatedAt
+                      ? 'bg-[var(--darkBlue)]'
+                      : 'hover:bg-[var(--midBlue)]'
+                  }`}
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      sortByCreatedAt: true,
+                    }))
+                  }
+                >
+                  <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
+                    {filters.sortByCreatedAt && (
+                      <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
+                    )}
+                  </div>
+                  NEWEST
+                </li>
+                <li
+                  className={`flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md ${
+                    !filters.sortByCreatedAt
+                      ? 'bg-[var(--darkBlue)]'
+                      : 'hover:bg-[var(--midBlue)]'
+                  }`}
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      sortByCreatedAt: false,
+                    }))
+                  }
+                >
+                  <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
+                    {!filters.sortByCreatedAt && (
+                      <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
+                    )}
+                  </div>
+                  OLDEST
+                </li>
 
-        {/* 🎯 Display Filtered Coins */}
-        <Coins coins={filteredCoins} />
+                {/* 🏆 FILTER SECTION */}
+                <li className="flex items-center gap-2 py-2 px-4 rounded-md font-bold text-[var(--creamWhite)]">
+                  FILTERS:
+                </li>
+                {[
+                  { key: 'hasWebsite', label: 'WEBSITE' },
+                  { key: 'hasTelegram', label: 'TELEGRAM' },
+                  { key: 'hasTwitter', label: 'X' },
+                  { key: 'hasAllSocials', label: 'ALL SOCIALS' },
+                ].map(({ key, label }) => (
+                  <li
+                    key={key}
+                    className={`flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md ${
+                      filters[key]
+                        ? 'bg-[var(--darkBlue)] text-[var(--creamWhite)]'
+                        : 'hover:bg-[var(--midBlue)]'
+                    }`}
+                    onClick={() =>
+                      setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
+                    }
+                  >
+                    <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
+                      {filters[key] && (
+                        <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
+                      )}
+                    </div>
+                    <label className="cursor-pointer">{label}</label>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
+      {/* 🎯 Display Filtered Coins */}
+      <Coins coins={filteredCoins} />
     </>
   )
 }
