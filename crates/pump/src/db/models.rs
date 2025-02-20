@@ -1,11 +1,12 @@
 // src/models.rs
 
-use bigdecimal::{BigDecimal, ToPrimitive};
+use alloy_primitives::Address;
+use bigdecimal::{BigDecimal, ToPrimitive, Zero};
 use chrono::NaiveDateTime;
 use diesel::{prelude::*, Queryable};
 use serde::{Deserialize, Serialize};
 
-use crate::db::schema;
+use crate::{client::block::Block, db::schema, error::PumpError};
 
 #[derive(Queryable, Serialize, Deserialize, Debug)]
 pub struct Coin {
@@ -31,23 +32,24 @@ pub struct Coin {
     pub deployed_pool: Option<String>,
 }
 
-#[derive(Queryable, Serialize, Deserialize, Debug)]
+#[derive(Insertable, Queryable, Serialize, Deserialize, Debug)]
+#[diesel(table_name = schema::pools)]
 pub struct Pool {
     pub address: String,
     #[serde(rename = "chainId")]
     pub chain_id: i32,
     pub dex: String,
     #[serde(rename = "tokenA")]
-    pub token_a: String,
+    pub token_0: String,
     #[serde(rename = "tokenB")]
-    pub token_b: String,
+    pub token_1: String,
     #[serde(rename = "createdAt")]
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Queryable, Serialize, Deserialize, Debug)]
-pub struct PoolPrices {
-    pub id: i64,
+#[derive(Insertable)]
+#[diesel(table_name = schema::pool_prices)]
+pub struct NewPoolPrice {
     pub pool: String,
     pub time: i64,
     pub open: BigDecimal,
@@ -56,7 +58,28 @@ pub struct PoolPrices {
     pub close: BigDecimal,
 }
 
-#[derive(Insertable, Deserialize)]
+impl NewPoolPrice {
+    pub fn try_new(
+        lp_token: &Address,
+        block: Block,
+        prices: &Vec<BigDecimal>,
+    ) -> Result<NewPoolPrice, PumpError> {
+        if prices.is_empty() {
+            return Err(PumpError::no_prices(block.number, lp_token.clone()));
+        }
+        let price = NewPoolPrice {
+            pool: lp_token.to_string(),
+            time: block.timestamp,
+            open: BigDecimal::zero(),
+            high: BigDecimal::zero(),
+            low: BigDecimal::zero(),
+            close: BigDecimal::zero(),
+        };
+        Ok(price)
+    }
+}
+
+#[derive(Insertable, Deserialize, Clone)]
 #[diesel(table_name = schema::coins)]
 pub struct NewCoin {
     pub id: i64,
@@ -94,4 +117,16 @@ pub struct PoolPriceData {
     pub low: BigDecimal,
     #[serde(serialize_with = "serialize_decimal_as_f64")]
     pub close: BigDecimal,
+}
+
+#[derive(Queryable, Insertable)]
+#[diesel(table_name = schema::trades)]
+pub struct Trade {
+    pub tx: String,
+    pub pool: String,
+    pub trader: String,
+    pub buy_0: bool,
+    pub amount_0: BigDecimal,
+    pub amount_1: BigDecimal,
+    pub time: i64,
 }

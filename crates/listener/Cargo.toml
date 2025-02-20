@@ -4,3 +4,19 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+pump = { path = "../pump" }
+
+alloy-provider.workspace = true
+alloy-rpc-types-eth.workspace = true
+alloy-primitives.workspace = true
+alloy-pubsub.workspace = true
+alloy-sol-types.workspace = true
+alloy-transport.workspace = true
+
+bigdecimal.workspace = true
+chrono.workspace = true
+dotenv.workspace = true
+futures-util.workspace = true
+tokio.workspace = true
+env_logger.workspace = true
+log.workspace = true

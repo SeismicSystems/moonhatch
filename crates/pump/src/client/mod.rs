@@ -1,53 +1,17 @@
-mod contract_address;
-
 use alloy_primitives::Address;
-use alloy_provider::{
-    create_seismic_provider_without_wallet, network::TransactionBuilder, Provider,
-    SeismicPublicClient,
-};
-use alloy_rpc_types_eth::{Filter, TransactionInput, TransactionRequest};
-use alloy_sol_types::SolType;
-use contract_address::ContractAddresses;
-use reqwest::Url;
-use std::str::FromStr;
+use alloy_provider::network::TransactionBuilder;
+use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
 
-use crate::{
-    contract::{coin::get_coin_calldata, factory::get_pair_calldata, SolidityCoin},
-    error::PumpError,
-};
+pub mod block;
+mod contract_address;
+pub mod pool;
 
-pub fn build_tx(to: Address, calldata: Vec<u8>) -> TransactionRequest {
-    TransactionRequest::default().with_to(to).input(TransactionInput::new(calldata.into()))
-}
+mod http;
+mod ws;
 
-pub struct PumpClient {
-    provider: SeismicPublicClient,
-    ca: ContractAddresses,
-}
+pub use http::PumpClient;
+pub use ws::PumpWsClient;
 
-impl PumpClient {
-    pub fn new() -> PumpClient {
-        let rpc_url = Url::from_str("http://127.0.0.1:8545").expect("invalid RPC_URL");
-        let provider = create_seismic_provider_without_wallet(rpc_url);
-        PumpClient { provider, ca: ContractAddresses::new() }
-    }
-
-    pub async fn get_coin(&self, coin_id: u32) -> Result<SolidityCoin, PumpError> {
-        let tx = build_tx(self.ca.pump, get_coin_calldata(coin_id));
-        let bytes = self.provider.call(&tx).await.map_err(|_| PumpError::CoinNotFound)?;
-        let coin =
-            SolidityCoin::abi_decode(&bytes, true).map_err(|_| PumpError::FailedToDecodeAbi)?;
-        Ok(coin)
-    }
-
-    pub async fn get_pair(&self, token: Address) -> Result<Address, PumpError> {
-        let calldata = get_pair_calldata(token, self.ca.weth);
-        ContractAddresses::get_address(&self.provider, self.ca.factory, calldata)
-            .await
-            .map_err(|_| PumpError::PairNotFound)
-    }
-
-    pub fn pump_filter(&self) -> Filter {
-        Filter::new().address(self.ca.pump)
-    }
+pub fn build_tx(to: &Address, calldata: Vec<u8>) -> TransactionRequest {
+    TransactionRequest::default().with_to(to.clone()).input(TransactionInput::new(calldata.into()))
 }
