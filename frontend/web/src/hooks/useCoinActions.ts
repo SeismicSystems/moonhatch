@@ -244,12 +244,6 @@ export const useCoinActions = ({
       if (!coin.graduated) {
         console.log('Sell logic for non-graduated tokens is not implemented.')
       } else {
-        const deadline = Math.floor(Date.now() / 1000) + 60 * 20
-        const path = [coin.contractAddress, WETH_CONTRACT_ADDRESS]
-        txHash = await dexContract.write.swapExactTokensForETH(
-          [sellAmountWei, 0, path, userAddress, deadline],
-          { gas: 1_000_000 }
-        )
         console.log('✅ Sell transaction sent via DEX! Hash:', txHash)
       }
       setSellAmount('')
