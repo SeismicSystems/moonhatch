@@ -39,7 +39,7 @@ impl TryFrom<models::Pool> for Pool {
     }
 }
 
-fn int_to_decimal<const BITS: usize, const LIMBS: usize>(i: Uint<BITS, LIMBS>) -> BigDecimal {
+pub fn int_to_decimal<const BITS: usize, const LIMBS: usize>(i: Uint<BITS, LIMBS>) -> BigDecimal {
     BigDecimal::from(to_bigint(i))
 }
 

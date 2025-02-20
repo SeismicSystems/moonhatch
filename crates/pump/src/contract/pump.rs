@@ -6,6 +6,8 @@ sol! {
         #[derive(Debug)]
         event CoinCreated(uint32 coinId);
         #[derive(Debug)]
+        event CoinPurchased(uint32 coinId, uint256 totalWeiIn);
+        #[derive(Debug)]
         event CoinGraduated(uint32 coinId);
         #[derive(Debug)]
         event DeployedToDex(uint32 coinId, address lpToken);

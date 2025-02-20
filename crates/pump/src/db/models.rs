@@ -20,6 +20,7 @@ pub struct Coin {
     pub creator: String,
     pub graduated: bool,
     pub verified: bool,
+    pub wei_in: BigDecimal,
     pub description: Option<String>,
     #[serde(rename = "imageUrl")]
     pub image_url: Option<String>,

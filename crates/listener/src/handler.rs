@@ -7,7 +7,7 @@ use chrono::DateTime;
 use std::{collections::HashMap, num::NonZero};
 
 use pump::{
-    client::{block::Block, pool::Pool, PumpClient, PumpWsClient},
+    client::{block::Block, pool::{int_to_decimal, Pool}, PumpClient, PumpWsClient},
     contract::{pair::UniswapV2Pair, pump::PumpRand},
     db::{
         models::{self, Trade},
@@ -64,6 +64,9 @@ impl LogHandler {
             Some(&PumpRand::CoinCreated::SIGNATURE_HASH) => {
                 self.handle_creation(log.log_decode::<PumpRand::CoinCreated>()?).await
             }
+            Some(&PumpRand::CoinPurchased::SIGNATURE_HASH) => {
+                self.handle_purchase(log.log_decode::<PumpRand::CoinPurchased>()?).await
+            }
             Some(&PumpRand::CoinGraduated::SIGNATURE_HASH) => {
                 self.handle_graduation(log.log_decode::<PumpRand::CoinGraduated>()?).await
             }
@@ -91,6 +94,20 @@ impl LogHandler {
             fmt_hex(coin.creator)
         );
         store::upsert_verified(&mut conn, coin_id as i64, coin)?;
+        Ok(false)
+    }
+
+    async fn handle_purchase(&self, log: Log<PumpRand::CoinPurchased>) -> Result<bool, PumpError> {
+        let data = log.data();
+        log::info!(
+            "Coin[{}] purchased in block {}. Total purchased: {}",
+            data.coinId,
+            log.block_number.unwrap_or_default(),
+            data.totalWeiIn
+        );
+        let mut conn = self.conn()?;
+        let wei_in = int_to_decimal(data.totalWeiIn);
+        store::update_wei_in(&mut conn, data.coinId as i64, wei_in)?;
         Ok(false)
     }
 
