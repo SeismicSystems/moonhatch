@@ -3,7 +3,7 @@ use alloy_pubsub::SubscriptionStream;
 use alloy_rpc_types_eth::{Header, Log};
 use alloy_sol_types::SolEvent;
 use bigdecimal::BigDecimal;
-use chrono::{DateTime, NaiveDateTime};
+use chrono::DateTime;
 use std::collections::HashMap;
 
 use pump::{
@@ -104,10 +104,10 @@ impl LogHandler {
         }
     }
 
-    fn check_block<T>(&self, log: &Log<T>) -> Result<(), PumpError> {
+    fn check_block<T>(&self, log: &Log<T>) -> Result<Block, PumpError> {
         let block = LogHandler::try_block(log)?;
         match block.number == self.block.number {
-            true => Ok(()),
+            true => Ok(block),
             false => Err(PumpError::wrong_block(block.number, self.block.number)),
         }
     }

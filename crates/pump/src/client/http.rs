@@ -1,4 +1,4 @@
-use alloy_network::{EthereumWallet, TxSigner};
+use alloy_network::EthereumWallet;
 use alloy_primitives::{hex::FromHex, Address, FixedBytes, B256};
 use alloy_provider::{
     create_seismic_provider, create_seismic_provider_without_wallet, network::TransactionBuilder, Provider, SeismicPublicHttpClient, SeismicWalletClient
