@@ -7,11 +7,6 @@ import { usePumpClient } from './usePumpClient'
 
 interface UseCoinActionsParams {
   coin: Coin | null
-  walletClient: any
-  publicClient: any
-  pumpContract: any
-  coinContract: any
-  dexContract: any
   buyAmount: string
   setBuyAmount: React.Dispatch<React.SetStateAction<string>>
   setBuyError: React.Dispatch<React.SetStateAction<string | null>>
@@ -32,10 +27,6 @@ interface UseCoinActionsReturn {
 
 export const useCoinActions = ({
   coin,
-  walletClient,
-  publicClient,
-  pumpContract,
-  dexContract,
   buyAmount,
   setBuyAmount,
   setBuyError,
@@ -61,7 +52,7 @@ export const useCoinActions = ({
   } = usePumpClient()
 
   const viewEthIn = async (): Promise<void> => {
-    if (!walletClient || !pumpContract || !coin || loadingEthIn) return
+    if (!coin || loadingEthIn) return
 
     setLoadingEthIn(true)
     try {
@@ -84,7 +75,7 @@ export const useCoinActions = ({
 
   const refreshWeiInForGraduated = async (): Promise<void> => {
     console.log('refreshWeiInForGraduated')
-    if (!walletClient || !pumpContract || !coin || loadingEthIn) return
+    if (!coin || loadingEthIn) return
 
     setLoadingEthIn(true)
     try {
@@ -109,7 +100,7 @@ export const useCoinActions = ({
 
   const refreshWeiInForNonGraduated = async (): Promise<void> => {
     console.log('refreshWeiInForNonGraduated')
-    if (!walletClient || !pumpContract || !coin || loadingEthIn) return
+    if (!coin || loadingEthIn) return
 
     setLoadingEthIn(true)
     try {
@@ -134,13 +125,7 @@ export const useCoinActions = ({
 
   const handleBuy = async () => {
     setBuyError(null)
-    if (
-      !publicClient ||
-      !walletClient ||
-      !pumpContract ||
-      !coin ||
-      !buyAmount
-    ) {
+    if (!coin || !buyAmount) {
       setBuyError('Required data is missing.')
       return
     }
@@ -157,11 +142,12 @@ export const useCoinActions = ({
       return
     }
 
+    if (isBuying) {
+      setBuyError('Already buying')
+      return
+    }
+
     try {
-      if (isBuying) {
-        setBuyError('Already buying')
-        return
-      }
       const balance = await balanceEthWallet()
       if (amountInWei > balance) {
         setBuyError('Insufficient balance.')
@@ -200,14 +186,8 @@ export const useCoinActions = ({
 
   const handleSell = async () => {
     setSellError(null)
-    if (
-      !publicClient ||
-      !walletClient ||
-      !pumpContract ||
-      !coin ||
-      !sellAmount
-    ) {
-      setSellError('Required data is missing.')
+    if (!coin || !sellAmount) {
+      setSellError('Empty sell amount')
       return
     }
     const sellAmountWei = parseEther(sellAmount, 'wei')
