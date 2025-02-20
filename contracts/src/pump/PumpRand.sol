@@ -35,6 +35,7 @@ contract PumpRand {
 
     event CoinCreated(uint32 coinId);
     event CoinGraduated(uint32 coinId);
+    event CoinPurchased(uint32 coinId, uint256 totalWeiIn);
     event DeployedToDex(uint32 coinId, address lpToken);
 
     error NoCoinWithId(uint32 coinId);
@@ -115,27 +116,9 @@ contract PumpRand {
         uint256 T_rem = coin.supply - uint256(unitsOut[coinId]);
         uint256 R = WEI_GRADUATION - W_prev; // remaining wei until 1 ETH
 
-        uint256 tokensMinted;
-        IPumpCoin pc = IPumpCoin(coin.contractAddress);
-    
         // Final deposit: if total wei deposited reaches or exceeds 1 ETH.
         if (totalWei >= WEI_GRADUATION) {
-            uint256 requiredWei = WEI_GRADUATION - W_prev;
-            uint256 refund = W_new - requiredWei;
-            tokensMinted = T_rem;
-            weisIn[coinId] = W_prev + requiredWei;
-            weisInByAddress[coinId][saddress(msg.sender)] = weisInByAddress[coinId][saddress(msg.sender)] + suint256(requiredWei);
-            unitsOut[coinId] = suint256(coin.supply);
-            graduated[coinId] = true;
-            pc.mint(saddress(msg.sender), suint256(tokensMinted));
-            if (refund > 0) {
-                bool success1 = payable(msg.sender).send(refund);
-                if (!success1) {
-                    revert FailedToRefundExcessEth();
-                }
-            }
-            emit CoinGraduated(coinId);
-            return refund;
+            return persistGraduatingBuy(coinId, W_prev, W_new, T_rem);
         }
 
         // basePrice = T_rem / R, in fixed point (18 decimals).
@@ -155,12 +138,40 @@ contract PumpRand {
         }
         // price = basePriceFP * M / 1e18 (in tokens per wei, fixed point).
         uint256 priceFP = (basePriceFP * M) / 1e18;
-        tokensMinted = (priceFP * W_new) / 1e18;
+        uint256 tokensMinted = (priceFP * W_new) / 1e18;
+        return persistBuy(coinId, W_prev, W_new, T_rem, tokensMinted);
+    }
 
+    function persistGraduatingBuy(uint32 coinId, uint256 W_prev, uint256 W_new, uint256 T_rem) internal returns (uint256 weiRefunded) {
+        Coin memory coin = getCoin(coinId);
+        IPumpCoin pc = IPumpCoin(coin.contractAddress);
+
+        uint256 requiredWei = WEI_GRADUATION - W_prev;
+        uint256 refund = W_new - requiredWei;
+        uint256 tokensMinted = T_rem;
+        weisIn[coinId] = W_prev + requiredWei;
+        weisInByAddress[coinId][saddress(msg.sender)] = weisInByAddress[coinId][saddress(msg.sender)] + suint256(requiredWei);
+        unitsOut[coinId] = suint256(coin.supply);
+        graduated[coinId] = true;
+        pc.mint(saddress(msg.sender), suint256(tokensMinted));
+        if (refund > 0) {
+            bool success1 = payable(msg.sender).send(refund);
+            if (!success1) {
+                revert FailedToRefundExcessEth();
+            }
+        }
+        emit CoinGraduated(coinId);
+        return refund;
+    }
+
+    function persistBuy(uint32 coinId, uint256 W_prev, uint256 W_new, uint256 T_rem, uint256 tokensMinted) internal returns (uint256 weiRefunded) {
+        Coin memory coin = getCoin(coinId);
+        IPumpCoin pc = IPumpCoin(coin.contractAddress);
         weisIn[coinId] = W_prev + W_new;
         weisInByAddress[coinId][saddress(msg.sender)] = weisInByAddress[coinId][saddress(msg.sender)] + suint256(W_new);
         unitsOut[coinId] = suint256((coin.supply - T_rem) + tokensMinted);
         pc.mint(saddress(msg.sender), suint256(tokensMinted));
+        emit CoinPurchased(coinId, weisIn[coinId]);
         return 0;
     }
 
