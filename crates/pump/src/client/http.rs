@@ -31,6 +31,7 @@ pub struct PumpClient {
     provider: SeismicUnsignedProvider,
     wallet: SeismicSignedProvider,
     ca: ContractAddresses,
+    signer_address: Address,
 }
 
 impl PumpClient {
@@ -38,16 +39,17 @@ impl PumpClient {
         let rpc_url = Url::from_str(rpc_url).expect("Missing RPC_URL in .env");
         let provider = create_seismic_provider_without_wallet(rpc_url.clone());
 
-        let wallet = {
+        let (wallet, signer_address) = {
             let private_key = std::env::var("DEPLOYER_PRIVATE_KEY")
                 .expect("Missing DEPLOYER_PRIVATE_KEY in .env");
             log::info!("Pk: {}", private_key);
             let pk_bytes = B256::from_hex(private_key).unwrap();
             let signer = LocalSigner::from_bytes(&pk_bytes).expect("invalid signer");
+            let signer_address = signer.address();
             let wallet = EthereumWallet::new(signer);
-            create_seismic_provider(wallet, rpc_url)
+            (create_seismic_provider(wallet, rpc_url), signer_address)
         };
-        PumpClient { provider, wallet, ca: ContractAddresses::new() }
+        PumpClient { provider, wallet, ca: ContractAddresses::new(), signer_address }
     }
 
     pub async fn get_coin(&self, coin_id: u32) -> Result<SolidityCoin, PumpError> {
@@ -87,9 +89,8 @@ impl PumpClient {
     }
 
     pub async fn deploy_graduated(&self, coin_id: u32) -> Result<FixedBytes<32>, TransportError> {
-        let addresses = self.wallet.get_accounts().await.unwrap();
-        let nonce = self.wallet.get_transaction_count(addresses[0]).await.unwrap();
-        log::info!("Nonce {} for {}", nonce, addresses[0]);
+        let nonce = self.wallet.get_transaction_count(self.signer_address).await.unwrap();
+        log::info!("nonce: {} for {:?}", nonce, self.signer_address);
         let input = deploy_graduated_bytecode(coin_id);
         let tx = TransactionRequest::default().nonce(nonce).to(self.ca.pump).input(input.into());
         let pending_tx = self.wallet.send_transaction(tx).await?;
