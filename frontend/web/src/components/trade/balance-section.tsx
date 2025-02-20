@@ -5,7 +5,6 @@ import { Box, CircularProgress, IconButton, Typography } from '@mui/material'
 
 interface BalanceDisplayProps {
   coin: {
-    // Ensure coin includes the 'graduated' property
     graduated: boolean
     name: string
   }
@@ -37,15 +36,9 @@ const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
         gap: 2,
       }}
     >
-      {/* Header: If the coin is not graduated, display "ETH IN" */}
       <Typography
         sx={{
-          fontSize: {
-            xs: '1rem',
-            sm: '1.5rem',
-            md: '1.2rem',
-            lg: '1.5rem',
-          },
+          fontSize: { xs: '1rem', sm: '1.5rem', md: '1.2rem', lg: '1.5rem' },
           color: 'var(--creamWhite)',
         }}
       >

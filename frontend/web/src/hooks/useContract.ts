@@ -8,9 +8,11 @@ export const CHAIN_ID = import.meta.env.VITE_CHAIN_ID
 const loadContractData = async ({
   name,
   chainId = CHAIN_ID,
+  folder = 'contracts',
 }: {
   name: string
   chainId?: Hex | undefined
+  folder?: string
 }): Promise<ContractData> => {
   // Check if VITE_CHAIN_ID is set
   if (!chainId) {
@@ -18,8 +20,8 @@ const loadContractData = async ({
   }
 
   // Construct the file path (vite makes this load from /public directory)
-  const configPath = `/chains/${CHAIN_ID}/contracts/${name}.json`
-
+  const configPath = `/chains/${CHAIN_ID}/${folder}/${name}.json`
+  //modify this to send a string that is eiterh 'contracts' or 'interfaces' rn hardcoded to contracts
   try {
     const response = await fetch(configPath)
     if (!response.ok) {
@@ -39,6 +41,10 @@ const loadContractData = async ({
 
 const pumpContractData = await loadContractData({ name: 'PumpRand' })
 const dexContractData = await loadContractData({ name: 'UniswapV2Router02' })
+const coinContractData = await loadContractData({
+  name: 'IPumpCoin',
+  folder: 'interfaces',
+})
 
 export const WETH_CONTRACT_ADDRESS = await loadContractData({
   name: 'WETH9',
@@ -55,3 +61,14 @@ export const DEX_CONTRACT_ADDRESS = dexContractData.address
 export const DEX_CONTRACT_ABI = dexContractData.abi
 export const useDexContract = () =>
   useShieldedContract({ abi: DEX_CONTRACT_ABI, address: DEX_CONTRACT_ADDRESS })
+
+export const COIN_CONTRACT_ABI = coinContractData.abi
+export const useCoinContract = (address: Hex) =>
+  useShieldedContract({
+    abi: COIN_CONTRACT_ABI,
+    address,
+  })
+
+// make export cont use-pumpcoin contract
+//user needs to put in param  unlike dex and pump
+//   useShieldedContract({ abi: DEX_CONTRACT_ABI, address: DEX_CONTRACT_ADDRESS })
