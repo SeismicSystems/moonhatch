@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
 import { hexToNumber } from 'viem'
 
-import { useCreateCoin } from '@/hooks/useCreateCoin'
+import { usePumpClient } from '@/hooks/client'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import { CoinFormData } from '@/types/coin'
 import ImageUpload from '@components/create/image-upload'
@@ -29,7 +29,7 @@ const CoinForm: React.FC = () => {
   // State to control the success popup (Snackbar)
   const [successOpen, setSuccessOpen] = useState(false)
 
-  const { createCoin } = useCreateCoin()
+  const { createCoin } = usePumpClient()
   const { postCreatedCoin, verifyCoin, uploadImage } = useFetchCoin()
   const { publicClient } = useShieldedWallet()
 

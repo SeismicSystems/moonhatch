@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { parseEther } from 'viem'
+import { TransactionReceipt, parseEther } from 'viem'
 
-import { WETH_CONTRACT_ADDRESS } from '@/hooks/useContract'
 import type { Coin } from '@/types/coin'
 
-import { usePumpClient } from './client'
+import { usePumpClient } from './usePumpClient'
 
 interface UseCoinActionsParams {
   coin: Coin | null
@@ -36,7 +35,6 @@ export const useCoinActions = ({
   walletClient,
   publicClient,
   pumpContract,
-  coinContract,
   dexContract,
   buyAmount,
   setBuyAmount,
@@ -51,7 +49,16 @@ export const useCoinActions = ({
   const [isSelling, setIsSelling] = useState<boolean>(false)
   const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
 
-  const { getWeiIn, balanceOfWallet, allowanceDex } = usePumpClient()
+  const {
+    getWeiIn,
+    balanceEthWallet,
+    balanceOfWallet,
+    pubClient,
+    buyPostGraduation,
+    buyPreGraduation,
+    approveSale,
+    sell,
+  } = usePumpClient()
 
   const viewEthIn = async (): Promise<void> => {
     if (!walletClient || !pumpContract || !coin || loadingEthIn) return
@@ -155,10 +162,8 @@ export const useCoinActions = ({
         setBuyError('Already buying')
         return
       }
-      const balance = await publicClient.getBalance({
-        address: walletClient.account.address,
-      })
-      if (amountInWei > BigInt(balance)) {
+      const balance = await balanceEthWallet()
+      if (amountInWei > balance) {
         setBuyError('Insufficient balance.')
         return
       }
@@ -166,22 +171,17 @@ export const useCoinActions = ({
       setIsBuying(true)
       let txHash
       if (!coin.graduated) {
-        txHash = await pumpContract.twrite.buy([coin.id], {
-          gas: 1_000_000,
-          value: amountInWei,
-        })
+        txHash = await buyPreGraduation(coin.id, amountInWei)
         console.log('✅ Transaction sent via pumpContract! Hash:', txHash)
       } else {
         if (!dexContract) {
           setBuyError('DEX contract not initialized')
           return
         }
-        const deadline = Math.floor(Date.now() / 1000) + 60 * 20
-        const path = [WETH_CONTRACT_ADDRESS, coin.contractAddress]
-        txHash = await dexContract.write.swapExactETHForTokens(
-          [0, path, walletClient.account.address, deadline],
-          { gas: 1_000_000, value: amountInWei }
-        )
+        txHash = await buyPostGraduation({
+          token: coin.contractAddress,
+          amountIn: amountInWei,
+        })
         console.log('✅ Dex transaction sent! Hash:', txHash)
       }
       const newTotalWei = existingWeiBigInt + amountInWei
@@ -212,39 +212,27 @@ export const useCoinActions = ({
     }
     const sellAmountWei = parseEther(sellAmount, 'wei')
     try {
-      const tokenBalance = await balanceOfWallet(coin.contractAddress)
-      if (sellAmountWei > tokenBalance) {
-        setSellError('Insufficient token balance for selling.')
-        return
-      }
-      const spender = dexContract?.read?.address || dexContract?.address
-      if (!spender) {
-        setSellError('DEX contract not initialized')
-        return
-      }
-      const currentAllowance = await allowanceDex(coin.contractAddress)
-      if (sellAmountWei > currentAllowance) {
-        console.log(
-          'Current allowance insufficient. Sending approve transaction...'
-        )
-        const approveTx = await pumpContract.write.approve(
-          [spender, sellAmountWei],
-          {
-            gas: 1_000_000,
-          }
-        )
-        await approveTx.wait()
-        console.log('Approval confirmed.')
-      } else {
-        console.log('Sufficient allowance available.')
-      }
+      await approveSale({
+        token: coin.contractAddress,
+        amount: sellAmountWei,
+      })
 
-      let txHash
       setIsSelling(true)
       if (!coin.graduated) {
         console.log('Sell logic for non-graduated tokens is not implemented.')
       } else {
-        console.log('✅ Sell transaction sent via DEX! Hash:', txHash)
+        const hash = await sell({
+          token: coin.contractAddress,
+          amountIn: sellAmountWei,
+        })
+        console.log(`✅ Sell transaction sent via DEX! ${hash}`)
+        pubClient()
+          .waitForTransactionReceipt({
+            hash,
+          })
+          .then((receipt: TransactionReceipt) => {
+            console.log('✅ Sell transaction confirmed! Receipt:', receipt)
+          })
       }
       setSellAmount('')
     } catch (err) {
