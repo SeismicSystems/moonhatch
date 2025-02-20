@@ -72,7 +72,7 @@ const Home: React.FC = () => {
     setFilteredCoins(updatedCoins)
   }, [searchQuery, filters, coins]) // Runs when any of these change
 
-  // 🔽 Close dropdown when clicking outside
+  // 🔽 Close dropdown when clicking outside, but keep open when interacting
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -99,7 +99,7 @@ const Home: React.FC = () => {
             type="text"
             placeholder="SEARCH NAME/TICKER"
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-64 text-xs uppercase  text-[var(--creamWhite)] h-12 md:w-80 lg:w-96 p-2 rounded-md  text-center"
+            className="w-64 text-xs lg:text-lg uppercase  text-[var(--creamWhite)] h-12 lg:h-16 md:w-80 lg:w-96 p-2 rounded-md text-center"
           />
 
           {/* 🎛 Filter Dropdown - Always to the Right */}
@@ -109,107 +109,96 @@ const Home: React.FC = () => {
           >
             <button
               onClick={() => setIsDropdownOpen((prev) => !prev)}
-              className="px-4 py-2 h-12 bg-[var(--midBlue)] text-[var(--creamWhite)] rounded-lg flex items-center justify-center"
+              className="px-4 py-2 h-12 lg:h-16 bg-[var(--midBlue)] text-[var(--creamWhite)] rounded-lg flex items-center justify-center"
             >
-              <span className="hidden md:inline mr-1 ">FILTER</span>
-              <FilterListIcon className="md:hidden text-[var(--creamWhite)] text-lg" />{' '}
-              {/* Mobile icon */}
+              <span className="hidden md:inline mr-1">FILTER</span>
+              <FilterListIcon className="md:hidden text-[var(--creamWhite)] text-lg" />
             </button>
+
+            {/* Dropdown with Smooth Animation */}
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                  className="absolute right-0  mt-2 w-56 bg-[var(--lightBlue)] border border-gray-300 rounded-lg shadow-lg z-50 md:w-max"
+                >
+                  <ul className="p-2 bg-[var(--midBlue)] text-[var(--creamWhite)] rounded-lg">
+                    {/* 🏆 SORT BY SECTION */}
+                    <li className="flex items-center gap-2 py-2 px-4 rounded-md font-bold text-[var(--creamWhite)]">
+                      SORT BY:
+                    </li>
+                    <li
+                      className="flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md hover:bg-[var(--darkBlue)]"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setFilters((prev) => ({
+                          ...prev,
+                          sortByCreatedAt: true,
+                        }))
+                      }}
+                    >
+                      <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
+                        {filters.sortByCreatedAt && (
+                          <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
+                        )}
+                      </div>
+                      NEWEST
+                    </li>
+                    <li
+                      className="flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md hover:bg-[var(--darkBlue)]"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setFilters((prev) => ({
+                          ...prev,
+                          sortByCreatedAt: false,
+                        }))
+                      }}
+                    >
+                      <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
+                        {!filters.sortByCreatedAt && (
+                          <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
+                        )}
+                      </div>
+                      OLDEST
+                    </li>
+                    <li className="border-t border-[var(--creamWhite)] my-2"></li>
+
+                    {/* 🏆 FILTER SECTION */}
+                    {[
+                      { key: 'hasWebsite', label: 'WEBSITE' },
+                      { key: 'hasTelegram', label: 'TELEGRAM' },
+                      { key: 'hasTwitter', label: 'X' },
+                      { key: 'hasAllSocials', label: 'ALL SOCIALS' },
+                    ].map(({ key, label }) => (
+                      <li
+                        key={key}
+                        className="flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md hover:bg-[var(--darkBlue)]"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
+                        }}
+                      >
+                        <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
+                          {filters[key] && (
+                            <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
+                          )}
+                        </div>
+                        {label}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
-        {/* Dropdown with Smooth Animation */}
-        <AnimatePresence>
-          {isDropdownOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="absolute right-0 md:right-10 lg:right-30 xl:right-80  mt-2 w-56 bg-[var(--lightBlue)] border border-gray-300 rounded-lg shadow-lg z-50 md:w-max"
-            >
-              <ul className="p-2 bg-[var(--midBlue)] text-[var(--creamWhite)] rounded-lg">
-                {/* 🏆 SORT BY SECTION */}
-                <li className="flex items-center gap-2 py-2 px-4 rounded-md font-bold text-[var(--creamWhite)]">
-                  SORT BY:
-                </li>
-                <li
-                  className={`flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md ${
-                    filters.sortByCreatedAt
-                      ? 'bg-[var(--darkBlue)]'
-                      : 'hover:bg-[var(--midBlue)]'
-                  }`}
-                  onClick={() =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      sortByCreatedAt: true,
-                    }))
-                  }
-                >
-                  <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
-                    {filters.sortByCreatedAt && (
-                      <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
-                    )}
-                  </div>
-                  NEWEST
-                </li>
-                <li
-                  className={`flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md ${
-                    !filters.sortByCreatedAt
-                      ? 'bg-[var(--darkBlue)]'
-                      : 'hover:bg-[var(--midBlue)]'
-                  }`}
-                  onClick={() =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      sortByCreatedAt: false,
-                    }))
-                  }
-                >
-                  <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
-                    {!filters.sortByCreatedAt && (
-                      <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
-                    )}
-                  </div>
-                  OLDEST
-                </li>
 
-                {/* 🏆 FILTER SECTION */}
-                <li className="flex items-center gap-2 py-2 px-4 rounded-md font-bold text-[var(--creamWhite)]">
-                  FILTERS:
-                </li>
-                {[
-                  { key: 'hasWebsite', label: 'WEBSITE' },
-                  { key: 'hasTelegram', label: 'TELEGRAM' },
-                  { key: 'hasTwitter', label: 'X' },
-                  { key: 'hasAllSocials', label: 'ALL SOCIALS' },
-                ].map(({ key, label }) => (
-                  <li
-                    key={key}
-                    className={`flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md ${
-                      filters[key]
-                        ? 'bg-[var(--darkBlue)] text-[var(--creamWhite)]'
-                        : 'hover:bg-[var(--midBlue)]'
-                    }`}
-                    onClick={() =>
-                      setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
-                    }
-                  >
-                    <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
-                      {filters[key] && (
-                        <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
-                      )}
-                    </div>
-                    <label className="cursor-pointer">{label}</label>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* 🎯 Display Filtered Coins */}
+        <Coins coins={filteredCoins} />
       </div>
-
-      {/* 🎯 Display Filtered Coins */}
-      <Coins coins={filteredCoins} />
     </>
   )
 }
