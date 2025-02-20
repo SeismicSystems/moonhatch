@@ -41,6 +41,7 @@ impl PumpClient {
         let wallet = {
             let private_key = std::env::var("DEPLOYER_PRIVATE_KEY")
                 .expect("Missing DEPLOYER_PRIVATE_KEY in .env");
+            log::info!("Pk: {}", private_key);
             let pk_bytes = B256::from_hex(private_key).unwrap();
             let signer = LocalSigner::from_bytes(&pk_bytes).expect("invalid signer");
             let wallet = EthereumWallet::new(signer);
@@ -88,6 +89,7 @@ impl PumpClient {
     pub async fn deploy_graduated(&self, coin_id: u32) -> Result<FixedBytes<32>, TransportError> {
         let addresses = self.wallet.get_accounts().await.unwrap();
         let nonce = self.wallet.get_transaction_count(addresses[0]).await.unwrap();
+        log::info!("Nonce {} for {}", nonce, addresses[0]);
         let input = deploy_graduated_bytecode(coin_id);
         let tx = TransactionRequest::default().nonce(nonce).to(self.ca.pump).input(input.into());
         let pending_tx = self.wallet.send_transaction(tx).await?;
