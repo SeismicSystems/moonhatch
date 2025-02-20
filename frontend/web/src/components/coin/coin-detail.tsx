@@ -19,6 +19,8 @@ import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
 import CoinSocials from './coin-social'
 
+const REFRESH_COIN_DETAIL_MS = 5_000
+
 const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
   const { contract: coinContract } = useCoinContract(coin.contractAddress)
 
@@ -197,9 +199,15 @@ const CoinDetail: React.FC = () => {
 
   useEffect(() => {
     if (!loaded || !coinId) return
-    fetchCoin(BigInt(coinId))
-      .then((foundCoin) => setCoin(foundCoin || null))
-      .catch((err) => console.error('Error fetching coin:', err))
+
+    const refresh = () => {
+      fetchCoin(BigInt(coinId))
+        .then((foundCoin) => setCoin(foundCoin || null))
+        .catch((err) => console.error('Error fetching coin:', err))
+    }
+    refresh()
+    const interval = setInterval(refresh, REFRESH_COIN_DETAIL_MS)
+    return () => { clearInterval(interval) }
   }, [loaded, coinId])
 
   console.log('coin', coin?.contractAddress)
