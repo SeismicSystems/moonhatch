@@ -1,10 +1,7 @@
 import React from 'react'
 
 import { formatRelativeTime } from '@/util'
-import SocialLink from '@components/coin/social-link'
 import { Box, Typography } from '@mui/material'
-
-import CoinSocials from '../coin/coin-social'
 
 export const FALLBACK_COIN_IMAGE_URL =
   'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
@@ -18,7 +15,7 @@ interface CoinInfoDetailsProps {
     imageUrl?: string
     createdAt: { toString: () => string }
     supply: { toString: () => string }
-    decimals: number
+    decimals: bigint | number
     graduated: boolean
     creator: { toString: () => string }
     description: string
