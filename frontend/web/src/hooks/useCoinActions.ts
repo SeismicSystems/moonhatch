@@ -14,6 +14,7 @@ interface UseCoinActionsParams {
   sellAmount: string
   setSellAmount: React.Dispatch<React.SetStateAction<string>>
   setSellError: React.Dispatch<React.SetStateAction<string | null>>
+  setModalMessage: React.Dispatch<React.SetStateAction<string>>
 }
 
 interface UseCoinActionsReturn {
@@ -34,6 +35,7 @@ export const useCoinActions = ({
   sellAmount,
   setSellAmount,
   setSellError,
+  setModalMessage,
 }: UseCoinActionsParams): UseCoinActionsReturn => {
   const [loadingEthIn, setLoadingEthIn] = useState<boolean>(false)
   const [isBuying, setIsBuying] = useState<boolean>(false)
@@ -158,17 +160,18 @@ export const useCoinActions = ({
       let txHash
       if (!coin.graduated) {
         txHash = await buyPreGraduation(coin.id, amountInWei)
-        console.log('✅ Transaction sent via pumpContract! Hash:', txHash)
+        console.log(
+          `✅ Transaction sent via pumpContract! Hash: ${txHash}`,
+          txHash
+        )
+        setModalMessage(`✅ Transaction sent via pumpContract! Hash: ${txHash}`)
       } else {
-        if (!dexContract) {
-          setBuyError('DEX contract not initialized')
-          return
-        }
         txHash = await buyPostGraduation({
           token: coin.contractAddress,
           amountIn: amountInWei,
         })
-        console.log('✅ Dex transaction sent! Hash:', txHash)
+        console.log(`✅ Dex transaction sent! Hash: ${txHash}`)
+        setModalMessage(`✅ Dex transaction sent! Hash: ${txHash}`)
       }
       const newTotalWei = existingWeiBigInt + amountInWei
       localStorage.setItem(localStorageKey, newTotalWei.toString())
@@ -179,6 +182,7 @@ export const useCoinActions = ({
       setBuyError(
         `Transaction failed: ${err instanceof Error ? err.message : 'Unknown error'}`
       )
+      setModalMessage(`❌ Transaction failed`)
     } finally {
       setIsBuying(false)
     }
@@ -186,32 +190,41 @@ export const useCoinActions = ({
 
   const handleSell = async () => {
     setSellError(null)
+    if (isSelling) {
+      setSellError('Already selling')
+      return
+    }
     if (!coin || !sellAmount) {
       setSellError('Empty sell amount')
       return
     }
     const sellAmountWei = parseEther(sellAmount, 'wei')
+    setIsSelling(true)
     try {
       await approveSale({
         token: coin.contractAddress,
         amount: sellAmountWei,
       })
 
-      setIsSelling(true)
       if (!coin.graduated) {
         console.log('Sell logic for non-graduated tokens is not implemented.')
+        setModalMessage(
+          'Sell logic for non-graduated tokens is not implemented.'
+        )
       } else {
         const hash = await sell({
           token: coin.contractAddress,
           amountIn: sellAmountWei,
         })
         console.log(`✅ Sell transaction sent via DEX! ${hash}`)
+        setModalMessage(`✅ Sell transaction sent via DEX! ${hash}`)
         pubClient()
           .waitForTransactionReceipt({
             hash,
           })
           .then((receipt: TransactionReceipt) => {
             console.log('✅ Sell transaction confirmed! Receipt:', receipt)
+            setModalMessage(`✅ Sell transaction confirmed! Receipt: ${hash}`)
           })
       }
       setSellAmount('')
@@ -220,6 +233,7 @@ export const useCoinActions = ({
       setSellError(
         `Transaction failed: ${err instanceof Error ? err.message : 'Unknown error'}`
       )
+      setModalMessage(`❌ Transaction failed`)
     } finally {
       setIsSelling(false)
     }

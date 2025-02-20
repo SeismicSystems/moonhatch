@@ -227,6 +227,24 @@ export const usePumpClient = () => {
     return allowance({ token, spender: dex().address })
   }
 
+  const previewBuy = async ({
+    token,
+    amountIn,
+  }: TradeParams): Promise<bigint> => {
+    const path = [WETH_CONTRACT_ADDRESS, token]
+    const amount = (await dex().read.getAmountsOut([amountIn, path])) as bigint
+    return amount
+  }
+
+  const previewSell = async ({
+    token,
+    amountIn,
+  }: TradeParams): Promise<bigint> => {
+    const path = [token, WETH_CONTRACT_ADDRESS]
+    const amount = (await dex().read.getAmountsOut([amountIn, path])) as bigint
+    return amount
+  }
+
   return {
     walletClient,
     publicClient,
@@ -246,6 +264,8 @@ export const usePumpClient = () => {
     buyPostGraduation,
     sell,
     approveSale,
+    previewBuy,
+    previewSell,
     error,
   }
 }
