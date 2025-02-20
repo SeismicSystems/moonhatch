@@ -4,6 +4,8 @@ import { parseEther } from 'viem'
 import { WETH_CONTRACT_ADDRESS } from '@/hooks/useContract'
 import type { Coin } from '@/types/coin'
 
+import { usePumpClient } from './client'
+
 interface UseCoinActionsParams {
   coin: Coin | null
   walletClient: any
@@ -49,6 +51,8 @@ export const useCoinActions = ({
   const [isSelling, setIsSelling] = useState<boolean>(false)
   const LOCAL_STORAGE_KEY_PREFIX = 'weiIn_coin_'
 
+  const { getWeiIn, balanceOfWallet, allowanceDex } = usePumpClient()
+
   const viewEthIn = async (): Promise<void> => {
     if (!walletClient || !pumpContract || !coin || loadingEthIn) return
 
@@ -59,10 +63,7 @@ export const useCoinActions = ({
       if (cachedWei) {
         setWeiIn(BigInt(cachedWei))
       } else {
-        // Example: using pumpContract.read.getWeiIn if no cached value exists
-        const weisBought = (await pumpContract.read.getWeiIn([
-          coin.id,
-        ])) as bigint
+        const weisBought = await getWeiIn(coin.id)
         localStorage.setItem(localStorageKey, weisBought.toString())
         setWeiIn(weisBought)
       }
@@ -82,18 +83,13 @@ export const useCoinActions = ({
     try {
       // For graduated coins, we read the on-chain balance using coinContract
       if (coin.graduated) {
-        const userAddress = walletClient.account.address
-        const weiOnChain = (await coinContract.tread.balanceOf([
-          userAddress,
-        ])) as bigint
-        console.log('Graduated balance:', weiOnChain)
-        setWeiIn(weiOnChain)
+        const tokenBalance = await balanceOfWallet(coin.contractAddress)
+        console.log('Graduated balance:', tokenBalance)
+        setWeiIn(tokenBalance)
       } else {
         // Fallback if coin isn't graduated (should not normally hit this branch)
         const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
-        const weisBought = (await pumpContract.read.getWeiIn([
-          coin.id,
-        ])) as bigint
+        const weisBought = await getWeiIn(coin.id)
         localStorage.setItem(localStorageKey, weisBought.toString())
         setWeiIn(weisBought)
       }
@@ -113,19 +109,14 @@ export const useCoinActions = ({
       // For non-graduated coins, we update from pumpContract
       if (!coin.graduated) {
         const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
-        const weisBought = (await pumpContract.read.getWeiIn([
-          coin.id,
-        ])) as bigint
+        const weisBought = await getWeiIn(coin.id)
         localStorage.setItem(localStorageKey, weisBought.toString())
         setWeiIn(weisBought)
       } else {
         // Fallback if coin is graduated (should not normally hit this branch)
-        const userAddress = walletClient.account.address
-        const weiOnChain = (await coinContract.tread.balanceOf([
-          userAddress,
-        ])) as bigint
-        console.log('Graduated balance fallback:', weiOnChain)
-        setWeiIn(weiOnChain)
+        const tokenBalance = await balanceOfWallet(coin.contractAddress)
+        console.log('Graduated balance fallback:', tokenBalance)
+        setWeiIn(tokenBalance)
       }
     } catch (err) {
       console.error('Error refreshing weiIn for non-graduated:', err)
@@ -221,10 +212,7 @@ export const useCoinActions = ({
     }
     const sellAmountWei = parseEther(sellAmount, 'wei')
     try {
-      const userAddress = walletClient.account.address
-      const tokenBalance = (await pumpContract.tread.balanceOf([
-        userAddress,
-      ])) as bigint
+      const tokenBalance = await balanceOfWallet(coin.contractAddress)
       if (sellAmountWei > tokenBalance) {
         setSellError('Insufficient token balance for selling.')
         return
@@ -234,10 +222,7 @@ export const useCoinActions = ({
         setSellError('DEX contract not initialized')
         return
       }
-      const currentAllowance = (await pumpContract.read.allowance([
-        userAddress,
-        spender,
-      ])) as bigint
+      const currentAllowance = await allowanceDex(coin.contractAddress)
       if (sellAmountWei > currentAllowance) {
         console.log(
           'Current allowance insufficient. Sending approve transaction...'
