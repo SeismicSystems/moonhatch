@@ -1,12 +1,12 @@
 use crate::{client::contract_address::ContractAddresses, error::PumpError};
 use alloy_primitives::Address;
-use alloy_provider::{create_seismic_ws_provider, Provider, SeismicPublicWsClient};
+use alloy_provider::{create_seismic_ws_provider, Provider, SeismicUnsignedWsProvider};
 use alloy_pubsub::SubscriptionStream;
 use alloy_rpc_types_eth::{Filter, Header, Log};
 use alloy_transport::TransportError;
 
 pub struct PumpWsClient {
-    ws: SeismicPublicWsClient,
+    ws: SeismicUnsignedWsProvider,
     ca: ContractAddresses,
 }
 
