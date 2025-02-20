@@ -13,6 +13,7 @@ diesel::table! {
         creator -> Bpchar,
         graduated -> Bool,
         verified -> Bool,
+        wei_in -> Numeric,
         description -> Nullable<Text>,
         image_url -> Nullable<Text>,
         website -> Nullable<Text>,

@@ -8,7 +8,8 @@ CREATE TABLE coins (
     creator CHAR(42) NOT NULL,
     graduated BOOLEAN DEFAULT FALSE NOT NULL,
     verified BOOLEAN DEFAULT FALSE NOT NULL,
-    description TEXT,       -- To store the text description from the front end
+    wei_in NUMERIC DEFAULT 0 NOT NULL,
+    description TEXT,
     image_url TEXT,
     website TEXT,
     telegram TEXT,
