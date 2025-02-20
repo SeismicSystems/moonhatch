@@ -68,7 +68,7 @@ impl Pool {
             }
         };
         let px = -1 * amt1_net.clone() / amt0_net.clone();
-        Some((buy_a, amt0_net, amt1_net, px))
+        Some((buy_a, amt0_net.abs(), amt1_net.abs(), px))
     }
 
     pub fn sync_price(sync: &UniswapV2Pair::Sync) -> BigDecimal {
