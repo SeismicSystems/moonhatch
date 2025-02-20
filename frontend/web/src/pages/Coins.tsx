@@ -28,24 +28,22 @@ const Coins: React.FC<{ coins: Coin[] }> = ({ coins }) => {
             }}
             className="relative w-full h-full"
             style={{
-              perspective: '1000px', // Adds depth to the flip
+              perspective: '1000px',
             }}
           >
-            {/* The "back" of the coin */}
             <div
               className="absolute inset-0 w-full h-full"
               style={{
                 backgroundColor: 'var(--bgColor)',
-                backfaceVisibility: 'hidden', // Ensures the back is hidden when front is visible
+                backfaceVisibility: 'hidden',
                 borderRadius: '10px',
               }}
             />
 
-            {/* The actual coin card */}
             <motion.div
               className="relative w-full h-full"
               style={{
-                backfaceVisibility: 'hidden', // Hides the back during the flip
+                backfaceVisibility: 'hidden',
               }}
             >
               <CoinCard coin={coin} />
