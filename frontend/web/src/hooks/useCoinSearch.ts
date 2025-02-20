@@ -27,19 +27,17 @@ export const useCoinSearch = (coins: Coin[]): UseCoinSearchResult => {
     hasTelegram: false,
     hasTwitter: false,
     hasAllSocials: false,
-    sortByCreatedAt: true, // Default: Newest First
+    sortByCreatedAt: true,
   })
 
   useEffect(() => {
     let updatedCoins = [...coins]
 
-    // 🔍 Fuse.js for Search
     if (searchQuery.trim() !== '') {
       const fuse = new Fuse(coins, { keys: ['name', 'symbol'], threshold: 0.3 })
       updatedCoins = fuse.search(searchQuery).map((result) => result.item)
     }
 
-    // 🎛 Filters
     if (filters.hasWebsite)
       updatedCoins = updatedCoins.filter((coin) => coin.website)
     if (filters.hasTelegram)
@@ -51,11 +49,10 @@ export const useCoinSearch = (coins: Coin[]): UseCoinSearchResult => {
         (coin) => coin.website && coin.telegram && coin.twitter
       )
 
-    // 🔄 Sorting by CreatedAt (Newest or Oldest)
     updatedCoins.sort((a, b) => {
       return filters.sortByCreatedAt
-        ? (b.createdAt || 0) - (a.createdAt || 0) // Newest first
-        : (a.createdAt || 0) - (b.createdAt || 0) // Oldest first
+        ? (b.createdAt || 0) - (a.createdAt || 0)
+        : (a.createdAt || 0) - (b.createdAt || 0)
     })
 
     setFilteredCoins(updatedCoins)

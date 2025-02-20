@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useEffect, useRef, useState } from 'react'
 
-import type { Coin } from '@/types/coin'
 import FilterListIcon from '@mui/icons-material/FilterList'
 
 interface SearchAndFilterProps {
@@ -41,7 +40,6 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
 
   return (
     <div className="relative flex w-full justify-center items-center mt-6">
-      {/* Search Bar */}
       <input
         type="text"
         placeholder="SEARCH NAME/TICKER"
@@ -50,7 +48,6 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
         className="w-64 text-xs lg:text-lg uppercase text-[var(--creamWhite)] h-12 lg:h-16 md:w-80 lg:w-96 p-2 rounded-md text-center"
       />
 
-      {/* Filter Dropdown */}
       <div className="absolute right-20 lg:mr-24 xl:mr-72" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen((prev) => !prev)}
@@ -70,7 +67,6 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
               className="absolute right-0 mt-2 w-56 bg-[var(--lightBlue)] border border-gray-300 rounded-lg shadow-lg z-50 md:w-max"
             >
               <ul className="p-2 bg-[var(--midBlue)] text-[var(--creamWhite)] rounded-lg">
-                {/* SORT BY SECTION */}
                 <li className="flex items-center gap-2 py-2 px-4 rounded-md font-bold text-[var(--creamWhite)]">
                   SORT BY:
                 </li>
@@ -110,7 +106,6 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
                 </li>
                 <li className="border-t border-[var(--creamWhite)] my-2"></li>
 
-                {/* FILTER SECTION */}
                 {[
                   { key: 'hasWebsite', label: 'WEBSITE' },
                   { key: 'hasTelegram', label: 'TELEGRAM' },
