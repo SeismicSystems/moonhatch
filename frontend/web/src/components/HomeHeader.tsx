@@ -8,8 +8,6 @@ import HelpIcon from '@mui/icons-material/Help'
 import LockIcon from '@mui/icons-material/Lock'
 import SchoolIcon from '@mui/icons-material/School'
 
-import KingOfTheHillSection from './home/king-of-the-hill'
-
 export default function HomeHeader() {
   const navigate = useNavigate()
   const { acceptedTerms } = useAppState()
@@ -17,7 +15,6 @@ export default function HomeHeader() {
 
   return (
     <>
-      <KingOfTheHillSection />
       <div className="grid grid-cols-3 items-center w-full px-4">
         {/* Left section: Help Icon */}
         <button

@@ -13,7 +13,7 @@ import TransactionNonGraduated from '../trade/transaction-nongraduated'
 
 interface TradeSectionProps {
   coin: Coin
-  weiIn: string | null
+  weiIn: bigint | null
   loadingEthIn: boolean
   viewEthIn: () => Promise<void>
   refreshWeiIn: () => Promise<void>
