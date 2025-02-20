@@ -15,11 +15,11 @@ pub struct Pool {
 }
 
 impl Pool {
-    pub fn other(self, weth: Address) -> Address {
+    pub fn other(self, weth: Address) -> (Address, bool) {
         if self.token_0 == weth {
-            return self.token_1;
+            return (self.token_1, true);
         }
-        return self.token_0;
+        return (self.token_0, false);
     }
 }
 

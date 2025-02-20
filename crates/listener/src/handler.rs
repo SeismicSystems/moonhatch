@@ -4,7 +4,7 @@ use alloy_rpc_types_eth::{Header, Log};
 use alloy_sol_types::SolEvent;
 use bigdecimal::BigDecimal;
 use chrono::DateTime;
-use std::collections::HashMap;
+use std::{collections::HashMap, num::NonZero};
 
 use pump::{
     client::{block::Block, pool::Pool, PumpClient, PumpWsClient},
@@ -28,6 +28,11 @@ pub fn fmt_hex<T: AsRef<[u8]>>(value: T) -> String {
         let suffix = &hex[hex.len() - 4..];
         format!("0x{}...{}", prefix, suffix)
     }
+}
+
+fn fmt_px(px: BigDecimal) -> String {
+    px.with_precision_round(NonZero::new(10).unwrap(), bigdecimal::RoundingMode::Down)
+        .to_engineering_notation()
 }
 
 pub struct LogHandler {
@@ -175,17 +180,19 @@ impl LogHandler {
             None => return Err(PumpError::no_swap_price(lp_token, log.transaction_hash)),
         };
         let ui_price = self.insert_price(&pool, dex_price, block)?;
-        let (bs, fa) = match buy_0 {
+        let (token, weth_0) = pool.other(self.client.weth());
+        let (bs, fa) = match buy_0 != weth_0 {
             true => ("BUYS", "FOR"),
             false => ("SELLS", "AT"),
         };
+        let fmt_px = fmt_px(ui_price);
         log::info!(
             "Trader {} {} {} {} {} in block {}",
             fmt_hex(data.to),
             bs,
-            fmt_hex(pool.other(self.client.weth())),
+            fmt_hex(token),
             fa,
-            ui_price,
+            fmt_px,
             log.block_number.unwrap_or_default()
         );
 
@@ -217,7 +224,7 @@ impl LogHandler {
         log::info!(
             "Pool {} price is {} at top of block {}",
             fmt_hex(lp_token),
-            ui_price,
+            fmt_px(ui_price),
             log.block_number.unwrap_or_default()
         );
         Ok(false)
@@ -235,7 +242,7 @@ impl LogHandler {
         Ok(())
     }
 
-    /// flush all of the candles we created for this block
+    /// flush all of the candles we created for N=2 blocks ago
     pub async fn new_block(&mut self, block: Block) -> Result<(), PumpError> {
         let confirmed_block = block.number - 2;
         let (confirmed, block_prices) = self.prices.remove(&confirmed_block).unwrap_or_default();
