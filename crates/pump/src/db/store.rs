@@ -200,3 +200,14 @@ pub fn add_trade(conn: &mut PgConnection, trade: &Trade) -> Result<(), PumpError
         .execute(conn)?;
     Ok(())
 }
+
+pub fn update_wei_in(
+    conn: &mut PgConnection,
+    coin_id: i64,
+    wei_in: BigDecimal,
+) -> Result<(), PumpError> {
+    diesel::update(coins_table.filter(coins_schema::id.eq(coin_id)))
+        .set((coins_schema::wei_in.eq(wei_in),))
+        .execute(conn)?;
+    Ok(())
+}

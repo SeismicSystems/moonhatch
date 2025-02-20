@@ -13,6 +13,7 @@ diesel::table! {
         creator -> Bpchar,
         graduated -> Bool,
         verified -> Bool,
+        wei_in -> Numeric,
         description -> Nullable<Text>,
         image_url -> Nullable<Text>,
         website -> Nullable<Text>,
@@ -71,4 +72,9 @@ diesel::table! {
 diesel::joinable!(coins -> pools (deployed_pool));
 diesel::joinable!(pool_prices -> pools (pool));
 
-diesel::allow_tables_to_appear_in_same_query!(coins, pool_prices, pools, trades,);
+diesel::allow_tables_to_appear_in_same_query!(
+    coins,
+    pool_prices,
+    pools,
+    trades,
+);
