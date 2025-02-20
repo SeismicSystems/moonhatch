@@ -105,8 +105,8 @@ impl LogHandler {
             log.block_number.unwrap_or_default(),
             data.totalWeiIn
         );
-        let mut conn = self.conn()?;
         let wei_in = int_to_decimal(data.totalWeiIn);
+        let mut conn = self.conn()?;
         store::update_wei_in(&mut conn, data.coinId as i64, wei_in)?;
         Ok(false)
     }
