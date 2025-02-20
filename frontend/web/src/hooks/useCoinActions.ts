@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { parseEther } from 'viem'
 
-import { useCoinContract } from '@/hooks/useContract'
 import { WETH_CONTRACT_ADDRESS } from '@/hooks/useContract'
 import type { Coin } from '@/types/coin'
 
@@ -23,7 +22,8 @@ interface UseCoinActionsParams {
 
 interface UseCoinActionsReturn {
   viewEthIn: () => Promise<void>
-  refreshWeiIn: () => Promise<void>
+  refreshWeiInForGraduated: () => Promise<void>
+  refreshWeiInForNonGraduated: () => Promise<void>
   handleBuy: () => Promise<void>
   handleSell: () => Promise<void>
   loadingEthIn: boolean
@@ -59,8 +59,7 @@ export const useCoinActions = ({
       if (cachedWei) {
         setWeiIn(BigInt(cachedWei))
       } else {
-        // Here we use a tread (write) call if that’s what your design requires.
-        console.log(coin)
+        // Example: using pumpContract.read.getWeiIn if no cached value exists
         const weisBought = (await pumpContract.read.getWeiIn([
           coin.id,
         ])) as bigint
@@ -75,21 +74,22 @@ export const useCoinActions = ({
     }
   }
 
-  const refreshWeiIn = async (): Promise<void> => {
+  const refreshWeiInForGraduated = async (): Promise<void> => {
+    console.log('refreshWeiInForGraduated')
     if (!walletClient || !pumpContract || !coin || loadingEthIn) return
 
     setLoadingEthIn(true)
     try {
-      // TODO(matt): split balance view into two components,
-      // one for ungraduated and one for graduated
+      // For graduated coins, we read the on-chain balance using coinContract
       if (coin.graduated) {
-        // Get the latest on-chain value from coinContract
         const userAddress = walletClient.account.address
-        const weiOnChain = await coinContract.tread.balanceOf([userAddress])
-        console.log(weiOnChain)
+        const weiOnChain = (await coinContract.tread.balanceOf([
+          userAddress,
+        ])) as bigint
+        console.log('Graduated balance:', weiOnChain)
         setWeiIn(weiOnChain)
       } else {
-        // Optionally update local storage from pumpContract as well if needed
+        // Fallback if coin isn't graduated (should not normally hit this branch)
         const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
         const weisBought = (await pumpContract.read.getWeiIn([
           coin.id,
@@ -98,7 +98,37 @@ export const useCoinActions = ({
         setWeiIn(weisBought)
       }
     } catch (err) {
-      console.error('Error refreshing weiIn:', err)
+      console.error('Error refreshing weiIn for graduated:', err)
+    } finally {
+      setLoadingEthIn(false)
+    }
+  }
+
+  const refreshWeiInForNonGraduated = async (): Promise<void> => {
+    console.log('refreshWeiInForNonGraduated')
+    if (!walletClient || !pumpContract || !coin || loadingEthIn) return
+
+    setLoadingEthIn(true)
+    try {
+      // For non-graduated coins, we update from pumpContract
+      if (!coin.graduated) {
+        const localStorageKey = `${LOCAL_STORAGE_KEY_PREFIX}${coin.id}`
+        const weisBought = (await pumpContract.read.getWeiIn([
+          coin.id,
+        ])) as bigint
+        localStorage.setItem(localStorageKey, weisBought.toString())
+        setWeiIn(weisBought)
+      } else {
+        // Fallback if coin is graduated (should not normally hit this branch)
+        const userAddress = walletClient.account.address
+        const weiOnChain = (await coinContract.tread.balanceOf([
+          userAddress,
+        ])) as bigint
+        console.log('Graduated balance fallback:', weiOnChain)
+        setWeiIn(weiOnChain)
+      }
+    } catch (err) {
+      console.error('Error refreshing weiIn for non-graduated:', err)
     } finally {
       setLoadingEthIn(false)
     }
@@ -248,5 +278,12 @@ export const useCoinActions = ({
     }
   }
 
-  return { viewEthIn, refreshWeiIn, handleBuy, handleSell, loadingEthIn }
+  return {
+    viewEthIn,
+    refreshWeiInForGraduated,
+    refreshWeiInForNonGraduated,
+    handleBuy,
+    handleSell,
+    loadingEthIn,
+  }
 }

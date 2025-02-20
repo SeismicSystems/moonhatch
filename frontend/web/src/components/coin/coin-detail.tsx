@@ -35,7 +35,13 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
   // if (!walletClient || !publicClient || !pumpContract || !dexContract) {
   //   return <></>
   // }
-  const { viewEthIn, refreshWeiIn, handleBuy, loadingEthIn } = useCoinActions({
+  const {
+    viewEthIn,
+    refreshWeiInForGraduated,
+    refreshWeiInForNonGraduated,
+    handleBuy,
+    loadingEthIn,
+  } = useCoinActions({
     coin,
     coinContract,
     walletClient,
@@ -46,12 +52,19 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
     setBuyAmount,
     setBuyError,
     setWeiIn,
+    sellAmount: '', // pass sell state if needed
+    setSellAmount: () => {},
+    setSellError: () => {},
   })
 
   useEffect(() => {
     const cachedWei = localStorage.getItem(`weiIn_coin_${coin.id}`)
     if (cachedWei) setWeiIn(BigInt(cachedWei))
   }, [coin.id])
+
+  const refreshWeiIn = coin.graduated
+    ? refreshWeiInForGraduated
+    : refreshWeiInForNonGraduated
 
   return (
     <>

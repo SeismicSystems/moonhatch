@@ -13,17 +13,17 @@ import TransactionNonGraduated from '../trade/transaction-nongraduated'
 
 interface TradeSectionProps {
   coin: Coin
-  weiIn: bigint | null
+  weiIn: string | null
   loadingEthIn: boolean
-  viewEthIn: () => void
-  refreshWeiIn: () => void
+  viewEthIn: () => Promise<void>
+  refreshWeiIn: () => Promise<void>
   buyAmount: string
-  setBuyAmount: (value: string) => void
+  setBuyAmount: React.Dispatch<React.SetStateAction<string>>
   buyError: string | null
-  handleBuy: (amount: string, tradeType: 'buy' | 'sell') => void
+  handleBuy: () => Promise<void>
   modalOpen: boolean
   modalMessage: string
-  setModalOpen: (open: boolean) => void
+  setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function TradeSection({
