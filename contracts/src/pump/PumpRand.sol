@@ -29,7 +29,7 @@ contract PumpRand {
     mapping(uint32 => Coin) private coins;
 
     mapping(uint32 => bool) public graduated;
-    mapping(uint32 => uint256) public weisIn;
+    mapping(uint32 => suint256) weisIn;
     mapping(uint32 => suint256) unitsOut;
     mapping(uint32 => mapping(saddress => suint256)) weisInByAddress;
 
@@ -67,7 +67,7 @@ contract PumpRand {
         PumpCoin pc = new PumpCoin(address(this), name, symbol, 18);
         coinId = coinsCreated;
         coins[coinId] = Coin(name, symbol, supply, 18, address(pc),msg.sender);
-        weisIn[coinId] = 0;
+        weisIn[coinId] = suint256(0);
         unitsOut[coinId] = suint256(0);
         emit CoinCreated(coinId);
         coinsCreated = coinsCreated + 1;
@@ -123,7 +123,7 @@ contract PumpRand {
             uint256 requiredWei = WEI_GRADUATION - W_prev;
             uint256 refund = W_new - requiredWei;
             tokensMinted = T_rem;
-            weisIn[coinId] = W_prev + requiredWei;
+            weisIn[coinId] = suint256(W_prev + requiredWei);
             weisInByAddress[coinId][saddress(msg.sender)] = weisInByAddress[coinId][saddress(msg.sender)] + suint256(requiredWei);
             unitsOut[coinId] = suint256(coin.supply);
             graduated[coinId] = true;
@@ -157,7 +157,7 @@ contract PumpRand {
         uint256 priceFP = (basePriceFP * M) / 1e18;
         tokensMinted = (priceFP * W_new) / 1e18;
 
-        weisIn[coinId] = W_prev + W_new;
+        weisIn[coinId] = suint256(W_prev + W_new);
         weisInByAddress[coinId][saddress(msg.sender)] = weisInByAddress[coinId][saddress(msg.sender)] + suint256(W_new);
         unitsOut[coinId] = suint256((coin.supply - T_rem) + tokensMinted);
         pc.mint(saddress(msg.sender), suint256(tokensMinted));
