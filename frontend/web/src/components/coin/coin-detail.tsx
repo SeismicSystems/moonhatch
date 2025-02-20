@@ -149,7 +149,6 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
                 alignItems: 'center',
                 height: '350px',
                 width: '350px',
-                border: 1,
 
                 '& .lock-container': {
                   width: '130px',
