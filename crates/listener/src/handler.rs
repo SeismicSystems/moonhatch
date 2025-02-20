@@ -7,11 +7,7 @@ use chrono::DateTime;
 use std::{collections::HashMap, num::NonZero};
 
 use pump::{
-    client::{
-        block::Block,
-        pool::{int_to_decimal, Pool},
-        PumpClient, PumpWsClient,
-    },
+    client::{block::Block, pool::{int_to_decimal, Pool}, PumpClient, PumpWsClient},
     contract::{pair::UniswapV2Pair, pump::PumpRand},
     db::{
         models::{self, Trade},
@@ -48,7 +44,7 @@ pub struct LogHandler {
     block: Block,
     prices: HashMap<u64, (Block, HashMap<Address, Vec<BigDecimal>>)>,
     opening_prices: HashMap<(u64, Address), BigDecimal>,
-    pools: HashMap<Address, Pool>,
+    pools: HashMap<Address, Pool>
 }
 
 impl LogHandler {
@@ -262,7 +258,7 @@ impl LogHandler {
         block: Block,
     ) -> Result<(), PumpError> {
         if let Some(open) = self.opening_prices.remove(&(block.number, lp_token)) {
-            prices.insert(0, open);
+            prices.insert(0, open);            
         };
         let price = models::NewPoolPrice::try_new(&lp_token, block, &prices)?;
         let mut conn = self.conn()?;
@@ -277,8 +273,7 @@ impl LogHandler {
     /// flush all of the candles we created for N=2 blocks ago
     pub async fn new_block(&mut self, block: Block) -> Result<(), PumpError> {
         if let Some(confirmed_block) = block.number.checked_sub(CONFIRMATIONS) {
-            let (confirmed, block_prices) =
-                self.prices.remove(&confirmed_block).unwrap_or_default();
+            let (confirmed, block_prices) = self.prices.remove(&confirmed_block).unwrap_or_default();
             for (pool, prices) in block_prices {
                 // this function is &mut self
                 self.flush_candle(pool, prices, confirmed).await?;
