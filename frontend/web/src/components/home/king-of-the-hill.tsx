@@ -131,6 +131,8 @@ export default function KingOfTheHillSection({
               display: 'flex',
               justifyContent: 'start',
               alignItems: 'center',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
               gap: 2,
             }}
           >

@@ -28,10 +28,12 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
       <Box
         sx={{
           display: 'flex',
+
           alignItems: 'center',
           height: coin.rank === 1 ? '100px' : '50px',
           width: coin.rank === 1 ? '100px' : '50px',
-
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
           backgroundColor: 'var(--midBlue)',
           borderRadius: '8px',
           p: 1,
@@ -42,15 +44,22 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
           sx={{
             display: 'flex',
             flexDirection: isDesktop ? 'row' : 'column',
-
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
             alignItems: 'flex-start',
+            width: '100%',
           }}
         >
           <Typography
             variant="h6"
             sx={{
+              width: '100%',
+
               color: 'var(--creamWhite)',
               fontFamily: "'Tomorrow', sans-serif",
+              overflow: 'hidden',
+              whiteSpace: 'nowrap', // <-- add this
+              textOverflow: 'ellipsis',
             }}
           >
             {coin.name}
@@ -61,6 +70,9 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
               sx={{
                 color: 'var(--lightBlue)',
                 fontFamily: "'Tomorrow', sans-serif",
+                overflow: 'hidden',
+                textAlign: 'center',
+                textOverflow: 'ellipsis',
               }}
             >
               {coin.symbol.toUpperCase()}
@@ -97,9 +109,11 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
             alignItems: 'center',
             justifyContent: 'center',
             position: 'relative',
+
             textAlign: 'left',
             overflow: 'hidden',
             marginRight: isDesktop ? 0 : 2,
+            textOverflow: 'ellipsis',
           }}
         >
           <img
@@ -122,6 +136,9 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
               color: 'var(--creamWhite)',
               fontFamily: "'Tomorrow', sans-serif",
               textAlign: isDesktop ? 'center' : 'left',
+              width: isDesktop ? '100px' : '200px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
               mt:
                 coin.rank === 1
                   ? isDesktop
@@ -149,11 +166,16 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
             variant="body2"
             sx={{
               color: 'var(--lightBlue)',
+              width: '100px',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textAlign: isDesktop ? 'center' : 'left',
+
+              textOverflow: 'ellipsis',
               fontFamily: "'Tomorrow', sans-serif",
-              fontSize: coin.rank === 1 ? '1.25rem' : '.75rem',
+              fontSize: coin.rank === 1 ? '1rem' : '.75rem',
             }}
           >
-            {/* replace with ticker  */}
             $: {coin.symbol}
           </Typography>
         </div>
