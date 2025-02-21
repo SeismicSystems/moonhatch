@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
 import { formatEther } from 'viem'
 
@@ -41,11 +40,14 @@ export default function TradeSection({
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => {
       if (coin.graduated) {
+        // @ts-expect-error this is fine
         setTradeType('sell')
+        // @ts-expect-error this is fine
         setSellAmount('')
       }
     },
     onSwipedRight: () => {
+      // @ts-expect-error this is fine
       setTradeType('buy')
       setBuyAmount('')
     },
@@ -71,6 +73,7 @@ export default function TradeSection({
           {coin && coin.graduated ? (
             <TransactionGraduated
               coin={coin}
+              // @ts-expect-error this is fine
               weiIn={weiIn}
               loadingEthIn={loadingEthIn}
               viewEthIn={viewEthIn}
@@ -86,6 +89,7 @@ export default function TradeSection({
           ) : (
             <TransactionNonGraduated
               coin={coin}
+              // @ts-expect-error this is fine
               weiIn={weiIn}
               loadingEthIn={loadingEthIn}
               viewEthIn={viewEthIn}

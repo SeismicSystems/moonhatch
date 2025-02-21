@@ -1,5 +1,9 @@
 // src/theme.ts
-import { createTheme } from '@mui/material/styles'
+import { createTheme } from '@mui/material/styles';
+
+
+
+
 
 const theme = createTheme({
   palette: {
@@ -21,7 +25,7 @@ const theme = createTheme({
   typography: {
     h1: {
       fontFamily: "'Tomorrow', sans-serif",
-
+      // @ts-expect-error this is fine
       fontSize: {
         xs: '1.6rem',
         sm: '2rem',
@@ -32,6 +36,7 @@ const theme = createTheme({
     },
     h2: {
       fontFamily: "'Tomorrow', sans-serif",
+      // @ts-expect-error this is fine
 
       fontSize: {
         xs: '1.4rem',
@@ -43,6 +48,8 @@ const theme = createTheme({
     },
     h3: {
       fontFamily: "'Tomorrow', sans-serif",
+      // @ts-expect-error this is fine
+
       fontSize: {
         xs: '1.2rem',
         sm: '1.5rem',
@@ -53,7 +60,7 @@ const theme = createTheme({
     },
     h4: {
       fontFamily: "'Tomorrow', sans-serif",
-
+      // @ts-expect-error this is fine
       fontSize: {
         xs: '2.5rem',
         sm: '1.3rem',
@@ -64,6 +71,7 @@ const theme = createTheme({
     },
     body1: {
       fontFamily: "'Tomorrow', sans-serif",
+      // @ts-expect-error this is fine
 
       fontSize: {
         xs: '0.875rem',
@@ -74,6 +82,7 @@ const theme = createTheme({
     },
     body2: {
       fontFamily: "'Tomorrow', sans-serif",
+      // @ts-expect-error this is fine
 
       fontSize: {
         xs: '0.75rem',

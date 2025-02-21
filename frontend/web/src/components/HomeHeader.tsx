@@ -16,7 +16,7 @@ interface Coin {
 }
 
 interface HomeHeaderProps {
-  coins: Coin[]
+coins: Coin[]
 }
 export default function HomeHeader({ coins }: HomeHeaderProps) {
   const navigate = useNavigate()

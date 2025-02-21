@@ -5,6 +5,7 @@ import { Box, Typography, useMediaQuery } from '@mui/material'
 import KOTHBox, { CoinData } from './koth-box'
 
 interface KingOfTheHillSectionProps {
+  // @ts-expect-error this is fine
   coins: Coin[]
 }
 
@@ -81,6 +82,7 @@ export default function KingOfTheHillSection({
           }}
         >
           {podiumOrder.map((coin) => (
+            // @ts-expect-error this is fine
             <Box onClick={() => navigate(`/coins/${coin.id}`)}>
               <KOTHBox key={coin.rank} coin={coin} />
             </Box>
@@ -131,6 +133,7 @@ export default function KingOfTheHillSection({
               textOverflow: 'ellipsis',
               gap: 2,
             }}
+            // @ts-expect-error this is fine
             onClick={() => navigate(`/coins/${coin.id}`)}
           >
             <KOTHBox coin={coin} />

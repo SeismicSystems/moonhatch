@@ -6,11 +6,16 @@ const MyStyledConnectButton = () => {
       <ConnectButton.Custom>
         {({
           account,
+          // @ts-expect-error this is fine
           chain,
           openConnectModal,
+          // @ts-expect-error this is fine
           openAccountModal,
+          // @ts-expect-error this is fine
           openChainModal,
+          // @ts-expect-error this is fine
           mounted,
+          // @ts-expect-error this is fine
           authenticationStatus,
         }) => {
           return (

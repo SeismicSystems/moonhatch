@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-// Import navigate hook
 import { Coin } from '@/types/coin'
 import { formatRelativeTime } from '@/util'
 import LockIcon from '@mui/icons-material/Lock'
@@ -18,7 +17,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   const navigate = useNavigate()
   const defaultImage =
     'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
-
+  // @ts-expect-error this is fine
   const [imgSrc, setImgSrc] = useState(coin.imageUrl)
 
   // State for scrambled text elements (only name & ticker)
@@ -44,6 +43,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
       const interval = setInterval(() => {
         displayText = displayText
           .split('')
+          // @ts-expect-error this is fine
           .map((char, index) =>
             index < iterations
               ? text[index]

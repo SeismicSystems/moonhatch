@@ -28,6 +28,7 @@ export type Coin = {
   createdAt: number
   imageUrl?: string
   graduated: boolean
+  wei_in: bigint
   deployedPool: Hex | null
 } & OnChainCoin &
   Omit<CoinFormData, 'image' | keyof OnChainCoin>

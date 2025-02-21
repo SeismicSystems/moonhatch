@@ -57,7 +57,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
               color: 'var(--creamWhite)',
               fontFamily: "'Tomorrow', sans-serif",
               overflow: 'hidden',
-              whiteSpace: 'nowrap', // <-- add this
+              whiteSpace: 'nowrap',
               textOverflow: 'ellipsis',
             }}
           >
@@ -83,8 +83,6 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
   } else {
     const isChampion = coin.rank === 1
     const boxSize = isChampion ? 100 : 50
-    const avatarSize = isChampion ? 50 : 50
-    const padding = isChampion ? 1.5 : 1
 
     return (
       <Box
@@ -175,7 +173,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
               fontSize: coin.rank === 1 ? '1rem' : '.75rem',
             }}
           >
-            $: {coin.symbol}
+            $: {coin.symbol.toUpperCase()}
           </Typography>
         </div>
       </Box>
