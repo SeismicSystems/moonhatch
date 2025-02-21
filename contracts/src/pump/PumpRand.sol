@@ -95,6 +95,25 @@ contract PumpRand {
         graduatedStatus = graduated[coinId];
     }
 
+    function getRandomSuint256()
+        internal
+        view
+        returns (suint256 result)
+    {
+        // We request 32 bytes for a full uint256.
+        uint32 output_len = 32;
+        bytes memory input = abi.encodePacked(output_len);
+
+        // Call the precompile.
+        (bool success, bytes memory output) = address(0x64).staticcall(input);
+        if (!success) revert RngPrecompileCallFailed();
+
+        // Convert the returned bytes to uint256.
+        assembly {
+            result := mload(add(output, 32))
+        }
+    }
+
     /**
     Fairness constraint:
     basePrice = coin.supply / WEI_GRADUATION
@@ -104,7 +123,7 @@ contract PumpRand {
     function randomInRange(uint256 min, uint256 max) internal view returns (uint256) {
         uint256 diff = max - min;
         // Shift down r to avoid overflow.
-        uint256 r = uint256(RngLib.getRandomUint256()) >> 128;
+        uint256 r = uint256(getRandomSuint256()) >> 128;
         uint256 denominatorShifted = type(uint256).max >> 128;
         uint256 scaled = (diff * r) / denominatorShifted;
         return min + scaled;
