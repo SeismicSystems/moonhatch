@@ -104,8 +104,9 @@ contract PumpCoin is IPumpCoin {
         saddress to,
         suint256 amount
     ) public onlyOwnerUntilGraduated() virtual returns (bool) {
-        if (graduated || msg.sender != owner) {
-            // before graduation, owner can approve unlimited transfers (for refunds)
+        if (graduated) {
+            // before graduation, owner is the only one who can call transferFrom
+            // in this case, they can approve unlimited transfers (for refunding eth)
             suint256 allowed = _allowance[from][saddress(msg.sender)];
             if (allowed != suint256(type(uint256).max))
                 _allowance[from][saddress(msg.sender)] = allowed - amount;
