@@ -4,6 +4,8 @@ use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
 use std::fs;
 use std::path::Path;
 use serde::Deserialize;
+use cargo_metadata::MetadataCommand;
+use std::path::PathBuf;
 
 use crate::{
     client::build_tx,
@@ -11,20 +13,31 @@ use crate::{
     error::PumpError,
 };
 
-pub(crate) struct ContractAddresses {
-    pub(crate) pump: Address,
-    #[allow(dead_code)]
-    pub(crate) router: Address,
-    pub(crate) factory: Address,
-    pub(crate) weth: Address,
+#[derive(Debug, Clone)]
+pub struct ContractAddresses {
+    pub pump: Address,
+    pub router: Address,
+    pub factory: Address,
+    pub weth: Address,
+}
+
+
+/// Returns the workspace root by invoking `cargo metadata`.
+fn get_workspace_root() -> Option<PathBuf> {
+    let metadata = MetadataCommand::new().exec().ok()?;
+    Some(metadata.workspace_root.into())
+}
+
+fn contract_path(chain_id: u64, contract: &str) -> String {
+    format!("{}/frontend/web/public/chains/{}/contracts/{}.json", get_workspace_root().unwrap().to_string_lossy(), chain_id, contract)
 }
 
 impl ContractAddresses {
     pub fn new(chain_id: u64) -> ContractAddresses {
-        let pump = extract_address(format!("contracts/pump/{}.json", chain_id)).unwrap();
-        let router = extract_address(format!("contracts/router/{}.json", chain_id)).unwrap();
-        let factory = extract_address(format!("contracts/factory/{}.json", chain_id)).unwrap();
-        let weth = extract_address(format!("contracts/weth/{}.json", chain_id)).unwrap();
+        let pump = extract_address(contract_path(chain_id, "PumpRand")).unwrap();
+        let router = extract_address(contract_path(chain_id, "UniswapV2Router02")).unwrap();
+        let factory = extract_address(contract_path(chain_id, "UniswapV2Factory")).unwrap();
+        let weth = extract_address(contract_path(chain_id, "WETH9")).unwrap();
         ContractAddresses { pump, router, factory, weth }
     }
 

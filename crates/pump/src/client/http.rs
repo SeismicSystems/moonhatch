@@ -32,7 +32,7 @@ pub struct PumpClient {
     provider: SeismicUnsignedProvider,
     wallet: SeismicSignedProvider,
     signer_address: Address,
-    ca: ContractAddresses,
+    pub ca: ContractAddresses,
 }
 
 impl PumpClient {
