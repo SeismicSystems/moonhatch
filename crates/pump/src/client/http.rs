@@ -99,7 +99,10 @@ impl PumpClient {
 
     pub async fn deploy_graduated(&self, coin_id: u32) -> Result<FixedBytes<32>, TransportError> {
         let input = deploy_graduated_bytecode(coin_id);
-        let tx = TransactionRequest::default().to(self.ca.pump).input(input.into());
+        let tx = TransactionRequest::default()
+            .to(self.ca.pump)
+            .input(input.into())
+            .from(self.signer_address);
         let pending_tx = self.signed_provider.send_transaction(tx).await?;
         Ok(pending_tx.tx_hash().clone())
     }
@@ -108,17 +111,5 @@ impl PumpClient {
         let tx = TransactionRequest::default().to(self.ca.pump).input(input.into());
         let pending_tx = self.signed_provider.send_transaction(tx).await?;
         Ok(pending_tx.tx_hash().clone())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_deploy_graduated() {
-        let client = PumpClient::new("https://mainnet.infura.io/v3/");
-        let tx_hash = client.deploy_graduated(1).await.unwrap();
-        println!("tx_hash: {:?}", tx_hash);
     }
 }
