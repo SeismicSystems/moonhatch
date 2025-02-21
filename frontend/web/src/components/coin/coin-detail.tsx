@@ -157,29 +157,16 @@ const CoinDetail: React.FC = () => {
   useEffect(() => {
     if (!loaded || !coinId) return
 
-    const refresh = () => {
-      fetchCoin(BigInt(coinId))
-        .then((foundCoin) => setCoin(foundCoin || null))
-        .catch((err) => console.error('Error fetching coin:', err))
-    }
-    refresh()
-    const interval = setInterval(refresh, REFRESH_COIN_DETAIL_MS)
-    return () => {
-      clearInterval(interval)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Fetch coin data once without an interval
+    fetchCoin(BigInt(coinId))
+      .then((foundCoin) => setCoin(foundCoin || null))
+      .catch((err) => console.error('Error fetching coin:', err))
   }, [loaded, coinId])
-
-  console.log('coin', coin?.contractAddress)
-  // Only call useCoinContract when coin is non-null
-  // const coinContract = useCoinContract(coin)
-  // console.log('coinContract', coinContract)
-  //   console.log('coinContract', coinContract)
 
   if (loading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
   if (!coin) return <div>Coin not found.</div>
   return <CoinDetailContent coin={coin} />
 }
-export { CoinDetailContent }
+
 export default CoinDetail

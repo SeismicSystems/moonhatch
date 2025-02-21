@@ -19,6 +19,8 @@ type ChartProps = {
   colors?: ChartColors
 }
 
+const REFRESH_CHART_MS = 5000 // Refresh interval in milliseconds
+
 export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
   const { fetchTimeseries } = useTimeseries()
   const { backgroundColor = '#161b33', textColor = '#f1dac4' } = colors
@@ -103,7 +105,7 @@ export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
       wickDownColor: '#F44336',
     })
 
-    // Fetch timeseries data and set it on the series.
+    // Initial fetch of timeseries data and set it on the series.
     fetchTimeseries({ pool })
       .then((ts) => {
         if (!isMounted) return
@@ -112,6 +114,19 @@ export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
         chart.timeScale().fitContent()
       })
       .catch((err) => console.error(err))
+
+    // Set up an interval to refresh chart data.
+    const refreshInterval = setInterval(() => {
+      fetchTimeseries({ pool })
+        .then((ts) => {
+          if (!isMounted) return
+          if (seriesRef.current) {
+            seriesRef.current.setData(ts)
+            chart.timeScale().fitContent()
+          }
+        })
+        .catch((err) => console.error(err))
+    }, REFRESH_CHART_MS)
 
     // Optionally handle container resizing.
     const handleResize = () => {
@@ -123,6 +138,7 @@ export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
 
     return () => {
       isMounted = false
+      clearInterval(refreshInterval)
       window.removeEventListener('resize', handleResize)
       seriesRef.current = null
       chart.remove()
