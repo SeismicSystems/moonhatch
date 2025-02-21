@@ -208,15 +208,12 @@ contract PumpRand {
         view
         returns (suint256 result)
     {
-        // We request 32 bytes for a full uint256.
         uint32 output_len = 32;
         bytes memory input = abi.encodePacked(output_len);
 
-        // Call the precompile.
         (bool success, bytes memory output) = address(0x64).staticcall(input);
         if (!success) revert RngPrecompileCallFailed();
 
-        // Convert the returned bytes to uint256.
         assembly {
             result := mload(add(output, 32))
         }
