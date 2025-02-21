@@ -424,7 +424,7 @@
     },
     {
       "type": "event",
-      "name": "CoinPurchased",
+      "name": "WeiInUpdated",
       "inputs": [
         {
           "name": "coinId",

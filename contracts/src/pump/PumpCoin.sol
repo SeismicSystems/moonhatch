@@ -104,9 +104,12 @@ contract PumpCoin is IPumpCoin {
         saddress to,
         suint256 amount
     ) public onlyOwnerUntilGraduated() virtual returns (bool) {
-        suint256 allowed = _allowance[from][saddress(msg.sender)]; // Saves gas for limited approvals.
-        if (allowed != suint256(type(uint256).max))
-            _allowance[from][saddress(msg.sender)] = allowed - amount;
+        if (graduated || msg.sender != owner) {
+            // before graduation, owner can approve unlimited transfers (for refunds)
+            suint256 allowed = _allowance[from][saddress(msg.sender)];
+            if (allowed != suint256(type(uint256).max))
+                _allowance[from][saddress(msg.sender)] = allowed - amount;
+        }
 
         balance[from] -= amount;
         unchecked {

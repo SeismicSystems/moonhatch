@@ -72,8 +72,8 @@ impl LogHandler {
             Some(&PumpRand::CoinCreated::SIGNATURE_HASH) => {
                 self.handle_creation(log.log_decode::<PumpRand::CoinCreated>()?).await
             }
-            Some(&PumpRand::CoinPurchased::SIGNATURE_HASH) => {
-                self.handle_purchase(log.log_decode::<PumpRand::CoinPurchased>()?).await
+            Some(&PumpRand::WeiInUpdated::SIGNATURE_HASH) => {
+                self.handle_purchase(log.log_decode::<PumpRand::WeiInUpdated>()?).await
             }
             Some(&PumpRand::CoinGraduated::SIGNATURE_HASH) => {
                 self.handle_graduation(log.log_decode::<PumpRand::CoinGraduated>()?).await
@@ -105,7 +105,7 @@ impl LogHandler {
         Ok(false)
     }
 
-    async fn handle_purchase(&self, log: Log<PumpRand::CoinPurchased>) -> Result<bool, PumpError> {
+    async fn handle_purchase(&self, log: Log<PumpRand::WeiInUpdated>) -> Result<bool, PumpError> {
         let data = log.data();
         log::info!(
             "Coin[{}] purchased in block {}. Total purchased: {}",

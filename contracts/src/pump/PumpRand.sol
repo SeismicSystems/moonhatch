@@ -34,8 +34,8 @@ contract PumpRand {
     mapping(uint32 => mapping(saddress => suint256)) weisInByAddress;
 
     event CoinCreated(uint32 coinId);
+    event WeiInUpdated(uint32 coinId, uint256 totalWeiIn);
     event CoinGraduated(uint32 coinId);
-    event CoinPurchased(uint32 coinId, uint256 totalWeiIn);
     event DeployedToDex(uint32 coinId, address lpToken);
 
     error NoCoinWithId(uint32 coinId);
@@ -45,7 +45,9 @@ contract PumpRand {
     error CoinNotYetGraduated();
     error SweepFeesFailed();
     error FailedToRefundExcessEth();
-
+    error FailedToRefundEth();
+    error FailedToReturnTokens();
+    error NoTokensForRefund();
     constructor(uint16 feeBps_, address router_) {
         deployer = msg.sender;
         coinsCreated = 0;
@@ -142,6 +144,30 @@ contract PumpRand {
         return persistBuy(coinId, W_prev, W_new, T_rem, tokensMinted);
     }
 
+    // Refund their eth deposited if it's before graduation
+    function refundPurchase(uint32 coinId) public {
+        if (graduated[coinId]) revert CoinAlreadyGraduated();
+        Coin memory coin = getCoin(coinId);
+        IPumpCoin pc = IPumpCoin(coin.contractAddress);
+        uint256 weiIn = uint256(weisInByAddress[coinId][saddress(msg.sender)]);
+        uint256 tokensOut = pc.balanceOf(msg.sender);
+        if (weiIn == 0 || tokensOut == 0) {
+            revert NoTokensForRefund();
+        }
+        bool tokenSuccess = pc.transferFrom(saddress(msg.sender), saddress(this), suint256(tokensOut));
+        if (!tokenSuccess) {
+            revert FailedToReturnTokens();
+        }
+        bool success = payable(msg.sender).send(weiIn);
+        if (!success) {
+            revert FailedToRefundEth();
+        }
+        unitsOut[coinId] = unitsOut[coinId] - suint256(tokensOut);
+        weisInByAddress[coinId][saddress(msg.sender)] = suint256(0);
+        weisIn[coinId] = weisIn[coinId] - weiIn;
+        emit WeiInUpdated(coinId, weisIn[coinId]);
+    }
+
     function persistGraduatingBuy(uint32 coinId, uint256 W_prev, uint256 W_new, uint256 T_rem) internal returns (uint256 weiRefunded) {
         Coin memory coin = getCoin(coinId);
         IPumpCoin pc = IPumpCoin(coin.contractAddress);
@@ -160,7 +186,7 @@ contract PumpRand {
                 revert FailedToRefundExcessEth();
             }
         }
-        emit CoinPurchased(coinId, weisIn[coinId]);
+        emit WeiInUpdated(coinId, weisIn[coinId]);
         emit CoinGraduated(coinId);
         return refund;
     }
@@ -172,7 +198,7 @@ contract PumpRand {
         weisInByAddress[coinId][saddress(msg.sender)] = weisInByAddress[coinId][saddress(msg.sender)] + suint256(W_new);
         unitsOut[coinId] = suint256((coin.supply - T_rem) + tokensMinted);
         pc.mint(saddress(msg.sender), suint256(tokensMinted));
-        emit CoinPurchased(coinId, weisIn[coinId]);
+        emit WeiInUpdated(coinId, weisIn[coinId]);
         return 0;
     }
 
