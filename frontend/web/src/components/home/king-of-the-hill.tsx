@@ -46,7 +46,7 @@ const KingOfTheHillSection: React.FC = () => {
           borderRadius: '12px',
           margin: '2rem 0',
           textAlign: 'center',
-          width: { md: '60%', lg: '60%' },
+          width: { md: '60%', lg: '60%', xl: '30%' },
           height: '300px',
           display: 'flex',
           flexDirection: 'column',
