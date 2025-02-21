@@ -75,7 +75,7 @@ contract PumpCoin is IPumpCoin {
     }
 
     /// @dev Only available after graduation
-    function balanceOf(address owner_) external onlyGraduated() view returns (uint) {
+    function balanceOf(address owner_) external onlyOwnerUntilGraduated() view returns (uint) {
         return uint256(balance[saddress(owner_)]);
     }
 

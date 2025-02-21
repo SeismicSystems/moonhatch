@@ -175,4 +175,76 @@ contract PumpRandTest is Test {
         assertEq(refundB, 0.1 ether);
         assertTrue(pump.isGraduated(coinId));
     }
+
+    // Test that a buyer can refund their purchase before graduation
+    function testRefundBeforeGraduation() public {
+        uint32 coinId = pump.createCoin("TestCoin", "TST", 21_000_000_000_000_000_000_000);
+        
+        uint256 initialBalance = address(this).balance;
+
+        // Initial buy of 0.5 ETH
+        uint256 refund1 = pump.buy{value: 0.5 ether}(coinId);
+        assertEq(refund1, 0);
+        assertFalse(pump.isGraduated(coinId));
+
+        // Check that ETH was spent
+        assertEq(address(this).balance, initialBalance - 0.5 ether);
+
+        // Refund the purchase
+        pump.refundPurchase(coinId);
+
+        // Check that ETH was refunded (should be 0.5 ETH)
+        assertEq(address(this).balance, initialBalance);
+    }
+
+    // Test that refund fails after graduation
+    function testRefundFailsAfterGraduation() public {
+        uint32 coinId = pump.createCoin("TestCoin", "TST", 21_000_000_000_000_000_000_000);
+        
+        // Buy enough to graduate
+        uint256 refund1 = pump.buy{value: 1 ether}(coinId);
+        assertEq(refund1, 0);
+        assertTrue(pump.isGraduated(coinId));
+
+        // Get the coin contract
+        address tokenAddr = pump.getCoinAddress(coinId);
+        IPumpCoin token = IPumpCoin(tokenAddr);
+
+        // Approve tokens
+        token.approve(address(pump), type(uint256).max);
+
+        // Attempt refund should fail
+        vm.expectRevert();
+        pump.refundPurchase(coinId);
+    }
+
+    // Test that multiple buyers can refund independently
+    function testMultipleBuyersRefunds() public {
+        uint32 coinId = pump.createCoin("TestCoin", "TST", 21_000_000_000_000_000_000_000);
+        
+        vm.deal(address(0xAAAA), 10 ether);
+        vm.deal(address(0xBBBB), 10 ether);
+
+        // First buyer buys 0.3 ETH
+        vm.prank(address(0xAAAA));
+        uint256 refund1 = pump.buy{value: 0.3 ether}(coinId);
+        assertEq(refund1, 0);
+
+        // Second buyer buys 0.2 ETH
+        vm.prank(address(0xBBBB));
+        uint256 refund2 = pump.buy{value: 0.2 ether}(coinId);
+        assertEq(refund2, 0);
+
+        vm.startPrank(address(0xAAAA));
+        pump.refundPurchase(coinId);
+        vm.stopPrank();
+
+        assertEq(address(0xAAAA).balance, 10 ether);
+
+        vm.startPrank(address(0xBBBB));
+        pump.refundPurchase(coinId);
+        vm.stopPrank();
+
+        assertEq(address(0xBBBB).balance, 10 ether);
+    }
 }
