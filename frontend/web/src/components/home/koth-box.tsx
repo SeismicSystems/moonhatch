@@ -89,8 +89,8 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
           sx={{
             backgroundColor: 'var(--midBlue)',
             borderRadius: '8px',
-            height: isDesktop && coin.rank !== 1 ? '80px' : boxSize,
-            width: isDesktop && coin.rank !== 1 ? '80px' : boxSize,
+            height: isDesktop ? (coin.rank === 1 ? '150px' : '120px') : boxSize,
+            width: isDesktop ? (coin.rank === 1 ? '150px' : '120px') : boxSize,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -105,7 +105,11 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
             src={coin.imageUrl}
             alt={coin.name}
             style={{
-              width: isDesktop ? '80px' : avatarSize,
+              width: isDesktop
+                ? coin.rank === 1
+                  ? '100px'
+                  : '80px'
+                : avatarSize,
               height: avatarSize,
             }}
           />
