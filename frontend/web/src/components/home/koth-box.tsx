@@ -1,7 +1,7 @@
 import React from 'react'
 
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
-import { Avatar, Box, Typography } from '@mui/material'
+import { Avatar, Box, Typography, useMediaQuery } from '@mui/material'
 
 export interface CoinData {
   rank: number
@@ -17,6 +17,8 @@ interface KOTHBoxProps {
 }
 
 const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
+  const isDesktop = useMediaQuery('(min-width: 880px)')
+
   if (variant === 'mobile') {
     // Mobile layout: a horizontal card spanning 100% width.
     return (
@@ -37,7 +39,8 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
         <Box
           sx={{
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: isDesktop ? 'row' : 'column',
+
             alignItems: 'flex-start',
           }}
         >
@@ -67,7 +70,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
   } else {
     // Desktop layout: Olympic podium style.
     const isChampion = coin.rank === 1
-    const boxSize = isChampion ? 100 : 100
+    const boxSize = isChampion ? 100 : 50
     const avatarSize = isChampion ? 50 : 50
     const padding = isChampion ? 1.5 : 1
 
@@ -75,7 +78,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
       <Box
         sx={{
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: isDesktop ? 'column' : 'row',
           alignItems: 'center',
           justifyContent: 'start',
           textAlign: 'left',
@@ -86,14 +89,12 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
           sx={{
             backgroundColor: 'var(--midBlue)',
             borderRadius: '8px',
-            height: boxSize,
-            width: boxSize,
+            height: isDesktop && coin.rank !== 1 ? '80px' : boxSize,
+            width: isDesktop && coin.rank !== 1 ? '80px' : boxSize,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             position: 'relative',
-            height: coin.rank === 1 ? '100px' : '50px',
-            width: coin.rank === 1 ? '100px' : '50px',
             textAlign: 'left',
             overflow: 'hidden',
             border: '2px solid white',
@@ -103,7 +104,10 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
           <img
             src={coin.imageUrl}
             alt={coin.name}
-            style={{ width: avatarSize, height: avatarSize }}
+            style={{
+              width: isDesktop ? '80px' : avatarSize,
+              height: avatarSize,
+            }}
           />
           {isChampion && (
             <EmojiEventsIcon
@@ -116,16 +120,23 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
             />
           )}
         </Box>
-        <div className="flex flex-col justify-around mb-4">
+        <div className="flex flex-col justify-around lg:items-center mb-4">
           <Typography
             variant="h6"
             sx={{
               color: 'var(--creamWhite)',
               fontFamily: "'Tomorrow', sans-serif",
-              textAlign: 'left',
-              mt: coin.rank === 1 ? '.5rem' : '.75rem',
+              textAlign: isDesktop ? 'center' : 'left',
+              mt: coin.rank === 1 ? '.5rem' : '.25rem',
               mb: coin.rank === 1 ? '-1rem' : '-.25rem',
-              fontSize: coin.rank === 1 ? '2.25rem' : '.75rem',
+              fontSize:
+                coin.rank === 1
+                  ? isDesktop
+                    ? '1.5rem'
+                    : '2.25rem'
+                  : isDesktop
+                    ? '1rem'
+                    : '.75rem',
             }}
           >
             {coin.name.toUpperCase()}

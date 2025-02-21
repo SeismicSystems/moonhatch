@@ -28,7 +28,7 @@ const sampleKings: CoinData[] = [
 
 const KingOfTheHillSection: React.FC = () => {
   const theme = useTheme()
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
+  const isDesktop = useMediaQuery('(min-width: 780px)')
 
   // For the podium layout, we want the order: Rank 2, Rank 1, Rank 3.
   const podiumOrder = [
@@ -46,7 +46,7 @@ const KingOfTheHillSection: React.FC = () => {
           borderRadius: '12px',
           margin: '2rem 0',
           textAlign: 'center',
-          width: '100%',
+          width: { md: '60%', lg: '80%' },
           height: '300px',
           display: 'flex',
           flexDirection: 'column',
@@ -69,8 +69,9 @@ const KingOfTheHillSection: React.FC = () => {
             gap: 2,
             width: '100%',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
+            flexDirection: isDesktop ? 'row' : 'column',
+            justifyContent: isDesktop ? 'center' : 'start',
+            alignItems: 'center',
           }}
         >
           {podiumOrder.map((coin) => (
@@ -87,7 +88,7 @@ const KingOfTheHillSection: React.FC = () => {
           padding: '1rem',
           backgroundColor: 'var(--darkBlue)',
           borderRadius: '12px',
-          width: '100%',
+          width: { xs: '100%', sm: '60%', md: '100%', lg: '100%' },
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -119,6 +120,7 @@ const KingOfTheHillSection: React.FC = () => {
               borderRadius: '8px',
               display: 'flex',
               justifyContent: 'start',
+
               paddingLeft: '10p',
               alignItems: 'center',
               gap: 2,
