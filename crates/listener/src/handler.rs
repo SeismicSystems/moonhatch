@@ -105,7 +105,10 @@ impl LogHandler {
         Ok(false)
     }
 
-    async fn handle_wei_in_updated(&self, log: Log<PumpRand::WeiInUpdated>) -> Result<bool, PumpError> {
+    async fn handle_wei_in_updated(
+        &self,
+        log: Log<PumpRand::WeiInUpdated>,
+    ) -> Result<bool, PumpError> {
         let data = log.data();
         log::info!(
             "Coin[{}] purchased in block {}. Total purchased: {}",

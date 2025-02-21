@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::{client::block::Block, db::schema, error::PumpError};
 
 #[derive(Queryable, Serialize, Deserialize, Debug)]
+#[diesel(table_name = schema::coins)]
 pub struct Coin {
     pub id: i64,
     pub name: String,
@@ -20,13 +21,14 @@ pub struct Coin {
     pub creator: String,
     pub graduated: bool,
     pub verified: bool,
+    #[serde(rename = "weiIn")]
     pub wei_in: BigDecimal,
     pub description: Option<String>,
     #[serde(rename = "imageUrl")]
     pub image_url: Option<String>,
-    pub twitter: Option<String>,
     pub website: Option<String>,
     pub telegram: Option<String>,
+    pub twitter: Option<String>,
     #[serde(rename = "createdAt")]
     pub created_at: NaiveDateTime,
     #[serde(rename = "deployedPool")]
