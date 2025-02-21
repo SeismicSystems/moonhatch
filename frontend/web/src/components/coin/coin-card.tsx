@@ -16,7 +16,7 @@ interface CoinCardProps {
 }
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
-  const navigate = useNavigate() // Navigation hook
+  const navigate = useNavigate()
   const defaultImage =
     'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
 
@@ -247,6 +247,8 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                       fontSize: { xs: '0.75rem', md: '14px' }, // Tailwind text-xs md:text-[14px]
                       color: 'var(--lightBlue)',
                       whiteSpace: 'pre-wrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
                     }}
                   >
                     {coin.description.length > 50

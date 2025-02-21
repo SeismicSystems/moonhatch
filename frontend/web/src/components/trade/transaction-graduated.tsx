@@ -143,8 +143,9 @@ export default function TransactionGraduated({
               fullWidth
               sx={{
                 height: { xs: '60px', sm: '70px', md: '80px', lg: '90px' },
-                padding: { xs: '8px', sm: '10px', md: '12px', lg: '14px' },
+                padding: { xs: '50px', sm: '50px', md: '50px', lg: '50px' },
                 backgroundColor: 'green',
+
                 fontFamily: 'inherit',
 
                 color: 'var(--creamWhite)',

@@ -1,39 +1,48 @@
-import React, { useEffect, useState } from 'react'
+// src/pages/Home.tsx
+import React, { useEffect } from 'react'
 
 import HomeHeader from '@/components/HomeHeader'
 import NavBar from '@/components/NavBar'
-import { useFetchCoin } from '@/hooks/useFetchCoin'
+import SearchAndFilter from '@/components/home/search-and-filter'
+import { useCoinSearch } from '@/hooks/useCoinSearch'
 import Coins from '@/pages/Coins'
-import type { Coin } from '@/types/coin'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { fetchCoinsAsync } from '@/store/slices/coinSlice'
 
 const Home: React.FC = () => {
-  const [coins, setCoins] = useState<Coin[]>([])
-  const { loaded, fetchCoins } = useFetchCoin()
-  useEffect(
-    () => {
-      if (!loaded) {
-        console.log('no public client')
-        return
-      }
-      fetchCoins().then((c) => setCoins([...c].reverse()))
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [loaded]
-  )
+  const dispatch = useAppDispatch()
+  const coins = useAppSelector((state) => state.coins.coins)
+  const loading = useAppSelector((state) => state.coins.loading)
+  const error = useAppSelector((state) => state.coins.error)
 
+  const { filteredCoins, searchQuery, setSearchQuery, filters, setFilters } =
+    useCoinSearch(coins)
+
+  useEffect(() => {
+    dispatch(fetchCoinsAsync())
+  }, [dispatch])
+
+  if (loading) return <div>Loading coins...</div>
+  if (error) return <div>Error loading coins: {error}</div>
+  console.log(coins)
   return (
-    <>
-      <div className="home-container">
+    <div className="home-container">
+      <div className="mb-4">
         <NavBar />
-        <HomeHeader />
-        <Coins coins={coins} />
-        {!loaded && (
-          <div className="h-96 flex items-center justify-center">
-            <div className="w-96 h-96 border-4 border-pink-200 rounded-full border-t-transparent animate-spin" />
-          </div>
-        )}
       </div>
-    </>
+      <div className="mb-2">
+        <HomeHeader coins={coins} />
+      </div>
+      <div className="search-and-filter mb-2">
+        <SearchAndFilter
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          filters={filters}
+          setFilters={setFilters}
+        />
+      </div>
+      <Coins coins={filteredCoins} />
+    </div>
   )
 }
 

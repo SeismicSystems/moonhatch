@@ -71,7 +71,6 @@ const theme = createTheme({
         md: '1rem',
         lg: '1.1rem',
       },
-      lineHeight: 1.5,
     },
     body2: {
       fontFamily: "'Tomorrow', sans-serif",
@@ -82,7 +81,6 @@ const theme = createTheme({
         md: '0.875rem',
         lg: '0.95rem',
       },
-      lineHeight: 1.43,
     },
   },
 })

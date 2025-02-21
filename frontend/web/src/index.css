@@ -38,6 +38,22 @@ body {
 canvas {
   padding: 0;
   margin: 0 auto;
-  border: 2px solid var(--creamWhite);
-  border-radius: 20px;
+  /* border: 2px solid var(--creamWhite); */
+
+  /* border-radius: 20px; */
+}
+input {
+  &:active,
+  &:focus {
+    border: none;
+    outline: none;
+  }
+  background-color: var(--midBlue);
+  color: var(--creamWhite);
+  padding: 5px;
+  margin: 5px;
+
+  &::placeholder {
+    color: var(--creamWhite);
+  }
 }
