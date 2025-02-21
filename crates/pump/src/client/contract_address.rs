@@ -19,10 +19,10 @@ pub(crate) struct ContractAddresses {
 
 impl ContractAddresses {
     pub fn new() -> ContractAddresses {
-        let pump = Address::from_str("0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9").unwrap();
-        let router = Address::from_str("0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0").unwrap();
-        let factory = Address::from_str("0xe7f1725e7734ce288f8367e1bb143e90bb3f0512").unwrap();
-        let weth = Address::from_str("0x5fbdb2315678afecb367f032d93f642f64180aa3").unwrap();
+        let pump = Address::from_str("0x712516e61c8b383df4a63cfe83d7701bce54b03e").unwrap();
+        let router = Address::from_str("0x71c95911e9a5d330f4d621842ec243ee1343292e").unwrap();
+        let factory = Address::from_str("0x948b3c65b89df0b4894abe91e6d02fe579834f8f").unwrap();
+        let weth = Address::from_str("0x8464135c8f25da09e49bc8782676a84730c318bc").unwrap();
         ContractAddresses { pump, router, factory, weth }
     }
 

@@ -30,6 +30,7 @@ pub fn build_tx(to: &Address, calldata: Vec<u8>) -> TransactionRequest {
 pub struct PumpClient {
     provider: SeismicUnsignedProvider,
     wallet: SeismicSignedProvider,
+    signer_address: Address,
     ca: ContractAddresses,
 }
 
@@ -38,15 +39,14 @@ impl PumpClient {
         let rpc_url = Url::from_str(rpc_url).expect("Missing RPC_URL in .env");
         let provider = create_seismic_provider_without_wallet(rpc_url.clone());
 
-        let wallet = {
-            let private_key = std::env::var("DEPLOYER_PRIVATE_KEY")
-                .expect("Missing DEPLOYER_PRIVATE_KEY in .env");
-            let pk_bytes = B256::from_hex(private_key).unwrap();
-            let signer = LocalSigner::from_bytes(&pk_bytes).expect("invalid signer");
-            let wallet = EthereumWallet::new(signer);
-            create_seismic_provider(wallet, rpc_url)
-        };
-        PumpClient { provider, wallet, ca: ContractAddresses::new() }
+        let private_key =
+            std::env::var("DEPLOYER_PRIVATE_KEY").expect("Missing DEPLOYER_PRIVATE_KEY in .env");
+        let pk_bytes = B256::from_hex(private_key).unwrap();
+        let signer = LocalSigner::from_bytes(&pk_bytes).expect("invalid signer");
+        let signer_address = signer.address();
+        let wallet = create_seismic_provider(EthereumWallet::new(signer), rpc_url);
+
+        PumpClient { provider, wallet, signer_address, ca: ContractAddresses::new() }
     }
 
     pub async fn get_coin(&self, coin_id: u32) -> Result<SolidityCoin, PumpError> {
@@ -86,10 +86,11 @@ impl PumpClient {
     }
 
     pub async fn deploy_graduated(&self, coin_id: u32) -> Result<FixedBytes<32>, TransportError> {
-        let addresses = self.wallet.get_accounts().await.unwrap();
-        let nonce = self.wallet.get_transaction_count(addresses[0]).await.unwrap();
         let input = deploy_graduated_bytecode(coin_id);
-        let tx = TransactionRequest::default().nonce(nonce).to(self.ca.pump).input(input.into());
+        let tx = TransactionRequest::default()
+            .to(self.ca.pump)
+            .input(input.into())
+            .from(self.signer_address);
         let pending_tx = self.wallet.send_transaction(tx).await?;
         Ok(pending_tx.tx_hash().clone())
     }
