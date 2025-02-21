@@ -20,6 +20,7 @@ pub struct Coin {
     pub creator: String,
     pub graduated: bool,
     pub verified: bool,
+    pub wei_in: BigDecimal,
     pub description: Option<String>,
     #[serde(rename = "imageUrl")]
     pub image_url: Option<String>,
@@ -67,13 +68,17 @@ impl NewPoolPrice {
         if prices.is_empty() {
             return Err(PumpError::no_prices(block.number, lp_token.clone()));
         }
+        let open = prices[0].clone();
+        let close = prices[prices.len() - 1].clone();
+        let high = prices.iter().max().unwrap_or(&BigDecimal::zero()).clone();
+        let low = prices.iter().min().unwrap_or(&BigDecimal::zero()).clone();
         let price = NewPoolPrice {
             pool: lp_token.to_string(),
             time: block.timestamp,
-            open: BigDecimal::zero(),
-            high: BigDecimal::zero(),
-            low: BigDecimal::zero(),
-            close: BigDecimal::zero(),
+            open,
+            high,
+            low,
+            close,
         };
         Ok(price)
     }

@@ -16,7 +16,8 @@
     "graduated(uint32)": "4974faf0",
     "isGraduated(uint32)": "83e6ad52",
     "router()": "f887ea40",
-    "sweepFees()": "d113b95c"
+    "sweepFees()": "d113b95c",
+    "weisIn(uint32)": "4095ed4c"
   },
   "abi": [
     {
@@ -377,6 +378,25 @@
       "stateMutability": "payable"
     },
     {
+      "type": "function",
+      "name": "weisIn",
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
       "type": "event",
       "name": "CoinCreated",
       "inputs": [
@@ -398,6 +418,25 @@
           "type": "uint32",
           "indexed": false,
           "internalType": "uint32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "CoinPurchased",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "indexed": false,
+          "internalType": "uint32"
+        },
+        {
+          "name": "totalWeiIn",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
         }
       ],
       "anonymous": false
