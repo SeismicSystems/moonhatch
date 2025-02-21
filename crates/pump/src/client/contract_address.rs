@@ -1,22 +1,18 @@
 use alloy_primitives::Address;
-use alloy_provider::{network::TransactionBuilder, Provider, SeismicPublicClient};
-use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
+use alloy_provider::{Provider, SeismicUnsignedProvider};
 use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
 use std::str::FromStr;
 
 use crate::{
+    client::build_tx,
     contract::dex::UniswapV2Router02::{factoryCall, WETHCall},
     error::PumpError,
 };
 
-pub(crate) fn build_tx(to: Address, calldata: Vec<u8>) -> TransactionRequest {
-    TransactionRequest::default().with_to(to).input(TransactionInput::new(calldata.into()))
-}
-
 pub(crate) struct ContractAddresses {
     pub(crate) pump: Address,
     #[allow(dead_code)]
-    pub(crate) dex: Address,
+    pub(crate) router: Address,
     pub(crate) factory: Address,
     pub(crate) weth: Address,
 }
@@ -24,30 +20,33 @@ pub(crate) struct ContractAddresses {
 impl ContractAddresses {
     pub fn new() -> ContractAddresses {
         let pump = Address::from_str("0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9").unwrap();
-        let dex = Address::from_str("0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0").unwrap();
+        let router = Address::from_str("0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0").unwrap();
         let factory = Address::from_str("0xe7f1725e7734ce288f8367e1bb143e90bb3f0512").unwrap();
         let weth = Address::from_str("0x5fbdb2315678afecb367f032d93f642f64180aa3").unwrap();
-        ContractAddresses { pump, dex, factory, weth }
+        ContractAddresses { pump, router, factory, weth }
     }
 
     #[allow(dead_code)]
-    async fn get_weth(provider: &SeismicPublicClient, dex: Address) -> Result<Address, PumpError> {
+    async fn get_weth(
+        provider: &SeismicUnsignedProvider,
+        router: &Address,
+    ) -> Result<Address, PumpError> {
         let calldata = WETHCall {}.abi_encode();
-        ContractAddresses::get_address(provider, dex, calldata).await
+        ContractAddresses::get_address(provider, router, calldata).await
     }
 
     #[allow(dead_code)]
     async fn get_factory(
-        provider: &SeismicPublicClient,
-        dex: Address,
+        provider: &SeismicUnsignedProvider,
+        router: &Address,
     ) -> Result<Address, PumpError> {
         let calldata = factoryCall {}.abi_encode();
-        ContractAddresses::get_address(provider, dex, calldata).await
+        ContractAddresses::get_address(provider, router, calldata).await
     }
 
     pub async fn get_address(
-        provider: &SeismicPublicClient,
-        to: Address,
+        provider: &SeismicUnsignedProvider,
+        to: &Address,
         calldata: Vec<u8>,
     ) -> Result<Address, PumpError> {
         let tx = build_tx(to, calldata);

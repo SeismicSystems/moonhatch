@@ -7,7 +7,7 @@ edition = "2021"
 pump = { path = "../pump" }
 
 # webserver
-axum = { workspace = true, features = ["multipart"] }
+axum.workspace = true
 tokio.workspace = true
 tower-http = { version = "0.4.4", features = ["cors"] }
 
@@ -18,6 +18,8 @@ bigdecimal.workspace = true
 chrono.workspace = true
 
 dotenv.workspace = true
+env_logger.workspace = true
+log.workspace = true
 reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
