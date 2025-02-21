@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 // Import navigate hook
 import { Coin } from '@/types/coin'
 import { formatRelativeTime } from '@/util'
-import SocialLink from '@components/coin/social-link'
 import LockIcon from '@mui/icons-material/Lock'
 import SchoolIcon from '@mui/icons-material/School'
 import { Box, Typography } from '@mui/material'

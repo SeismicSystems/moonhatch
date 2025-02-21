@@ -1,7 +1,6 @@
 import React from 'react'
 
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
-import { Avatar, Box, Typography, useMediaQuery } from '@mui/material'
+import { Box, Typography, useMediaQuery } from '@mui/material'
 
 export interface CoinData {
   rank: number

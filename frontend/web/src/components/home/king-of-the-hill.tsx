@@ -1,8 +1,6 @@
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { useAppSelector } from '@/store/hooks'
-import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Typography, useMediaQuery } from '@mui/material'
 
 import KOTHBox, { CoinData } from './koth-box'
 

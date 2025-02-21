@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 const MyStyledConnectButton = () => {
@@ -15,7 +13,6 @@ const MyStyledConnectButton = () => {
           mounted,
           authenticationStatus,
         }) => {
-          // You can use these props to customize your UI.
           return (
             <button
               onClick={openConnectModal}

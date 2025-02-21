@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { useAppState } from '@/hooks/useAppState'
 import HomeIcon from '@mui/icons-material/Home'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import '@rainbow-me/rainbowkit/styles.css'
 
 import MyStyledConnectButton from './MyStyledConnectButton'
