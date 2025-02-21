@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { useAppSelector } from '@/store/hooks'
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
@@ -13,29 +14,24 @@ export default function KingOfTheHillSection({
   coins,
 }: KingOfTheHillSectionProps) {
   const isDesktop = useMediaQuery('(min-width: 780px)')
-  // Assume coins is an array of coins that include a 'weiIn' property (a BigInt)
   const sortedCoins = [...coins].sort((a, b) => {
     const weiA = a.weiIn ?? 0n
     const weiB = b.weiIn ?? 0n
-    // Highest weiIn comes first
     return weiB > weiA ? 1 : weiB < weiA ? -1 : 0
   })
+  const navigate = useNavigate()
 
-  // Slice the top three coins
   const topThree = sortedCoins.slice(0, 3)
 
-  // Map to your CoinData interface and assign rank
-  // Since you don't want to display the actual weiIn value, set score to 0 (or another placeholder)
   const coinData: CoinData[] = topThree.map((coin, index) => ({
     id: coin.id,
     rank: index + 1,
     name: coin.name,
-    score: 0, // We don't display weiIn, so score is set to 0
+    score: 0,
     imageUrl: coin.imageUrl || 'https://via.placeholder.com/100',
     symbol: coin.symbol,
   }))
 
-  // Rearrange for podium layout (for desktop, e.g. Rank 2, Rank 1, Rank 3)
   const podiumOrder =
     coinData.length >= 3
       ? [
@@ -87,7 +83,9 @@ export default function KingOfTheHillSection({
           }}
         >
           {podiumOrder.map((coin) => (
-            <KOTHBox key={coin.rank} coin={coin} />
+            <Box onClick={() => navigate(`/coins/${coin.id}`)}>
+              <KOTHBox key={coin.rank} coin={coin} />
+            </Box>
           ))}
         </Box>
       </Box>
@@ -135,6 +133,7 @@ export default function KingOfTheHillSection({
               textOverflow: 'ellipsis',
               gap: 2,
             }}
+            onClick={() => navigate(`/coins/${coin.id}`)}
           >
             <KOTHBox coin={coin} />
           </Box>

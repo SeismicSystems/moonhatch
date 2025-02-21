@@ -16,7 +16,7 @@ interface CoinCardProps {
 }
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
-  const navigate = useNavigate() // Navigation hook
+  const navigate = useNavigate()
   const defaultImage =
     'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
 
