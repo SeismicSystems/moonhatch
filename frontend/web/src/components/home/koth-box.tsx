@@ -20,7 +20,6 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
   const isDesktop = useMediaQuery('(min-width: 880px)')
 
   if (variant === 'mobile') {
-    // Mobile layout: a horizontal card spanning 100% width.
     return (
       <Box
         sx={{
@@ -32,7 +31,6 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
           backgroundColor: 'var(--midBlue)',
           borderRadius: '8px',
           p: 1,
-          width: '100%',
           mb: 2,
         }}
       >
@@ -68,7 +66,6 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
       </Box>
     )
   } else {
-    // Desktop layout: Olympic podium style.
     const isChampion = coin.rank === 1
     const boxSize = isChampion ? 100 : 50
     const avatarSize = isChampion ? 50 : 50
@@ -105,11 +102,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
             src={coin.imageUrl}
             alt={coin.name}
             style={{
-              width: isDesktop
-                ? coin.rank === 1
-                  ? '100px'
-                  : '80px'
-                : avatarSize,
+              width: isDesktop ? '80px' : avatarSize,
               height: avatarSize,
             }}
           />
@@ -124,14 +117,22 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
             />
           )}
         </Box>
-        <div className="flex flex-col justify-around lg:items-center mb-4">
+        <div className="flex flex-col lg:justify-center  lg:mr-4   justify-around lg:items-center mb-4">
           <Typography
             variant="h6"
             sx={{
               color: 'var(--creamWhite)',
               fontFamily: "'Tomorrow', sans-serif",
               textAlign: isDesktop ? 'center' : 'left',
-              mt: coin.rank === 1 ? '.5rem' : '.25rem',
+              mt:
+                coin.rank === 1
+                  ? isDesktop
+                    ? '.5rem'
+                    : '1rem'
+                  : isDesktop
+                    ? '1rem'
+                    : '.75rem',
+
               mb: coin.rank === 1 ? '-1rem' : '-.25rem',
               fontSize:
                 coin.rank === 1
@@ -145,6 +146,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
           >
             {coin.name.toUpperCase()}
           </Typography>
+          <div className="spacer-div lg:mt-2"> </div>
           <Typography
             variant="body2"
             sx={{

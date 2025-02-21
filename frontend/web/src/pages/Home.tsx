@@ -26,10 +26,12 @@ const Home: React.FC = () => {
 
   return (
     <div className="home-container">
-      <div className="mb-6">
+      <div className="mb-4">
         <NavBar />
       </div>
-      <HomeHeader />
+      <div className="mb-2">
+        <HomeHeader />
+      </div>
       <div className="search-and-filter mb-2">
         <SearchAndFilter
           searchQuery={searchQuery}

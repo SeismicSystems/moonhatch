@@ -46,7 +46,7 @@ const KingOfTheHillSection: React.FC = () => {
           borderRadius: '12px',
           margin: '2rem 0',
           textAlign: 'center',
-          width: { md: '60%', lg: '80%' },
+          width: { md: '60%', lg: '60%' },
           height: '300px',
           display: 'flex',
           flexDirection: 'column',
@@ -57,6 +57,8 @@ const KingOfTheHillSection: React.FC = () => {
           variant="h3"
           sx={{
             color: 'var(--creamWhite)',
+            fontSize: { xs: '1.5rem', sm: '2rem', md: '2rem' },
+            mt: 2,
             mb: 2,
             fontFamily: "'Tomorrow', sans-serif",
           }}
@@ -81,7 +83,7 @@ const KingOfTheHillSection: React.FC = () => {
       </Box>
     )
   } else {
-    // For mobile, render a vertical list
+    // MOBILE CONTAINER
     return (
       <Box
         sx={{

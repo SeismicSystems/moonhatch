@@ -48,7 +48,7 @@ export default function HomeHeader() {
           />
         )}
       </div>
-      <div className="justify-self-end mt-4 lg:-mt-4 flex-col flex text-[var(--creamWhite)]"></div>
+      <div className="justify-self-end  lg:mt-2 flex-col flex text-[var(--creamWhite)]"></div>
       <div className="flex grad-icons-container gap-2 justify-center ">
         <div className="flex items-center">
           <LockIcon
