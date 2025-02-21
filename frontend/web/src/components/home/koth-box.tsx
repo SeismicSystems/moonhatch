@@ -94,8 +94,8 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
             position: 'relative',
             textAlign: 'left',
             overflow: 'hidden',
-            border: '2px solid white',
-            marginRight: 2,
+            // border: '2px solid white',
+            marginRight: isDesktop ? 0 : 2,
           }}
         >
           <img
@@ -117,7 +117,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
             />
           )}
         </Box>
-        <div className="flex flex-col lg:justify-center  lg:mr-4   justify-around lg:items-center mb-4">
+        <div className="flex flex-col lg:justify-center  justify-around lg:items-center mb-4">
           <Typography
             variant="h6"
             sx={{
