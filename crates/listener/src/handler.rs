@@ -53,7 +53,7 @@ pub struct LogHandler {
 
 impl LogHandler {
     pub async fn new(pool: PgPool, client: PumpClient) -> Result<LogHandler, PumpError> {
-        let ws = PumpWsClient::new().await?;
+        let ws = PumpWsClient::new(client.chain_id).await?;
         let mut conn = connect(&pool)?;
         Ok(LogHandler {
             pool,

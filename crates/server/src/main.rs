@@ -19,7 +19,7 @@ async fn main() {
     env_logger::init();
 
     // Set up AWS S3.
-    let app_state = AppState::new().await;
+    let app_state = AppState::new().await.expect("Failed to create app state");
 
     // Set up CORS.
     let origin = "http://localhost:5173".parse::<HeaderValue>().unwrap();

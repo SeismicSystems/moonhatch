@@ -108,7 +108,7 @@ pub(crate) async fn upload_file(
     // Prepare S3 upload parameters.
     let bucket_name = "seismic-public-assets";
     // The key will be under the "pump" folder with the filename equal to the coin id.
-    let key = format!("pump/{}", coin_id);
+    let key = format!("pump/{}/{}", state.pump_client.chain_id, coin_id);
 
     let file_bytes = parse_upload(multipart).await?;
 

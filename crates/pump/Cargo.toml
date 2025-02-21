@@ -29,3 +29,4 @@ alloy-sol-types.workspace = true
 alloy-pubsub.workspace = true
 alloy-signer-local.workspace = true
 alloy-transport.workspace = true
+cargo_metadata = "0.19.1"

@@ -28,16 +28,19 @@ pub fn build_tx(to: &Address, calldata: Vec<u8>) -> TransactionRequest {
 }
 
 pub struct PumpClient {
+    pub chain_id: u64,
     provider: SeismicUnsignedProvider,
     wallet: SeismicSignedProvider,
     signer_address: Address,
-    ca: ContractAddresses,
+    pub ca: ContractAddresses,
 }
 
 impl PumpClient {
-    pub fn new(rpc_url: &str) -> PumpClient {
+    pub async fn new(rpc_url: &str) -> Result<PumpClient, PumpError> {
         let rpc_url = Url::from_str(rpc_url).expect("Missing RPC_URL in .env");
         let provider = create_seismic_provider_without_wallet(rpc_url.clone());
+
+        let chain_id = provider.get_chain_id().await?;
 
         let private_key =
             std::env::var("DEPLOYER_PRIVATE_KEY").expect("Missing DEPLOYER_PRIVATE_KEY in .env");
@@ -46,7 +49,12 @@ impl PumpClient {
         let signer_address = signer.address();
         let wallet = create_seismic_provider(EthereumWallet::new(signer), rpc_url);
 
-        PumpClient { provider, wallet, signer_address, ca: ContractAddresses::new() }
+        Ok(PumpClient { provider, wallet, signer_address, ca: ContractAddresses::new(chain_id), chain_id })
+    }
+
+    pub async fn get_chain_id(&self) -> Result<u64, PumpError> {
+        let chain_id = self.provider.get_chain_id().await?;
+        Ok(chain_id)
     }
 
     pub async fn get_coin(&self, coin_id: u32) -> Result<SolidityCoin, PumpError> {

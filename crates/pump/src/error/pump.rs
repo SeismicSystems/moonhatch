@@ -34,6 +34,8 @@ pub enum PumpError {
     TransportError(TransportError),
     #[error("Invalid address")]
     InvalidAddress,
+    #[error("Failed to read file at {0:?}")]
+    FailedToReadFile(String),
 }
 
 impl From<ListenerError> for PumpError {
@@ -95,6 +97,7 @@ impl Into<StatusCode> for PumpError {
             PumpError::Listener(_) => StatusCode::INTERNAL_SERVER_ERROR,
             PumpError::TransportError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             PumpError::InvalidAddress => StatusCode::INTERNAL_SERVER_ERROR,
+            PumpError::FailedToReadFile(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }
