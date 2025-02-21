@@ -26,7 +26,9 @@ const Home: React.FC = () => {
 
   return (
     <div className="home-container">
-      <NavBar />
+      <div className="mb-6">
+        <NavBar />
+      </div>
       <HomeHeader />
       <div className="search-and-filter mb-2">
         <SearchAndFilter

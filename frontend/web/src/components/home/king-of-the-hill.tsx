@@ -1,119 +1,135 @@
 import React from 'react'
 
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
-import {
-  Avatar,
-  Box,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Typography,
-} from '@mui/material'
+import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
+
+import KOTHBox, { CoinData } from './koth-box'
 
 // Sample data – replace with your dynamic leaderboard data
-const sampleKings = [
+const sampleKings: CoinData[] = [
   {
     rank: 1,
     name: 'PumpCoin',
     score: 12500,
-    imageUrl: 'https://via.placeholder.com/50',
+    imageUrl: 'https://via.placeholder.com/100',
   },
   {
     rank: 2,
     name: 'CoinX',
     score: 11000,
-    imageUrl: 'https://via.placeholder.com/50',
+    imageUrl: 'https://via.placeholder.com/100',
   },
   {
     rank: 3,
     name: 'CoinY',
     score: 9500,
-    imageUrl: 'https://via.placeholder.com/50',
+    imageUrl: 'https://via.placeholder.com/100',
   },
 ]
 
 const KingOfTheHillSection: React.FC = () => {
-  return (
-    <Box
-      sx={{
-        padding: '2rem',
-        backgroundColor: 'var(--darkBlue)', // darkBlue
-        borderRadius: '12px',
-      }}
-    >
-      <Typography
-        variant="h3"
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
+
+  // For the podium layout, we want the order: Rank 2, Rank 1, Rank 3.
+  const podiumOrder = [
+    sampleKings.find((c) => c.rank === 2)!,
+    sampleKings.find((c) => c.rank === 1)!,
+    sampleKings.find((c) => c.rank === 3)!,
+  ]
+
+  if (isDesktop) {
+    return (
+      <Box
         sx={{
-          color: 'var(--creamWhite)', // creamWhite
-          mb: 2,
-          fontFamily: "'Tomorrow', sans-serif",
+          padding: '2rem',
+          backgroundColor: 'var(--darkBlue)',
+          borderRadius: '12px',
+          margin: '2rem 0',
+          textAlign: 'center',
+          width: '100%',
+          height: '300px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
         }}
       >
-        KING OF THE HILL{' '}
-      </Typography>
-      <Typography
-        variant="subtitle1"
+        <Typography
+          variant="h3"
+          sx={{
+            color: 'var(--creamWhite)',
+            mb: 2,
+            fontFamily: "'Tomorrow', sans-serif",
+          }}
+        >
+          KING OF THE HILL
+        </Typography>
+
+        <Box
+          sx={{
+            gap: 2,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          {podiumOrder.map((coin) => (
+            <KOTHBox key={coin.rank} coin={coin} />
+          ))}
+        </Box>
+      </Box>
+    )
+  } else {
+    // For mobile, render a vertical list
+    return (
+      <Box
         sx={{
-          color: 'var(--lightBlue)', // lightBlue
-          mb: 3,
-          fontFamily: "'Tomorrow', sans-serif",
+          padding: '1rem',
+          backgroundColor: 'var(--darkBlue)',
+          borderRadius: '12px',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          margin: '2rem 0',
         }}
       >
-        TOP COINS CLOSEST TO GRADUATION{' '}
-      </Typography>
-      <List>
-        {sampleKings.map((coin, index) => (
-          <ListItem
+        <Typography
+          variant="h3"
+          sx={{
+            color: 'var(--creamWhite)',
+            mb: 2,
+            fontFamily: "'Tomorrow', sans-serif",
+          }}
+        >
+          KINGS OF THE CURVE
+        </Typography>
+
+        {sampleKings.map((coin) => (
+          <Box
             key={coin.rank}
             sx={{
               mb: 1,
-              backgroundColor: index === 0 ? 'var(--midBlue)' : 'transparent', // Highlight top coin
+              backgroundColor:
+                coin.rank === 1 ? 'var(--midBlue)' : 'var(--midBlue)',
+              height: coin.rank === 1 ? '100px' : '50px',
+              width: coin.rank === 1 ? '100%' : '75%',
+
               borderRadius: '8px',
-              padding: '0.5rem',
+              display: 'flex',
+              justifyContent: 'start',
+              paddingLeft: '10p',
+              alignItems: 'center',
+              gap: 2,
             }}
           >
-            <ListItemAvatar>
-              <Avatar
-                src={coin.imageUrl}
-                alt={coin.name}
-                sx={{ width: 48, height: 48 }}
-              />
-            </ListItemAvatar>
-            <ListItemText
-              primary={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: 'var(--creamWhite)',
-                      fontFamily: "'Tomorrow', sans-serif",
-                    }}
-                  >
-                    {coin.name}
-                  </Typography>
-                  {index === 0 && (
-                    <EmojiEventsIcon sx={{ color: '#f6e05e', ml: 1 }} />
-                  )}
-                </Box>
-              }
-              secondary={
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: 'var(--lightBlue)',
-                    fontFamily: "'Tomorrow', sans-serif",
-                  }}
-                >
-                  Score: {coin.score}
-                </Typography>
-              }
-            />
-          </ListItem>
+            <KOTHBox coin={coin} />
+          </Box>
         ))}
-      </List>
-    </Box>
-  )
+      </Box>
+    )
+  }
 }
 
 export default KingOfTheHillSection

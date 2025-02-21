@@ -1,301 +1,78 @@
-import React from 'react'
+import { motion } from 'framer-motion'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
-import { Avatar, Box, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { useAppState } from '@/hooks/useAppState'
+import HowItWorks from '@/pages/HowItWorks'
+import HelpIcon from '@mui/icons-material/Help'
+import LockIcon from '@mui/icons-material/Lock'
+import SchoolIcon from '@mui/icons-material/School'
 
-// Sample data – replace with your dynamic leaderboard data
-const sampleKings = [
-  {
-    rank: 1,
-    name: 'PumpCoin',
-    score: 12500,
-    imageUrl: 'https://via.placeholder.com/100',
-  },
-  {
-    rank: 2,
-    name: 'CoinX',
-    score: 11000,
-    imageUrl: 'https://via.placeholder.com/100',
-  },
-  {
-    rank: 3,
-    name: 'CoinY',
-    score: 9500,
-    imageUrl: 'https://via.placeholder.com/100',
-  },
-]
+import KingOfTheHillSection from './home/king-of-the-hill'
 
-const KingOfTheHillSection: React.FC = () => {
-  const theme = useTheme()
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
+export default function HomeHeader() {
+  const navigate = useNavigate()
+  const { acceptedTerms } = useAppState()
+  const [showHowItWorks, setShowHowItWorks] = useState(!acceptedTerms())
 
-  if (isDesktop) {
-    // Desktop: Olympic podium layout
-    return (
-      <Box
-        sx={{
-          padding: '2rem',
-          backgroundColor: 'var(--darkBlue)',
-          borderRadius: '12px',
-          margin: '2rem 0',
-          textAlign: 'center',
-        }}
-      >
-        <Typography
-          variant="h3"
-          sx={{
-            color: 'var(--creamWhite)',
-            mb: 2,
-            fontFamily: "'Tomorrow', sans-serif",
-          }}
-        >
-          KING OF THE HILL
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            color: 'var(--lightBlue)',
-            mb: 3,
-            fontFamily: "'Tomorrow', sans-serif",
-          }}
-        >
-          TOP COINS CLOSEST TO GRADUATION
-        </Typography>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'flex-end',
-            gap: 2,
-            position: 'relative',
-          }}
-        >
-          {/* Rank 2 */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
+  return (
+    <>
+      <div className="flex flex-row">
+        <div className="flex flex-col  items-center w-full px-4">
+          {/* Left section: Help Icon */}
+          <button
+            onClick={() => setShowHowItWorks(true)}
+            className="text-orange-300  md:ml-40 lg:ml-48 xl:ml-96 -mb-15 mr-48  z-50  hover:text-blue-600 transition justify-self-start"
           >
-            <Box
+            <HelpIcon
               sx={{
-                backgroundColor: 'var(--midBlue)',
-                borderRadius: '8px',
-                p: 1,
-                height: '120px',
-                width: '120px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                fontSize: { xs: '20px', sm: '20px', md: '34px' },
               }}
-            >
-              <Avatar
-                src={sampleKings[1].imageUrl}
-                alt={sampleKings[1].name}
-                sx={{ width: 80, height: 80 }}
-              />
-            </Box>
-            <Typography
-              variant="h6"
-              sx={{
-                color: 'var(--creamWhite)',
-                fontFamily: "'Tomorrow', sans-serif",
-                mt: 1,
-              }}
-            >
-              {sampleKings[1].name}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'var(--lightBlue)',
-                fontFamily: "'Tomorrow', sans-serif",
-              }}
-            >
-              Score: {sampleKings[1].score}
-            </Typography>
-          </Box>
-          {/* Rank 1 */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              mb: 2,
-            }}
-          >
-            <Box
-              sx={{
-                backgroundColor: 'var(--midBlue)',
-                borderRadius: '8px',
-                p: 1.5,
-                height: '150px',
-                width: '150px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-              }}
-            >
-              <Avatar
-                src={sampleKings[0].imageUrl}
-                alt={sampleKings[0].name}
-                sx={{ width: 100, height: 100 }}
-              />
-              <EmojiEventsIcon
-                sx={{
-                  position: 'absolute',
-                  top: -10,
-                  right: -10,
-                  color: '#f6e05e',
-                }}
-              />
-            </Box>
-            <Typography
-              variant="h6"
-              sx={{
-                color: 'var(--creamWhite)',
-                fontFamily: "'Tomorrow', sans-serif",
-                mt: 1,
-              }}
-            >
-              {sampleKings[0].name}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'var(--lightBlue)',
-                fontFamily: "'Tomorrow', sans-serif",
-              }}
-            >
-              Score: {sampleKings[0].score}
-            </Typography>
-          </Box>
-          {/* Rank 3 */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <Box
-              sx={{
-                backgroundColor: 'var(--midBlue)',
-                borderRadius: '8px',
-                p: 1,
-                height: '120px',
-                width: '120px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Avatar
-                src={sampleKings[2].imageUrl}
-                alt={sampleKings[2].name}
-                sx={{ width: 80, height: 80 }}
-              />
-            </Box>
-            <Typography
-              variant="h6"
-              sx={{
-                color: 'var(--creamWhite)',
-                fontFamily: "'Tomorrow', sans-serif",
-                mt: 1,
-              }}
-            >
-              {sampleKings[2].name}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'var(--lightBlue)',
-                fontFamily: "'Tomorrow', sans-serif",
-              }}
-            >
-              Score: {sampleKings[2].score}
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-    )
-  } else {
-    // Mobile: simple vertical list layout
-    return (
-      <Box
-        sx={{
-          padding: '2rem',
-          backgroundColor: 'var(--darkBlue)',
-          borderRadius: '12px',
-          margin: '2rem 0',
-        }}
-      >
-        <Typography
-          variant="h3"
-          sx={{
-            color: 'var(--creamWhite)',
-            mb: 2,
-            fontFamily: "'Tomorrow', sans-serif",
-          }}
-        >
-          KING OF THE HILL
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            color: 'var(--lightBlue)',
-            mb: 3,
-            fontFamily: "'Tomorrow', sans-serif",
-          }}
-        >
-          TOP COINS CLOSEST TO GRADUATION
-        </Typography>
-        {sampleKings.map((coin) => (
-          <Box
-            key={coin.rank}
-            sx={{
-              mb: 1,
-              backgroundColor:
-                coin.rank === 1 ? 'var(--midBlue)' : 'transparent',
-              borderRadius: '8px',
-              p: 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
-            <Avatar
-              src={coin.imageUrl}
-              alt={coin.name}
-              sx={{ width: 48, height: 48 }}
             />
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{
-                  color: 'var(--creamWhite)',
-                  fontFamily: "'Tomorrow', sans-serif",
-                }}
-              >
-                {coin.name}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: 'var(--lightBlue)',
-                  fontFamily: "'Tomorrow', sans-serif",
-                }}
-              >
-                Score: {coin.score}
-              </Typography>
-            </Box>
-          </Box>
-        ))}
-      </Box>
-    )
-  }
-}
+          </button>
+          {/* Center section: "CREATE COIN" button */}
+          <button
+            onClick={() => navigate('/create')}
+            className=" w-[200px] md:w-[300px]  mt-12 lg:w-[400px] max-w-3xl lg:my-12 text-[var(--creamWhite)] rounded-xl transition border px-2 text-xl md:text-2xl lg:text-3xl whitespace-nowrap h-16 md:h-20 lg:h-28 justify-self-center bg-[#161b33] hover:bg-green-500 hover:text-[#0d0c1d]"
+          >
+            CREATE COIN
+          </button>
+          <KingOfTheHillSection />
+        </div>
+        {/* Right section: Empty placeholder to balance the grid */}
 
-export default KingOfTheHillSection
+        {showHowItWorks && (
+          <HowItWorks
+            isOpen={showHowItWorks}
+            onClose={() => setShowHowItWorks(false)}
+          />
+        )}
+      </div>
+      <div className="justify-self-end mt-4 lg:-mt-4 flex-col flex text-[var(--creamWhite)]"></div>
+      <div className="flex grad-icons-container gap-2 justify-center ">
+        <div className="flex items-center">
+          <LockIcon
+            className="lock-icon text-red-500 mx-1"
+            sx={{
+              fontSize: { xs: '20px', sm: '24px', md: '24px', lg: '30px' },
+            }}
+          />
+          <p className="text-[10px] md:text-[12px] lg:text-[14px] text-[var(--creamWhite)]">
+            = not graduated to raydium
+          </p>
+        </div>
+        <div className="flex items-center">
+          <SchoolIcon
+            className="lock-icon text-green-500 mx-1 "
+            sx={{
+              fontSize: { xs: '20px', sm: '24px', md: '24px', lg: '30px' },
+            }}
+          />
+          <p className="text-[10px] md:text-[12px] lg:text-[14px] text-[var(--creamWhite)]">
+            = graduated to raydium
+          </p>
+        </div>
+      </div>
+    </>
+  )
+}
