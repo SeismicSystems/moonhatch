@@ -31,7 +31,6 @@ pub struct PumpClient {
     provider: SeismicUnsignedProvider,
     wallet: SeismicSignedProvider,
     ca: ContractAddresses,
-    signer_address: Address,
 }
 
 impl PumpClient {
@@ -39,16 +38,15 @@ impl PumpClient {
         let rpc_url = Url::from_str(rpc_url).expect("Missing RPC_URL in .env");
         let provider = create_seismic_provider_without_wallet(rpc_url.clone());
 
-        let (wallet, signer_address) = {
+        let (wallet) = {
             let private_key = std::env::var("DEPLOYER_PRIVATE_KEY")
                 .expect("Missing DEPLOYER_PRIVATE_KEY in .env");
             let pk_bytes = B256::from_hex(private_key).unwrap();
             let signer = LocalSigner::from_bytes(&pk_bytes).expect("invalid signer");
-            let signer_address = signer.address();
             let wallet = EthereumWallet::new(signer);
-            (create_seismic_provider(wallet, rpc_url), signer_address)
+            create_seismic_provider(wallet, rpc_url)
         };
-        PumpClient { provider, wallet, ca: ContractAddresses::new(), signer_address }
+        PumpClient { provider, wallet, ca: ContractAddresses::new() }
     }
 
     pub async fn get_coin(&self, coin_id: u32) -> Result<SolidityCoin, PumpError> {
