@@ -10,11 +10,20 @@ import SchoolIcon from '@mui/icons-material/School'
 
 import KingOfTheHillSection from './home/king-of-the-hill'
 
-export default function HomeHeader() {
+interface Coin {
+  id: string
+  name: string
+  wei_in: bigint
+}
+
+interface HomeHeaderProps {
+  coins: Coin[]
+}
+export default function HomeHeader({ coins }: HomeHeaderProps) {
   const navigate = useNavigate()
   const { acceptedTerms } = useAppState()
   const [showHowItWorks, setShowHowItWorks] = useState(!acceptedTerms())
-
+  console.log('homeheader', coins)
   return (
     <>
       <div className="flex flex-col   items-center w-full px-4">
@@ -34,7 +43,7 @@ export default function HomeHeader() {
         >
           CREATE COIN
         </button>
-        <KingOfTheHillSection />
+        <KingOfTheHillSection coins={coins} />
         {/* Right section: Empty placeholder to balance the grid */}
 
         {showHowItWorks && (

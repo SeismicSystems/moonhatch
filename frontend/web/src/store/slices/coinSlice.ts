@@ -35,6 +35,7 @@ export const fetchCoinsAsync = createAsyncThunk<
       twitter: coin.twitter || '',
       website: coin.website || '',
       telegram: coin.telegram || '',
+      weiIn: BigInt((coin as any).wei_in || '0'), // cast coin as any to access wei_in
     }))
   } catch (err) {
     return rejectWithValue(err instanceof Error ? err.message : 'Unknown error')

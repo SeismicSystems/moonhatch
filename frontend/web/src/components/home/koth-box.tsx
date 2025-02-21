@@ -6,6 +6,7 @@ import { Avatar, Box, Typography, useMediaQuery } from '@mui/material'
 export interface CoinData {
   rank: number
   name: string
+  symbol: string
   score: number
   imageUrl: string
   ticker?: string
@@ -17,7 +18,10 @@ interface KOTHBoxProps {
 }
 
 const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
+  console.log(coin)
   const isDesktop = useMediaQuery('(min-width: 880px)')
+  const FALLBACK_COIN_IMAGE_URL =
+    'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
 
   if (variant === 'mobile') {
     return (
@@ -51,7 +55,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
           >
             {coin.name}
           </Typography>
-          {coin.ticker && (
+          {coin.symbol && (
             <Typography
               variant="body2"
               sx={{
@@ -59,7 +63,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
                 fontFamily: "'Tomorrow', sans-serif",
               }}
             >
-              {coin.ticker.toUpperCase()}
+              {coin.symbol.toUpperCase()}
             </Typography>
           )}
         </Box>
@@ -99,13 +103,17 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
           }}
         >
           <img
-            src={coin.imageUrl}
+            src={coin.imageUrl || FALLBACK_COIN_IMAGE_URL}
             alt={coin.name}
             style={{
               width: isDesktop ? '80px' : avatarSize,
               height: avatarSize,
             }}
+            onError={(e) => {
+              ;(e.target as HTMLImageElement).src = FALLBACK_COIN_IMAGE_URL
+            }}
           />
+
           {isChampion && (
             <EmojiEventsIcon
               sx={{
@@ -156,7 +164,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
             }}
           >
             {/* replace with ticker  */}
-            $: {coin.score}
+            $: {coin.symbol}
           </Typography>
         </div>
       </Box>

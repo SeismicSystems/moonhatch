@@ -1,42 +1,52 @@
 import React from 'react'
 
+import { useAppSelector } from '@/store/hooks'
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
 
 import KOTHBox, { CoinData } from './koth-box'
 
-// Sample data – replace with your dynamic leaderboard data
-const sampleKings: CoinData[] = [
-  {
-    rank: 1,
-    name: 'PumpCoin',
-    score: 12500,
-    imageUrl: 'https://via.placeholder.com/100',
-  },
-  {
-    rank: 2,
-    name: 'CoinX',
-    score: 11000,
-    imageUrl: 'https://via.placeholder.com/100',
-  },
-  {
-    rank: 3,
-    name: 'CoinY',
-    score: 9500,
-    imageUrl: 'https://via.placeholder.com/100',
-  },
-]
+interface KingOfTheHillSectionProps {
+  coins: Coin[]
+}
 
-const KingOfTheHillSection: React.FC = () => {
-  const theme = useTheme()
+export default function KingOfTheHillSection({
+  coins,
+}: KingOfTheHillSectionProps) {
   const isDesktop = useMediaQuery('(min-width: 780px)')
+  // Assume coins is an array of coins that include a 'weiIn' property (a BigInt)
+  const sortedCoins = [...coins].sort((a, b) => {
+    const weiA = a.weiIn ?? 0n
+    const weiB = b.weiIn ?? 0n
+    // Highest weiIn comes first
+    return weiB > weiA ? 1 : weiB < weiA ? -1 : 0
+  })
 
-  // For the podium layout, we want the order: Rank 2, Rank 1, Rank 3.
-  const podiumOrder = [
-    sampleKings.find((c) => c.rank === 2)!,
-    sampleKings.find((c) => c.rank === 1)!,
-    sampleKings.find((c) => c.rank === 3)!,
-  ]
+  // Slice the top three coins
+  const topThree = sortedCoins.slice(0, 3)
 
+  // Map to your CoinData interface and assign rank
+  // Since you don't want to display the actual weiIn value, set score to 0 (or another placeholder)
+  const coinData: CoinData[] = topThree.map((coin, index) => ({
+    id: coin.id,
+    rank: index + 1,
+    name: coin.name,
+    score: 0, // We don't display weiIn, so score is set to 0
+    imageUrl: coin.imageUrl || 'https://via.placeholder.com/100',
+    symbol: coin.symbol,
+  }))
+
+  // Rearrange for podium layout (for desktop, e.g. Rank 2, Rank 1, Rank 3)
+  const podiumOrder =
+    coinData.length >= 3
+      ? [
+          coinData.find((c) => c.rank === 2)!,
+          coinData.find((c) => c.rank === 1)!,
+          coinData.find((c) => c.rank === 3)!,
+        ]
+      : coinData
+
+  console.log('koth coindata', coinData)
+  console.log('podium', podiumOrder)
   if (isDesktop) {
     return (
       <Box
@@ -83,7 +93,7 @@ const KingOfTheHillSection: React.FC = () => {
       </Box>
     )
   } else {
-    // MOBILE CONTAINER
+    // Mobile layout
     return (
       <Box
         sx={{
@@ -109,21 +119,18 @@ const KingOfTheHillSection: React.FC = () => {
           KINGS OF THE CURVE
         </Typography>
 
-        {sampleKings.map((coin) => (
+        {coinData.map((coin) => (
           <Box
             key={coin.rank}
             sx={{
               mb: 1,
-              backgroundColor:
-                coin.rank === 1 ? 'var(--midBlue)' : 'var(--midBlue)',
+              backgroundColor: 'var(--midBlue)',
               height: coin.rank === 1 ? '100px' : '50px',
               width: coin.rank === 1 ? '100%' : '75%',
-
               borderRadius: '8px',
               display: 'flex',
               justifyContent: 'start',
-
-              paddingLeft: '10p',
+              paddingLeft: '10px',
               alignItems: 'center',
               gap: 2,
             }}
@@ -135,5 +142,3 @@ const KingOfTheHillSection: React.FC = () => {
     )
   }
 }
-
-export default KingOfTheHillSection
