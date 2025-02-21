@@ -1,8 +1,7 @@
 import React from 'react'
 import { PropsWithChildren } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { sanvil } from 'seismic-react'
-import { ShieldedWalletProvider } from 'seismic-react'
+import { ShieldedWalletProvider, sanvil, seismicDevnet2 } from 'seismic-react'
 import { http } from 'viem'
 import { Config, WagmiProvider } from 'wagmi'
 
@@ -20,7 +19,7 @@ import NotFound from './pages/NotFound'
 const config = getDefaultConfig({
   appName: 'Pump Rand',
   projectId: 'd705c8eaf9e6f732e1ddb8350222cdac',
-  chains: [sanvil],
+  chains: [sanvil, seismicDevnet2],
   ssr: true,
 })
 
@@ -56,12 +55,6 @@ const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/create" element={<CoinForm />} />
           <Route path="/coins/:coinId" element={<CoinDetail />} />
-          <Route
-            path="/candles"
-            element={
-              <Candles pool="0x12345678901234567890123456789012345678aa" />
-            }
-          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Providers>
