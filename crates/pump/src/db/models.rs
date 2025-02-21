@@ -8,7 +8,30 @@ use serde::{Deserialize, Serialize};
 
 use crate::{client::block::Block, db::schema, error::PumpError};
 
+/*
+CREATE TABLE coins (
+    id BIGINT PRIMARY KEY,
+    name TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    supply NUMERIC NOT NULL,
+    decimals INT NOT NULL,
+    contract_address CHAR(42) NOT NULL,
+    creator CHAR(42) NOT NULL,
+    graduated BOOLEAN DEFAULT FALSE NOT NULL,
+    verified BOOLEAN DEFAULT FALSE NOT NULL,
+    wei_in NUMERIC DEFAULT 0 NOT NULL,
+    description TEXT,
+    image_url TEXT,
+    website TEXT,
+    telegram TEXT,
+    twitter TEXT,
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL
+);
+
+*/
+
 #[derive(Queryable, Serialize, Deserialize, Debug)]
+#[diesel(table_name = schema::coins)]
 pub struct Coin {
     pub id: i64,
     pub name: String,
@@ -20,13 +43,14 @@ pub struct Coin {
     pub creator: String,
     pub graduated: bool,
     pub verified: bool,
+    #[serde(rename = "weiIn")]
     pub wei_in: BigDecimal,
     pub description: Option<String>,
     #[serde(rename = "imageUrl")]
     pub image_url: Option<String>,
-    pub twitter: Option<String>,
     pub website: Option<String>,
     pub telegram: Option<String>,
+    pub twitter: Option<String>,
     #[serde(rename = "createdAt")]
     pub created_at: NaiveDateTime,
     #[serde(rename = "deployedPool")]
