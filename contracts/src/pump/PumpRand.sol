@@ -4,7 +4,6 @@ pragma solidity ^0.8.27;
 import { PumpCoin, IPumpCoin } from "./PumpCoin.sol";
 import { IUniswapV2Router02 } from '../dex/interfaces/IUniswapV2Router02.sol';
 import { IUniswapV2Factory } from '../dex/interfaces/IUniswapV2Factory.sol';
-import { RngLib } from '../RngLib.sol';
 
 struct Coin {
     string name;
