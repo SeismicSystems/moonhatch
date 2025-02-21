@@ -69,7 +69,7 @@ export default function KingOfTheHillSection({
             fontFamily: "'Tomorrow', sans-serif",
           }}
         >
-          KING OF THE HILL
+          KINGS OF THE CURVE{' '}
         </Typography>
 
         <Box
