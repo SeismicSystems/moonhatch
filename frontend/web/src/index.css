@@ -38,8 +38,9 @@ body {
 canvas {
   padding: 0;
   margin: 0 auto;
-  border: 2px solid var(--creamWhite);
-  border-radius: 20px;
+  /* border: 2px solid var(--creamWhite); */
+
+  /* border-radius: 20px; */
 }
 input {
   &:active,

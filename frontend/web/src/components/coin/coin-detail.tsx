@@ -52,26 +52,29 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
 
   return (
     <>
-      <div className="mb-8">
+      <div className="">
         <NavBar />
       </div>
-
-      <div className="flex w-full lg:justify-around xl:justify-around  items-center    flex-col lg:flex-row mb-24 ">
+      <div className="page-container bg-[var(--darkBlue)] flex w-full justify-center items-center = flex-col lg:flex-row gap-12 xl:gap-24 pb-24 max-w-screen lg:px-8 lg:py-8">
+        {/* Coin Info Card */}
         <Box
           sx={{
-            width: { xs: '350px', sm: '550px', md: '450px', lg: '550px' },
-            height: { xs: 'auto', sm: 'auto', md: 'auto', lg: 'auto' },
+            width: {
+              xs: 'auto',
+              sm: '550px',
+              md: '450px',
+              lg: '650px',
+              xl: '950px',
+            },
             maxWidth: '100%',
             mx: 'auto',
             p: 4,
-
-            border: 2,
-            borderColor: 'var(--creamWhite)',
+            // border: 2,
+            // borderColor: 'var(--creamWhite)',
             bgcolor: 'var(--darkBlue)',
             borderRadius: '24px',
-            overflowX: 'hidden',
-            overflowY: 'hidden',
-            marginBottom: { xs: '0', sm: '50px', md: '0px', lg: '0', xl: '0' },
+            overflow: 'hidden',
+            mb: { xs: 0, sm: 4, md: 0 },
           }}
         >
           <CoinInfoDetails
@@ -98,7 +101,7 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
             setModalOpen={setModalOpen}
           />
           {(coin.twitter || coin.telegram || coin.website) && (
-            <div className="coin-socials-container -mt-24 -mb-4 lg:mt-24">
+            <div className="coin-socials-container -mt-12 lg:mt-20 -mb-4">
               <CoinSocials
                 coin={{
                   ...coin,
@@ -111,16 +114,12 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
             </div>
           )}
         </Box>
-        <div className="status-icon-container bg-[var(--bgColor)] flex justify-around  mx-auto  items-center">
-          {coin.graduated && coin.deployedPool ? (
-            <Box
-              sx={{
-                display: 'flex',
 
-                '& .chart-container': {},
-              }}
-            >
-              <div className="-mt-24 md:mt-12 lg:mt-0 justify-center items-center ">
+        {/* Candles Section (Chart) */}
+        <div className="status-icon-container flex justify-center mx-auto items-center">
+          {coin.graduated && coin.deployedPool ? (
+            <Box sx={{ display: 'flex' }}>
+              <div className="justify-center items-center">
                 <Candles pool={`${coin.deployedPool}`} />
               </div>
             </Box>
@@ -133,38 +132,13 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
                 alignItems: 'center',
                 height: '350px',
                 width: '350px',
-
-                '& .lock-container': {
-                  width: '130px',
-                  border: '2px solid',
-                  borderColor: 'error.main',
-                  borderRadius: '9999px',
-                  padding: '16px',
-                },
-                '& .lock-icon': {
-                  color: 'error.main',
-                  fontSize: '96px',
-                  animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                },
-                '@keyframes pulse': {
-                  '0%, 100%': {
-                    opacity: 1,
-                  },
-                  '50%': {
-                    opacity: 0.5,
-                  },
-                },
               }}
             >
-              <Typography
-                variant="h3"
-                component="h3"
-                sx={{ mb: 2, color: 'error.main' }}
-              >
+              <Typography variant="h3" sx={{ mb: 2, color: 'error.main' }}>
                 CHART LOCKED UNTIL GRADUATION
               </Typography>
-              <div className="lock-container">
-                <LockIcon className="lock-icon" />
+              <div className="lock-container border-2 border-error-main rounded-full p-4">
+                <LockIcon className="lock-icon text-error-main text-[96px] animate-pulse" />
               </div>
             </Box>
           )}
