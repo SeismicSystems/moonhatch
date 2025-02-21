@@ -16,7 +16,7 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub async fn new() -> AppState {
+    pub async fn new() -> Result<AppState, PumpError> {
         let region_provider =
             RegionProviderChain::default_provider().or_else(Region::new("us-east-1"));
         let aws_config = aws_config::from_env().region(region_provider).load().await;
@@ -24,11 +24,12 @@ impl AppState {
         let shared_s3_client = Arc::new(s3_client);
 
         let pump_client =
-            PumpClient::new(&std::env::var("RPC_URL").expect("Must set RPC_URL in .env"));
+            PumpClient::new(&std::env::var("RPC_URL").expect("Must set RPC_URL in .env")).await?;
 
         // Establish the database pool.
         let db_pool = pool::establish_pool();
-        AppState { s3_client: shared_s3_client, db_pool, pump_client: Arc::new(pump_client) }
+
+        Ok(AppState { s3_client: shared_s3_client, db_pool, pump_client: Arc::new(pump_client) })
     }
 
     pub fn db_conn(&self) -> Result<PgConn, PumpError> {

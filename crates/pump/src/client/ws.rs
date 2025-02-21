@@ -11,10 +11,10 @@ pub struct PumpWsClient {
 }
 
 impl PumpWsClient {
-    pub async fn new() -> Result<PumpWsClient, TransportError> {
+    pub async fn new(chain_id: u64) -> Result<PumpWsClient, TransportError> {
         let ws_url = std::env::var("WS_RPC_URL").expect("Missing WS_RPC_URL in .env");
         let ws = create_seismic_ws_provider(ws_url).await?;
-        Ok(PumpWsClient { ws, ca: ContractAddresses::new() })
+        Ok(PumpWsClient { ws, ca: ContractAddresses::new(chain_id) })
     }
 
     pub async fn pump_logs(

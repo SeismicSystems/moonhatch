@@ -15,7 +15,7 @@ async fn main() -> Result<(), PumpError> {
     env_logger::init();
 
     let rpc_url = std::env::var("RPC_URL").expect("Must set RPC_URL in .env");
-    let client = PumpClient::new(&rpc_url);
+    let client = PumpClient::new(&rpc_url).await?;
     let db_pool = establish_pool();
     let mut handler = LogHandler::new(db_pool, client).await?;
 

@@ -1,7 +1,9 @@
 use alloy_primitives::Address;
 use alloy_provider::{Provider, SeismicUnsignedProvider};
 use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
-use std::str::FromStr;
+use std::fs;
+use std::path::Path;
+use serde::Deserialize;
 
 use crate::{
     client::build_tx,
@@ -18,11 +20,11 @@ pub(crate) struct ContractAddresses {
 }
 
 impl ContractAddresses {
-    pub fn new() -> ContractAddresses {
-        let pump = Address::from_str("0x712516e61c8b383df4a63cfe83d7701bce54b03e").unwrap();
-        let router = Address::from_str("0x71c95911e9a5d330f4d621842ec243ee1343292e").unwrap();
-        let factory = Address::from_str("0x948b3c65b89df0b4894abe91e6d02fe579834f8f").unwrap();
-        let weth = Address::from_str("0x8464135c8f25da09e49bc8782676a84730c318bc").unwrap();
+    pub fn new(chain_id: u64) -> ContractAddresses {
+        let pump = extract_address(format!("contracts/pump/{}.json", chain_id)).unwrap();
+        let router = extract_address(format!("contracts/router/{}.json", chain_id)).unwrap();
+        let factory = extract_address(format!("contracts/factory/{}.json", chain_id)).unwrap();
+        let weth = extract_address(format!("contracts/weth/{}.json", chain_id)).unwrap();
         ContractAddresses { pump, router, factory, weth }
     }
 
@@ -55,4 +57,17 @@ impl ContractAddresses {
             .map_err(|_| PumpError::FailedToDecodeAbi)?;
         Ok(address)
     }
+}
+
+
+#[derive(Deserialize)]
+struct ContractData {
+    address: Address,
+}
+
+pub fn extract_address<P: AsRef<Path> + ToString>(path: P) -> Result<Address, PumpError> {
+    let path_str = path.to_string();
+    let content = fs::read_to_string(&path_str).map_err(|_| PumpError::FailedToReadFile(path_str.clone()))?;
+    let parsed: ContractData = serde_json::from_str(&content).map_err(|_| PumpError::FailedToReadFile(path_str))?;
+    Ok(parsed.address)
 }
