@@ -13,6 +13,6 @@ export default defineConfig({
     target: 'esnext', // Use modern JavaScript features without transpiling down to older versions.
   },
   esbuild: {
-    jsx: 'transform',
+    jsx: 'automatic',
   },
 })
