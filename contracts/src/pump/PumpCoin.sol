@@ -75,7 +75,7 @@ contract PumpCoin is IPumpCoin {
     }
 
     /// @dev Only available after graduation
-    function balanceOf(address owner_) external onlyGraduated() view returns (uint) {
+    function balanceOf(address owner_) external onlyOwnerUntilGraduated() view returns (uint) {
         return uint256(balance[saddress(owner_)]);
     }
 
@@ -104,9 +104,13 @@ contract PumpCoin is IPumpCoin {
         saddress to,
         suint256 amount
     ) public onlyOwnerUntilGraduated() virtual returns (bool) {
-        suint256 allowed = _allowance[from][saddress(msg.sender)]; // Saves gas for limited approvals.
-        if (allowed != suint256(type(uint256).max))
-            _allowance[from][saddress(msg.sender)] = allowed - amount;
+        if (graduated) {
+            // before graduation, owner is the only one who can call transferFrom
+            // in this case, they can approve unlimited transfers (for refunding eth)
+            suint256 allowed = _allowance[from][saddress(msg.sender)];
+            if (allowed != suint256(type(uint256).max))
+                _allowance[from][saddress(msg.sender)] = allowed - amount;
+        }
 
         balance[from] -= amount;
         unchecked {
