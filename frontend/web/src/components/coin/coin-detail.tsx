@@ -132,13 +132,14 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
                 alignItems: 'center',
                 height: '350px',
                 width: '350px',
+                marginRight: { xs: 0, sm: 0, md: 0, lg: 0, xl: '200%' },
               }}
             >
               <Typography variant="h3" sx={{ mb: 2, color: 'error.main' }}>
                 CHART LOCKED UNTIL GRADUATION
               </Typography>
-              <div className="lock-container border-2 border-error-main rounded-full p-4">
-                <LockIcon className="lock-icon text-error-main text-[96px] animate-pulse" />
+              <div className="lock-container border-2 border-red-500 rounded-full p-4 ">
+                <LockIcon className="lock-icon text-red-500 text-[96px] animate-pulse" />
               </div>
             </Box>
           )}
