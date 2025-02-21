@@ -30,7 +30,7 @@ export default function HomeHeader() {
         </button>
         <button
           onClick={() => navigate('/create')}
-          className=" w-[200px] md:w-[300px]  mt-12 lg:w-[400px] max-w-3xl lg:my-12 text-[var(--creamWhite)] rounded-xl transition border px-2 text-xl md:text-2xl lg:text-3xl whitespace-nowrap h-16 md:h-20 lg:h-28 justify-self-center bg-[#161b33] hover:bg-green-500 hover:text-[#0d0c1d] "
+          className=" w-[200px] md:w-[300px]  mt-12 lg:w-[400px] max-w-3xl lg:mt-12 text-[var(--creamWhite)] rounded-xl transition border px-2 text-xl md:text-2xl lg:text-3xl whitespace-nowrap h-16 md:h-20 lg:h-28 justify-self-center bg-[#161b33] hover:bg-green-500 hover:text-[#0d0c1d] "
         >
           CREATE COIN
         </button>
