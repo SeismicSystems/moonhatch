@@ -4,6 +4,7 @@ pragma solidity ^0.8.27;
 import { PumpCoin, IPumpCoin } from "./PumpCoin.sol";
 import { IUniswapV2Router02 } from '../dex/interfaces/IUniswapV2Router02.sol';
 import { IUniswapV2Factory } from '../dex/interfaces/IUniswapV2Factory.sol';
+import { RngLib } from '../RngLib.sol';
 
 struct Coin {
     string name;
@@ -103,7 +104,7 @@ contract PumpRand {
     function randomInRange(uint256 min, uint256 max) internal view returns (uint256) {
         uint256 diff = max - min;
         // Shift down r to avoid overflow.
-        uint256 r = uint256(getRandomUint256()) >> 128;
+        uint256 r = uint256(RngLib.getRandomUint256()) >> 128;
         uint256 denominatorShifted = type(uint256).max >> 128;
         uint256 scaled = (diff * r) / denominatorShifted;
         return min + scaled;
@@ -200,25 +201,6 @@ contract PumpRand {
         pc.mint(saddress(msg.sender), suint256(tokensMinted));
         emit WeiInUpdated(coinId, weisIn[coinId]);
         return 0;
-    }
-
-    function getRandomUint256()
-        internal
-        view
-        returns (suint256 result)
-    {
-        uint16 output_len = 32;
-        bytes memory input = abi.encodePacked(output_len);
-
-        (bool success, bytes memory output) = address(0x64).staticcall(input);
-        if (!success) {
-            // return suint256(type(uint256).max / 2);
-            revert RngPrecompileCallFailed();
-        }
-
-        assembly {
-            result := mload(add(output, 32))
-        }
     }
 
     function getWeiIn(uint32 coinId) public view returns (uint256) {
