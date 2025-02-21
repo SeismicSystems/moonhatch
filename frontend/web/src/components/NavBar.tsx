@@ -24,10 +24,9 @@ const NavBar: React.FC = () => {
             }}
           />
         </button>
-        <h1 className="self-center md:text-2xl lg:text-3xl">MOONHATCH</h1>
+        <h1 className="self-center md:text-2xl  lg:text-3xl">MOONHATCH</h1>
         <div className="w-[67px] rounded-3xl">
           <MyStyledConnectButton />
-          {/* <ConnectButton /> */}
         </div>
       </nav>
     </>

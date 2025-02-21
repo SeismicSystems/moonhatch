@@ -11,14 +11,12 @@ const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
   const dispatch = useAppDispatch()
 
-  // Ensure coins are loaded (you might want to dispatch fetchCoinsAsync if needed)
   useEffect(() => {
     if (coinId) {
       dispatch(fetchCoinsAsync())
     }
   }, [dispatch, coinId])
 
-  // Convert coinId to bigint and select the coin
   const coin = useAppSelector((state) =>
     coinId ? selectCoinById(state, BigInt(coinId)) : undefined
   )

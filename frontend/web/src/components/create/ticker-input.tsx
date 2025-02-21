@@ -20,8 +20,6 @@ const TickerInput: React.FC<Omit<InputFieldProps, 'label'>> = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        // maxLength={5}
-        // minLength={3}
       />
     </div>
   </div>
