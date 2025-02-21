@@ -100,7 +100,7 @@ contract PumpRand {
     EV[price] = basePrice without knowing any previous prices
     EV[price|allPreviousBuys] = (coin.supply - unitsOut) / (WEI_GRADUATION - weiIn)
     */
-    function randomInRange(uint256 min, uint256 max) internal pure returns (uint256) {
+    function randomInRange(uint256 min, uint256 max) internal view returns (uint256) {
         uint256 diff = max - min;
         // Shift down r to avoid overflow.
         uint256 r = uint256(getRandomUint256()) >> 128;
@@ -204,24 +204,21 @@ contract PumpRand {
 
     function getRandomUint256()
         internal
-        pure
+        view
         returns (suint256 result)
     {
-        // TODO: change pure => view
-        return suint256(type(uint256).max / 2);
-        // uint16 output_len = 32;
-        // bytes memory input = abi.encodePacked(output_len);
+        uint16 output_len = 32;
+        bytes memory input = abi.encodePacked(output_len);
 
-        // (bool success, bytes memory output) = address(0x64).staticcall(input);
-        // if (!success) {
-        //     // TODO:
-        //     return suint256(type(uint256).max / 2);
-        //     // revert RngPrecompileCallFailed();
-        // }
+        (bool success, bytes memory output) = address(0x64).staticcall(input);
+        if (!success) {
+            // return suint256(type(uint256).max / 2);
+            revert RngPrecompileCallFailed();
+        }
 
-        // assembly {
-        //     result := mload(add(output, 32))
-        // }
+        assembly {
+            result := mload(add(output, 32))
+        }
     }
 
     function getWeiIn(uint32 coinId) public view returns (uint256) {
