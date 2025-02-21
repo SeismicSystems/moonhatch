@@ -46,7 +46,9 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
             borderRadius: '16px',
             backgroundColor: 'var(--darkBlue)',
           },
-          '& .img-container': {},
+          '& .img-container': {
+            flexShrink: 0,
+          },
           '& img': {
             width: { xs: '100px', sm: '200px', md: '200px', lg: '200px' },
             height: { xs: '100px', sm: '200px', md: '200px', lg: '200px' },
@@ -75,7 +77,6 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
               color: 'lightgreen',
             },
             '& .coin-author, & .coin-age': {
-              color: 'var(--lightBlue)',
               fontSize: {
                 xs: '0.75rem',
                 sm: '1rem',
@@ -105,7 +106,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
                 color: 'var(--creamWhite)',
               }}
             >
-              <div className="coin-name">{coin.name.toUpperCase()}</div>
+              <div className="coin-name">{coin.name}</div>
             </Typography>
             <Typography
               noWrap
@@ -117,13 +118,18 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
                 color: 'var(--creamWhite)',
               }}
             >
-              <div className="coin-symbol">$:{coin.symbol.toUpperCase()}</div>
+              <div className="coin-symbol">
+                $:{coin.symbol.toUpperCase().slice(0, 8)}
+              </div>
             </Typography>
             <div className="coin-author">
-              AUTHOR::{coin.creator?.toString().slice(0, 4)}...
-              {coin.creator?.toString().slice(-4) || 'N/A'}
+              <div className="text-orange-300">AUTHOR:</div>
+              <div className="text-orange-200">
+                {coin.creator?.toString().slice(0, 4)}...
+                {coin.creator?.toString().slice(-4) || 'N/A'}
+              </div>
             </div>
-            <div className="coin-age">AGE::{relativeTime}</div>
+            <div className="coin-age text-orange-100">AGE::{relativeTime}</div>
           </div>
         </div>
       </Box>
@@ -135,6 +141,8 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           color: 'var(--lightBlue)',
           fontSize: '0.75rem',
           '& .coin-desc': {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
             marginBottom: 2,
             fontSize: { xs: '1rem', sm: '1rem', md: '1.2rem', lg: '1.4rem' },
           },
@@ -144,7 +152,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           <div className="flex text-xs xl:text-lg text-orange-300">
             DESCRIPTION:{' '}
           </div>
-          <div className="lg:text-lg">
+          <div className="lg:text-lg overflow-hidden text-ellipsis">
             "{coin.description || 'creator did not provide description'}"
           </div>
         </div>
