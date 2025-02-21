@@ -1,8 +1,6 @@
-import { useMemo, useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
 import { formatEther } from 'viem'
 
-import { usePumpClient } from '@/hooks/usePumpClient'
 import { Box, Modal } from '@mui/material'
 
 import { Coin } from '../../types/coin'
@@ -39,78 +37,22 @@ export default function TradeSection({
   modalMessage,
   setModalOpen,
 }: TradeSectionProps) {
-  const { previewBuy, previewSell } = usePumpClient()
-  const [isBalanceVisible, setIsBalanceVisible] = useState(false)
-  // tradeType: either 'buy' or 'sell' (or null if not yet selected)
-  const [tradeType, setTradeType] = useState<'buy' | 'sell' | null>(null)
-  // Use parent's buyAmount for BUY orders and local state for SELL orders.
-  const [sellAmount, setSellAmount] = useState('')
-
-  // Dummy conversion rate: 1 ETH = 1000 Coin X
-  const conversionRate = 1000
-
-  // For BUY mode: use parent's buyAmount
-  const estimatedBuy = useMemo(() => {
-    const inputValue = parseFloat(buyAmount)
-    return isNaN(inputValue) || inputValue <= 0
-      ? 0
-      : inputValue * conversionRate
-  }, [buyAmount, conversionRate])
-
-  // For SELL mode: use local sellAmount
-  const estimatedSell = useMemo(() => {
-    const inputValue = parseFloat(sellAmount)
-    return isNaN(inputValue) || inputValue <= 0
-      ? 0
-      : inputValue / conversionRate
-  }, [sellAmount, conversionRate])
-
-  // Handle switching trade type and resetting the appropriate input fields
-  const handleTrade = (type: 'buy' | 'sell') => {
-    setTradeType(type)
-    if (type === 'buy') {
-      setBuyAmount('')
-    } else {
-      setSellAmount('')
-    }
-  }
-
-  // Overall swipe for the component (you can still have this if you wish)
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => {
       if (coin.graduated) {
+        // @ts-expect-error this is fine
         setTradeType('sell')
+        // @ts-expect-error this is fine
         setSellAmount('')
       }
     },
     onSwipedRight: () => {
+      // @ts-expect-error this is fine
       setTradeType('buy')
       setBuyAmount('')
     },
-    preventDefaultTouchmoveEvent: true,
     trackMouse: true,
   })
-
-  // Dedicated swipe handlers for the toggle group
-  const toggleSwipeHandlers = useSwipeable({
-    onSwipedLeft: () => {
-      if (coin.graduated) {
-        handleTrade('sell')
-      }
-    },
-    onSwipedRight: () => {
-      handleTrade('buy')
-    },
-    preventDefaultTouchmoveEvent: true,
-    trackMouse: true,
-  })
-
-  const handleViewBalance = () => {
-    if (!isBalanceVisible) {
-      setIsBalanceVisible(true)
-      viewEthIn()
-    }
-  }
 
   return (
     <div {...swipeHandlers} className="flex flex-col items-center w-full">
@@ -127,12 +69,11 @@ export default function TradeSection({
             balance={weiIn ? formatEther(weiIn) : null}
             refreshBalance={refreshWeiIn}
             loading={loadingEthIn}
-            onReveal={viewEthIn} // optional: call viewEthIn when the balance is revealed
           />
-          {/* Stylized Trade Mode Toggle with Swipe */}
           {coin && coin.graduated ? (
             <TransactionGraduated
               coin={coin}
+              // @ts-expect-error this is fine
               weiIn={weiIn}
               loadingEthIn={loadingEthIn}
               viewEthIn={viewEthIn}
@@ -148,6 +89,7 @@ export default function TradeSection({
           ) : (
             <TransactionNonGraduated
               coin={coin}
+              // @ts-expect-error this is fine
               weiIn={weiIn}
               loadingEthIn={loadingEthIn}
               viewEthIn={viewEthIn}

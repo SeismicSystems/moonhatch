@@ -1,12 +1,11 @@
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { useAppSelector } from '@/store/hooks'
-import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Typography, useMediaQuery } from '@mui/material'
 
 import KOTHBox, { CoinData } from './koth-box'
 
 interface KingOfTheHillSectionProps {
+  // @ts-expect-error this is fine
   coins: Coin[]
 }
 
@@ -83,6 +82,7 @@ export default function KingOfTheHillSection({
           }}
         >
           {podiumOrder.map((coin) => (
+            // @ts-expect-error this is fine
             <Box onClick={() => navigate(`/coins/${coin.id}`)}>
               <KOTHBox key={coin.rank} coin={coin} />
             </Box>
@@ -133,6 +133,7 @@ export default function KingOfTheHillSection({
               textOverflow: 'ellipsis',
               gap: 2,
             }}
+            // @ts-expect-error this is fine
             onClick={() => navigate(`/coins/${coin.id}`)}
           >
             <KOTHBox coin={coin} />

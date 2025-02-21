@@ -60,11 +60,7 @@ export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
           labelBackgroundColor: '#4c525e',
         },
       },
-      priceScale: {
-        autoScale: true,
-        borderVisible: true,
-        borderColor: '#2B2B43',
-      },
+
       timeScale: {
         borderVisible: true,
         timeVisible: true,
@@ -92,7 +88,6 @@ export const ChartComponent: React.FC<ChartProps> = ({ pool, colors = {} }) => {
       },
       handleScroll: true,
       handleScale: true,
-      kineticScroll: true,
     })
 
     // Add a candlestick series with custom colors.

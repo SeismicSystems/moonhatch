@@ -13,8 +13,6 @@ import CoinInfoDetails from '../coin-detail/coin-info-details'
 import TradeSection from '../coin-detail/trade-section'
 import CoinSocials from './coin-social'
 
-const REFRESH_COIN_DETAIL_MS = 5_000
-
 const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
   const [buyError, setBuyError] = useState<string | null>(null)

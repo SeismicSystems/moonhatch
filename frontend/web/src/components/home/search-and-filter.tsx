@@ -121,11 +121,14 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
                       className="flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md hover:bg-[var(--darkBlue)]"
                       onClick={(e) => {
                         e.stopPropagation()
-                        setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
+                        setFilters((prev) => ({
+                          ...prev,
+                          [key as keyof Filters]: !prev[key as keyof Filters],
+                        }))
                       }}
                     >
                       <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
-                        {filters[key] && (
+                        {filters[key as keyof Filters] && (
                           <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
                         )}
                       </div>

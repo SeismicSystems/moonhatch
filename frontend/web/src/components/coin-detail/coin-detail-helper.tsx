@@ -5,8 +5,6 @@ import { useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { fetchCoinsAsync, selectCoinById } from '@/store/slices/coinSlice'
 
-import { CoinDetailContent } from '../coin/coin-detail'
-
 const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
   const dispatch = useAppDispatch()
@@ -22,8 +20,6 @@ const CoinDetail: React.FC = () => {
   )
 
   if (!coin) return <div>Coin not found.</div>
-
-  return <CoinDetailContent coin={coin} />
 }
 
 export default CoinDetail

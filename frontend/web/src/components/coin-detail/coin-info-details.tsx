@@ -106,7 +106,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
                 color: 'var(--creamWhite)',
               }}
             >
-              <div className="coin-name">{coin.name}</div>
+              <div className="coin-name">{coin.name.toUpperCase()}</div>
             </Typography>
             <Typography
               noWrap

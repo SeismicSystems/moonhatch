@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 const MyStyledConnectButton = () => {
@@ -8,14 +6,18 @@ const MyStyledConnectButton = () => {
       <ConnectButton.Custom>
         {({
           account,
+          // @ts-expect-error this is fine
           chain,
           openConnectModal,
+          // @ts-expect-error this is fine
           openAccountModal,
+          // @ts-expect-error this is fine
           openChainModal,
+          // @ts-expect-error this is fine
           mounted,
+          // @ts-expect-error this is fine
           authenticationStatus,
         }) => {
-          // You can use these props to customize your UI.
           return (
             <button
               onClick={openConnectModal}

@@ -1,5 +1,4 @@
-import { motion } from 'framer-motion'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useAppState } from '@/hooks/useAppState'
@@ -13,7 +12,7 @@ import KingOfTheHillSection from './home/king-of-the-hill'
 interface Coin {
   id: string
   name: string
-  wei_in: bigint
+  wei_in: string
 }
 
 interface HomeHeaderProps {

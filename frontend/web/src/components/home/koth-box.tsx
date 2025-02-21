@@ -1,7 +1,6 @@
 import React from 'react'
 
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
-import { Avatar, Box, Typography, useMediaQuery } from '@mui/material'
+import { Box, Typography, useMediaQuery } from '@mui/material'
 
 export interface CoinData {
   rank: number
@@ -58,7 +57,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
               color: 'var(--creamWhite)',
               fontFamily: "'Tomorrow', sans-serif",
               overflow: 'hidden',
-              whiteSpace: 'nowrap', // <-- add this
+              whiteSpace: 'nowrap',
               textOverflow: 'ellipsis',
             }}
           >
@@ -84,8 +83,6 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
   } else {
     const isChampion = coin.rank === 1
     const boxSize = isChampion ? 100 : 50
-    const avatarSize = isChampion ? 50 : 50
-    const padding = isChampion ? 1.5 : 1
 
     return (
       <Box
@@ -176,7 +173,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
               fontSize: coin.rank === 1 ? '1rem' : '.75rem',
             }}
           >
-            $: {coin.symbol}
+            $: {coin.symbol.toUpperCase()}
           </Typography>
         </div>
       </Box>
