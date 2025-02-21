@@ -130,7 +130,6 @@ export default function KingOfTheHillSection({
               borderRadius: '8px',
               display: 'flex',
               justifyContent: 'start',
-              paddingLeft: '10px',
               alignItems: 'center',
               gap: 2,
             }}

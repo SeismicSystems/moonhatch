@@ -83,6 +83,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
           alignItems: 'center',
           justifyContent: 'start',
           textAlign: 'left',
+          marginLeft: 0,
           mb: isChampion ? 0 : 0,
         }}
       >
@@ -98,7 +99,6 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
             position: 'relative',
             textAlign: 'left',
             overflow: 'hidden',
-            // border: '2px solid white',
             marginRight: isDesktop ? 0 : 2,
           }}
         >
@@ -106,24 +106,14 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
             src={coin.imageUrl || FALLBACK_COIN_IMAGE_URL}
             alt={coin.name}
             style={{
-              width: isDesktop ? '80px' : avatarSize,
-              height: avatarSize,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
             }}
             onError={(e) => {
               ;(e.target as HTMLImageElement).src = FALLBACK_COIN_IMAGE_URL
             }}
           />
-
-          {isChampion && (
-            <EmojiEventsIcon
-              sx={{
-                position: 'absolute',
-                top: -10,
-                right: -10,
-                color: '#f6e05e',
-              }}
-            />
-          )}
         </Box>
         <div className="flex flex-col lg:justify-center  justify-around lg:items-center mb-4">
           <Typography
