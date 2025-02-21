@@ -12,11 +12,11 @@ import KingOfTheHillSection from './home/king-of-the-hill'
 interface Coin {
   id: string
   name: string
-  wei_in: bigint
+  wei_in: string
 }
 
 interface HomeHeaderProps {
-coins: Coin[]
+  coins: Coin[]
 }
 export default function HomeHeader({ coins }: HomeHeaderProps) {
   const navigate = useNavigate()
