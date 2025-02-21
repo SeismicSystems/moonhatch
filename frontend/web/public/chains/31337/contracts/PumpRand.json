@@ -15,6 +15,7 @@
     "getWeiIn(uint32)": "bb056e73",
     "graduated(uint32)": "4974faf0",
     "isGraduated(uint32)": "83e6ad52",
+    "refundPurchase(uint32)": "bdc4e388",
     "router()": "f887ea40",
     "sweepFees()": "d113b95c",
     "weisIn(uint32)": "4095ed4c"
@@ -359,6 +360,19 @@
     },
     {
       "type": "function",
+      "name": "refundPurchase",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
       "name": "router",
       "inputs": [],
       "outputs": [
@@ -424,25 +438,6 @@
     },
     {
       "type": "event",
-      "name": "WeiInUpdated",
-      "inputs": [
-        {
-          "name": "coinId",
-          "type": "uint32",
-          "indexed": false,
-          "internalType": "uint32"
-        },
-        {
-          "name": "totalWeiIn",
-          "type": "uint256",
-          "indexed": false,
-          "internalType": "uint256"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "event",
       "name": "DeployedToDex",
       "inputs": [
         {
@@ -461,6 +456,25 @@
       "anonymous": false
     },
     {
+      "type": "event",
+      "name": "WeiInUpdated",
+      "inputs": [
+        {
+          "name": "coinId",
+          "type": "uint32",
+          "indexed": false,
+          "internalType": "uint32"
+        },
+        {
+          "name": "totalWeiIn",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
       "type": "error",
       "name": "CoinAlreadyGraduated",
       "inputs": []
@@ -472,7 +486,17 @@
     },
     {
       "type": "error",
+      "name": "FailedToRefundEth",
+      "inputs": []
+    },
+    {
+      "type": "error",
       "name": "FailedToRefundExcessEth",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "FailedToReturnTokens",
       "inputs": []
     },
     {
@@ -485,6 +509,11 @@
           "internalType": "uint32"
         }
       ]
+    },
+    {
+      "type": "error",
+      "name": "NoTokensForRefund",
+      "inputs": []
     },
     {
       "type": "error",
