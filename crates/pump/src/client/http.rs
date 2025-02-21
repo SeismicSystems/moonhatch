@@ -106,10 +106,4 @@ impl PumpClient {
         let pending_tx = self.signed_provider.send_transaction(tx).await?;
         Ok(pending_tx.tx_hash().clone())
     }
-
-    pub async fn send_transaction(&self, input: Bytes) -> Result<FixedBytes<32>, TransportError> {
-        let tx = TransactionRequest::default().to(self.ca.pump).input(input.into());
-        let pending_tx = self.signed_provider.send_transaction(tx).await?;
-        Ok(pending_tx.tx_hash().clone())
-    }
 }
