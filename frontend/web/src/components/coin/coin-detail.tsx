@@ -181,5 +181,5 @@ const CoinDetail: React.FC = () => {
   if (!coin) return <div>Coin not found.</div>
   return <CoinDetailContent coin={coin} />
 }
-
+export { CoinDetailContent }
 export default CoinDetail

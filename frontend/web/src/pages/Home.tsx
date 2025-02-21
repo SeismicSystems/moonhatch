@@ -1,28 +1,29 @@
-import React, { useEffect, useState } from 'react'
+// src/pages/Home.tsx
+import React, { useEffect } from 'react'
 
 import HomeHeader from '@/components/HomeHeader'
 import NavBar from '@/components/NavBar'
 import SearchAndFilter from '@/components/home/search-and-filter'
 import { useCoinSearch } from '@/hooks/useCoinSearch'
-import { useFetchCoin } from '@/hooks/useFetchCoin'
 import Coins from '@/pages/Coins'
-import type { Coin } from '@/types/coin'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { fetchCoinsAsync } from '@/store/slices/coinSlice'
 
 const Home: React.FC = () => {
-  const [coins, setCoins] = useState<Coin[]>([])
-  const { loaded, fetchCoins } = useFetchCoin()
+  const dispatch = useAppDispatch()
+  const coins = useAppSelector((state) => state.coins.coins)
+  const loading = useAppSelector((state) => state.coins.loading)
+  const error = useAppSelector((state) => state.coins.error)
+
   const { filteredCoins, searchQuery, setSearchQuery, filters, setFilters } =
     useCoinSearch(coins)
 
   useEffect(() => {
-    if (!loaded) return
-    fetchCoins().then((c) => {
-      const sortedCoins = [...c].sort(
-        (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
-      )
-      setCoins(sortedCoins)
-    })
-  }, [loaded])
+    dispatch(fetchCoinsAsync())
+  }, [dispatch])
+
+  if (loading) return <div>Loading coins...</div>
+  if (error) return <div>Error loading coins: {error}</div>
 
   return (
     <div className="home-container">

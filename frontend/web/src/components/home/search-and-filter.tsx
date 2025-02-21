@@ -3,17 +3,19 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import FilterListIcon from '@mui/icons-material/FilterList'
 
+interface Filters {
+  hasWebsite: boolean
+  hasTelegram: boolean
+  hasTwitter: boolean
+  hasAllSocials: boolean
+  sortByCreatedAt: boolean
+}
+
 interface SearchAndFilterProps {
   searchQuery: string
   setSearchQuery: (query: string) => void
-  filters: {
-    hasWebsite: boolean
-    hasTelegram: boolean
-    hasTwitter: boolean
-    hasAllSocials: boolean
-    sortByCreatedAt: boolean
-  }
-  setFilters: React.Dispatch<React.SetStateAction<typeof filters>>
+  filters: Filters
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>
 }
 
 const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
