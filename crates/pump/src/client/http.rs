@@ -1,5 +1,5 @@
-use alloy_network::EthereumWallet;
-use alloy_primitives::{hex::FromHex, Address, FixedBytes, B256};
+use alloy_network::{EthereumWallet, NetworkWallet};
+use alloy_primitives::{hex::FromHex, Address, Bytes, FixedBytes, B256};
 use alloy_provider::{
     create_seismic_provider, create_seismic_provider_without_wallet, network::TransactionBuilder,
     Provider, SeismicSignedProvider, SeismicUnsignedProvider,
@@ -28,30 +28,40 @@ pub fn build_tx(to: &Address, calldata: Vec<u8>) -> TransactionRequest {
 }
 
 pub struct PumpClient {
-    provider: SeismicUnsignedProvider,
-    wallet: SeismicSignedProvider,
+    unsigned_provider: SeismicUnsignedProvider,
+    signed_provider: SeismicSignedProvider,
+    signer_address: Address,
     ca: ContractAddresses,
 }
 
 impl PumpClient {
     pub fn new(rpc_url: &str) -> PumpClient {
         let rpc_url = Url::from_str(rpc_url).expect("Missing RPC_URL in .env");
-        let provider = create_seismic_provider_without_wallet(rpc_url.clone());
+        let unsigned_provider = create_seismic_provider_without_wallet(rpc_url.clone());
 
-        let (wallet) = {
-            let private_key = std::env::var("DEPLOYER_PRIVATE_KEY")
-                .expect("Missing DEPLOYER_PRIVATE_KEY in .env");
-            let pk_bytes = B256::from_hex(private_key).unwrap();
-            let signer = LocalSigner::from_bytes(&pk_bytes).expect("invalid signer");
-            let wallet = EthereumWallet::new(signer);
-            create_seismic_provider(wallet, rpc_url)
-        };
-        PumpClient { provider, wallet, ca: ContractAddresses::new() }
+        let private_key =
+            std::env::var("DEPLOYER_PRIVATE_KEY").expect("Missing DEPLOYER_PRIVATE_KEY in .env");
+        let pk_bytes = B256::from_hex(private_key).unwrap();
+        let signer = LocalSigner::from_bytes(&pk_bytes).expect("invalid signer");
+        let signer_address = signer.address();
+        let wallet = EthereumWallet::new(signer);
+        let signed_provider = create_seismic_provider(wallet, rpc_url);
+
+        PumpClient {
+            unsigned_provider,
+            signed_provider,
+            signer_address,
+            ca: ContractAddresses::new(),
+        }
     }
 
     pub async fn get_coin(&self, coin_id: u32) -> Result<SolidityCoin, PumpError> {
         let tx = build_tx(&self.ca.pump, get_coin_calldata(coin_id));
-        let bytes = self.provider.call(&tx).await.map_err(|_e| PumpError::CoinNotFound(coin_id))?;
+        let bytes = self
+            .unsigned_provider
+            .call(&tx)
+            .await
+            .map_err(|_e| PumpError::CoinNotFound(coin_id))?;
         let coin =
             SolidityCoin::abi_decode(&bytes, true).map_err(|_| PumpError::FailedToDecodeAbi)?;
         Ok(coin)
@@ -59,7 +69,7 @@ impl PumpClient {
 
     pub async fn get_pair(&self, token: Address) -> Result<Address, PumpError> {
         let calldata = get_pair_calldata(token, self.ca.weth);
-        ContractAddresses::get_address(&self.provider, &self.ca.factory, calldata)
+        ContractAddresses::get_address(&self.unsigned_provider, &self.ca.factory, calldata)
             .await
             .map_err(|_| PumpError::PairNotFound(token))
     }
@@ -68,12 +78,14 @@ impl PumpClient {
         let token0_calldata = get_token0_calldata();
         let token1_calldata = get_token1_calldata();
 
-        let token_0 = ContractAddresses::get_address(&self.provider, &lp_token, token0_calldata)
-            .await
-            .map_err(|_| PumpError::PairNotFound(lp_token.clone()))?;
-        let token_1 = ContractAddresses::get_address(&self.provider, &lp_token, token1_calldata)
-            .await
-            .map_err(|_| PumpError::PairNotFound(lp_token.clone()))?;
+        let token_0 =
+            ContractAddresses::get_address(&self.unsigned_provider, &lp_token, token0_calldata)
+                .await
+                .map_err(|_| PumpError::PairNotFound(lp_token.clone()))?;
+        let token_1 =
+            ContractAddresses::get_address(&self.unsigned_provider, &lp_token, token1_calldata)
+                .await
+                .map_err(|_| PumpError::PairNotFound(lp_token.clone()))?;
         Ok(Pool { lp_token, token_0, token_1 })
     }
 
@@ -86,11 +98,27 @@ impl PumpClient {
     }
 
     pub async fn deploy_graduated(&self, coin_id: u32) -> Result<FixedBytes<32>, TransportError> {
-        let nonce = self.wallet.get_transaction_count(self.signer_address).await.unwrap();
-        log::info!("nonce: {} for {:?}", nonce, self.signer_address);
         let input = deploy_graduated_bytecode(coin_id);
-        let tx = TransactionRequest::default().nonce(nonce).to(self.ca.pump).input(input.into());
-        let pending_tx = self.wallet.send_transaction(tx).await?;
+        let tx = TransactionRequest::default().to(self.ca.pump).input(input.into());
+        let pending_tx = self.signed_provider.send_transaction(tx).await?;
         Ok(pending_tx.tx_hash().clone())
+    }
+
+    pub async fn send_transaction(&self, input: Bytes) -> Result<FixedBytes<32>, TransportError> {
+        let tx = TransactionRequest::default().to(self.ca.pump).input(input.into());
+        let pending_tx = self.signed_provider.send_transaction(tx).await?;
+        Ok(pending_tx.tx_hash().clone())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_deploy_graduated() {
+        let client = PumpClient::new("https://mainnet.infura.io/v3/");
+        let tx_hash = client.deploy_graduated(1).await.unwrap();
+        println!("tx_hash: {:?}", tx_hash);
     }
 }
