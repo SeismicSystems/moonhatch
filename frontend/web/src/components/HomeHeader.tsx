@@ -12,7 +12,7 @@ import KingOfTheHillSection from './home/king-of-the-hill'
 interface Coin {
   id: string
   name: string
-  wei_in: string
+  weiIn: bigint
 }
 
 interface HomeHeaderProps {

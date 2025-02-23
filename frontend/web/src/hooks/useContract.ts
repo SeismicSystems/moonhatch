@@ -3,7 +3,7 @@ import { Hex } from 'viem'
 
 import type { ContractData } from '@/types/contract'
 
-export const CHAIN_ID = import.meta.env.VITE_CHAIN_ID
+export const CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID)
 
 const loadContractData = async ({
   name,
@@ -11,7 +11,7 @@ const loadContractData = async ({
   folder = 'contracts',
 }: {
   name: string
-  chainId?: Hex | undefined
+  chainId?: number | undefined
   folder?: string
 }): Promise<ContractData> => {
   // Check if VITE_CHAIN_ID is set
