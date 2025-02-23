@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useAppState } from '@/hooks/useAppState'
@@ -21,7 +21,7 @@ interface HomeHeaderProps {
 export default function HomeHeader({ coins }: HomeHeaderProps) {
   const navigate = useNavigate()
   const { acceptedTerms } = useAppState()
-  const [showHowItWorks, setShowHowItWorks] = useState(!acceptedTerms())
+  const [showHowItWorks, setShowHowItWorks] = React.useState(!acceptedTerms())
   console.log('homeheader', coins)
   return (
     <>

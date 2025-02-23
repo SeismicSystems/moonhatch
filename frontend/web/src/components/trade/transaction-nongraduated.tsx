@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import React from 'react'
 
 import { Box, Modal } from '@mui/material'
 
@@ -27,7 +27,7 @@ export default function TransactionNonGraduated({
 }: TransactionNonGraduatedProps) {
   const conversionRate = 1000
 
-  const estimatedBuy = useMemo(() => {
+  const estimatedBuy = React.useMemo(() => {
     const inputValue = parseFloat(buyAmount)
     return isNaN(inputValue) || inputValue <= 0
       ? 0

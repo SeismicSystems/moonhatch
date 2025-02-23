@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import React from 'react'
 
 import { Box, Button, Modal, TextField } from '@mui/material'
 
@@ -25,27 +25,27 @@ export default function TransactionGraduated({
   modalMessage,
   setModalOpen,
 }: TransactionGraduatedProps) {
-  const [sellAmount, setSellAmount] = useState('')
-  const [tradeType, setTradeType] = useState<'buy' | 'sell'>('buy')
+  const [sellAmount, setSellAmount] = React.useState('')
+  const [tradeType, setTradeType] = React.useState<'buy' | 'sell'>('buy')
 
   // Dummy conversion rate: 1 ETH = 1000 Coin X
   const conversionRate = 1000
 
-  const estimatedBuy = useMemo(() => {
+  const estimatedBuy = React.useMemo(() => {
     const inputValue = parseFloat(buyAmount)
     return isNaN(inputValue) || inputValue <= 0
       ? 0
       : inputValue * conversionRate
   }, [buyAmount, conversionRate])
 
-  const estimatedSell = useMemo(() => {
+  const estimatedSell = React.useMemo(() => {
     const inputValue = parseFloat(sellAmount)
     return isNaN(inputValue) || inputValue <= 0
       ? 0
       : inputValue / conversionRate
   }, [sellAmount, conversionRate])
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (tradeType === 'sell') setSellAmount('')
   }, [tradeType])
 

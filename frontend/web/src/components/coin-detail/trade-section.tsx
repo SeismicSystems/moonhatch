@@ -1,3 +1,4 @@
+import React from 'react'
 import { useSwipeable } from 'react-swipeable'
 import { formatEther } from 'viem'
 
