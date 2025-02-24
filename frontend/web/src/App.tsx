@@ -22,7 +22,8 @@ const CHAINS = SUPPORTED_CHAINS.filter((c) => c.id === CHAIN_ID);
 const config = getDefaultConfig({
   appName: 'Pump Rand',
   projectId: 'd705c8eaf9e6f732e1ddb8350222cdac',
-  chains: [sanvil, seismicDevnet2],
+  // @ts-ignore
+  chains: CHAINS,
   ssr: false,
 })
 
@@ -33,6 +34,7 @@ const Providers: React.FC<PropsWithChildren<{ config: Config }>> = ({
   children,
 }) => {
   const publicChain = CHAINS[0]
+  console.log(publicChain)
   const publicTransport = http(publicChain.rpcUrls.default.http[0])
   return (
     <WagmiProvider config={config}>
