@@ -1,10 +1,10 @@
 use alloy_primitives::Address;
 use alloy_provider::{Provider, SeismicUnsignedProvider};
 use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
+use cargo_metadata::MetadataCommand;
+use serde::Deserialize;
 use std::fs;
 use std::path::Path;
-use serde::Deserialize;
-use cargo_metadata::MetadataCommand;
 use std::path::PathBuf;
 
 use crate::{
@@ -21,7 +21,6 @@ pub struct ContractAddresses {
     pub weth: Address,
 }
 
-
 /// Returns the workspace root by invoking `cargo metadata`.
 fn get_workspace_root() -> Option<PathBuf> {
     let metadata = MetadataCommand::new().exec().ok()?;
@@ -29,7 +28,12 @@ fn get_workspace_root() -> Option<PathBuf> {
 }
 
 fn contract_path(chain_id: u64, contract: &str) -> String {
-    format!("{}/frontend/web/public/chains/{}/contracts/{}.json", get_workspace_root().unwrap().to_string_lossy(), chain_id, contract)
+    format!(
+        "{}/contracts/abis/{}/contracts/{}.json",
+        get_workspace_root().unwrap().to_string_lossy(),
+        chain_id,
+        contract
+    )
 }
 
 impl ContractAddresses {
@@ -72,7 +76,6 @@ impl ContractAddresses {
     }
 }
 
-
 #[derive(Deserialize)]
 struct ContractData {
     address: Address,
@@ -80,7 +83,9 @@ struct ContractData {
 
 pub fn extract_address<P: AsRef<Path> + ToString>(path: P) -> Result<Address, PumpError> {
     let path_str = path.to_string();
-    let content = fs::read_to_string(&path_str).map_err(|_| PumpError::FailedToReadFile(path_str.clone()))?;
-    let parsed: ContractData = serde_json::from_str(&content).map_err(|_| PumpError::FailedToReadFile(path_str))?;
+    let content =
+        fs::read_to_string(&path_str).map_err(|_| PumpError::FailedToReadFile(path_str.clone()))?;
+    let parsed: ContractData =
+        serde_json::from_str(&content).map_err(|_| PumpError::FailedToReadFile(path_str))?;
     Ok(parsed.address)
 }

@@ -9,7 +9,4 @@ import react from '@vitejs/plugin-react-swc'
 export default defineConfig({
   plugins: [react(), tailwindcss(), tsConfigPaths()],
   envDir: resolve(__dirname, '../../'),
-  build: {
-    target: 'esnext', // Use modern JavaScript features without transpiling down to older versions.
-  },
 })

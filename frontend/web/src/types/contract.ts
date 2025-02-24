@@ -1,7 +1,10 @@
 import type { Abi, Hex } from 'viem'
 
-export type ContractData = {
-  address: Hex
-  methodIdentifiers: { [functionSignature: string]: Hex }
+export type ContractInterface = {
   abi: Abi
+  methodIdentifiers: { [functionSignature: string]: Hex }
+}
+
+export type DeployedContract = ContractInterface & {
+  address: Hex
 }

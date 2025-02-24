@@ -7,15 +7,14 @@ import {
   getShieldedContract,
 } from 'seismic-viem'
 import type { Hex, TransactionReceipt } from 'viem'
-
 import type { CreateCoinParams } from '@/types/coin'
 
 import {
   COIN_CONTRACT_ABI,
-  WETH_CONTRACT_ADDRESS,
   useDexContract,
   usePumpContract,
-} from './useContract'
+  useWethContract,
+} from '@/hooks/useContract'
 
 const DEFAULT_DEADLINE_MS = 20 * 60 * 1000
 
@@ -49,6 +48,7 @@ export const usePumpClient = () => {
   const { walletClient, publicClient } = useShieldedWallet()
   const { contract: pumpContract } = usePumpContract()
   const { contract: dexContract } = useDexContract()
+  const { address: wethAddress } = useWethContract()
   const [error, setError] = useState<string | null>(null)
 
   const getDeadline = (deadlineMs: number) => {
@@ -182,7 +182,7 @@ export const usePumpClient = () => {
   }: TradeParams): Promise<Hex> => {
     const to = walletAddress()
     const deadline = getDeadline(deadlineMs)
-    const path = [WETH_CONTRACT_ADDRESS, token]
+    const path = [wethAddress, token]
     return dex().write.swapExactETHForTokens(
       [minAmountOut, path, to, deadline],
       {
@@ -199,7 +199,7 @@ export const usePumpClient = () => {
     deadlineMs = DEFAULT_DEADLINE_MS,
   }: TradeParams): Promise<Hex> => {
     const to = walletAddress()
-    const path = [token, WETH_CONTRACT_ADDRESS]
+    const path = [token, wethAddress]
     const deadline = getDeadline(deadlineMs)
     return dex().write.swapExactTokensForETH(
       [amountIn, minAmountOut, path, to, deadline],
@@ -231,7 +231,7 @@ export const usePumpClient = () => {
     token,
     amountIn,
   }: TradeParams): Promise<bigint> => {
-    const path = [WETH_CONTRACT_ADDRESS, token]
+    const path = [wethAddress, token]
     const amount = (await dex().read.getAmountsOut([amountIn, path])) as bigint
     return amount
   }
@@ -240,7 +240,7 @@ export const usePumpClient = () => {
     token,
     amountIn,
   }: TradeParams): Promise<bigint> => {
-    const path = [token, WETH_CONTRACT_ADDRESS]
+    const path = [token, wethAddress]
     const amount = (await dex().read.getAmountsOut([amountIn, path])) as bigint
     return amount
   }
