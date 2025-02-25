@@ -3,6 +3,9 @@
     "frontend/**"
   ],
   "scripts": {
+    "env:devnet": "cp .env.devnet .env",
+    "env:local": "cp .env.local .env",
+    "env:anvil": "cp .env.anvil .env",
     "rust:fmt": "cargo +nightly fmt --all",
     "rust:fmt:check": "cargo +nightly fmt --all --check",
     "db:shell": "source .env && psql -d $DATABASE_URL",
