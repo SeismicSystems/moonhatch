@@ -14,12 +14,17 @@ import CoinDetail from './components/coin/coin-detail'
 import CoinForm from './components/create/coin-form'
 import Home from './pages/Home'
 import NotFound from './pages/NotFound'
+import { CHAIN_ID } from './hooks/useContract'
+
+const SUPPORTED_CHAINS = [sanvil, seismicDevnet2]
+const CHAINS = SUPPORTED_CHAINS.filter((c) => c.id === CHAIN_ID);
 
 const config = getDefaultConfig({
   appName: 'Pump Rand',
   projectId: 'd705c8eaf9e6f732e1ddb8350222cdac',
-  chains: [sanvil, seismicDevnet2],
-  ssr: true,
+  // @ts-ignore
+  chains: CHAINS,
+  ssr: false,
 })
 
 const client = new QueryClient()
@@ -28,8 +33,8 @@ const Providers: React.FC<PropsWithChildren<{ config: Config }>> = ({
   config,
   children,
 }) => {
-  const publicTransport = http(config.chains[0].rpcUrls.default.http[0])
-  const publicChain = sanvil
+  const publicChain = CHAINS[0]
+  const publicTransport = http(publicChain.rpcUrls.default.http[0])
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={client}>

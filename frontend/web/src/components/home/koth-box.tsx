@@ -17,7 +17,6 @@ interface KOTHBoxProps {
 }
 
 const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
-  console.log(coin)
   const isDesktop = useMediaQuery('(min-width: 880px)')
   const FALLBACK_COIN_IMAGE_URL =
     'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
@@ -122,7 +121,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
               objectFit: 'cover',
             }}
             onError={(e) => {
-              ;(e.target as HTMLImageElement).src = FALLBACK_COIN_IMAGE_URL
+              ; (e.target as HTMLImageElement).src = FALLBACK_COIN_IMAGE_URL
             }}
           />
         </Box>

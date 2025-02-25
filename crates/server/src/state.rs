@@ -29,8 +29,6 @@ impl AppState {
         // Establish the database pool.
         let db_pool = pool::establish_pool();
 
-        println!("{:?}", pump_client.ca);
-
         Ok(AppState { s3_client: shared_s3_client, db_pool, pump_client: Arc::new(pump_client) })
     }
 

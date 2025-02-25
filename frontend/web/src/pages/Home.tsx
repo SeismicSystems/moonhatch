@@ -24,7 +24,6 @@ const Home: React.FC = () => {
 
   if (loading) return <div>Loading coins...</div>
   if (error) return <div>Error loading coins: {error}</div>
-  console.log(coins)
   return (
     <div className="home-container">
       <div className="mb-4">

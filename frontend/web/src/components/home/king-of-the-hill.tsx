@@ -34,14 +34,12 @@ export default function KingOfTheHillSection({
   const podiumOrder =
     coinData.length >= 3
       ? [
-          coinData.find((c) => c.rank === 2)!,
-          coinData.find((c) => c.rank === 1)!,
-          coinData.find((c) => c.rank === 3)!,
-        ]
+        coinData.find((c) => c.rank === 2)!,
+        coinData.find((c) => c.rank === 1)!,
+        coinData.find((c) => c.rank === 3)!,
+      ]
       : coinData
 
-  console.log('koth coindata', coinData)
-  console.log('podium', podiumOrder)
   if (isDesktop) {
     return (
       <Box

@@ -3,9 +3,10 @@ use alloy_provider::{Provider, SeismicUnsignedProvider};
 use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
 use cargo_metadata::MetadataCommand;
 use serde::Deserialize;
-use std::fs;
-use std::path::Path;
-use std::path::PathBuf;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use crate::{
     client::build_tx,
