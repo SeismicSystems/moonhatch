@@ -25,7 +25,7 @@
     "contract:deploy": "source .env && VITE_CHAIN_ID=$VITE_CHAIN_ID bun contract:dev && DEPLOYER_PRIVATE_KEY=$DEPLOYER_PRIVATE_KEY bun run --cwd ./contracts sforge script script/PumpRand.s.sol --rpc-url $RPC_URL --broadcast && VITE_CHAIN_ID=$VITE_CHAIN_ID bun contract:addresses",
     "contract:dev": "bun contract:build && bun contract:iabis && bun contract:abis",
     "contract:build": "bun run --cwd ./contracts sforge build",
-    "contract:abis:copy": "source .env && bun contract:abis:cp",
+    "contract:abis:copy": "source .env && VITE_CHAIN_ID=$VITE_CHAIN_ID bun contract:abis:cp",
     "contract:abis:copyChain": "VITE_CHAIN_ID=$VITE_CHAIN_ID bun contract:abis:cp",
     "contract:abis:cp": "mkdir -p ./frontend/web/src/abis && cp -r ./contracts/abis/$VITE_CHAIN_ID/* ./frontend/web/src/abis",
     "contract:abis": "CONTRACT=PumpRand bun contract:abi && CONTRACT=WETH9 bun contract:abi && CONTRACT=UniswapV2Factory bun contract:abi && CONTRACT=UniswapV2Router02 bun contract:abi",
