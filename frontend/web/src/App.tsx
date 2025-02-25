@@ -34,7 +34,6 @@ const Providers: React.FC<PropsWithChildren<{ config: Config }>> = ({
   children,
 }) => {
   const publicChain = CHAINS[0]
-  console.log(publicChain)
   const publicTransport = http(publicChain.rpcUrls.default.http[0])
   return (
     <WagmiProvider config={config}>
