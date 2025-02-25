@@ -1,4 +1,5 @@
 {
+  "chainId": 31337,
   "methodIdentifiers": {
     "allowance(saddress)": "8feaa1ee",
     "approve(saddress,suint256)": "88412c20",
