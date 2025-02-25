@@ -24,8 +24,13 @@ pub struct ContractAddresses {
 
 /// Returns the workspace root by invoking `cargo metadata`.
 fn get_workspace_root() -> Option<PathBuf> {
-    let metadata = MetadataCommand::new().exec().ok()?;
-    Some(metadata.workspace_root.into())
+    match std::env::var("WORKSPACE_ROOT") {
+        Ok(workspace_root) => Some(PathBuf::from(workspace_root)),
+        Err(_) => {
+            let metadata = MetadataCommand::new().exec().ok()?;
+            Some(metadata.workspace_root.into())
+        }
+    }
 }
 
 fn contract_path(chain_id: u64, contract: &str) -> String {
