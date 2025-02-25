@@ -15,6 +15,9 @@ import CoinForm from './components/create/coin-form'
 import Home from './pages/Home'
 import NotFound from './pages/NotFound'
 import { CHAIN_ID } from './hooks/useContract'
+import { checkFaucet } from 'seismic-viem'
+
+const FAUCET_URL = import.meta.env.VITE_FAUCET_URL
 
 const SUPPORTED_CHAINS = [sanvil, seismicDevnet2]
 const CHAINS = SUPPORTED_CHAINS.filter((c) => c.id === CHAIN_ID);
@@ -41,7 +44,16 @@ const Providers: React.FC<PropsWithChildren<{ config: Config }>> = ({
         <RainbowKitProvider>
           <ShieldedWalletProvider
             config={config}
-            options={{ publicTransport, publicChain }}
+            options={{
+              publicTransport,
+              publicChain,
+              onAddressChange: async ({ publicClient, address }) => {
+                if (!FAUCET_URL) {
+                  return
+                }
+                await checkFaucet({ address, publicClient, faucetUrl: FAUCET_URL, minBalanceEther: 0.5 })
+              }
+            }}
           >
             {children}
           </ShieldedWalletProvider>
