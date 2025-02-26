@@ -383,25 +383,39 @@ impl LogHandler {
         Ok(restart)
     }
 
+    async fn flush_confirmed_block(&mut self, number: u64) -> Result<bool, PumpError> {
+        let restart = match self.pending_logs.get(&number).is_some() {
+            false => false,
+            true => {
+                let confirmed_block = match self.block_timestamps.get(&number) {
+                    Some(timestamp) => Block { number, timestamp: *timestamp as i64 },
+                    None => {
+                        // if we have logs in the confirmed block, but no timestamp,
+                        // then request the timestamp from the RPC
+                        let header = self.client.get_block_header(number).await?;
+                        Block { number, timestamp: header.timestamp as i64 }
+                    }
+                };
+                self.flush_block(confirmed_block).await?
+            }
+        };
+
+        let (confirmed, block_prices) = self.prices.remove(&number).unwrap_or_default();
+        for (pool, prices) in block_prices {
+            // this function is &mut self
+            self.flush_candle(pool, prices, confirmed).await?;
+        }
+        Ok(restart)
+    }
+
     /// flush all of the candles we created for N=2 blocks ago
     pub async fn new_block(&mut self, block: Block) -> Result<bool, PumpError> {
-        if let Some(confirmed_block) = block.number.checked_sub(CONFIRMATIONS) {
-            // if we have no timestamp for the block, request it from the RPC and then flush the block
-            if self.block_timestamps.get(&confirmed_block).is_none() {
-                let header = self.client.get_block_header(confirmed_block).await?;
-                let confirmed_block =
-                    Block { number: confirmed_block, timestamp: header.timestamp as i64 };
-                self.flush_block(confirmed_block).await?;
-            }
-
-            let (confirmed, block_prices) =
-                self.prices.remove(&confirmed_block).unwrap_or_default();
-            for (pool, prices) in block_prices {
-                // this function is &mut self
-                self.flush_candle(pool, prices, confirmed).await?;
-            }
+        let mut restart = false;
+        if let Some(number) = block.number.checked_sub(CONFIRMATIONS) {
+            restart = self.flush_confirmed_block(number).await?;
         }
-        Ok(self.flush_block(block).await?)
+        restart |= self.flush_block(block).await?;
+        Ok(restart)
     }
 
     pub fn conn(&self) -> Result<PgConn, PumpError> {
