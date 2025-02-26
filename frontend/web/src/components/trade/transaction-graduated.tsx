@@ -102,3 +102,5 @@ export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (props)
     </TradeOuterBox>
   )
 }
+
+export default TransactionGraduated
