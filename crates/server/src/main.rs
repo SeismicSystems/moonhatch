@@ -16,7 +16,7 @@ use crate::state::AppState;
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    env_logger::init();
+    env_logger::Builder::from_default_env().target(env_logger::Target::Stdout).init();
 
     // Set up AWS S3.
     let app_state = AppState::new().await.expect("Failed to create app state");

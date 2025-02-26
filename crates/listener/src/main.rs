@@ -12,7 +12,7 @@ use pump::{
 #[tokio::main]
 async fn main() -> Result<(), PumpError> {
     dotenv().ok();
-    env_logger::init();
+    env_logger::Builder::from_default_env().target(env_logger::Target::Stdout).init();
 
     let rpc_url = std::env::var("RPC_URL").expect("Must set RPC_URL in .env");
     let client = PumpClient::new(&rpc_url).await?;

@@ -49,6 +49,7 @@ pub struct LogHandler {
     prices: HashMap<u64, (Block, HashMap<Address, Vec<BigDecimal>>)>,
     opening_prices: HashMap<(u64, Address), BigDecimal>,
     pools: HashMap<Address, Pool>,
+    block_timestamps: HashMap<u64, i64>,
 }
 
 impl LogHandler {
@@ -63,6 +64,7 @@ impl LogHandler {
             prices: HashMap::new(),
             opening_prices: HashMap::new(),
             pools: store::load_pools(&mut conn)?,
+            block_timestamps: HashMap::new(),
         })
     }
 
@@ -279,6 +281,7 @@ impl LogHandler {
 
     /// flush all of the candles we created for N=2 blocks ago
     pub async fn new_block(&mut self, block: Block) -> Result<(), PumpError> {
+        self.block_timestamps.insert(block.number, block.timestamp);
         if let Some(confirmed_block) = block.number.checked_sub(CONFIRMATIONS) {
             let (confirmed, block_prices) =
                 self.prices.remove(&confirmed_block).unwrap_or_default();
