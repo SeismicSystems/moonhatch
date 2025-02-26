@@ -19,7 +19,6 @@ const CoinForm: React.FC = () => {
   const [successOpen, setSuccessOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
 
-  // React Hook Form setup
   const {
     register,
     handleSubmit,
@@ -59,29 +58,9 @@ const CoinForm: React.FC = () => {
 
     console.info(`Created coinId=${coinId}`);
 
-    // Upload image if provided
     const imageUrl = formData.image ? await uploadImage(coinId, formData.image) : null;
 
-    // Prepare JSON body (as expected by `useFetchCoin`)
-    const requestBody = {
-      id: coinId,
-      name: formData.name,
-      symbol: formData.symbol,
-      supply: '21000000000000000000000', // BigDecimal as string
-      decimals: 18,
-      contractAddress: receipt.to,
-      creator: receipt.from,
-      graduated: false,
-      verified: false,
-      description: formData.description || null,
-      imageUrl,
-      twitter: formData.twitter || null,
-      website: formData.website || null,
-      telegram: formData.telegram || null,
-    };
-
-    console.log('📤 Sending JSON:', requestBody); // Debugging log
-
+    
     const backendResponse = await postCreatedCoin({
       coinId,
       formData,
@@ -117,7 +96,7 @@ const CoinForm: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Name Input */}
+    
         <div className="mb-4">
           <label className="block mb-2 text-sm text-[var(--lightBlue)]">NAME</label>
           <input
@@ -128,7 +107,6 @@ const CoinForm: React.FC = () => {
           {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
         </div>
 
-        {/* Symbol Input */}
         <div className="mb-4">
           <label className="block mb-2 text-sm text-[var(--lightBlue)]">SYMBOL</label>
           <input
@@ -139,7 +117,6 @@ const CoinForm: React.FC = () => {
           {errors.symbol && <p className="text-red-500 text-sm">{errors.symbol.message}</p>}
         </div>
 
-        {/* Description Input */}
         <div className="mb-4">
           <label className="block text-[var(--lightBlue)] mb-2 text-sm">DESCRIPTION</label>
           <textarea
@@ -149,11 +126,10 @@ const CoinForm: React.FC = () => {
           />
         </div>
 
-        {/* Image Upload */}
         <ImageUpload onFileSelect={(file) => setValue('image', file)} />
         {image && <p className="text-green-400">Image selected: {image.name}</p>}
 
-        {/* Show More Fields */}
+
         <button type="button" className="text-orange-300 hover:text-blue-300" onClick={() => setShowMore(!showMore)}>
           {showMore ? '↑ HIDE MORE OPTIONS ↑' : '↓ SHOW MORE OPTIONS ↓'}
         </button>
@@ -162,7 +138,6 @@ const CoinForm: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-[var(--lightBlue)] text-[10px]">THESE FIELDS ARE OPTIONAL</h3>
 
-            {/* Twitter Input */}
             <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
               <span className="text-gray-400 pr-2">x.com/</span>
               <input
@@ -172,7 +147,7 @@ const CoinForm: React.FC = () => {
               />
             </div>
 
-            {/* Website Input */}
+          
             <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
               <span className="text-gray-400 pr-2">www.</span>
               <input
@@ -182,7 +157,7 @@ const CoinForm: React.FC = () => {
               />
             </div>
 
-            {/* Telegram Input */}
+        
             <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
               <span className="text-gray-400 pr-2">t.me/</span>
               <input
@@ -196,11 +171,22 @@ const CoinForm: React.FC = () => {
 
         <p className="text-gray-400 text-sm">COIN DATA CANNOT BE CHANGED AFTER CREATION</p>
 
-        {/* Submit Button */}
         <button type="submit" className="w-full bg-green-600 text-white rounded py-3 hover:bg-blue-700">
           CREATE COIN
         </button>
       </form>
+
+   
+      <Snackbar
+        open={successOpen}
+        autoHideDuration={2000}
+        onClose={() => setSuccessOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSuccessOpen(false)} severity="success" sx={{ width: '100%' }}>
+          Coin created successfully!
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
