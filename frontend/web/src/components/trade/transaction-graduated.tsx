@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Box, Button, TextField } from '@mui/material'
 import { Coin } from '@/types/coin'
 import { ModalBox } from '@/components/trade/modal-box'
+import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 
 interface TransactionGraduatedProps {
   coin: Pick<Coin, 'id' | 'graduated' | 'name'>
@@ -191,18 +192,9 @@ export default function TransactionGraduated(props: TransactionGraduatedProps) {
   })
 
   return (
-    <Box
-      sx={{
-        width: { xs: '300px', sm: '450px' },
-        mx: 'auto',
-        p: { xs: 0, sm: 0, md: 3, lg: 1 },
-      }}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+    <TradeOuterBox>
+      <TradeInnerBox
+        style={{
           gap: '24px',
         }}
       >
@@ -226,7 +218,7 @@ export default function TransactionGraduated(props: TransactionGraduatedProps) {
 
         {/* Trade Input and Confirm Button */}
         {tradeType === 'buy' ? <Buy {...props} /> : <Sell {...props} />}
-      </Box>
+      </TradeInnerBox>
 
       <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
         <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
@@ -247,6 +239,6 @@ export default function TransactionGraduated(props: TransactionGraduatedProps) {
           OK
         </Button>
       </ModalBox>
-    </Box>
+    </TradeOuterBox>
   )
 }
