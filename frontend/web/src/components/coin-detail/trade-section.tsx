@@ -1,12 +1,12 @@
-import { useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
 import { formatEther } from 'viem'
+
 import { Box, Modal } from '@mui/material'
 
-import { Coin } from '@/types/coin'
-import BalanceDisplay from '@/components/trade/balance-section'
-import TransactionGraduated from '@/components/trade/transaction-graduated'
-import TransactionNonGraduated from '@/components/trade/transaction-nongraduated'
+import { Coin } from '../../types/coin'
+import BalanceDisplay from '../trade/balance-section'
+import TransactionGraduated from '../trade/transaction-graduated'
+import TransactionNonGraduated from '../trade/transaction-nongraduated'
 
 interface TradeSectionProps {
   coin: Coin
@@ -18,9 +18,6 @@ interface TradeSectionProps {
   setBuyAmount: React.Dispatch<React.SetStateAction<string>>
   buyError: string | null
   handleBuy: () => Promise<void>
-  modalOpen: boolean
-  modalMessage: string
-  setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function TradeSection({
@@ -33,9 +30,6 @@ export default function TradeSection({
   setBuyAmount,
   buyError,
   handleBuy,
-  modalOpen,
-  modalMessage,
-  setModalOpen,
 }: TradeSectionProps) {
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => {
@@ -82,9 +76,6 @@ export default function TradeSection({
               setBuyAmount={setBuyAmount}
               buyError={buyError}
               handleBuy={handleBuy}
-              modalOpen={modalOpen}
-              modalMessage={modalMessage}
-              setModalOpen={setModalOpen}
             />
           ) : (
             <TransactionNonGraduated
@@ -98,26 +89,10 @@ export default function TradeSection({
               setBuyAmount={setBuyAmount}
               buyError={buyError}
               handleBuy={handleBuy}
-              modalOpen={modalOpen}
-              modalMessage={modalMessage}
-              setModalOpen={setModalOpen}
             />
           )}
         </div>
       </Box>
-
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <Box className="p-4 bg-white border rounded shadow-lg text-center">
-          <h2 className="text-lg font-bold">Warning</h2>
-          <p>{modalMessage}</p>
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
-            onClick={() => setModalOpen(false)}
-          >
-            OK
-          </button>
-        </Box>
-      </Modal>
     </div>
   )
 }

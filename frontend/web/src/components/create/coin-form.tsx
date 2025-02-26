@@ -1,23 +1,22 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useShieldedWallet } from 'seismic-react';
-import { hexToNumber } from 'viem';
-import { useForm } from 'react-hook-form';
-import { useFetchCoin } from '@/hooks/useFetchCoin';
-import { usePumpClient } from '@/hooks/usePumpClient';
-import { CoinFormData } from '@/types/coin';
-import ImageUpload from '@components/create/image-upload';
-import Alert from '@mui/material/Alert';
-import Snackbar from '@mui/material/Snackbar';
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import { useShieldedWallet } from 'seismic-react'
+import { hexToNumber } from 'viem'
+
+import { useFetchCoin } from '@/hooks/useFetchCoin'
+import { usePumpClient } from '@/hooks/usePumpClient'
+import { useToastNotifications } from '@/hooks/useToastNotifications'
+import { CoinFormData } from '@/types/coin'
+import ImageUpload from '@components/create/image-upload'
 
 const CoinForm: React.FC = () => {
-  const navigate = useNavigate();
-  const { createCoin } = usePumpClient();
-  const { postCreatedCoin, verifyCoin, uploadImage } = useFetchCoin();
-  const { publicClient } = useShieldedWallet();
-
-  const [successOpen, setSuccessOpen] = useState(false);
-  const [showMore, setShowMore] = useState(false);
+  const navigate = useNavigate()
+  const { createCoin } = usePumpClient()
+  const { postCreatedCoin, verifyCoin, uploadImage } = useFetchCoin()
+  const { publicClient } = useShieldedWallet()
+  const { notifySuccess, notifyError } = useToastNotifications()
+  const [showMore, setShowMore] = useState(false)
 
   const {
     register,
@@ -35,91 +34,106 @@ const CoinForm: React.FC = () => {
       telegram: '',
       website: '',
     },
-  });
+  })
 
-  const image = watch('image');
+  const image = watch('image')
 
   const onSubmit = async (formData: CoinFormData) => {
-    if (!publicClient) return;
+    if (!publicClient) return
 
     const hash = await createCoin({
       name: formData.name,
       symbol: formData.symbol,
       supply: 21_000_000_000_000_000_000_000n,
-    });
+    })
 
     if (!hash) {
-      console.error('Failed to broadcast transaction');
-      return;
+      notifyError('Failed to broadcast transaction')
+      console.error('Failed to broadcast transaction')
+      return
     }
 
-    const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    const coinId = hexToNumber(receipt.logs[0].data);
+    const receipt = await publicClient.waitForTransactionReceipt({ hash })
+    const coinId = hexToNumber(receipt.logs[0].data)
 
-    console.info(`Created coinId=${coinId}`);
+    console.info(`Created coinId=${coinId}`)
 
-    const imageUrl = formData.image ? await uploadImage(coinId, formData.image) : null;
+    const imageUrl = formData.image
+      ? await uploadImage(coinId, formData.image)
+      : null
 
-    
     const backendResponse = await postCreatedCoin({
       coinId,
       formData,
       receipt,
       imageUrl,
-    });
+    })
 
     if (!backendResponse.ok) {
-      console.error('Failed to save coin to backend');
-      return;
+      notifyError('Failed to broadcast transaction')
+      console.error('Failed to save coin to backend')
+      return
     }
 
-    console.log('✅ Coin successfully saved in the database');
+    console.log('✅ Coin successfully saved in the database')
 
     verifyCoin(coinId)
       .then(() => console.log(`Verified coin ${coinId}`))
-      .catch((e) => console.error(`Failed verifying coin ${coinId}: ${e}`));
+      .catch((e) => console.error(`Failed verifying coin ${coinId}: ${e}`))
 
-    setSuccessOpen(true);
+    notifySuccess('Coin created successfully')
     setTimeout(() => {
-      navigate(`/coins/${coinId}`);
-    }, 2000);
+      navigate(`/coins/${coinId}`)
+    }, 2000)
 
-    console.log('Final Form Data:', formData);
-  };
-
+    console.log('Final Form Data:', formData)
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="mb-4">
-        <button className="text-orange-300 hover:text-blue-300" type="button" onClick={() => navigate(-1)}>
+        <button
+          className="text-orange-300 hover:text-blue-300"
+          type="button"
+          onClick={() => navigate(-1)}
+        >
           [GO BACK]
         </button>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-    
         <div className="mb-4">
-          <label className="block mb-2 text-sm text-[var(--lightBlue)]">NAME</label>
+          <label className="block mb-2 text-sm text-[var(--lightBlue)]">
+            NAME
+          </label>
           <input
             {...register('name', { required: 'Name is required' })}
             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-[var(--creamWhite)]"
             placeholder="Enter name"
           />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+          {errors.name && (
+            <p className="text-red-500 text-sm">{errors.name.message}</p>
+          )}
         </div>
 
         <div className="mb-4">
-          <label className="block mb-2 text-sm text-[var(--lightBlue)]">SYMBOL</label>
+          <label className="block mb-2 text-sm text-[var(--lightBlue)]">
+            SYMBOL
+          </label>
           <input
             {...register('symbol', { required: 'Symbol is required' })}
             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-[var(--creamWhite)]"
             placeholder="Enter symbol"
           />
-          {errors.symbol && <p className="text-red-500 text-sm">{errors.symbol.message}</p>}
+          {errors.symbol && (
+            <p className="text-red-500 text-sm">{errors.symbol.message}</p>
+          )}
         </div>
 
         <div className="mb-4">
-          <label className="block text-[var(--lightBlue)] mb-2 text-sm">DESCRIPTION</label>
+          <label className="block text-[var(--lightBlue)] mb-2 text-sm">
+            DESCRIPTION
+          </label>
           <textarea
             {...register('description')}
             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white h-32"
@@ -128,16 +142,23 @@ const CoinForm: React.FC = () => {
         </div>
 
         <ImageUpload onFileSelect={(file) => setValue('image', file)} />
-        {image && <p className="text-green-400">Image selected: {image.name}</p>}
+        {image && (
+          <p className="text-green-400">Image selected: {image.name}</p>
+        )}
 
-
-        <button type="button" className="text-orange-300 hover:text-blue-300" onClick={() => setShowMore(!showMore)}>
+        <button
+          type="button"
+          className="text-orange-300 hover:text-blue-300"
+          onClick={() => setShowMore(!showMore)}
+        >
           {showMore ? '↑ HIDE MORE OPTIONS ↑' : '↓ SHOW MORE OPTIONS ↓'}
         </button>
 
         {showMore && (
           <div className="space-y-4">
-            <h3 className="text-[var(--lightBlue)] text-[10px]">THESE FIELDS ARE OPTIONAL</h3>
+            <h3 className="text-[var(--lightBlue)] text-[10px]">
+              THESE FIELDS ARE OPTIONAL
+            </h3>
 
             <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
               <span className="text-gray-400 pr-2">x.com/</span>
@@ -148,7 +169,6 @@ const CoinForm: React.FC = () => {
               />
             </div>
 
-          
             <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
               <span className="text-gray-400 pr-2">www.</span>
               <input
@@ -158,7 +178,6 @@ const CoinForm: React.FC = () => {
               />
             </div>
 
-        
             <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
               <span className="text-gray-400 pr-2">t.me/</span>
               <input
@@ -170,26 +189,19 @@ const CoinForm: React.FC = () => {
           </div>
         )}
 
-        <p className="text-gray-400 text-sm">COIN DATA CANNOT BE CHANGED AFTER CREATION</p>
+        <p className="text-gray-400 text-sm">
+          COIN DATA CANNOT BE CHANGED AFTER CREATION
+        </p>
 
-        <button type="submit" className="w-full bg-green-600 text-white rounded py-3 hover:bg-blue-700">
+        <button
+          type="submit"
+          className="w-full bg-green-600 text-white rounded py-3 hover:bg-blue-700"
+        >
           CREATE COIN
         </button>
       </form>
-
-   
-      <Snackbar
-        open={successOpen}
-        autoHideDuration={2000}
-        onClose={() => setSuccessOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setSuccessOpen(false)} severity="success" sx={{ width: '100%' }}>
-          Coin created successfully!
-        </Alert>
-      </Snackbar>
     </div>
-  );
-};
+  )
+}
 
-export default CoinForm;
+export default CoinForm
