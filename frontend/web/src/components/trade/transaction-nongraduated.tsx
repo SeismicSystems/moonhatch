@@ -3,6 +3,7 @@ import { Coin } from '@/types/coin'
 import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 import { NonGraduatedAmountInput } from './amount-input'
+import { NonGraduatedTradeButton } from './trade-button'
 
 interface TransactionNonGraduatedProps {
   coin: Pick<Coin, 'id' | 'name'>
@@ -39,21 +40,10 @@ export default function TransactionNonGraduated({
       <TradeInnerBox sx={{ height: 'auto', gap: '16px' }}>
         <NonGraduatedAmountInput amount={buyAmount} setAmount={setBuyAmount} placeholder="ENTER ETH AMOUNT" />
         {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
-        <button
-          className="h-[10dvh] "
-          style={{
-            width: '85%',
-            padding: '10px',
-            backgroundColor: 'green',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            color: 'var(--creamWhite)',
-          }}
-          onClick={() => handleBuy(buyAmount, 'buy')}
-        >
+        <NonGraduatedTradeButton
+          onClick={() => handleBuy(buyAmount, 'buy')}>
           {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
-        </button>
+        </NonGraduatedTradeButton>
       </TradeInnerBox>
       <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
         <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
