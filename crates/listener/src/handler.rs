@@ -348,9 +348,19 @@ impl LogHandler {
         mut prices: Vec<BigDecimal>,
         block: Block,
     ) -> Result<(), PumpError> {
+        log::info!(
+            "Flushing candle for pool {}, block {} with prices: {:?}",
+            fmt_hex(lp_token),
+            block.number,
+            prices
+        );
+
         if let Some(open) = self.opening_prices.remove(&(block.number, lp_token)) {
+            log::info!("Opening price for pool {}, block {}", fmt_hex(lp_token), block.number);
             prices.insert(0, open);
-        };
+        } else {
+            log::warn!("No opening price for pool {}, block {}", fmt_hex(lp_token), block.number);
+        }
         let price = models::NewPoolPrice::try_new(&lp_token, block, &prices)?;
         let mut conn = self.conn()?;
 
