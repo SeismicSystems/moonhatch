@@ -19,9 +19,7 @@ export const TradeSection: React.FC<TradeSectionProps> = ({ coin }) => {
         }}
       >
         <div className="w-full flex flex-col items-center text-center gap-2">
-          {/* TODO: remove this */}
-
-          {coin && coin.graduated ? (
+          {coin.graduated ? (
             <TransactionGraduated coin={coin} />
           ) : (
             <TransactionNonGraduated coin={coin} />
