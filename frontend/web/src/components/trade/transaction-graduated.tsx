@@ -228,7 +228,7 @@ export default function TransactionGraduated(props: TransactionGraduatedProps) {
         {tradeType === 'buy' ? <Buy {...props} /> : <Sell {...props} />}
       </Box>
 
-      <ModalBox modalOpen={modalOpen} modalMessage={modalMessage} setModalOpen={setModalOpen}>
+      <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
         <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
         <p>{modalMessage}</p>
         <Button

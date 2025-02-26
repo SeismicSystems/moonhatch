@@ -83,7 +83,7 @@ export default function TransactionNonGraduated({
           {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
         </button>
       </Box>
-      <ModalBox modalOpen={modalOpen} modalMessage={modalMessage} setModalOpen={setModalOpen}>
+      <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
         <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
         <p>{modalMessage}</p>
         <button
