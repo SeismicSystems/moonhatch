@@ -68,7 +68,6 @@ pub struct LogHandler {
     client: PumpClient,
     ws: PumpWsClient,
     prices: HashMap<u64, (Block, HashMap<Address, Vec<BigDecimal>>)>,
-    opening_prices: HashMap<(u64, Address), BigDecimal>,
     pools: HashMap<Address, Pool>,
     block_timestamps: HashMap<u64, i64>,
     pending_logs: HashMap<u64, PendingLogs>,
@@ -83,7 +82,6 @@ impl LogHandler {
             client,
             ws,
             prices: HashMap::new(),
-            opening_prices: HashMap::new(),
             pools: store::load_pools(&mut conn)?,
             block_timestamps: HashMap::new(),
             pending_logs: HashMap::new(),
@@ -348,25 +346,11 @@ impl LogHandler {
         mut prices: Vec<BigDecimal>,
         block: Block,
     ) -> Result<(), PumpError> {
-        log::info!(
-            "Flushing candle for pool {}, block {} with prices: {:?}",
-            fmt_hex(lp_token),
-            block.number,
-            prices
-        );
-
-        if let Some(open) = self.opening_prices.remove(&(block.number, lp_token)) {
-            log::info!("Opening price for pool {}, block {}", fmt_hex(lp_token), block.number);
+        let mut conn = self.conn()?;
+        if let Some(open) = store::get_last_closing_price(&mut conn, lp_token)? {
             prices.insert(0, open);
-        } else {
-            log::warn!("No opening price for pool {}, block {}", fmt_hex(lp_token), block.number);
         }
         let price = models::NewPoolPrice::try_new(&lp_token, block, &prices)?;
-        let mut conn = self.conn()?;
-
-        // closing price of block N is opening price of block N+1
-        let close = price.close.clone();
-        self.opening_prices.insert((block.number + 1, lp_token), close);
         store::add_price(&mut conn, price)?;
         Ok(())
     }
