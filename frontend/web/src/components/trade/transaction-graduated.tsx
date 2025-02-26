@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { Box, Button } from '@mui/material'
 
 import type { Coin } from '@/types/coin'
 import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
-import { GraduatedAmountInput } from '@/components/trade/amount-input'
-import { GraduatedTradeButton } from '@/components/trade/trade-button'
+import { Buy } from '@/components/trade/trade-buy'
+import { Sell } from '@/components/trade/trade-sell'
 
-interface TransactionGraduatedProps {
+export type TransactionGraduatedProps = {
   coin: Pick<Coin, 'id' | 'graduated' | 'name'>
   buyAmount: string
   setBuyAmount: (value: string) => void
@@ -18,85 +18,7 @@ interface TransactionGraduatedProps {
   setModalOpen: (open: boolean) => void
 }
 
-const Buy: React.FC<TransactionGraduatedProps> = ({ coin, buyAmount, setBuyAmount, buyError, handleBuy }) => {
-
-  // Dummy conversion rate: 1 ETH = 1000 Coin X
-  const conversionRate = 1000
-
-  const estimatedBuy = useMemo(() => {
-    const inputValue = parseFloat(buyAmount)
-    return isNaN(inputValue) || inputValue <= 0
-      ? 0
-      : inputValue * conversionRate
-  }, [buyAmount, conversionRate])
-
-
-  return (
-    <>
-      <GraduatedAmountInput
-        amount={buyAmount}
-        setAmount={setBuyAmount}
-        placeholder='SET ETH AMOUNT'
-      />
-      {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
-      <GraduatedTradeButton
-        onClick={() => handleBuy(buyAmount, 'buy')}
-        sx={{
-          padding: { xs: '50px', sm: '50px', md: '50px', lg: '50px' },
-          color: 'var(--creamWhite)',
-          backgroundColor: 'green',
-          '&:hover': { backgroundColor: 'darkgreen' },
-        }}
-      >
-        {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
-      </GraduatedTradeButton>
-    </>
-  )
-}
-
-
-const Sell: React.FC<TransactionGraduatedProps> = ({ coin, buyError, handleBuy }) => {
-  const [sellAmount, setSellAmount] = useState('')
-
-  // Dummy conversion rate: 1 ETH = 1000 Coin X
-  const conversionRate = 1000
-
-  const estimatedSell = useMemo(() => {
-    const inputValue = parseFloat(sellAmount)
-    return isNaN(inputValue) || inputValue <= 0
-      ? 0
-      : inputValue / conversionRate
-  }, [sellAmount, conversionRate])
-
-
-  useEffect(() => {
-    setSellAmount('')
-  }, [])
-
-  return (
-    <>
-      <GraduatedAmountInput
-        amount={sellAmount}
-        setAmount={setSellAmount}
-        placeholder={`ENTER ${coin.name.toUpperCase()} AMOUNT`}
-      />
-      {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
-      <GraduatedTradeButton
-        onClick={() => handleBuy(sellAmount, 'sell')}
-        sx={{
-          padding: { xs: '8px', sm: '10px', md: '12px', lg: '14px' },
-          color: 'white',
-          backgroundColor: 'red',
-          '&:hover': { backgroundColor: 'darkred' },
-        }}
-      >
-        {`CONFIRM SELL FOR ${estimatedSell} ETH`}
-      </GraduatedTradeButton>
-    </>
-  )
-}
-
-export default function TransactionGraduated(props: TransactionGraduatedProps) {
+export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (props) => {
   const {
     modalOpen,
     modalMessage,
@@ -180,3 +102,5 @@ export default function TransactionGraduated(props: TransactionGraduatedProps) {
     </TradeOuterBox>
   )
 }
+
+export default TransactionGraduated
