@@ -111,8 +111,8 @@ impl PumpError {
         ListenerError::UnknownTopic(topic).into()
     }
 
-    pub fn no_block_timestamp() -> PumpError {
-        ListenerError::NoBlockTimestamp.into()
+    pub fn no_block_number() -> PumpError {
+        ListenerError::NoBlockNumber.into()
     }
 
     pub fn no_prices(block: u64, pool: Address) -> PumpError {

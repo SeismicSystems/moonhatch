@@ -21,7 +21,7 @@ use pump::{
     error::PumpError,
 };
 
-const CONFIRMATIONS: u64 = 2;
+const CONFIRMATIONS: u64 = 1;
 
 pub fn fmt_hex<T: AsRef<[u8]>>(value: T) -> String {
     let bytes = value.as_ref();
@@ -41,14 +41,37 @@ fn fmt_px(px: BigDecimal) -> String {
         .to_engineering_notation()
 }
 
+enum BlockKind {
+    Block(Block),
+    NumberOnly(u64),
+}
+
+impl BlockKind {
+    fn number(&self) -> u64 {
+        match self {
+            BlockKind::Block(block) => block.number,
+            BlockKind::NumberOnly(number) => *number,
+        }
+    }
+}
+
+#[derive(Default)]
+struct PendingLogs {
+    wei_in_updates: Vec<Log<PumpRand::WeiInUpdated>>,
+    deployed_to_dexs: Vec<Log<PumpRand::DeployedToDex>>,
+    swaps: Vec<Log<UniswapV2Pair::Swap>>,
+    syncs: Vec<Log<UniswapV2Pair::Sync>>,
+}
+
 pub struct LogHandler {
     pool: PgPool,
     client: PumpClient,
     ws: PumpWsClient,
-    block: Block,
     prices: HashMap<u64, (Block, HashMap<Address, Vec<BigDecimal>>)>,
     opening_prices: HashMap<(u64, Address), BigDecimal>,
     pools: HashMap<Address, Pool>,
+    block_timestamps: HashMap<u64, i64>,
+    pending_logs: HashMap<u64, PendingLogs>,
 }
 
 impl LogHandler {
@@ -59,10 +82,11 @@ impl LogHandler {
             pool,
             client,
             ws,
-            block: Block::default(),
             prices: HashMap::new(),
             opening_prices: HashMap::new(),
             pools: store::load_pools(&mut conn)?,
+            block_timestamps: HashMap::new(),
+            pending_logs: HashMap::new(),
         })
     }
 
@@ -92,7 +116,6 @@ impl LogHandler {
     }
 
     async fn handle_creation(&self, log: Log<PumpRand::CoinCreated>) -> Result<bool, PumpError> {
-        log::info!("Handle creation: {:?}", log);
         let mut conn = self.conn()?;
         let coin_id = log.data().coinId;
         let coin = self.client.get_coin(coin_id).await?;
@@ -107,15 +130,25 @@ impl LogHandler {
     }
 
     async fn handle_wei_in_updated(
-        &self,
+        &mut self,
         log: Log<PumpRand::WeiInUpdated>,
     ) -> Result<bool, PumpError> {
-        log::info!("Handle wei in updated: {:?}", log);
+        let block = match self.try_block(&log)? {
+            BlockKind::Block(block) => block,
+            BlockKind::NumberOnly(number) => {
+                self.pending_logs
+                    .entry(number)
+                    .or_insert_with(PendingLogs::default)
+                    .wei_in_updates
+                    .push(log);
+                return Ok(false);
+            }
+        };
         let data = log.data();
         log::info!(
             "Coin[{}] purchased in block {}. Total purchased: {}",
             data.coinId,
-            log.block_number.unwrap_or_default(),
+            block.number,
             data.totalWeiIn
         );
         let wei_in = int_to_decimal(data.totalWeiIn);
@@ -128,10 +161,10 @@ impl LogHandler {
         &self,
         log: Log<PumpRand::CoinGraduated>,
     ) -> Result<bool, PumpError> {
-        log::info!("Handle graduation: {:?}", log);
+        let block_number = self.try_block(&log)?.number();
         let coin_id = log.data().coinId;
         let mut conn = self.conn()?;
-        log::info!("Coin[{}] graduated in block {}", coin_id, log.block_number.unwrap_or_default());
+        log::info!("Coin[{}] graduated in block {}", coin_id, block_number);
         store::graduate_coin(&mut conn, coin_id as i64)?;
         let tx = self.client.deploy_graduated(coin_id).await?;
         log::info!("Called graduate({}), tx={}", coin_id, fmt_hex(tx));
@@ -142,7 +175,17 @@ impl LogHandler {
         &mut self,
         log: Log<PumpRand::DeployedToDex>,
     ) -> Result<bool, PumpError> {
-        log::info!("Handle deploy: {:?}", log);
+        let block = match self.try_block(&log)? {
+            BlockKind::Block(block) => block,
+            BlockKind::NumberOnly(number) => {
+                self.pending_logs
+                    .entry(number)
+                    .or_insert_with(PendingLogs::default)
+                    .deployed_to_dexs
+                    .push(log);
+                return Ok(false);
+            }
+        };
         let data = log.data();
         let mut conn = self.conn()?;
         let pool = self.get_pool(data.lpToken).await?;
@@ -152,8 +195,9 @@ impl LogHandler {
             fmt_hex(data.lpToken)
         );
         self.pools.insert(pool.lp_token, pool);
-        let created_at =
-            DateTime::from_timestamp(log.block_timestamp.unwrap() as i64, 0).unwrap().naive_utc();
+        let created_at = DateTime::from_timestamp(block.timestamp, 0)
+            .expect(&format!("Invalid block timestamp: {}", block.timestamp))
+            .naive_utc();
         let pool = models::Pool {
             address: pool.lp_token.to_string(),
             chain_id: self.client.chain_id as i32,
@@ -167,10 +211,18 @@ impl LogHandler {
         Ok(true)
     }
 
-    fn try_block<T>(log: &Log<T>) -> Result<Block, PumpError> {
-        match (log.block_number, log.block_timestamp) {
-            (Some(number), Some(ts)) => Ok(Block { number, timestamp: ts as i64 }),
-            _ => Err(PumpError::no_block_timestamp()),
+    fn try_block<T>(&self, log: &Log<T>) -> Result<BlockKind, PumpError> {
+        match log.block_number {
+            Some(number) => {
+                let timestamp = self.block_timestamps.get(&number);
+                match timestamp {
+                    Some(timestamp) => {
+                        Ok(BlockKind::Block(Block { number, timestamp: *timestamp as i64 }))
+                    }
+                    None => Ok(BlockKind::NumberOnly(number)),
+                }
+            }
+            _ => Err(PumpError::no_block_number()),
         }
     }
 
@@ -203,8 +255,18 @@ impl LogHandler {
     }
 
     async fn handle_swap(&mut self, log: Log<UniswapV2Pair::Swap>) -> Result<bool, PumpError> {
-        println!("Handle swap: {:?}", log);
-        let block = LogHandler::try_block(&log)?;
+        let block = match self.try_block(&log)? {
+            BlockKind::Block(block) => block,
+            BlockKind::NumberOnly(number) => {
+                self.pending_logs
+                    .entry(number)
+                    .or_insert_with(PendingLogs::default)
+                    .swaps
+                    .push(log);
+                return Ok(false);
+            }
+        };
+
         let lp_token = log.address();
         let pool = self.get_pool(lp_token).await?;
         let data = log.data();
@@ -226,7 +288,7 @@ impl LogHandler {
             fmt_hex(token),
             fa,
             fmt_px,
-            log.block_number.unwrap_or_default()
+            block.number
         );
 
         let tx = match log.transaction_hash {
@@ -248,8 +310,17 @@ impl LogHandler {
     }
 
     async fn handle_sync(&mut self, log: Log<UniswapV2Pair::Sync>) -> Result<bool, PumpError> {
-        log::info!("Handle sync: {:?}", log);
-        let block = LogHandler::try_block(&log)?;
+        let block = match self.try_block(&log)? {
+            BlockKind::Block(block) => block,
+            BlockKind::NumberOnly(number) => {
+                self.pending_logs
+                    .entry(number)
+                    .or_insert_with(PendingLogs::default)
+                    .syncs
+                    .push(log);
+                return Ok(false);
+            }
+        };
         let lp_token = log.address();
         let pool = self.get_pool(lp_token).await?;
         let data = log.data();
@@ -259,7 +330,7 @@ impl LogHandler {
             "Pool {} price is {} at top of block {}",
             fmt_hex(lp_token),
             fmt_px(ui_price),
-            log.block_number.unwrap_or_default()
+            block.number
         );
         Ok(false)
     }
@@ -283,6 +354,24 @@ impl LogHandler {
         Ok(())
     }
 
+    async fn flush_block(&mut self, block: Block) -> Result<(), PumpError> {
+        self.block_timestamps.insert(block.number, block.timestamp);
+        let pending_logs = self.pending_logs.remove(&block.number).unwrap_or_default();
+        for log in pending_logs.wei_in_updates {
+            self.handle_wei_in_updated(log).await?;
+        }
+        for log in pending_logs.deployed_to_dexs {
+            self.handle_deploy(log).await?;
+        }
+        for log in pending_logs.syncs {
+            self.handle_sync(log).await?;
+        }
+        for log in pending_logs.swaps {
+            self.handle_swap(log).await?;
+        }
+        Ok(())
+    }
+
     /// flush all of the candles we created for N=2 blocks ago
     pub async fn new_block(&mut self, block: Block) -> Result<(), PumpError> {
         if let Some(confirmed_block) = block.number.checked_sub(CONFIRMATIONS) {
@@ -293,7 +382,7 @@ impl LogHandler {
                 self.flush_candle(pool, prices, confirmed).await?;
             }
         }
-        self.block = block;
+        self.flush_block(block).await?;
         Ok(())
     }
 

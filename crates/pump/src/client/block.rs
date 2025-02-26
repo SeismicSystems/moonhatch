@@ -8,7 +8,6 @@ pub struct Block {
 
 impl From<Header> for Block {
     fn from(value: Header) -> Self {
-        log::info!("Block: {:?}", value);
         Block { number: value.number, timestamp: value.timestamp as i64 }
     }
 }
