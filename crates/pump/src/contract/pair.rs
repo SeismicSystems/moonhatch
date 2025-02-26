@@ -6,6 +6,7 @@ sol! {
         address public token0;
         address public token1;
 
+        #[derive(Debug)]
         event Swap(
             address indexed sender,
             uint amount0In,
@@ -14,6 +15,7 @@ sol! {
             uint amount1Out,
             address indexed to
         );
+        #[derive(Debug)]
         event Sync(uint112 reserve0, uint112 reserve1);
     }
 }

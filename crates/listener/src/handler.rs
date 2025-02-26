@@ -92,6 +92,7 @@ impl LogHandler {
     }
 
     async fn handle_creation(&self, log: Log<PumpRand::CoinCreated>) -> Result<bool, PumpError> {
+        log::info!("Handle creation: {:?}", log);
         let mut conn = self.conn()?;
         let coin_id = log.data().coinId;
         let coin = self.client.get_coin(coin_id).await?;
@@ -109,6 +110,7 @@ impl LogHandler {
         &self,
         log: Log<PumpRand::WeiInUpdated>,
     ) -> Result<bool, PumpError> {
+        log::info!("Handle wei in updated: {:?}", log);
         let data = log.data();
         log::info!(
             "Coin[{}] purchased in block {}. Total purchased: {}",
@@ -126,6 +128,7 @@ impl LogHandler {
         &self,
         log: Log<PumpRand::CoinGraduated>,
     ) -> Result<bool, PumpError> {
+        log::info!("Handle graduation: {:?}", log);
         let coin_id = log.data().coinId;
         let mut conn = self.conn()?;
         log::info!("Coin[{}] graduated in block {}", coin_id, log.block_number.unwrap_or_default());
@@ -139,6 +142,7 @@ impl LogHandler {
         &mut self,
         log: Log<PumpRand::DeployedToDex>,
     ) -> Result<bool, PumpError> {
+        log::info!("Handle deploy: {:?}", log);
         let data = log.data();
         let mut conn = self.conn()?;
         let pool = self.get_pool(data.lpToken).await?;
@@ -199,6 +203,7 @@ impl LogHandler {
     }
 
     async fn handle_swap(&mut self, log: Log<UniswapV2Pair::Swap>) -> Result<bool, PumpError> {
+        println!("Handle swap: {:?}", log);
         let block = LogHandler::try_block(&log)?;
         let lp_token = log.address();
         let pool = self.get_pool(lp_token).await?;
@@ -243,6 +248,7 @@ impl LogHandler {
     }
 
     async fn handle_sync(&mut self, log: Log<UniswapV2Pair::Sync>) -> Result<bool, PumpError> {
+        log::info!("Handle sync: {:?}", log);
         let block = LogHandler::try_block(&log)?;
         let lp_token = log.address();
         let pool = self.get_pool(lp_token).await?;
