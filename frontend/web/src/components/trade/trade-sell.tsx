@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { formatEther } from 'viem'
+import { formatEther, parseUnits } from 'viem'
 
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
 import { usePumpClient } from '@/hooks/usePumpClient'
-import { parseBigInt } from '@/util'
+import { stringifyBigInt } from '@/util'
 
 export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [error, setError] = useState('')
@@ -48,14 +48,19 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           console.log(`Explorer url: ${url}`)
         }
       })
-      .catch((e) => { setError(e) })
+      .catch((e) => { setError(JSON.stringify(e, stringifyBigInt, 2)) })
       .finally(() => {
         setIsSelling(false)
       })
   }
 
   useEffect(() => {
-    setAmountIn(parseBigInt(amountInput))
+    try {
+      const amountIn = parseUnits(amountInput, Number(coin.decimals))
+      setAmountIn(amountIn)
+    } catch (e) {
+      setAmountIn(null)
+    }
   }, [amountInput])
 
   useEffect(() => {
@@ -80,7 +85,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <GraduatedTradeButton
         onClick={sellCoin}
-        disabled={amountIn !== null}
+        disabled={amountIn === null}
         sx={{
           padding: { xs: '8px', sm: '10px', md: '12px', lg: '14px' },
           color: 'white',

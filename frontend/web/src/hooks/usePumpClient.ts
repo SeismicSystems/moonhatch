@@ -140,7 +140,9 @@ export const usePumpClient = () => {
     spender,
   }: AllowanceParams): Promise<bigint> => {
     const coinContract = getCoinContract(token)
-    const allowance = (await coinContract.tread.allowance([spender])) as bigint
+    console.log('calling allowance...')
+    const allowance = (await coinContract.tread.allowance([walletAddress(), spender])) as bigint
+    console.log('allowance:', allowance)
     return allowance
   }
 
@@ -150,7 +152,8 @@ export const usePumpClient = () => {
     amount,
   }: ApproveParams): Promise<Hex> => {
     const coinContract = getCoinContract(token)
-    return coinContract.write.approve([spender, amount], { gas: 1_000_000 })
+    // @ts-expect-error TODO: christian fix typing in seismic-viem
+    return coinContract.twrite.approve([spender, amount], { gas: 1_000_000 })
   }
 
   const approveDex = async ({
@@ -226,8 +229,8 @@ export const usePumpClient = () => {
     amountIn,
   }: TradeParams): Promise<bigint> => {
     const path = [wethAddress, token]
-    const amount = (await dex().read.getAmountsOut([amountIn, path])) as bigint
-    return amount
+    const [_, amountOut] = (await dex().tread.getAmountsOut([amountIn, path])) as [bigint, bigint]
+    return amountOut
   }
 
   const previewSell = async ({
@@ -235,8 +238,8 @@ export const usePumpClient = () => {
     amountIn,
   }: TradeParams): Promise<bigint> => {
     const path = [token, wethAddress]
-    const amount = (await dex().read.getAmountsOut([amountIn, path])) as bigint
-    return amount
+    const [_, weiOut] = (await dex().tread.getAmountsOut([amountIn, path])) as [bigint, bigint]
+    return weiOut
   }
 
   const waitForTransaction = async (hash: Hex) => {

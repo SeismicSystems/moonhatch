@@ -43,6 +43,3 @@ export const parseBigInt = (amt: string | null): bigint | null => {
     return null
   }
 }
-
-/** Convert from indivisible units to display units */
-export const displayTokenAmount = (units: bigint, decimals: bigint | number): bigint => units / (10n ** BigInt(decimals))

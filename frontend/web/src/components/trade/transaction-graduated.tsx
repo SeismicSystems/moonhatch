@@ -65,50 +65,52 @@ export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (props)
   })
 
   return (
-    <TradeOuterBox {...swipeHandlers}>
-      <TradeInnerBox sx={{ gap: '24px' }}>
-        {/* Custom Toggle */}
-        <Box sx={toggleContainerSx}>
-          <Box
-            component="button"
-            sx={buyToggleButtonSx(side)}
-            onClick={() => setSide(Side.BUY)}
-          >
-            <div className="buy-text text-[var(--creamWhite)]">Buy</div>
+    <div {...swipeHandlers}>
+      <TradeOuterBox>
+        <TradeInnerBox sx={{ gap: '24px' }}>
+          {/* Custom Toggle */}
+          <Box sx={toggleContainerSx}>
+            <Box
+              component="button"
+              sx={buyToggleButtonSx(side)}
+              onClick={() => setSide(Side.BUY)}
+            >
+              <div className="buy-text text-[var(--creamWhite)]">Buy</div>
+            </Box>
+            <Box
+              component="button"
+              sx={sellToggleButtonSx(side)}
+              onClick={() => setSide(Side.SELL)}
+            >
+              <div className="sell-text text-[var(--creamWhite)]">Sell</div>
+            </Box>
           </Box>
-          <Box
-            component="button"
-            sx={sellToggleButtonSx(side)}
-            onClick={() => setSide(Side.SELL)}
+
+          {/* Trade Input and Confirm Button */}
+          {side === Side.BUY ? <Buy {...props} /> : <Sell {...props} />}
+        </TradeInnerBox>
+
+        <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
+          <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
+          <p>{modalMessage}</p>
+          <Button
+            sx={{
+              fontFamily: 'inherit',
+              backgroundColor: 'blue',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '4px',
+              mt: 2,
+              textTransform: 'none',
+              '&:hover': { backgroundColor: 'darkblue' },
+            }}
+            onClick={() => setModalOpen(false)}
           >
-            <div className="sell-text text-[var(--creamWhite)]">Sell</div>
-          </Box>
-        </Box>
-
-        {/* Trade Input and Confirm Button */}
-        {side === Side.BUY ? <Buy {...props} /> : <Sell {...props} />}
-      </TradeInnerBox>
-
-      <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
-        <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
-        <p>{modalMessage}</p>
-        <Button
-          sx={{
-            fontFamily: 'inherit',
-            backgroundColor: 'blue',
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '4px',
-            mt: 2,
-            textTransform: 'none',
-            '&:hover': { backgroundColor: 'darkblue' },
-          }}
-          onClick={() => setModalOpen(false)}
-        >
-          OK
-        </Button>
-      </ModalBox>
-    </TradeOuterBox>
+            OK
+          </Button>
+        </ModalBox>
+      </TradeOuterBox>
+    </div>
   )
 }
 
