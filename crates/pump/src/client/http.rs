@@ -4,7 +4,7 @@ use alloy_provider::{
     create_seismic_provider, create_seismic_provider_without_wallet, network::TransactionBuilder,
     Provider, SeismicSignedProvider, SeismicUnsignedProvider,
 };
-use alloy_rpc_types_eth::{TransactionInput, TransactionRequest};
+use alloy_rpc_types_eth::{Header, TransactionInput, TransactionRequest};
 use alloy_signer_local::LocalSigner;
 use alloy_sol_types::SolType;
 use alloy_transport::TransportError;
@@ -107,5 +107,19 @@ impl PumpClient {
             .from(self.signer_address);
         let pending_tx = self.wallet.send_transaction(tx).await?;
         Ok(pending_tx.tx_hash().clone())
+    }
+
+    pub async fn get_block_header(&self, block_number: u64) -> Result<Header, PumpError> {
+        let block = self
+            .provider
+            .get_block_by_number(
+                block_number.into(),
+                alloy_rpc_types_eth::BlockTransactionsKind::Hashes,
+            )
+            .await?;
+        match block {
+            Some(block) => Ok(block.header),
+            None => Err(PumpError::NoBlockWithNumber(block_number)),
+        }
     }
 }
