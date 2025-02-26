@@ -30,9 +30,7 @@ const Home: React.FC = () => {
         <NavBar />
       </div>
       <div className="mb-2">
-        <HomeHeader
-          coins={coins}
-        />
+        <HomeHeader coins={coins} />
       </div>
       <div className="search-and-filter mb-2">
         <SearchAndFilter
