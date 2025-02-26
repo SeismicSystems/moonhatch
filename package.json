@@ -4,7 +4,8 @@
   ],
   "scripts": {
     "env:devnet": "cp .env.devnet .env",
-    "env:local": "cp .env.localdev .env",
+    "env:local:anvil": "cp .env.local-anvil .env",
+    "env:local:devnet": "cp .env.local-devnet .env",
     "env:anvil": "cp .env.anvil .env",
     "rust:fmt": "cargo +nightly fmt --all",
     "rust:fmt:check": "cargo +nightly fmt --all --check",
