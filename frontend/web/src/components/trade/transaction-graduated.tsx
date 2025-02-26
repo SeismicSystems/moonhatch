@@ -193,11 +193,7 @@ export default function TransactionGraduated(props: TransactionGraduatedProps) {
 
   return (
     <TradeOuterBox>
-      <TradeInnerBox
-        style={{
-          gap: '24px',
-        }}
-      >
+      <TradeInnerBox style={{ gap: '24px' }}>
         {/* Custom Toggle */}
         <Box sx={toggleContainerSx}>
           <Box
