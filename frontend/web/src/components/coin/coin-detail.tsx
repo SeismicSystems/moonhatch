@@ -54,7 +54,6 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
         <NavBar />
       </div>
       <div className="page-container bg-[var(--darkBlue)] flex w-full justify-center items-center = flex-col lg:flex-row gap-12 xl:gap-24 pb-24 max-w-screen lg:px-12 2xl:px-24 lg:py-8">
-        {/* Coin Info Card */}
         <Box
           sx={{
             width: {
@@ -113,7 +112,6 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
           )}
         </Box>
 
-        {/* Candles Section (Chart) */}
         <div className="status-icon-container flex justify-center mx-auto items-center">
           {coin.graduated && coin.deployedPool ? (
             <Box sx={{ display: 'flex' }}>
