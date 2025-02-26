@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { Box, Button, SxProps } from '@mui/material'
 
-import type { Coin } from '@/types/coin'
 import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 import { Buy } from '@/components/trade/trade-buy'
 import { Sell } from '@/components/trade/trade-sell'
+import type { Coin } from '@/types/coin'
 import { Side } from '@/types/trade'
+import { Box, Button, SxProps } from '@mui/material'
 
 export type TransactionGraduatedProps = {
   coin: Pick<Coin, 'id' | 'graduated' | 'name'>
@@ -26,7 +26,13 @@ const toggleContainerSx: SxProps = {
   overflow: 'hidden',
 }
 
-const toggleButtonSx = ({ activeSide, buttonSide }: { activeSide: Side, buttonSide: Side }): SxProps => {
+const toggleButtonSx = ({
+  activeSide,
+  buttonSide,
+}: {
+  activeSide: Side
+  buttonSide: Side
+}): SxProps => {
   const active = activeSide === buttonSide
   const activeBg = buttonSide === Side.BUY ? 'green' : 'red'
   return {
@@ -46,15 +52,15 @@ const toggleButtonSx = ({ activeSide, buttonSide }: { activeSide: Side, buttonSi
   }
 }
 
-const buyToggleButtonSx = (activeSide: Side) => toggleButtonSx({ activeSide, buttonSide: Side.BUY })
-const sellToggleButtonSx = (activeSide: Side) => toggleButtonSx({ activeSide, buttonSide: Side.SELL })
+const buyToggleButtonSx = (activeSide: Side) =>
+  toggleButtonSx({ activeSide, buttonSide: Side.BUY })
+const sellToggleButtonSx = (activeSide: Side) =>
+  toggleButtonSx({ activeSide, buttonSide: Side.SELL })
 
-export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (props) => {
-  const {
-    modalOpen,
-    modalMessage,
-    setModalOpen,
-  } = props
+export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (
+  props
+) => {
+  const { modalOpen, modalMessage, setModalOpen } = props
   const [side, setSide] = useState<Side>(Side.BUY)
 
   return (

@@ -1,12 +1,9 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-// @ts-expect-error this is fine
-import { useAppState } from '@/hooks/useAppState'
+import MyStyledConnectButton from '@/components/MyStyledConnectButton'
 import HomeIcon from '@mui/icons-material/Home'
 import '@rainbow-me/rainbowkit/styles.css'
-
-import MyStyledConnectButton from './MyStyledConnectButton'
 
 const NavBar: React.FC = () => {
   const navigate = useNavigate()

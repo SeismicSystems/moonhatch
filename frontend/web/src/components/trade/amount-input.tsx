@@ -1,13 +1,16 @@
-import { TextField } from '@mui/material'
 import React from 'react'
+
+import { TextField } from '@mui/material'
 
 type AmountInputProps = {
   amount: string
-  setAmount: (value: string) => void,
+  setAmount: (value: string) => void
   placeholder: string
 }
 
-export const NonGraduatedAmountInput: React.FC<React.PropsWithChildren<AmountInputProps>> = ({ amount, setAmount, placeholder }) => {
+export const NonGraduatedAmountInput: React.FC<
+  React.PropsWithChildren<AmountInputProps>
+> = ({ amount, setAmount, placeholder }) => {
   return (
     <input
       type="text"
@@ -27,7 +30,9 @@ export const NonGraduatedAmountInput: React.FC<React.PropsWithChildren<AmountInp
   )
 }
 
-export const GraduatedAmountInput: React.FC<React.PropsWithChildren<AmountInputProps>> = ({ amount, setAmount, placeholder }) => {
+export const GraduatedAmountInput: React.FC<
+  React.PropsWithChildren<AmountInputProps>
+> = ({ amount, setAmount, placeholder }) => {
   return (
     <TextField
       variant="outlined"

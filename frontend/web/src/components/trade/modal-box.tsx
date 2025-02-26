@@ -1,4 +1,5 @@
 import React from 'react'
+
 import { Box, Modal } from '@mui/material'
 
 type ModalBoxProps = {
@@ -6,7 +7,11 @@ type ModalBoxProps = {
   setModalOpen: (open: boolean) => void
 }
 
-export const ModalBox: React.FC<React.PropsWithChildren<ModalBoxProps>> = ({ modalOpen, setModalOpen, children }) => {
+export const ModalBox: React.FC<React.PropsWithChildren<ModalBoxProps>> = ({
+  modalOpen,
+  setModalOpen,
+  children,
+}) => {
   return (
     <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
       <Box

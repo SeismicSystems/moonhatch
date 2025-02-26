@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { TransactionReceipt, parseEther } from 'viem'
 
-import type { Coin } from '@/types/coin'
 import { usePumpClient } from '@/hooks/usePumpClient'
+import type { Coin } from '@/types/coin'
 
 interface UseCoinActionsParams {
   coin: Coin | null
