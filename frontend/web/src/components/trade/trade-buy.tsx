@@ -40,9 +40,12 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
 
     buyPostGraduation({ token: coin.contractAddress, amountIn: weiIn })
       .then((buyTxHash) => {
+        console.log(`Sent buy tx: ${buyTxHash}`)
         // TODO: toast with link to explorer url
         const url = explorerUrl(buyTxHash)
-        console.log(`Sent buy tx: ${buyTxHash}. ${url}`)
+        if (url) {
+          console.log(`Explorer url: ${url}`)
+        }
       })
       .catch((e) => { setError(e) })
       .finally(() => {

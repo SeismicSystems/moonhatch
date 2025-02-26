@@ -41,9 +41,12 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
 
     approveAndSell({ token: coin.contractAddress, amountIn })
       .then((sellTxHash) => {
-        // TODO: toast with link to explorer url
+        console.log(`Sent sell tx: ${sellTxHash}`)
+        // TODO: toast with link to explorer url IF it exists
         const url = explorerUrl(sellTxHash)
-        console.log(`Sent sell tx: ${sellTxHash}. ${url}`)
+        if (url) {
+          console.log(`Explorer url: ${url}`)
+        }
       })
       .catch((e) => { setError(e) })
       .finally(() => {
