@@ -213,15 +213,20 @@ impl LogHandler {
 
     fn try_block<T>(&self, log: &Log<T>) -> Result<BlockKind, PumpError> {
         match log.block_number {
-            Some(number) => {
-                let timestamp = self.block_timestamps.get(&number);
-                match timestamp {
-                    Some(timestamp) => {
-                        Ok(BlockKind::Block(Block { number, timestamp: *timestamp as i64 }))
-                    }
-                    None => Ok(BlockKind::NumberOnly(number)),
+            Some(number) => match log.block_timestamp {
+                Some(timestamp) => {
+                    Ok(BlockKind::Block(Block { number, timestamp: timestamp as i64 }))
                 }
-            }
+                None => {
+                    let timestamp = self.block_timestamps.get(&number);
+                    match timestamp {
+                        Some(timestamp) => {
+                            Ok(BlockKind::Block(Block { number, timestamp: *timestamp as i64 }))
+                        }
+                        None => Ok(BlockKind::NumberOnly(number)),
+                    }
+                }
+            },
             _ => Err(PumpError::no_block_number()),
         }
     }
