@@ -49,7 +49,13 @@ impl PumpClient {
         let signer_address = signer.address();
         let wallet = create_seismic_provider(EthereumWallet::new(signer), rpc_url);
 
-        Ok(PumpClient { provider, wallet, signer_address, ca: ContractAddresses::new(chain_id), chain_id })
+        Ok(PumpClient {
+            provider,
+            wallet,
+            signer_address,
+            ca: ContractAddresses::new(chain_id),
+            chain_id,
+        })
     }
 
     pub async fn get_chain_id(&self) -> Result<u64, PumpError> {

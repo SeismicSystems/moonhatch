@@ -13,10 +13,10 @@ interface CoinCardProps {
   coin: Coin
 }
 
+export const FALLBACK_IMAGE_URL = 'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
+
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   const navigate = useNavigate()
-  const defaultImage =
-    'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
   // @ts-expect-error this is fine
   const [imgSrc, setImgSrc] = useState(coin.imageUrl)
 
@@ -112,7 +112,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
             }}
           >
             <img
-              src={imgSrc || defaultImage}
+              src={imgSrc || FALLBACK_IMAGE_URL}
               alt="Coin Logo"
               style={{
                 borderRadius: '8px',

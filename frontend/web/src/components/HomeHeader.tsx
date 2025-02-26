@@ -22,7 +22,6 @@ export default function HomeHeader({ coins }: HomeHeaderProps) {
   const navigate = useNavigate()
   const { acceptedTerms } = useAppState()
   const [showHowItWorks, setShowHowItWorks] = useState(!acceptedTerms())
-  console.log('homeheader', coins)
   return (
     <>
       <div className="flex flex-col   items-center w-full px-4">

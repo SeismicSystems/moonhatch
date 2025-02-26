@@ -152,7 +152,7 @@ impl LogHandler {
             DateTime::from_timestamp(log.block_timestamp.unwrap() as i64, 0).unwrap().naive_utc();
         let pool = models::Pool {
             address: pool.lp_token.to_string(),
-            chain_id: 31337,
+            chain_id: self.client.chain_id as i32,
             dex: self.client.router().to_string(),
             token_0: pool.token_0.to_string(),
             token_1: pool.token_1.to_string(),

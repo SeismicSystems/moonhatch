@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Box, Typography, useMediaQuery } from '@mui/material'
 
 import KOTHBox, { CoinData } from './koth-box'
+import { FALLBACK_COIN_IMAGE_URL } from '../coin-detail/coin-info-details'
 
 interface KingOfTheHillSectionProps {
   // @ts-expect-error this is fine
@@ -27,21 +28,19 @@ export default function KingOfTheHillSection({
     rank: index + 1,
     name: coin.name,
     score: 0,
-    imageUrl: coin.imageUrl || 'https://via.placeholder.com/100',
+    imageUrl: coin.imageUrl || FALLBACK_COIN_IMAGE_URL,
     symbol: coin.symbol,
   }))
 
   const podiumOrder =
     coinData.length >= 3
       ? [
-          coinData.find((c) => c.rank === 2)!,
-          coinData.find((c) => c.rank === 1)!,
-          coinData.find((c) => c.rank === 3)!,
-        ]
+        coinData.find((c) => c.rank === 2)!,
+        coinData.find((c) => c.rank === 1)!,
+        coinData.find((c) => c.rank === 3)!,
+      ]
       : coinData
 
-  console.log('koth coindata', coinData)
-  console.log('podium', podiumOrder)
   if (isDesktop) {
     return (
       <Box

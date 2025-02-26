@@ -8,7 +8,7 @@ import * as coinJson from '@/abis/interfaces/IPumpCoin.json' assert { type: 'jso
 import * as wethJson from '@/abis/contracts/WETH9.json' assert { type: 'json' }
 
 const parseChainId = (): number => {
-  const chainId = '5124' // process.env.CHAIN_ID
+  const chainId = import.meta.env.VITE_CHAIN_ID
   if (!chainId) {
     throw new Error('CHAIN_ID is not set')
   }
