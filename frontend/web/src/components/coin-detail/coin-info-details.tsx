@@ -1,7 +1,7 @@
 import React from 'react'
 
-import CoinDescriptionContainer from './coin-desc-container'
-import CoinImageComponent from './coin-image-component'
+import CoinDescriptionContainer from '@/components/coin-detail/coin-desc-container'
+import CoinImageComponent from '@/components/coin-detail/coin-image-component'
 
 export const FALLBACK_COIN_IMAGE_URL =
   'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'

@@ -1,16 +1,13 @@
+import { Coin } from '@/types/coin'
+
 import CreateCoinButton from './home/create-coin-button'
 import GraduatedIconsContainer from './home/grad-icon-container'
 import KingOfTheHillSection from './home/king-of-the-hill'
 
-interface Coin {
-  id: string
-  name: string
-  wei_in: string
-}
-
-interface HomeHeaderProps {
+type HomeHeaderProps = {
   coins: Coin[]
 }
+
 export default function HomeHeader({ coins }: HomeHeaderProps) {
   return (
     <>

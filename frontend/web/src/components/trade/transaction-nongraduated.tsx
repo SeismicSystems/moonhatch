@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { formatEther, parseEther } from 'viem'
 
-import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 import { WeiIn } from '@/components/trade/wei-in'
 import { usePumpClient } from '@/hooks/usePumpClient'
@@ -12,17 +11,11 @@ import { NonGraduatedTradeButton } from './trade-button'
 
 type TransactionNonGraduatedProps = {
   coin: Coin
-  modalOpen: boolean
-  modalMessage: string
-  setModalOpen: (open: boolean) => void
 }
 
-export default function TransactionNonGraduated({
+export const TransactionNonGraduated = ({
   coin,
-  modalOpen,
-  modalMessage,
-  setModalOpen,
-}: TransactionNonGraduatedProps) {
+}: TransactionNonGraduatedProps) => {
   const [buyError, setBuyError] = useState<string | null>(null)
   const [buyInputEth, setBuyInputEth] = useState<string>('')
   const [buyAmountWei, setBuyAmountWei] = useState<bigint | null>(null)
@@ -72,25 +65,9 @@ export default function TransactionNonGraduated({
               : 'Enter a valid amount'}
           </NonGraduatedTradeButton>
         </TradeInnerBox>
-        <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
-          <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
-          <p>{modalMessage}</p>
-          <button
-            style={{
-              backgroundColor: 'blue',
-              color: 'white',
-              padding: '8px 16px',
-              border: 'none',
-              borderRadius: '4px',
-              marginTop: '16px',
-              cursor: 'pointer',
-            }}
-            onClick={() => setModalOpen(false)}
-          >
-            OK
-          </button>
-        </ModalBox>
       </TradeOuterBox>
     </>
   )
 }
+
+export default TransactionNonGraduated
