@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 
-import { Coin } from '@/types/coin'
-import CoinCard from '@components/coin/coin-card'
-import Pagination from '@components/coin/pagination'
+import type { Coin } from '@/types/coin'
+import CoinCard from '@/components/coin/coin-card'
+import Pagination from '@/components/coin/pagination'
 
 const Coins: React.FC<{ coins: Coin[] }> = ({ coins }) => {
   const [currentPage, setCurrentPage] = useState(1)

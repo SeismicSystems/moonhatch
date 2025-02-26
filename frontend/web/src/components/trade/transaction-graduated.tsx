@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-
 import { Box, Button, Modal, TextField } from '@mui/material'
-
-import { Coin } from '../../types/coin'
+import { Coin } from '@/types/coin'
 
 interface TransactionGraduatedProps {
   coin: Pick<Coin, 'id' | 'graduated' | 'name'>
@@ -15,18 +13,7 @@ interface TransactionGraduatedProps {
   setModalOpen: (open: boolean) => void
 }
 
-export default function TransactionGraduated({
-  coin,
-  buyAmount,
-  setBuyAmount,
-  buyError,
-  handleBuy,
-  modalOpen,
-  modalMessage,
-  setModalOpen,
-}: TransactionGraduatedProps) {
-  const [sellAmount, setSellAmount] = useState('')
-  const [tradeType, setTradeType] = useState<'buy' | 'sell'>('buy')
+const Buy: React.FC<TransactionGraduatedProps> = ({ coin, buyAmount, setBuyAmount, buyError, handleBuy }) => {
 
   // Dummy conversion rate: 1 ETH = 1000 Coin X
   const conversionRate = 1000
@@ -38,6 +25,68 @@ export default function TransactionGraduated({
       : inputValue * conversionRate
   }, [buyAmount, conversionRate])
 
+
+  return (
+    <>
+      <TextField
+        variant="outlined"
+        value={buyAmount}
+        onChange={(e) => setBuyAmount(e.target.value)}
+        placeholder="ENTER ETH AMOUNT"
+        fullWidth
+        sx={{
+          '& .MuiOutlinedInput-input': {
+            textAlign: 'center',
+            color: 'var(--darkBlue)',
+
+            fontSize: {
+              xs: '1rem',
+              sm: '1.1rem',
+              md: '1.2rem',
+              lg: '1.3rem',
+            },
+          },
+          backgroundColor: 'var(--lightBlue)',
+          borderRadius: '4px',
+          mb: 1,
+        }}
+      />
+      {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
+      <Button
+        fullWidth
+        sx={{
+          height: { xs: '60px', sm: '70px', md: '80px', lg: '90px' },
+          padding: { xs: '50px', sm: '50px', md: '50px', lg: '50px' },
+          backgroundColor: 'green',
+
+          fontFamily: 'inherit',
+
+          color: 'var(--creamWhite)',
+          borderRadius: '4px',
+          fontSize: {
+            xs: '1rem',
+            sm: '1.1rem',
+            md: '1.2rem',
+            lg: '1.3rem',
+          },
+          textTransform: 'none',
+          '&:hover': { backgroundColor: 'darkgreen' },
+        }}
+        onClick={() => handleBuy(buyAmount, 'buy')}
+      >
+        {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
+      </Button>
+    </>
+  )
+}
+
+
+const Sell: React.FC<TransactionGraduatedProps> = ({ coin, buyError, handleBuy }) => {
+  const [sellAmount, setSellAmount] = useState('')
+
+  // Dummy conversion rate: 1 ETH = 1000 Coin X
+  const conversionRate = 1000
+
   const estimatedSell = useMemo(() => {
     const inputValue = parseFloat(sellAmount)
     return isNaN(inputValue) || inputValue <= 0
@@ -45,9 +94,71 @@ export default function TransactionGraduated({
       : inputValue / conversionRate
   }, [sellAmount, conversionRate])
 
+
   useEffect(() => {
-    if (tradeType === 'sell') setSellAmount('')
-  }, [tradeType])
+    setSellAmount('')
+  }, [])
+
+  return (
+    <>
+      <TextField
+        variant="outlined"
+        value={sellAmount}
+        onChange={(e) => setSellAmount(e.target.value)}
+        placeholder={`ENTER ${coin.name.toUpperCase()} AMOUNT`}
+        fullWidth
+        sx={{
+          '& .MuiOutlinedInput-input': {
+            textAlign: 'center',
+            color: 'var(--darkBlue)',
+            fontSize: {
+              xs: '1rem',
+              sm: '1.1rem',
+              md: '1.2rem',
+              lg: '1.3rem',
+            },
+          },
+          backgroundColor: 'var(--lightBlue)',
+          borderRadius: '4px',
+          mb: 1,
+        }}
+      />
+      {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
+      <Button
+        fullWidth
+        sx={{
+          fontFamily: 'inherit',
+          height: { xs: '60px', sm: '70px', md: '80px', lg: '90px' },
+
+          padding: { xs: '8px', sm: '10px', md: '12px', lg: '14px' },
+          backgroundColor: 'red',
+          color: 'white',
+          borderRadius: '4px',
+          fontSize: {
+            xs: '1rem',
+            sm: '1.1rem',
+            md: '1.2rem',
+            lg: '1.3rem',
+          },
+          textTransform: 'none',
+          '&:hover': { backgroundColor: 'darkred' },
+        }}
+        onClick={() => handleBuy(sellAmount, 'sell')}
+      >
+        {`CONFIRM SELL FOR ${estimatedSell} ETH`}
+      </Button>
+    </>
+
+  )
+}
+
+export default function TransactionGraduated(props: TransactionGraduatedProps) {
+  const {
+    modalOpen,
+    modalMessage,
+    setModalOpen,
+  } = props
+  const [tradeType, setTradeType] = useState<'buy' | 'sell'>('buy')
 
   // Toggle Button container using sx style
   const toggleContainerSx = {
@@ -113,107 +224,7 @@ export default function TransactionGraduated({
         </Box>
 
         {/* Trade Input and Confirm Button */}
-        {tradeType === 'buy' ? (
-          <>
-            <TextField
-              variant="outlined"
-              value={buyAmount}
-              onChange={(e) => setBuyAmount(e.target.value)}
-              placeholder="ENTER ETH AMOUNT"
-              fullWidth
-              sx={{
-                '& .MuiOutlinedInput-input': {
-                  textAlign: 'center',
-                  color: 'var(--darkBlue)',
-
-                  fontSize: {
-                    xs: '1rem',
-                    sm: '1.1rem',
-                    md: '1.2rem',
-                    lg: '1.3rem',
-                  },
-                },
-                backgroundColor: 'var(--lightBlue)',
-                borderRadius: '4px',
-                mb: 1,
-              }}
-            />
-            {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
-            <Button
-              fullWidth
-              sx={{
-                height: { xs: '60px', sm: '70px', md: '80px', lg: '90px' },
-                padding: { xs: '50px', sm: '50px', md: '50px', lg: '50px' },
-                backgroundColor: 'green',
-
-                fontFamily: 'inherit',
-
-                color: 'var(--creamWhite)',
-                borderRadius: '4px',
-                fontSize: {
-                  xs: '1rem',
-                  sm: '1.1rem',
-                  md: '1.2rem',
-                  lg: '1.3rem',
-                },
-                textTransform: 'none',
-                '&:hover': { backgroundColor: 'darkgreen' },
-              }}
-              onClick={() => handleBuy(buyAmount, 'buy')}
-            >
-              {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
-            </Button>
-          </>
-        ) : (
-          <>
-            <TextField
-              variant="outlined"
-              value={sellAmount}
-              onChange={(e) => setSellAmount(e.target.value)}
-              placeholder={`ENTER ${coin.name.toUpperCase()} AMOUNT`}
-              fullWidth
-              sx={{
-                '& .MuiOutlinedInput-input': {
-                  textAlign: 'center',
-                  color: 'var(--darkBlue)',
-                  fontSize: {
-                    xs: '1rem',
-                    sm: '1.1rem',
-                    md: '1.2rem',
-                    lg: '1.3rem',
-                  },
-                },
-                backgroundColor: 'var(--lightBlue)',
-                borderRadius: '4px',
-                mb: 1,
-              }}
-            />
-            {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
-            <Button
-              fullWidth
-              sx={{
-                fontFamily: 'inherit',
-                height: { xs: '60px', sm: '70px', md: '80px', lg: '90px' },
-
-                padding: { xs: '8px', sm: '10px', md: '12px', lg: '14px' },
-                backgroundColor: 'red',
-                color: 'white',
-                borderRadius: '4px',
-                fontSize: {
-                  xs: '1rem',
-                  sm: '1.1rem',
-                  md: '1.2rem',
-                  lg: '1.3rem',
-                },
-                textTransform: 'none',
-                '&:hover': { backgroundColor: 'darkred' },
-              }}
-              onClick={() => handleBuy(sellAmount, 'sell')}
-            >
-              {`CONFIRM SELL FOR ${estimatedSell} ETH`}
-            </Button>
-          </>
-        )}
+        {tradeType === 'buy' ? <Buy {...props} /> : <Sell {...props} />}
       </Box>
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>

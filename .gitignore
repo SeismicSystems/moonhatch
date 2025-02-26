@@ -1,7 +1,8 @@
 # Secrets
 .env
 .env.devnet
-.env.localdev
+.env.local-anvil
+.env.local-devnet
 
 # Logs
 logs

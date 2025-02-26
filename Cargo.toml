@@ -3,6 +3,7 @@ members = ["crates/server", "crates/listener", "crates/pump"]
 resolver = "2"
 
 [workspace.dependencies]
+pump = { path = "crates/pump" }
 # web
 axum = { version = "0.6.20", features = ["multipart"]}
 futures-util = "0.3"

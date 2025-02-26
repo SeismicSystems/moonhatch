@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
 import { formatEther } from 'viem'
-
 import { Box, Modal } from '@mui/material'
 
-import { Coin } from '../../types/coin'
-import BalanceDisplay from '../trade/balance-section'
-import TransactionGraduated from '../trade/transaction-graduated'
-import TransactionNonGraduated from '../trade/transaction-nongraduated'
+import { Coin } from '@/types/coin'
+import BalanceDisplay from '@/components/trade/balance-section'
+import TransactionGraduated from '@/components/trade/transaction-graduated'
+import TransactionNonGraduated from '@/components/trade/transaction-nongraduated'
 
 interface TradeSectionProps {
   coin: Coin
