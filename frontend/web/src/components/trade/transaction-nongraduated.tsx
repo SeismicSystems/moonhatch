@@ -36,7 +36,6 @@ export default function TransactionNonGraduated({
           setAmount={setBuyAmount}
           placeholder="ENTER ETH AMOUNT"
         />
-
         <NonGraduatedTradeButton onClick={() => handleBuy(buyAmount, 'buy')}>
           {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
         </NonGraduatedTradeButton>

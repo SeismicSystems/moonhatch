@@ -1,9 +1,8 @@
 // src/store/coinSlice.ts
 import { BASE_API_URL } from '@/hooks/useFetchCoin'
+import type { RootState } from '@/store/store'
 import type { Coin } from '@/types/coin'
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-
-import type { RootState } from '@/store/store'
 
 interface CoinsState {
   coins: Coin[]

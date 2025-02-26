@@ -1,33 +1,34 @@
 import React from 'react'
-import { Box,Typography } from '@mui/material'
-import { formatRelativeTime } from '@/util'
 
 import { FALLBACK_COIN_IMAGE_URL } from '@/components/coin-detail/coin-info-details'
+import { formatRelativeTime } from '@/util'
+import { Box, Typography } from '@mui/material'
 
 interface CoinInfoDetailsProps {
-    coin: {
-      id: bigint
-      name: string
-      symbol: string
-      contractAddress: { toString: () => string }
-      imageUrl?: string
-      createdAt: { toString: () => string }
-      supply: { toString: () => string }
-      decimals: bigint | number
-      graduated: boolean
-      creator: { toString: () => string }
-      description: string
-      twitter: string
-      website: string
-      telegram: string
-    }
+  coin: {
+    id: bigint
+    name: string
+    symbol: string
+    contractAddress: { toString: () => string }
+    imageUrl?: string
+    createdAt: { toString: () => string }
+    supply: { toString: () => string }
+    decimals: bigint | number
+    graduated: boolean
+    creator: { toString: () => string }
+    description: string
+    twitter: string
+    website: string
+    telegram: string
   }
+}
 const CoinImageComponent: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
-    const createdTimestamp = new Date(coin.createdAt + 'Z').getTime()
-    const relativeTime = formatRelativeTime(createdTimestamp)
-  
-    return(<>
-       <Box
+  const createdTimestamp = new Date(coin.createdAt + 'Z').getTime()
+  const relativeTime = formatRelativeTime(createdTimestamp)
+
+  return (
+    <>
+      <Box
         sx={{
           display: 'flex',
           justifyContent: 'center',
@@ -129,7 +130,6 @@ const CoinImageComponent: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
           </div>
         </div>
       </Box>
-
     </>
   )
 }

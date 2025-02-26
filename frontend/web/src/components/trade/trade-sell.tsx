@@ -4,7 +4,11 @@ import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
 
-export const Sell: React.FC<TransactionGraduatedProps> = ({ coin, buyError, handleBuy }) => {
+export const Sell: React.FC<TransactionGraduatedProps> = ({
+  coin,
+  buyError,
+  handleBuy,
+}) => {
   const [sellAmount, setSellAmount] = useState('')
 
   // Dummy conversion rate: 1 ETH = 1000 Coin X
@@ -16,7 +20,6 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin, buyError, hand
       ? 0
       : inputValue / conversionRate
   }, [sellAmount, conversionRate])
-
 
   useEffect(() => {
     setSellAmount('')
