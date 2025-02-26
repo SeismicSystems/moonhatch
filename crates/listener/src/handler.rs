@@ -386,6 +386,14 @@ impl LogHandler {
     /// flush all of the candles we created for N=2 blocks ago
     pub async fn new_block(&mut self, block: Block) -> Result<bool, PumpError> {
         if let Some(confirmed_block) = block.number.checked_sub(CONFIRMATIONS) {
+            // if we have no timestamp for the block, request it from the RPC and then flush the block
+            if self.block_timestamps.get(&confirmed_block).is_none() {
+                let header = self.client.get_block_header(confirmed_block).await?;
+                let confirmed_block =
+                    Block { number: confirmed_block, timestamp: header.timestamp as i64 };
+                self.flush_block(confirmed_block).await?;
+            }
+
             let (confirmed, block_prices) =
                 self.prices.remove(&confirmed_block).unwrap_or_default();
             for (pool, prices) in block_prices {

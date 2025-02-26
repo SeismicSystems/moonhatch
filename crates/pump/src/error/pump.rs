@@ -36,6 +36,8 @@ pub enum PumpError {
     InvalidAddress,
     #[error("Failed to read file at {0:?}")]
     FailedToReadFile(String),
+    #[error("No block with number: {0:?}")]
+    NoBlockWithNumber(u64),
 }
 
 impl From<ListenerError> for PumpError {
@@ -98,6 +100,7 @@ impl Into<StatusCode> for PumpError {
             PumpError::TransportError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             PumpError::InvalidAddress => StatusCode::INTERNAL_SERVER_ERROR,
             PumpError::FailedToReadFile(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            PumpError::NoBlockWithNumber(_) => StatusCode::NOT_FOUND,
         }
     }
 }
