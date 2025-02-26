@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
-import { Box } from '@mui/material'
 import { Coin } from '@/types/coin'
 import { ModalBox } from '@/components/trade/modal-box'
+import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 
 interface TransactionNonGraduatedProps {
   coin: Pick<Coin, 'id' | 'name'>
@@ -34,23 +34,8 @@ export default function TransactionNonGraduated({
   }, [buyAmount, conversionRate])
 
   return (
-    <Box
-      sx={{
-        width: { xs: '300px', sm: '450px' },
-        mx: 'auto',
-        paddingBottom: { xs: 2, sm: 2, md: 0, lg: 2, xl: 2 },
-        marginBottom: { xs: 2, sm: 2, md: 0, lg: 2, xl: 2 },
-      }}
-    >
-      <Box
-        style={{
-          height: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '16px',
-        }}
-      >
+    <TradeOuterBox>
+      <TradeInnerBox sx={{ height: 'auto', gap: '16px' }}>
         <input
           type="text"
           value={buyAmount}
@@ -82,7 +67,7 @@ export default function TransactionNonGraduated({
         >
           {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
         </button>
-      </Box>
+      </TradeInnerBox>
       <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
         <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
         <p>{modalMessage}</p>
@@ -101,6 +86,6 @@ export default function TransactionNonGraduated({
           OK
         </button>
       </ModalBox>
-    </Box>
+    </TradeOuterBox>
   )
 }

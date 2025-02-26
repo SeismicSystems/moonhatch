@@ -1,15 +1,7 @@
 import React from 'react'
 
-
 import CoinImageComponent from './coin-image-component'
 import CoinDescriptionContainer from './coin-desc-container'
-
-
-
-import { Box } from '@mui/material'
-import CoinImageComponent from './coin-image-component'
-import CoinDescriptionContainer from './coin-desc-container'
-
 
 export const FALLBACK_COIN_IMAGE_URL =
   'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
@@ -37,10 +29,8 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
 
   return (
     <>
-
-    <CoinImageComponent coin={coin}  />
-
-    <CoinDescriptionContainer coin={coin} />  
+      <CoinImageComponent coin={coin} />
+      <CoinDescriptionContainer coin={coin} />
     </>
   )
 }
