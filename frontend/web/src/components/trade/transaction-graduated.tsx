@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Box, Button, TextField } from '@mui/material'
-import { Coin } from '@/types/coin'
+import { Box, Button } from '@mui/material'
+
+import type { Coin } from '@/types/coin'
 import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
-import { GraduatedAmountInput } from './amount-input'
+import { GraduatedAmountInput } from '@/components/trade/amount-input'
+import { GraduatedTradeButton } from '@/components/trade/trade-button'
 
 interface TransactionGraduatedProps {
   coin: Pick<Coin, 'id' | 'graduated' | 'name'>
@@ -37,30 +39,17 @@ const Buy: React.FC<TransactionGraduatedProps> = ({ coin, buyAmount, setBuyAmoun
         placeholder='SET ETH AMOUNT'
       />
       {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
-      <Button
-        fullWidth
+      <GraduatedTradeButton
+        onClick={() => handleBuy(buyAmount, 'buy')}
         sx={{
-          height: { xs: '60px', sm: '70px', md: '80px', lg: '90px' },
           padding: { xs: '50px', sm: '50px', md: '50px', lg: '50px' },
-          backgroundColor: 'green',
-
-          fontFamily: 'inherit',
-
           color: 'var(--creamWhite)',
-          borderRadius: '4px',
-          fontSize: {
-            xs: '1rem',
-            sm: '1.1rem',
-            md: '1.2rem',
-            lg: '1.3rem',
-          },
-          textTransform: 'none',
+          backgroundColor: 'green',
           '&:hover': { backgroundColor: 'darkgreen' },
         }}
-        onClick={() => handleBuy(buyAmount, 'buy')}
       >
         {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
-      </Button>
+      </GraduatedTradeButton>
     </>
   )
 }
@@ -92,31 +81,18 @@ const Sell: React.FC<TransactionGraduatedProps> = ({ coin, buyError, handleBuy }
         placeholder={`ENTER ${coin.name.toUpperCase()} AMOUNT`}
       />
       {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
-      <Button
-        fullWidth
+      <GraduatedTradeButton
+        onClick={() => handleBuy(sellAmount, 'sell')}
         sx={{
-          fontFamily: 'inherit',
-          height: { xs: '60px', sm: '70px', md: '80px', lg: '90px' },
-
           padding: { xs: '8px', sm: '10px', md: '12px', lg: '14px' },
-          backgroundColor: 'red',
           color: 'white',
-          borderRadius: '4px',
-          fontSize: {
-            xs: '1rem',
-            sm: '1.1rem',
-            md: '1.2rem',
-            lg: '1.3rem',
-          },
-          textTransform: 'none',
+          backgroundColor: 'red',
           '&:hover': { backgroundColor: 'darkred' },
         }}
-        onClick={() => handleBuy(sellAmount, 'sell')}
       >
         {`CONFIRM SELL FOR ${estimatedSell} ETH`}
-      </Button>
+      </GraduatedTradeButton>
     </>
-
   )
 }
 
