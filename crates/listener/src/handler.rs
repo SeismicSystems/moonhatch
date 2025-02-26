@@ -361,26 +361,30 @@ impl LogHandler {
         Ok(())
     }
 
-    async fn flush_block(&mut self, block: Block) -> Result<(), PumpError> {
+    async fn flush_block(&mut self, block: Block) -> Result<bool, PumpError> {
         self.block_timestamps.insert(block.number, block.timestamp);
-        let pending_logs = self.pending_logs.remove(&block.number).unwrap_or_default();
+        let pending_logs = match self.pending_logs.remove(&block.number) {
+            Some(pending_logs) => pending_logs,
+            None => return Ok(false),
+        };
+        let mut restart = false;
         for log in pending_logs.wei_in_updates {
-            self.handle_wei_in_updated(log).await?;
+            restart |= self.handle_wei_in_updated(log).await?;
         }
         for log in pending_logs.deployed_to_dexs {
-            self.handle_deploy(log).await?;
+            restart |= self.handle_deploy(log).await?;
         }
         for log in pending_logs.syncs {
-            self.handle_sync(log).await?;
+            restart |= self.handle_sync(log).await?;
         }
         for log in pending_logs.swaps {
-            self.handle_swap(log).await?;
+            restart |= self.handle_swap(log).await?;
         }
-        Ok(())
+        Ok(restart)
     }
 
     /// flush all of the candles we created for N=2 blocks ago
-    pub async fn new_block(&mut self, block: Block) -> Result<(), PumpError> {
+    pub async fn new_block(&mut self, block: Block) -> Result<bool, PumpError> {
         if let Some(confirmed_block) = block.number.checked_sub(CONFIRMATIONS) {
             let (confirmed, block_prices) =
                 self.prices.remove(&confirmed_block).unwrap_or_default();
@@ -389,8 +393,7 @@ impl LogHandler {
                 self.flush_candle(pool, prices, confirmed).await?;
             }
         }
-        self.flush_block(block).await?;
-        Ok(())
+        Ok(self.flush_block(block).await?)
     }
 
     pub fn conn(&self) -> Result<PgConn, PumpError> {
