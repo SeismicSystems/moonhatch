@@ -6,18 +6,16 @@ import { hexToNumber } from 'viem'
 
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import { usePumpClient } from '@/hooks/usePumpClient'
+import { useToastNotifications } from '@/hooks/useToastNotifications'
 import { CoinFormData } from '@/types/coin'
 import ImageUpload from '@components/create/image-upload'
-import Alert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
 
 const CoinForm: React.FC = () => {
   const navigate = useNavigate()
   const { createCoin } = usePumpClient()
   const { postCreatedCoin, verifyCoin, uploadImage } = useFetchCoin()
   const { publicClient } = useShieldedWallet()
-
-  const [successOpen, setSuccessOpen] = useState(false)
+  const { notifySuccess, notifyError } = useToastNotifications()
   const [showMore, setShowMore] = useState(false)
 
   const {
@@ -50,6 +48,7 @@ const CoinForm: React.FC = () => {
     })
 
     if (!hash) {
+      notifyError('Failed to broadcast transaction')
       console.error('Failed to broadcast transaction')
       return
     }
@@ -71,6 +70,7 @@ const CoinForm: React.FC = () => {
     })
 
     if (!backendResponse.ok) {
+      notifyError('Failed to broadcast transaction')
       console.error('Failed to save coin to backend')
       return
     }
@@ -81,7 +81,7 @@ const CoinForm: React.FC = () => {
       .then(() => console.log(`Verified coin ${coinId}`))
       .catch((e) => console.error(`Failed verifying coin ${coinId}: ${e}`))
 
-    setSuccessOpen(true)
+    notifySuccess('Coin created successfully')
     setTimeout(() => {
       navigate(`/coins/${coinId}`)
     }, 2000)
@@ -200,22 +200,7 @@ const CoinForm: React.FC = () => {
           CREATE COIN
         </button>
       </form>
-
-      <Snackbar
-        open={successOpen}
-        autoHideDuration={2000}
-        onClose={() => setSuccessOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={() => setSuccessOpen(false)}
-          severity="success"
-          sx={{ width: '100%' }}
-        >
-          Coin created successfully!
-        </Alert>
-      </Snackbar>
-    </div>
+    </div >
   )
 }
 

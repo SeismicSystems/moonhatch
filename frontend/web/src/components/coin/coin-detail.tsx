@@ -14,9 +14,8 @@ import { Box, Typography } from '@mui/material'
 
 const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
+  // @ts-ignore
   const [buyError, setBuyError] = useState<string | null>(null)
-  const [modalOpen, setModalOpen] = useState<boolean>(false)
-  const [modalMessage, setModalMessage] = useState<string>('')
 
   const [buyAmount, setBuyAmount] = useState<string>('')
 
@@ -30,12 +29,9 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
     coin,
     buyAmount,
     setBuyAmount,
-    setBuyError,
     setWeiIn,
     sellAmount: '', // pass sell state if needed
-    setSellAmount: () => {},
-    setSellError: () => {},
-    setModalMessage,
+    setSellAmount: () => { },
   })
 
   useEffect(() => {
@@ -92,9 +88,6 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
             setBuyAmount={setBuyAmount}
             buyError={buyError}
             handleBuy={handleBuy}
-            modalOpen={modalOpen}
-            modalMessage={modalMessage}
-            setModalOpen={setModalOpen}
           />
           {(coin.twitter || coin.telegram || coin.website) && (
             <div className="coin-socials-container -mt-12 lg:mt-20 -mb-4">

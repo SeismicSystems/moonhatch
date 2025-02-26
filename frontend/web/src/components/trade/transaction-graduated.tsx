@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
 
-import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 import { Buy } from '@/components/trade/trade-buy'
 import { Sell } from '@/components/trade/trade-sell'
 import type { Coin } from '@/types/coin'
 import { Side } from '@/types/trade'
-import { Box, Button, SxProps } from '@mui/material'
+import { Box, SxProps } from '@mui/material'
 
 export type TransactionGraduatedProps = {
   coin: Pick<Coin, 'id' | 'graduated' | 'name'>
@@ -14,9 +13,6 @@ export type TransactionGraduatedProps = {
   setBuyAmount: (value: string) => void
   buyError: string | null
   handleBuy: (amount: string, tradeType: 'buy' | 'sell') => void
-  modalOpen: boolean
-  modalMessage: string
-  setModalOpen: (open: boolean) => void
 }
 
 const toggleContainerSx: SxProps = {
@@ -60,7 +56,6 @@ const sellToggleButtonSx = (activeSide: Side) =>
 export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (
   props
 ) => {
-  const { modalOpen, modalMessage, setModalOpen } = props
   const [side, setSide] = useState<Side>(Side.BUY)
 
   return (
@@ -87,26 +82,6 @@ export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (
         {/* Trade Input and Confirm Button */}
         {side === Side.BUY ? <Buy {...props} /> : <Sell {...props} />}
       </TradeInnerBox>
-
-      <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
-        <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
-        <p>{modalMessage}</p>
-        <Button
-          sx={{
-            fontFamily: 'inherit',
-            backgroundColor: 'blue',
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '4px',
-            mt: 2,
-            textTransform: 'none',
-            '&:hover': { backgroundColor: 'darkblue' },
-          }}
-          onClick={() => setModalOpen(false)}
-        >
-          OK
-        </Button>
-      </ModalBox>
     </TradeOuterBox>
   )
 }
