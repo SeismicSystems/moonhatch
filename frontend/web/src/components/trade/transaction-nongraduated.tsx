@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 
-import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 import { Coin } from '@/types/coin'
 

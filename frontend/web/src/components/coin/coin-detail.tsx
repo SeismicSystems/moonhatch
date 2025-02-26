@@ -14,6 +14,7 @@ import { Box, Typography } from '@mui/material'
 
 const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
+  // @ts-ignore
   const [buyError, setBuyError] = useState<string | null>(null)
 
   const [buyAmount, setBuyAmount] = useState<string>('')
@@ -30,7 +31,7 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
     setBuyAmount,
     setWeiIn,
     sellAmount: '', // pass sell state if needed
-    setSellAmount: () => {},
+    setSellAmount: () => { },
   })
 
   useEffect(() => {

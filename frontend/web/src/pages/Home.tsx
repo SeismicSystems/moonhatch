@@ -31,7 +31,7 @@ const Home: React.FC = () => {
       </div>
       <div className="mb-2">
         <HomeHeader
-          coins={coins.map((coin) => ({ ...coin, id: coin.id.toString() }))}
+          coins={coins}
         />
       </div>
       <div className="search-and-filter mb-2">
