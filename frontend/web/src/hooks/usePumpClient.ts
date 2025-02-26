@@ -1,9 +1,9 @@
-import { useState } from 'react'
 import { useShieldedWallet } from 'seismic-react'
 import {
   ShieldedContract,
   ShieldedPublicClient,
   ShieldedWalletClient,
+  getExplorerUrl,
   getShieldedContract,
 } from 'seismic-viem'
 import type { Hex, TransactionReceipt } from 'viem'
@@ -49,7 +49,6 @@ export const usePumpClient = () => {
   const { contract: pumpContract } = usePumpContract()
   const { contract: dexContract } = useDexContract()
   const { address: wethAddress } = useWethContract()
-  const [error, setError] = useState<string | null>(null)
 
   const getDeadline = (deadlineMs: number) => {
     return Math.floor((Date.now() + deadlineMs) / 1000)
@@ -57,7 +56,6 @@ export const usePumpClient = () => {
 
   const getWeiIn = async (coinId: bigint): Promise<bigint> => {
     if (!pumpContract) {
-      setError('Pump contract not found')
       throw new Error('Pump contract not found')
     }
     const weiIn = (await pumpContract.read.getWeiIn([coinId])) as bigint
@@ -66,7 +64,6 @@ export const usePumpClient = () => {
 
   const wallet = (): ShieldedWalletClient => {
     if (!walletClient) {
-      setError('Wallet client not found')
       throw new Error('Wallet client not found')
     }
     return walletClient
@@ -74,7 +71,6 @@ export const usePumpClient = () => {
 
   const pubClient = (): ShieldedPublicClient => {
     if (!publicClient) {
-      setError('Public client not found')
       throw new Error('Public client not found')
     }
     return publicClient
@@ -82,7 +78,6 @@ export const usePumpClient = () => {
 
   const dex = (): ShieldedContract => {
     if (!dexContract) {
-      setError('DEX contract not found')
       throw new Error('DEX contract not found')
     }
     return dexContract
@@ -90,7 +85,6 @@ export const usePumpClient = () => {
 
   const pump = (): ShieldedContract => {
     if (!pumpContract) {
-      setError('Pump contract not found')
       throw new Error('Pump contract not found')
     }
     return pumpContract
@@ -245,6 +239,27 @@ export const usePumpClient = () => {
     return amount
   }
 
+  const waitForTransaction = async (hash: Hex) => {
+    return await pubClient().waitForTransactionReceipt({ hash })
+  }
+
+  const approveAndSell = async ({ token, amountIn, ...params }: TradeParams): Promise<Hex> => {
+    const allowance = await allowanceDex(token)
+    if (allowance < amountIn) {
+      const amount = amountIn - allowance
+      const approvalReceipt = await approveSale({ token, amount })
+      if (approvalReceipt) {
+        console.log(`Approved tx: ${approvalReceipt.transactionHash}`)
+      }
+    }
+    const sellTxHash = await sell({ token, amountIn, ...params })
+    return sellTxHash
+  }
+
+  const explorerUrl = (txHash: Hex): string | undefined => {
+    return getExplorerUrl({ publicClient: pubClient(), txHash })
+  }
+
   return {
     walletClient,
     publicClient,
@@ -266,6 +281,8 @@ export const usePumpClient = () => {
     approveSale,
     previewBuy,
     previewSell,
-    error,
+    approveAndSell,
+    waitForTransaction,
+    explorerUrl,
   }
 }

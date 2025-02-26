@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom'
 import LockIcon from '@mui/icons-material/Lock'
 import { Box, Typography } from '@mui/material'
 
-import { useCoinActions } from '@/hooks/useCoinActions'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
 import NavBar from '@/components/NavBar'
@@ -14,40 +13,6 @@ import TradeSection from '@/components/coin-detail/trade-section'
 import CoinSocials from '@/components/coin/coin-social'
 
 const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
-  const [weiIn, setWeiIn] = useState<bigint | null>(null)
-  const [buyError, setBuyError] = useState<string | null>(null)
-  const [modalOpen, setModalOpen] = useState<boolean>(false)
-  const [modalMessage, setModalMessage] = useState<string>('')
-
-  const [buyAmount, setBuyAmount] = useState<string>('')
-
-  const {
-    viewEthIn,
-    refreshWeiInForGraduated,
-    refreshWeiInForNonGraduated,
-    handleBuy,
-    loadingEthIn,
-  } = useCoinActions({
-    coin,
-    buyAmount,
-    setBuyAmount,
-    setBuyError,
-    setWeiIn,
-    sellAmount: '', // pass sell state if needed
-    setSellAmount: () => { },
-    setSellError: () => { },
-    setModalMessage,
-  })
-
-  useEffect(() => {
-    const cachedWei = localStorage.getItem(`weiIn_coin_${coin.id}`)
-    if (cachedWei) setWeiIn(BigInt(cachedWei))
-  }, [coin.id])
-
-  const refreshWeiIn = coin.graduated
-    ? refreshWeiInForGraduated
-    : refreshWeiInForNonGraduated
-
   return (
     <>
       <div className="">
@@ -83,20 +48,7 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
               website: coin.website || '',
             }}
           />
-          <TradeSection
-            coin={{ ...coin, id: coin.id }}
-            weiIn={weiIn}
-            loadingEthIn={loadingEthIn}
-            viewEthIn={viewEthIn}
-            refreshWeiIn={refreshWeiIn}
-            buyAmount={buyAmount}
-            setBuyAmount={setBuyAmount}
-            buyError={buyError}
-            handleBuy={handleBuy}
-            modalOpen={modalOpen}
-            modalMessage={modalMessage}
-            setModalOpen={setModalOpen}
-          />
+          <TradeSection coin={coin} />
           {(coin.twitter || coin.telegram || coin.website) && (
             <div className="coin-socials-container -mt-12 lg:mt-20 -mb-4">
               <CoinSocials
@@ -152,7 +104,7 @@ const CoinDetail: React.FC = () => {
 
   useEffect(() => {
     if (!loaded || !coinId) return
-
+    // TODO: fetch from store
     // Fetch coin data once without an interval
     fetchCoin(BigInt(coinId))
       .then((foundCoin) => setCoin(foundCoin || null))

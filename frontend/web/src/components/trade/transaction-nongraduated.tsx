@@ -1,16 +1,15 @@
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { Coin } from '@/types/coin'
 import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 import { NonGraduatedAmountInput } from './amount-input'
 import { NonGraduatedTradeButton } from './trade-button'
+import { formatEther, parseEther } from 'viem'
+import { WeiIn } from '@/components/trade/wei-in'
+import { usePumpClient } from '@/hooks/usePumpClient'
 
-interface TransactionNonGraduatedProps {
-  coin: Pick<Coin, 'id' | 'name'>
-  buyAmount: string
-  setBuyAmount: (value: string) => void
-  buyError: string | null
-  handleBuy: (amount: string, tradeType: 'buy') => void
+type TransactionNonGraduatedProps = {
+  coin: Coin,
   modalOpen: boolean
   modalMessage: string
   setModalOpen: (open: boolean) => void
@@ -18,51 +17,77 @@ interface TransactionNonGraduatedProps {
 
 export default function TransactionNonGraduated({
   coin,
-  buyAmount,
-  setBuyAmount,
-  buyError,
-  handleBuy,
   modalOpen,
   modalMessage,
   setModalOpen,
 }: TransactionNonGraduatedProps) {
-  const conversionRate = 1000
 
-  const estimatedBuy = useMemo(() => {
-    const inputValue = parseFloat(buyAmount)
-    return isNaN(inputValue) || inputValue <= 0
-      ? 0
-      : inputValue * conversionRate
-  }, [buyAmount, conversionRate])
+  const [buyError, setBuyError] = useState<string | null>(null)
+  const [buyInputEth, setBuyInputEth] = useState<string>('')
+  const [buyAmountWei, setBuyAmountWei] = useState<bigint | null>(null)
+  const { buyPreGraduation } = usePumpClient()
+
+  useEffect(() => {
+    if (buyInputEth === '') {
+      setBuyAmountWei(null)
+      return
+    }
+    try {
+      const inputValueWei = parseEther(buyInputEth)
+      setBuyAmountWei(inputValueWei)
+    } catch (error) {
+      setBuyAmountWei(null)
+    }
+  }, [buyInputEth])
+
+  const buy = () => {
+    if (!buyAmountWei) {
+      setBuyError('Invalid amount')
+      return
+    }
+    buyPreGraduation(coin.id, buyAmountWei).then((hash) => {
+      console.log(`Send tx to chain: ${hash}`)
+    }).catch((e) => {
+      setBuyError(`Buy failed: ${e}`)
+    })
+  }
 
   return (
-    <TradeOuterBox>
-      <TradeInnerBox sx={{ height: 'auto', gap: '16px' }}>
-        <NonGraduatedAmountInput amount={buyAmount} setAmount={setBuyAmount} placeholder="ENTER ETH AMOUNT" />
-        {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
-        <NonGraduatedTradeButton
-          onClick={() => handleBuy(buyAmount, 'buy')}>
-          {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
-        </NonGraduatedTradeButton>
-      </TradeInnerBox>
-      <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
-        <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
-        <p>{modalMessage}</p>
-        <button
-          style={{
-            backgroundColor: 'blue',
-            color: 'white',
-            padding: '8px 16px',
-            border: 'none',
-            borderRadius: '4px',
-            marginTop: '16px',
-            cursor: 'pointer',
-          }}
-          onClick={() => setModalOpen(false)}
-        >
-          OK
-        </button>
-      </ModalBox>
-    </TradeOuterBox>
+    <>
+      <WeiIn coin={coin} />
+      <TradeOuterBox>
+        <TradeInnerBox sx={{ height: 'auto', gap: '16px' }}>
+          <NonGraduatedAmountInput amount={buyInputEth} setAmount={setBuyInputEth} placeholder="ENTER ETH AMOUNT" />
+          {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
+          <NonGraduatedTradeButton
+            onClick={buy}
+            disabled={!buyAmountWei}
+          >
+            {buyAmountWei
+              ? `BUY ${formatEther(buyAmountWei)} ETH worth of ${coin.name.toUpperCase()}`
+              : 'Enter a valid amount'}
+          </NonGraduatedTradeButton>
+        </TradeInnerBox>
+        <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
+          <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
+          <p>{modalMessage}</p>
+          <button
+            style={{
+              backgroundColor: 'blue',
+              color: 'white',
+              padding: '8px 16px',
+              border: 'none',
+              borderRadius: '4px',
+              marginTop: '16px',
+              cursor: 'pointer',
+            }}
+            onClick={() => setModalOpen(false)}
+          >
+            OK
+          </button>
+        </ModalBox>
+      </TradeOuterBox>
+    </>
+
   )
 }

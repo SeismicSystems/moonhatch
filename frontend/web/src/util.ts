@@ -32,3 +32,17 @@ export const formatRelativeTime = (timestamp: number): string => {
   }
   return remainingHours > 0 ? `${days}d${remainingHours}h ` : `${days}d `
 }
+
+export const parseBigInt = (amt: string | null): bigint | null => {
+  if (amt === null) {
+    return null
+  }
+  try {
+    return BigInt(amt)
+  } catch {
+    return null
+  }
+}
+
+/** Convert from indivisible units to display units */
+export const displayTokenAmount = (units: bigint, decimals: bigint | number): bigint => units / (10n ** BigInt(decimals))

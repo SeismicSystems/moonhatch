@@ -7,13 +7,10 @@ import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 import { Buy } from '@/components/trade/trade-buy'
 import { Sell } from '@/components/trade/trade-sell'
 import { Side } from '@/types/trade'
+import { useSwipeable } from 'react-swipeable'
 
 export type TransactionGraduatedProps = {
-  coin: Pick<Coin, 'id' | 'graduated' | 'name'>
-  buyAmount: string
-  setBuyAmount: (value: string) => void
-  buyError: string | null
-  handleBuy: (amount: string, tradeType: 'buy' | 'sell') => void
+  coin: Coin,
   modalOpen: boolean
   modalMessage: string
   setModalOpen: (open: boolean) => void
@@ -57,8 +54,18 @@ export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (props)
   } = props
   const [side, setSide] = useState<Side>(Side.BUY)
 
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      setSide(Side.SELL)
+    },
+    onSwipedRight: () => {
+      setSide(Side.BUY)
+    },
+    trackMouse: true,
+  })
+
   return (
-    <TradeOuterBox>
+    <TradeOuterBox {...swipeHandlers}>
       <TradeInnerBox sx={{ gap: '24px' }}>
         {/* Custom Toggle */}
         <Box sx={toggleContainerSx}>

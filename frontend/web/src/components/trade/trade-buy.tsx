@@ -1,32 +1,82 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
+import { displayTokenAmount, parseBigInt } from '@/util'
+import { usePumpClient } from '@/hooks/usePumpClient'
 
-export const Buy: React.FC<TransactionGraduatedProps> = ({ coin, buyAmount, setBuyAmount, buyError, handleBuy }) => {
+export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
+  const [error, setError] = useState('')
 
-  // Dummy conversion rate: 1 ETH = 1000 Coin X
-  const conversionRate = 1000
+  const [isPreviewing, setIsPreviewing] = useState(false)
+  const [isBuying, setIsBuying] = useState(false)
 
-  const estimatedBuy = useMemo(() => {
-    const inputValue = parseFloat(buyAmount)
-    return isNaN(inputValue) || inputValue <= 0
-      ? 0
-      : inputValue * conversionRate
-  }, [buyAmount, conversionRate])
+  const [previewUnitsOut, setPreviewUnitsOut] = useState<bigint | null>(null)
 
+  const [weiInput, setWeiInput] = useState('')
+  const [weiIn, setWeiIn] = useState<bigint | null>(null)
+
+  const { previewBuy, buyPostGraduation, explorerUrl } = usePumpClient()
+
+  const previewAmountOut = async () => {
+    if (!weiIn) {
+      return
+    }
+    const previewOut = await previewBuy({ token: coin.contractAddress, amountIn: weiIn })
+    setPreviewUnitsOut(previewOut)
+  }
+
+  const buyCoin = () => {
+    if (!weiIn) {
+      setError('Invalid amount')
+      return
+    }
+    if (isBuying) {
+      setError('Already selling')
+      return
+    }
+    setIsBuying(true)
+
+    buyPostGraduation({ token: coin.contractAddress, amountIn: weiIn })
+      .then((buyTxHash) => {
+        // TODO: toast with link to explorer url
+        const url = explorerUrl(buyTxHash)
+        console.log(`Sent buy tx: ${buyTxHash}. ${url}`)
+      })
+      .catch((e) => { setError(e) })
+      .finally(() => {
+        setIsBuying(false)
+      })
+  }
+
+  useEffect(() => {
+    setWeiIn(parseBigInt(weiInput))
+  }, [weiInput])
+
+  useEffect(() => {
+    if (isPreviewing) {
+      return
+    }
+    setIsPreviewing(true)
+
+    previewAmountOut()
+      .then()
+      .catch(e => { setError(`Failed to simulate sale: ${e}`) })
+      .finally(() => { setIsPreviewing(false) })
+  }, [weiIn])
 
   return (
     <>
       <GraduatedAmountInput
-        amount={buyAmount}
-        setAmount={setBuyAmount}
+        amount={weiInput}
+        setAmount={setWeiInput}
         placeholder='SET ETH AMOUNT'
       />
-      {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <GraduatedTradeButton
-        onClick={() => handleBuy(buyAmount, 'buy')}
+        onClick={buyCoin}
+        disabled={weiIn !== null}
         sx={{
           padding: { xs: '50px', sm: '50px', md: '50px', lg: '50px' },
           color: 'var(--creamWhite)',
@@ -34,7 +84,9 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin, buyAmount, setB
           '&:hover': { backgroundColor: 'darkgreen' },
         }}
       >
-        {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
+        {previewUnitsOut
+          ? `CONFIRM BUY FOR ${displayTokenAmount(previewUnitsOut, coin.decimals)} ${coin.name.toUpperCase()}`
+          : 'Loading estimated price ...'}
       </GraduatedTradeButton>
     </>
   )

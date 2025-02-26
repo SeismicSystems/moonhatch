@@ -1,37 +1,83 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { formatEther } from 'viem'
 
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
+import { usePumpClient } from '@/hooks/usePumpClient'
+import { parseBigInt } from '@/util'
 
-export const Sell: React.FC<TransactionGraduatedProps> = ({ coin, buyError, handleBuy }) => {
-  const [sellAmount, setSellAmount] = useState('')
+export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
+  const [error, setError] = useState('')
 
-  // Dummy conversion rate: 1 ETH = 1000 Coin X
-  const conversionRate = 1000
+  const [isPreviewing, setIsPreviewing] = useState(false)
+  const [isSelling, setIsSelling] = useState(false)
 
-  const estimatedSell = useMemo(() => {
-    const inputValue = parseFloat(sellAmount)
-    return isNaN(inputValue) || inputValue <= 0
-      ? 0
-      : inputValue / conversionRate
-  }, [sellAmount, conversionRate])
+  const [previewWeiOut, setPreviewWeiOut] = useState<bigint | null>(null)
 
+  const [amountInput, setAmountInput] = useState('')
+  const [amountIn, setAmountIn] = useState<bigint | null>(null)
+
+  const { previewSell, approveAndSell, explorerUrl } = usePumpClient()
+
+  const previewAmountOut = async () => {
+    if (!amountIn) {
+      return
+    }
+    const previewOut = await previewSell({ token: coin.contractAddress, amountIn })
+    setPreviewWeiOut(previewOut)
+  }
+
+  const sellCoin = () => {
+    if (!amountIn) {
+      setError('Invalid amount')
+      return
+    }
+    if (isSelling) {
+      setError('Already selling')
+      return
+    }
+    setIsSelling(true)
+
+    approveAndSell({ token: coin.contractAddress, amountIn })
+      .then((sellTxHash) => {
+        // TODO: toast with link to explorer url
+        const url = explorerUrl(sellTxHash)
+        console.log(`Sent sell tx: ${sellTxHash}. ${url}`)
+      })
+      .catch((e) => { setError(e) })
+      .finally(() => {
+        setIsSelling(false)
+      })
+  }
 
   useEffect(() => {
-    setSellAmount('')
-  }, [])
+    setAmountIn(parseBigInt(amountInput))
+  }, [amountInput])
+
+  useEffect(() => {
+    if (isPreviewing) {
+      return
+    }
+    setIsPreviewing(true)
+
+    previewAmountOut()
+      .then()
+      .catch(e => { setError(`Failed to simulate sale: ${e}`) })
+      .finally(() => { setIsPreviewing(false) })
+  }, [amountIn])
 
   return (
     <>
       <GraduatedAmountInput
-        amount={sellAmount}
-        setAmount={setSellAmount}
+        amount={amountInput}
+        setAmount={setAmountInput}
         placeholder={`ENTER ${coin.name.toUpperCase()} AMOUNT`}
       />
-      {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <GraduatedTradeButton
-        onClick={() => handleBuy(sellAmount, 'sell')}
+        onClick={sellCoin}
+        disabled={amountIn !== null}
         sx={{
           padding: { xs: '8px', sm: '10px', md: '12px', lg: '14px' },
           color: 'white',
@@ -39,7 +85,9 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin, buyError, hand
           '&:hover': { backgroundColor: 'darkred' },
         }}
       >
-        {`CONFIRM SELL FOR ${estimatedSell} ETH`}
+        {previewWeiOut
+          ? `CONFIRM SELL. ESTIMATED ETH: ${formatEther(previewWeiOut)} ETH`
+          : 'Loading estimated ...'}
       </GraduatedTradeButton>
     </>
   )
