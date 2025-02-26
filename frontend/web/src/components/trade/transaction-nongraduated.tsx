@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
-import { Box, Modal } from '@mui/material'
+import { Box } from '@mui/material'
 import { Coin } from '@/types/coin'
+import ModalBox from '@/components/trade/modal'
 
 interface TransactionNonGraduatedProps {
   coin: Pick<Coin, 'id' | 'name'>
@@ -82,34 +83,24 @@ export default function TransactionNonGraduated({
           {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
         </button>
       </Box>
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <Box
-          sx={{
-            p: 4,
-            bgcolor: 'white',
-            border: '1px solid',
-            borderRadius: 2,
-            textAlign: 'center',
+      <ModalBox modalOpen={modalOpen} modalMessage={modalMessage} setModalOpen={setModalOpen}>
+        <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
+        <p>{modalMessage}</p>
+        <button
+          style={{
+            backgroundColor: 'blue',
+            color: 'white',
+            padding: '8px 16px',
+            border: 'none',
+            borderRadius: '4px',
+            marginTop: '16px',
+            cursor: 'pointer',
           }}
+          onClick={() => setModalOpen(false)}
         >
-          <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
-          <p>{modalMessage}</p>
-          <button
-            style={{
-              backgroundColor: 'blue',
-              color: 'white',
-              padding: '8px 16px',
-              border: 'none',
-              borderRadius: '4px',
-              marginTop: '16px',
-              cursor: 'pointer',
-            }}
-            onClick={() => setModalOpen(false)}
-          >
-            OK
-          </button>
-        </Box>
-      </Modal>
+          OK
+        </button>
+      </ModalBox>
     </Box>
   )
 }
