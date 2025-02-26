@@ -8,13 +8,13 @@ import {
 } from 'seismic-viem'
 import type { Hex, TransactionReceipt } from 'viem'
 
-import type { CreateCoinParams } from '@/types/coin'
 import {
   COIN_CONTRACT_ABI,
   useDexContract,
   usePumpContract,
   useWethContract,
 } from '@/hooks/useContract'
+import type { CreateCoinParams } from '@/types/coin'
 
 const DEFAULT_DEADLINE_MS = 20 * 60 * 1000
 

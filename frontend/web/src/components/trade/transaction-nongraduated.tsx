@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
-import { Coin } from '@/types/coin'
+
 import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
+import { Coin } from '@/types/coin'
+
 import { NonGraduatedAmountInput } from './amount-input'
 import { NonGraduatedTradeButton } from './trade-button'
 
@@ -38,10 +40,13 @@ export default function TransactionNonGraduated({
   return (
     <TradeOuterBox>
       <TradeInnerBox sx={{ height: 'auto', gap: '16px' }}>
-        <NonGraduatedAmountInput amount={buyAmount} setAmount={setBuyAmount} placeholder="ENTER ETH AMOUNT" />
+        <NonGraduatedAmountInput
+          amount={buyAmount}
+          setAmount={setBuyAmount}
+          placeholder="ENTER ETH AMOUNT"
+        />
         {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
-        <NonGraduatedTradeButton
-          onClick={() => handleBuy(buyAmount, 'buy')}>
+        <NonGraduatedTradeButton onClick={() => handleBuy(buyAmount, 'buy')}>
           {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
         </NonGraduatedTradeButton>
       </TradeInnerBox>

@@ -121,7 +121,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
               objectFit: 'cover',
             }}
             onError={(e) => {
-              ; (e.target as HTMLImageElement).src = FALLBACK_COIN_IMAGE_URL
+              ;(e.target as HTMLImageElement).src = FALLBACK_COIN_IMAGE_URL
             }}
           />
         </Box>

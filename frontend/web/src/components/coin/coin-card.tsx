@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+
+import CoinSocials from '@/components/coin/coin-social'
+import { Coin } from '@/types/coin'
+import { formatRelativeTime } from '@/util'
 import LockIcon from '@mui/icons-material/Lock'
 import SchoolIcon from '@mui/icons-material/School'
 import { Box, Typography } from '@mui/material'
-
-import { formatRelativeTime } from '@/util'
-import { Coin } from '@/types/coin'
-import CoinSocials from '@/components/coin/coin-social'
 
 interface CoinCardProps {
   coin: Coin
 }
 
-export const FALLBACK_IMAGE_URL = 'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
+export const FALLBACK_IMAGE_URL =
+  'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   const navigate = useNavigate()
