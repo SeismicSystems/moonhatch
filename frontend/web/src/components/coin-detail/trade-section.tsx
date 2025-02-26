@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 import { useState } from 'react'
->>>>>>> 6e34906 (build and coin uppercase)
 import { useSwipeable } from 'react-swipeable'
 import { formatEther } from 'viem'
 

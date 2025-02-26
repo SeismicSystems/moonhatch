@@ -1,5 +1,5 @@
 {
-  "address": "0xe497bfd2170e6c7e25c70a0b5e31a7dbee63a91c",
+  "address": "0x71c95911e9a5d330f4d621842ec243ee1343292e",
   "methodIdentifiers": {
     "allPairs(uint256)": "1e3dd18b",
     "allPairsLength()": "574f2ba3",

@@ -1,151 +1,174 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useShieldedWallet } from 'seismic-react'
-import { hexToNumber } from 'viem'
-
-import { useFetchCoin } from '@/hooks/useFetchCoin'
-import { usePumpClient } from '@/hooks/usePumpClient'
-import { CoinFormData } from '@/types/coin'
-import ImageUpload from '@components/create/image-upload'
-import InputField from '@components/create/input-field'
-import TickerInput from '@components/create/ticker-input'
-import Alert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useShieldedWallet } from 'seismic-react';
+import { hexToNumber } from 'viem';
+import { useForm } from 'react-hook-form';
+import { useFetchCoin } from '@/hooks/useFetchCoin';
+import { usePumpClient } from '@/hooks/usePumpClient';
+import { CoinFormData } from '@/types/coin';
+import ImageUpload from '@components/create/image-upload';
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 
 const CoinForm: React.FC = () => {
-  const [formData, setFormData] = useState<CoinFormData>({
-    name: '',
-    symbol: '',
-    description: '',
-    image: null,
-    twitter: '',
-    telegram: '',
-    website: '',
-  })
+  const navigate = useNavigate();
+  const { createCoin } = usePumpClient();
+  const { postCreatedCoin, verifyCoin, uploadImage } = useFetchCoin();
+  const { publicClient } = useShieldedWallet();
 
-  const [showMore, setShowMore] = useState(false)
-  const navigate = useNavigate()
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
-  // State to control the success popup (Snackbar)
-  const [successOpen, setSuccessOpen] = useState(false)
+  // React Hook Form setup
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<CoinFormData>({
+    defaultValues: {
+      name: '',
+      symbol: '',
+      description: '',
+      image: null,
+      twitter: '',
+      telegram: '',
+      website: '',
+    },
+  });
 
-  const { createCoin } = usePumpClient()
-  const { postCreatedCoin, verifyCoin, uploadImage } = useFetchCoin()
-  const { publicClient } = useShieldedWallet()
+  const image = watch('image');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!publicClient) return
+  const onSubmit = async (formData: CoinFormData) => {
+    if (!publicClient) return;
 
     const hash = await createCoin({
       name: formData.name,
       symbol: formData.symbol,
       supply: 21_000_000_000_000_000_000_000n,
-    })
+    });
+
     if (!hash) {
-      console.error('failed to broadcast tx')
-      return
+      console.error('Failed to broadcast transaction');
+      return;
     }
 
-    const receipt = await publicClient.waitForTransactionReceipt({ hash })
-    const coinId = hexToNumber(receipt.logs[0].data)
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    const coinId = hexToNumber(receipt.logs[0].data);
 
-    console.info(`Created coinId=${coinId}`)
-    const imageUrl: string | null = await uploadImage(coinId, formData.image)
+    console.info(`Created coinId=${coinId}`);
+
+    // Upload image if provided
+    const imageUrl = formData.image ? await uploadImage(coinId, formData.image) : null;
+
+    // Prepare JSON body (as expected by `useFetchCoin`)
+    const requestBody = {
+      id: coinId,
+      name: formData.name,
+      symbol: formData.symbol,
+      supply: '21000000000000000000000', // BigDecimal as string
+      decimals: 18,
+      contractAddress: receipt.to,
+      creator: receipt.from,
+      graduated: false,
+      verified: false,
+      description: formData.description || null,
+      imageUrl,
+      twitter: formData.twitter || null,
+      website: formData.website || null,
+      telegram: formData.telegram || null,
+    };
+
+    console.log('📤 Sending JSON:', requestBody); // Debugging log
 
     const backendResponse = await postCreatedCoin({
       coinId,
       formData,
       receipt,
       imageUrl,
-    })
+    });
 
     if (!backendResponse.ok) {
-      console.error('Failed to save coin to backend')
-      return
+      console.error('Failed to save coin to backend');
+      return;
     }
 
-    console.log('Coin successfully saved in the database')
+    console.log('✅ Coin successfully saved in the database');
+
     verifyCoin(coinId)
       .then(() => console.log(`Verified coin ${coinId}`))
-      .catch((e) => console.error(`Failed verifying coin ${coinId}: ${e}`))
+      .catch((e) => console.error(`Failed verifying coin ${coinId}: ${e}`));
 
-    setSuccessOpen(true)
+    setSuccessOpen(true);
     setTimeout(() => {
-      navigate(`/coins/${coinId}`)
-    }, 2000)
-  }
-  console.log('Form Data:', formData)
+      navigate(`/coins/${coinId}`);
+    }, 2000);
+
+    console.log('Final Form Data:', formData);
+  };
 
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="mb-4">
-        <button
-          className="text-orange-300 hover:text-blue-300"
-          type="button"
-          onClick={() => navigate(-1)}
-        >
+        <button className="text-orange-300 hover:text-blue-300" type="button" onClick={() => navigate(-1)}>
           [GO BACK]
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 ">
-        <InputField
-          label="NAME"
-          value={formData.name}
-          onChange={(value) => setFormData({ ...formData, name: value })}
-        />
-
-        <TickerInput
-          value={formData.symbol}
-          onChange={(value) => setFormData({ ...formData, symbol: value })}
-        />
-
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Name Input */}
         <div className="mb-4">
-          <label className="block text-[var(--lightBlue)] mb-2 text-sm">
-            DESCRIPTION
-          </label>
+          <label className="block mb-2 text-sm text-[var(--lightBlue)]">NAME</label>
+          <input
+            {...register('name', { required: 'Name is required' })}
+            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-[var(--creamWhite)]"
+            placeholder="Enter name"
+          />
+          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+        </div>
+
+        {/* Symbol Input */}
+        <div className="mb-4">
+          <label className="block mb-2 text-sm text-[var(--lightBlue)]">SYMBOL</label>
+          <input
+            {...register('symbol', { required: 'Symbol is required' })}
+            className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-[var(--creamWhite)]"
+            placeholder="Enter symbol"
+          />
+          {errors.symbol && <p className="text-red-500 text-sm">{errors.symbol.message}</p>}
+        </div>
+
+        {/* Description Input */}
+        <div className="mb-4">
+          <label className="block text-[var(--lightBlue)] mb-2 text-sm">DESCRIPTION</label>
           <textarea
+            {...register('description')}
             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white h-32"
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
+            placeholder="Enter description"
           />
         </div>
 
-        <ImageUpload
-          onFileSelect={(file) => setFormData({ ...formData, image: file })}
-        />
+        {/* Image Upload */}
+        <ImageUpload onFileSelect={(file) => setValue('image', file)} />
+        {image && <p className="text-green-400">Image selected: {image.name}</p>}
 
-        <button
-          type="button"
-          className="text-orange-300 hover:text-blue-300"
-          onClick={() => setShowMore(!showMore)}
-        >
+        {/* Show More Fields */}
+        <button type="button" className="text-orange-300 hover:text-blue-300" onClick={() => setShowMore(!showMore)}>
           {showMore ? '↑ HIDE MORE OPTIONS ↑' : '↓ SHOW MORE OPTIONS ↓'}
         </button>
 
         {showMore && (
           <div className="space-y-4">
-            <h3 className=" text-[var(--lightBlue)] text-[10px]">
-              THESE FIELDS ARE OPTIONAL
-            </h3>
+            <h3 className="text-[var(--lightBlue)] text-[10px]">THESE FIELDS ARE OPTIONAL</h3>
 
             {/* Twitter Input */}
             <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
               <span className="text-gray-400 pr-2">x.com/</span>
               <input
-                type="text"
+                {...register('twitter')}
                 className="bg-transparent border-none outline-none w-full text-white"
                 placeholder="username"
-                value={formData.twitter}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    twitter: e.target.value.replace('x.com/', ''),
-                  })
-                }
               />
             </div>
 
@@ -153,71 +176,33 @@ const CoinForm: React.FC = () => {
             <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
               <span className="text-gray-400 pr-2">www.</span>
               <input
-                type="text"
+                {...register('website')}
                 className="bg-transparent border-none outline-none w-full text-white"
                 placeholder="example.com"
-                value={formData.website}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    website: e.target.value.replace('www.', ''),
-                  })
-                }
               />
             </div>
+
             {/* Telegram Input */}
             <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
               <span className="text-gray-400 pr-2">t.me/</span>
               <input
-                type="text"
+                {...register('telegram')}
                 className="bg-transparent border-none outline-none w-full text-white"
                 placeholder="handle"
-                value={formData.telegram}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    telegram: e.target.value.replace('t.me/', ''),
-                  })
-                }
               />
             </div>
           </div>
         )}
 
-        <p className="text-gray-400 text-sm">
-          COIN DATA CANNOT BE CHANGED AFTER CREATION{' '}
-        </p>
+        <p className="text-gray-400 text-sm">COIN DATA CANNOT BE CHANGED AFTER CREATION</p>
 
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white rounded py-3 hover:bg-blue-700"
-        >
+        {/* Submit Button */}
+        <button type="submit" className="w-full bg-green-600 text-white rounded py-3 hover:bg-blue-700">
           CREATE COIN
         </button>
-
-        <p className="text-gray-400 text-sm text-center">
-          WHEN YOUR COIN COMPLETES ITS BONDING CURVE, YOU RECEIVE 0.1 TESTNET
-          ETH.
-        </p>
       </form>
-
-      {/* Snackbar to show a success popup */}
-      <Snackbar
-        open={successOpen}
-        autoHideDuration={2000}
-        onClose={() => setSuccessOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={() => setSuccessOpen(false)}
-          severity="success"
-          sx={{ width: '100%' }}
-        >
-          Coin created successfully!
-        </Alert>
-      </Snackbar>
     </div>
-  )
-}
+  );
+};
 
-export default CoinForm
+export default CoinForm;
