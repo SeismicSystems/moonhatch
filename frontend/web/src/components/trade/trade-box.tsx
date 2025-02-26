@@ -1,4 +1,4 @@
-import { Box } from '@mui/material'
+import { Box, SxProps, Theme } from '@mui/material'
 import React from 'react'
 
 export const TradeOuterBox: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -17,17 +17,17 @@ export const TradeOuterBox: React.FC<React.PropsWithChildren> = ({ children }) =
 }
 
 type TradeInnerBoxProps = {
-  style?: React.CSSProperties
+  sx?: SxProps<Theme>
 }
 
-export const TradeInnerBox: React.FC<React.PropsWithChildren<TradeInnerBoxProps>> = ({ style = {}, children }) => {
+export const TradeInnerBox: React.FC<React.PropsWithChildren<TradeInnerBoxProps>> = ({ sx = {}, children }) => {
   return (
     <Box
-      style={{
+      sx={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        ...style,
+        ...sx,
       }}
     >
       {children}

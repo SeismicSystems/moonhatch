@@ -35,12 +35,7 @@ export default function TransactionNonGraduated({
 
   return (
     <TradeOuterBox>
-      <TradeInnerBox
-        style={{
-          height: 'auto',
-          gap: '16px',
-        }}
-      >
+      <TradeInnerBox sx={{ height: 'auto', gap: '16px' }}>
         <input
           type="text"
           value={buyAmount}
