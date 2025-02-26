@@ -1,7 +1,7 @@
 import React from 'react'
-import { Box } from '@mui/material'
 
 import SocialLink from '@/components/coin/social-link'
+import { Box } from '@mui/material'
 
 interface CoinSocialsProps {
   coin: {

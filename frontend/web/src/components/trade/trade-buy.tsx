@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import { formatUnits, parseEther } from 'viem'
 
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
-import { stringifyBigInt } from '@/util'
 import { usePumpClient } from '@/hooks/usePumpClient'
-import { formatUnits, parseEther } from 'viem'
+import { stringifyBigInt } from '@/util'
 
 export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [error, setError] = useState('')
@@ -27,12 +27,14 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
     console.log('previewing buy')
     console.log(`weiIn: ${weiIn}`)
     console.log(`coin.contractAddress: ${coin.contractAddress}`)
-    previewBuy({ token: coin.contractAddress, amountIn: weiIn }).then((out) => {
-      setPreviewUnitsOut(out)
-    }).catch((e) => {
-      console.log(`preview buy error: ${e}`)
-      setError(JSON.stringify(e, stringifyBigInt, 2))
-    })
+    previewBuy({ token: coin.contractAddress, amountIn: weiIn })
+      .then((out) => {
+        setPreviewUnitsOut(out)
+      })
+      .catch((e) => {
+        console.log(`preview buy error: ${e}`)
+        setError(JSON.stringify(e, stringifyBigInt, 2))
+      })
   }
 
   const buyCoin = () => {
@@ -55,7 +57,9 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           console.log(`Explorer url: ${url}`)
         }
       })
-      .catch((e) => { setError(e) })
+      .catch((e) => {
+        setError(e)
+      })
       .finally(() => {
         setIsBuying(false)
       })
@@ -78,8 +82,12 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
 
     previewAmountOut()
       .then()
-      .catch(e => { setError(`Failed to simulate sale: ${e}`) })
-      .finally(() => { setIsPreviewing(false) })
+      .catch((e) => {
+        setError(`Failed to simulate sale: ${e}`)
+      })
+      .finally(() => {
+        setIsPreviewing(false)
+      })
   }, [weiIn])
 
   return (
@@ -87,7 +95,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       <GraduatedAmountInput
         amount={ethInput}
         setAmount={setEthInput}
-        placeholder='SET ETH AMOUNT'
+        placeholder="SET ETH AMOUNT"
       />
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <GraduatedTradeButton

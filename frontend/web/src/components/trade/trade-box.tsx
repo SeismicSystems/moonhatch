@@ -1,7 +1,10 @@
-import { Box, SxProps, Theme } from '@mui/material'
 import React from 'react'
 
-export const TradeOuterBox: React.FC<React.PropsWithChildren> = ({ children }) => {
+import { Box, SxProps, Theme } from '@mui/material'
+
+export const TradeOuterBox: React.FC<React.PropsWithChildren> = ({
+  children,
+}) => {
   return (
     <Box
       sx={{
@@ -20,7 +23,9 @@ type TradeInnerBoxProps = {
   sx?: SxProps<Theme>
 }
 
-export const TradeInnerBox: React.FC<React.PropsWithChildren<TradeInnerBoxProps>> = ({ sx = {}, children }) => {
+export const TradeInnerBox: React.FC<
+  React.PropsWithChildren<TradeInnerBoxProps>
+> = ({ sx = {}, children }) => {
   return (
     <Box
       sx={{

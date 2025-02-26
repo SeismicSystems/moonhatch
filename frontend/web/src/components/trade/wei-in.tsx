@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 
+import { usePumpClient } from '@/hooks/usePumpClient'
+import { Coin } from '@/types/coin'
 import CachedIcon from '@mui/icons-material/Cached'
 import { Box, CircularProgress, IconButton, Typography } from '@mui/material'
-import { Coin } from '@/types/coin'
-import { usePumpClient } from '@/hooks/usePumpClient'
 
 type WeiInProps = { coin: Coin }
 
@@ -24,8 +24,12 @@ export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
       return
     }
     getWeiIn(coin.id)
-      .then((wei) => { setWeiIn(wei) })
-      .finally(() => { setLoading(false) })
+      .then((wei) => {
+        setWeiIn(wei)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }
 
   return (

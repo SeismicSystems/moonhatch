@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { Box, Modal } from '@mui/material'
 
-import { Coin } from '@/types/coin'
 import TransactionGraduated from '@/components/trade/transaction-graduated'
 import TransactionNonGraduated from '@/components/trade/transaction-nongraduated'
+import { Coin } from '@/types/coin'
+import { Box, Modal } from '@mui/material'
 
 type TradeSectionProps = {
   coin: Coin
@@ -59,4 +59,3 @@ export const TradeSection: React.FC<TradeSectionProps> = ({ coin }) => {
 }
 
 export default TradeSection
-

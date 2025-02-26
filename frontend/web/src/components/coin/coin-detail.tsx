@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import LockIcon from '@mui/icons-material/Lock'
-import { Box, Typography } from '@mui/material'
-
-import { useFetchCoin } from '@/hooks/useFetchCoin'
-import type { Coin } from '@/types/coin'
 import NavBar from '@/components/NavBar'
 import { Candles } from '@/components/chart/Candles'
 import CoinInfoDetails from '@/components/coin-detail/coin-info-details'
 import TradeSection from '@/components/coin-detail/trade-section'
 import CoinSocials from '@/components/coin/coin-social'
+import { useFetchCoin } from '@/hooks/useFetchCoin'
+import type { Coin } from '@/types/coin'
+import LockIcon from '@mui/icons-material/Lock'
+import { Box, Typography } from '@mui/material'
 
 const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
   return (

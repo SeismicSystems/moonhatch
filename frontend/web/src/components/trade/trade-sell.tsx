@@ -24,7 +24,10 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
     if (!amountIn) {
       return
     }
-    const previewOut = await previewSell({ token: coin.contractAddress, amountIn })
+    const previewOut = await previewSell({
+      token: coin.contractAddress,
+      amountIn,
+    })
     setPreviewWeiOut(previewOut)
   }
 
@@ -48,7 +51,9 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           console.log(`Explorer url: ${url}`)
         }
       })
-      .catch((e) => { setError(JSON.stringify(e, stringifyBigInt, 2)) })
+      .catch((e) => {
+        setError(JSON.stringify(e, stringifyBigInt, 2))
+      })
       .finally(() => {
         setIsSelling(false)
       })
@@ -71,8 +76,12 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
 
     previewAmountOut()
       .then()
-      .catch(e => { setError(`Failed to simulate sale: ${e}`) })
-      .finally(() => { setIsPreviewing(false) })
+      .catch((e) => {
+        setError(`Failed to simulate sale: ${e}`)
+      })
+      .finally(() => {
+        setIsPreviewing(false)
+      })
   }, [amountIn])
 
   return (

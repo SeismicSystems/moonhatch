@@ -2,6 +2,7 @@ import React from 'react'
 import { PropsWithChildren } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ShieldedWalletProvider, sanvil, seismicDevnet2 } from 'seismic-react'
+import { checkFaucet } from 'seismic-viem'
 import { http } from 'viem'
 import { Config, WagmiProvider } from 'wagmi'
 
@@ -12,15 +13,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './App.css'
 import CoinDetail from './components/coin/coin-detail'
 import CoinForm from './components/create/coin-form'
+import { CHAIN_ID } from './hooks/useContract'
 import Home from './pages/Home'
 import NotFound from './pages/NotFound'
-import { CHAIN_ID } from './hooks/useContract'
-import { checkFaucet } from 'seismic-viem'
 
 const FAUCET_URL = import.meta.env.VITE_FAUCET_URL
 
 const SUPPORTED_CHAINS = [sanvil, seismicDevnet2]
-const CHAINS = SUPPORTED_CHAINS.filter((c) => c.id === CHAIN_ID);
+const CHAINS = SUPPORTED_CHAINS.filter((c) => c.id === CHAIN_ID)
 
 const config = getDefaultConfig({
   appName: 'Pump Rand',
@@ -51,8 +51,13 @@ const Providers: React.FC<PropsWithChildren<{ config: Config }>> = ({
                 if (!FAUCET_URL) {
                   return
                 }
-                await checkFaucet({ address, publicClient, faucetUrl: FAUCET_URL, minBalanceEther: 0.5 })
-              }
+                await checkFaucet({
+                  address,
+                  publicClient,
+                  faucetUrl: FAUCET_URL,
+                  minBalanceEther: 0.5,
+                })
+              },
             }}
           >
             {children}

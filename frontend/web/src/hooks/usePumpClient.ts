@@ -8,13 +8,13 @@ import {
 } from 'seismic-viem'
 import type { Hex, TransactionReceipt } from 'viem'
 
-import type { CreateCoinParams } from '@/types/coin'
 import {
   COIN_CONTRACT_ABI,
   useDexContract,
   usePumpContract,
   useWethContract,
 } from '@/hooks/useContract'
+import type { CreateCoinParams } from '@/types/coin'
 
 const DEFAULT_DEADLINE_MS = 20 * 60 * 1000
 
@@ -141,7 +141,10 @@ export const usePumpClient = () => {
   }: AllowanceParams): Promise<bigint> => {
     const coinContract = getCoinContract(token)
     console.log('calling allowance...')
-    const allowance = (await coinContract.tread.allowance([walletAddress(), spender])) as bigint
+    const allowance = (await coinContract.tread.allowance([
+      walletAddress(),
+      spender,
+    ])) as bigint
     console.log('allowance:', allowance)
     return allowance
   }
@@ -229,7 +232,10 @@ export const usePumpClient = () => {
     amountIn,
   }: TradeParams): Promise<bigint> => {
     const path = [wethAddress, token]
-    const [_, amountOut] = (await dex().tread.getAmountsOut([amountIn, path])) as [bigint, bigint]
+    const [_, amountOut] = (await dex().tread.getAmountsOut([
+      amountIn,
+      path,
+    ])) as [bigint, bigint]
     return amountOut
   }
 
@@ -238,7 +244,10 @@ export const usePumpClient = () => {
     amountIn,
   }: TradeParams): Promise<bigint> => {
     const path = [token, wethAddress]
-    const [_, weiOut] = (await dex().tread.getAmountsOut([amountIn, path])) as [bigint, bigint]
+    const [_, weiOut] = (await dex().tread.getAmountsOut([amountIn, path])) as [
+      bigint,
+      bigint,
+    ]
     return weiOut
   }
 
@@ -246,7 +255,11 @@ export const usePumpClient = () => {
     return await pubClient().waitForTransactionReceipt({ hash })
   }
 
-  const approveAndSell = async ({ token, amountIn, ...params }: TradeParams): Promise<Hex> => {
+  const approveAndSell = async ({
+    token,
+    amountIn,
+    ...params
+  }: TradeParams): Promise<Hex> => {
     const allowance = await allowanceDex(token)
     if (allowance < amountIn) {
       const amount = amountIn - allowance

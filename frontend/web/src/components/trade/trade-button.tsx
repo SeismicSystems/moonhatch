@@ -1,4 +1,5 @@
 import React from 'react'
+
 import { Button, SxProps } from '@mui/material'
 
 type TradeButtonProps = {
@@ -7,7 +8,9 @@ type TradeButtonProps = {
   sx?: SxProps
 }
 
-export const NonGraduatedTradeButton: React.FC<React.PropsWithChildren<TradeButtonProps>> = ({ children, onClick, disabled }) => {
+export const NonGraduatedTradeButton: React.FC<
+  React.PropsWithChildren<TradeButtonProps>
+> = ({ children, onClick, disabled }) => {
   return (
     <button
       className="h-[10dvh] "
@@ -28,7 +31,9 @@ export const NonGraduatedTradeButton: React.FC<React.PropsWithChildren<TradeButt
   )
 }
 
-export const GraduatedTradeButton: React.FC<React.PropsWithChildren<TradeButtonProps>> = ({ children, onClick, disabled, sx = {} }) => {
+export const GraduatedTradeButton: React.FC<
+  React.PropsWithChildren<TradeButtonProps>
+> = ({ children, onClick, disabled, sx = {} }) => {
   return (
     <Button
       fullWidth
