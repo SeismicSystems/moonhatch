@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Box, Button, Modal, TextField } from '@mui/material'
+import { Box, Button, TextField } from '@mui/material'
 import { Coin } from '@/types/coin'
+import { ModalBox } from '@/components/trade/modal-box'
 
 interface TransactionGraduatedProps {
   coin: Pick<Coin, 'id' | 'graduated' | 'name'>
@@ -227,35 +228,25 @@ export default function TransactionGraduated(props: TransactionGraduatedProps) {
         {tradeType === 'buy' ? <Buy {...props} /> : <Sell {...props} />}
       </Box>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <Box
+      <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
+        <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
+        <p>{modalMessage}</p>
+        <Button
           sx={{
-            p: 4,
-            bgcolor: 'white',
-            border: '1px solid',
-            borderRadius: 2,
-            textAlign: 'center',
+            fontFamily: 'inherit',
+            backgroundColor: 'blue',
+            color: 'white',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            mt: 2,
+            textTransform: 'none',
+            '&:hover': { backgroundColor: 'darkblue' },
           }}
+          onClick={() => setModalOpen(false)}
         >
-          <h2 style={{ fontWeight: 'bold' }}>Warning</h2>
-          <p>{modalMessage}</p>
-          <Button
-            sx={{
-              fontFamily: 'inherit',
-              backgroundColor: 'blue',
-              color: 'white',
-              padding: '8px 16px',
-              borderRadius: '4px',
-              mt: 2,
-              textTransform: 'none',
-              '&:hover': { backgroundColor: 'darkblue' },
-            }}
-            onClick={() => setModalOpen(false)}
-          >
-            OK
-          </Button>
-        </Box>
-      </Modal>
+          OK
+        </Button>
+      </ModalBox>
     </Box>
   )
 }
