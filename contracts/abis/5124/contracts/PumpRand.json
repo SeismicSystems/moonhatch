@@ -1,5 +1,6 @@
 {
   "address": "0x3ab946eec2553114040de82d2e18798a51cf1e14",
+  "chainId": 5124,
   "methodIdentifiers": {
     "WEI_GRADUATION()": "cc67b0e8",
     "buy(uint32)": "7db5bd52",

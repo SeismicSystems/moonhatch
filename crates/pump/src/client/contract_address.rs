@@ -3,9 +3,10 @@ use alloy_provider::{Provider, SeismicUnsignedProvider};
 use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
 use cargo_metadata::MetadataCommand;
 use serde::Deserialize;
-use std::fs;
-use std::path::Path;
-use std::path::PathBuf;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use crate::{
     client::build_tx,
@@ -23,8 +24,13 @@ pub struct ContractAddresses {
 
 /// Returns the workspace root by invoking `cargo metadata`.
 fn get_workspace_root() -> Option<PathBuf> {
-    let metadata = MetadataCommand::new().exec().ok()?;
-    Some(metadata.workspace_root.into())
+    match std::env::var("WORKSPACE_ROOT") {
+        Ok(workspace_root) => Some(PathBuf::from(workspace_root)),
+        Err(_) => {
+            let metadata = MetadataCommand::new().exec().ok()?;
+            Some(metadata.workspace_root.into())
+        }
+    }
 }
 
 fn contract_path(chain_id: u64, contract: &str) -> String {

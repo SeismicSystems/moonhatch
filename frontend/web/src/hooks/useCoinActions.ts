@@ -76,7 +76,6 @@ export const useCoinActions = ({
   }
 
   const refreshWeiInForGraduated = async (): Promise<void> => {
-    console.log('refreshWeiInForGraduated')
     if (!coin || loadingEthIn) return
 
     setLoadingEthIn(true)
@@ -101,7 +100,6 @@ export const useCoinActions = ({
   }
 
   const refreshWeiInForNonGraduated = async (): Promise<void> => {
-    console.log('refreshWeiInForNonGraduated')
     if (!coin || loadingEthIn) return
 
     setLoadingEthIn(true)
@@ -202,7 +200,7 @@ export const useCoinActions = ({
     setIsSelling(true)
     try {
       if (!coin.graduated) {
-        console.log('Sell logic for non-graduated tokens is not implemented.')
+        console.error('Sell logic for non-graduated tokens is not implemented.')
         setModalMessage(
           'Sell logic for non-graduated tokens is not implemented.'
         )
