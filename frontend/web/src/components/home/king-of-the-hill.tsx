@@ -82,7 +82,7 @@ export default function KingOfTheHillSection({
         >
           {podiumOrder.map((coin) => (
             // @ts-expect-error this is fine
-            <Box onClick={() => navigate(`/coins/${coin.id}`)}>
+            <Box onClick={() => navigate(`/coins/${coin.id}`)} key={coin.id}>
               <KOTHBox key={coin.rank} coin={coin} />
             </Box>
           ))}
