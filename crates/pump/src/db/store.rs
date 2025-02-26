@@ -180,6 +180,19 @@ pub fn add_price(conn: &mut PgConnection, price: NewPoolPrice) -> Result<usize, 
     Ok(count)
 }
 
+pub fn get_last_closing_price(
+    conn: &mut PgConnection,
+    pool: Address,
+) -> Result<Option<BigDecimal>, PumpError> {
+    let price = pool_prices_table
+        .filter(pool_prices_schema::pool.eq(pool.to_string()))
+        .order(pool_prices_schema::time.desc())
+        .select(pool_prices_schema::close)
+        .first::<BigDecimal>(conn)
+        .optional()?;
+    Ok(price)
+}
+
 pub fn load_pools(conn: &mut PgConnection) -> Result<HashMap<Address, pool::Pool>, PumpError> {
     let pool_vec: Vec<Pool> = pools_table.select(pools_schema::all_columns).load(conn)?;
 
