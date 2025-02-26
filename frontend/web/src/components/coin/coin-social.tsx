@@ -11,12 +11,10 @@ interface CoinSocialsProps {
     website: string
     telegram: string
   }
-  // Pass a flag or directly pass sizes if needed
   isCardPage?: boolean
 }
 
 const CoinSocials: React.FC<CoinSocialsProps> = ({ coin, isCardPage }) => {
-  // Responsive sizes for different isCardPage:
   const cardPageIconSize = { xs: 22, sm: 25, md: 30, lg: 30 }
   const detailIconSize = { xs: 30, sm: 40, md: 50, lg: 50 }
 

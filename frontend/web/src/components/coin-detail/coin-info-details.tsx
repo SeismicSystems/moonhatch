@@ -1,6 +1,5 @@
 import React from 'react'
 
-import { Box } from '@mui/material'
 import CoinImageComponent from './coin-image-component'
 import CoinDescriptionContainer from './coin-desc-container'
 
@@ -30,7 +29,7 @@ const CoinInfoDetails: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
 
   return (
     <>
-      <CoinImageComponent coin={coin}  />
+    <CoinImageComponent coin={coin}  />
     <CoinDescriptionContainer coin={coin} />  
     </>
   )
