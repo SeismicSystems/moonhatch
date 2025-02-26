@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
 
+import { NonGraduatedAmountInput } from '@/components/trade/amount-input'
 import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
+import { NonGraduatedTradeButton } from '@/components/trade/trade-button'
 import { Coin } from '@/types/coin'
-
-import { NonGraduatedAmountInput } from './amount-input'
-import { NonGraduatedTradeButton } from './trade-button'
 
 interface TransactionNonGraduatedProps {
   coin: Pick<Coin, 'id' | 'name'>
