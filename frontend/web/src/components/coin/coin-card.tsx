@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-import { Coin } from '@/types/coin'
-import { formatRelativeTime } from '@/util'
 import LockIcon from '@mui/icons-material/Lock'
 import SchoolIcon from '@mui/icons-material/School'
 import { Box, Typography } from '@mui/material'
 
-import CoinSocials from './coin-social'
+import { formatRelativeTime } from '@/util'
+import { Coin } from '@/types/coin'
+import CoinSocials from '@/components/coin/coin-social'
 
 interface CoinCardProps {
   coin: Coin

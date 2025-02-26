@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-
 import { Box, Button, Modal, TextField } from '@mui/material'
-
-import { Coin } from '../../types/coin'
+import { Coin } from '@/types/coin'
 
 interface TransactionGraduatedProps {
   coin: Pick<Coin, 'id' | 'graduated' | 'name'>
