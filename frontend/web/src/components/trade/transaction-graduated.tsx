@@ -3,6 +3,7 @@ import { Box, Button, TextField } from '@mui/material'
 import { Coin } from '@/types/coin'
 import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
+import { GraduatedAmountInput } from './amount-input'
 
 interface TransactionGraduatedProps {
   coin: Pick<Coin, 'id' | 'graduated' | 'name'>
@@ -30,28 +31,10 @@ const Buy: React.FC<TransactionGraduatedProps> = ({ coin, buyAmount, setBuyAmoun
 
   return (
     <>
-      <TextField
-        variant="outlined"
-        value={buyAmount}
-        onChange={(e) => setBuyAmount(e.target.value)}
-        placeholder="ENTER ETH AMOUNT"
-        fullWidth
-        sx={{
-          '& .MuiOutlinedInput-input': {
-            textAlign: 'center',
-            color: 'var(--darkBlue)',
-
-            fontSize: {
-              xs: '1rem',
-              sm: '1.1rem',
-              md: '1.2rem',
-              lg: '1.3rem',
-            },
-          },
-          backgroundColor: 'var(--lightBlue)',
-          borderRadius: '4px',
-          mb: 1,
-        }}
+      <GraduatedAmountInput
+        amount={buyAmount}
+        setAmount={setBuyAmount}
+        placeholder='SET ETH AMOUNT'
       />
       {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
       <Button
@@ -103,27 +86,10 @@ const Sell: React.FC<TransactionGraduatedProps> = ({ coin, buyError, handleBuy }
 
   return (
     <>
-      <TextField
-        variant="outlined"
-        value={sellAmount}
-        onChange={(e) => setSellAmount(e.target.value)}
+      <GraduatedAmountInput
+        amount={sellAmount}
+        setAmount={setSellAmount}
         placeholder={`ENTER ${coin.name.toUpperCase()} AMOUNT`}
-        fullWidth
-        sx={{
-          '& .MuiOutlinedInput-input': {
-            textAlign: 'center',
-            color: 'var(--darkBlue)',
-            fontSize: {
-              xs: '1rem',
-              sm: '1.1rem',
-              md: '1.2rem',
-              lg: '1.3rem',
-            },
-          },
-          backgroundColor: 'var(--lightBlue)',
-          borderRadius: '4px',
-          mb: 1,
-        }}
       />
       {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
       <Button
