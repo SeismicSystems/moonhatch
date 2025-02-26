@@ -7,8 +7,8 @@ import {
   getShieldedContract,
 } from 'seismic-viem'
 import type { Hex, TransactionReceipt } from 'viem'
-import type { CreateCoinParams } from '@/types/coin'
 
+import type { CreateCoinParams } from '@/types/coin'
 import {
   COIN_CONTRACT_ABI,
   useDexContract,

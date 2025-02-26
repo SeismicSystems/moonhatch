@@ -32,8 +32,12 @@ async fn main() -> Result<(), PumpError> {
                 match maybe_block {
                     Some(block) => {
                         let block: Block = block.into();
-                        if let Err(e) = handler.new_block(block).await {
-                            log::error!("Error flushing prices for block {}: {:?}", block.number, e);
+                        match handler.new_block(block).await {
+                            Ok(false) => {}
+                            Ok(true) => {
+                                log_stream = handler.log_stream().await?.fuse();
+                            }
+                            Err(e) => { log::error!("Error flushing prices for block {}: {:?}", block.number, e); }
                         }
                     },
                     None => {

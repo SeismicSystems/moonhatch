@@ -7,7 +7,7 @@ pub enum ListenerError {
     #[error("Unknown topic: {0:?}")]
     UnknownTopic(Option<FixedBytes<32>>),
     #[error("No block timestamp")]
-    NoBlockTimestamp,
+    NoBlockNumber,
     #[error("Block {0} has no prices for pool {1:?}")]
     NoPrices(u64, Address),
     #[error("Received no price for swap into pool {0:?} for tx {1:?}")]
