@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
 import { formatEther } from 'viem'
 
