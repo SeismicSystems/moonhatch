@@ -1,6 +1,6 @@
 import React from 'react'
 
-import type { InputFieldProps } from './input-field'
+import type { InputFieldProps } from '@/components/create/input-field'
 
 const TickerInput: React.FC<Omit<InputFieldProps, 'label'>> = ({
   value,

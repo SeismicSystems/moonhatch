@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { Box, Typography, useMediaQuery } from '@mui/material'
 
-import KOTHBox, { CoinData } from './koth-box'
-import { FALLBACK_COIN_IMAGE_URL } from '../coin-detail/coin-info-details'
+import KOTHBox, { CoinData } from '@/components/home/koth-box'
+import { FALLBACK_COIN_IMAGE_URL } from '@/components/coin-detail/coin-info-details'
 
 interface KingOfTheHillSectionProps {
   // @ts-expect-error this is fine

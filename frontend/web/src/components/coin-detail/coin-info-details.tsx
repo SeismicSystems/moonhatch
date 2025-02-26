@@ -1,7 +1,7 @@
 import React from 'react'
+import { Box, Typography } from '@mui/material'
 
 import { formatRelativeTime } from '@/util'
-import { Box, Typography } from '@mui/material'
 
 export const FALLBACK_COIN_IMAGE_URL =
   'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'

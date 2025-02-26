@@ -1,8 +1,6 @@
 import { useMemo } from 'react'
-
 import { Box, Modal } from '@mui/material'
-
-import { Coin } from '../../types/coin'
+import { Coin } from '@/types/coin'
 
 interface TransactionNonGraduatedProps {
   coin: Pick<Coin, 'id' | 'name'>
