@@ -215,6 +215,8 @@ impl LogHandler {
         match log.block_number {
             Some(number) => match log.block_timestamp {
                 Some(timestamp) => {
+                    // these rarely have block timestamps in reth devnet node,
+                    // but they do exist ~all the time for anvil
                     Ok(BlockKind::Block(Block { number, timestamp: timestamp as i64 }))
                 }
                 None => {
