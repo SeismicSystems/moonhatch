@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Box, Button, TextField } from '@mui/material'
 import { Coin } from '@/types/coin'
-import TradeModal, { ModalBox } from '@/components/trade/modal'
+import { ModalBox } from '@/components/trade/modal-box'
 
 interface TransactionGraduatedProps {
   coin: Pick<Coin, 'id' | 'graduated' | 'name'>
