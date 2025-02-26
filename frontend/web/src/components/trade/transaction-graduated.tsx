@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { Box, Button } from '@mui/material'
+import { Box, Button, SxProps } from '@mui/material'
 
 import type { Coin } from '@/types/coin'
 import { ModalBox } from '@/components/trade/modal-box'
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 import { Buy } from '@/components/trade/trade-buy'
 import { Sell } from '@/components/trade/trade-sell'
+import { Side } from '@/types/trade'
 
 export type TransactionGraduatedProps = {
   coin: Pick<Coin, 'id' | 'graduated' | 'name'>
@@ -18,32 +19,21 @@ export type TransactionGraduatedProps = {
   setModalOpen: (open: boolean) => void
 }
 
-export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (props) => {
-  const {
-    modalOpen,
-    modalMessage,
-    setModalOpen,
-  } = props
-  const [tradeType, setTradeType] = useState<'buy' | 'sell'>('buy')
+const toggleContainerSx: SxProps = {
+  display: 'flex',
+  width: '100%',
+  borderRadius: '9999px',
+  overflow: 'hidden',
+}
 
-  // Toggle Button container using sx style
-  const toggleContainerSx = {
-    display: 'flex',
-    width: '100%',
-    borderRadius: '9999px',
-    overflow: 'hidden',
-  }
-
-  // Toggle Button styles using sx with responsive values
-  const toggleButtonSx = (
-    active: boolean,
-    activeBg: string,
-    inactiveBg: string
-  ) => ({
+const toggleButtonSx = ({ activeSide, buttonSide }: { activeSide: Side, buttonSide: Side }): SxProps => {
+  const active = activeSide === buttonSide
+  const activeBg = buttonSide === Side.BUY ? 'green' : 'red'
+  return {
     flex: 1,
     border: 'none',
     cursor: 'pointer',
-    backgroundColor: active ? activeBg : inactiveBg,
+    backgroundColor: active ? activeBg : 'var(--midBlue)',
     color: active ? 'white' : 'gray',
     fontWeight: 'bold',
     textTransform: 'uppercase',
@@ -53,7 +43,19 @@ export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (props)
     borderRadius: '4px',
     fontSize: { xs: '1rem', sm: '1.1rem', md: '1.3rem', lg: '1.5rem' },
     height: { xs: '40px', sm: '50px', md: '60px', lg: '80px' },
-  })
+  }
+}
+
+const buyToggleButtonSx = (activeSide: Side) => toggleButtonSx({ activeSide, buttonSide: Side.BUY })
+const sellToggleButtonSx = (activeSide: Side) => toggleButtonSx({ activeSide, buttonSide: Side.SELL })
+
+export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (props) => {
+  const {
+    modalOpen,
+    modalMessage,
+    setModalOpen,
+  } = props
+  const [side, setSide] = useState<Side>(Side.BUY)
 
   return (
     <TradeOuterBox>
@@ -62,22 +64,22 @@ export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (props)
         <Box sx={toggleContainerSx}>
           <Box
             component="button"
-            sx={toggleButtonSx(tradeType === 'buy', 'green', 'var(--midBlue)')}
-            onClick={() => setTradeType('buy')}
+            sx={buyToggleButtonSx(side)}
+            onClick={() => setSide(Side.BUY)}
           >
             <div className="buy-text text-[var(--creamWhite)]">Buy</div>
           </Box>
           <Box
             component="button"
-            sx={toggleButtonSx(tradeType === 'sell', 'red', 'var(--midBlue)')}
-            onClick={() => setTradeType('sell')}
+            sx={sellToggleButtonSx(side)}
+            onClick={() => setSide(Side.SELL)}
           >
             <div className="sell-text text-[var(--creamWhite)]">Sell</div>
           </Box>
         </Box>
 
         {/* Trade Input and Confirm Button */}
-        {tradeType === 'buy' ? <Buy {...props} /> : <Sell {...props} />}
+        {side === Side.BUY ? <Buy {...props} /> : <Sell {...props} />}
       </TradeInnerBox>
 
       <ModalBox modalOpen={modalOpen} setModalOpen={setModalOpen}>
