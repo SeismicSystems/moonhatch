@@ -108,9 +108,11 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           '&:hover': { backgroundColor: 'darkgreen' },
         }}
       >
-        {previewUnitsOut
-          ? `CONFIRM BUY FOR ${formatUnits(previewUnitsOut, Number(coin.decimals))} ${coin.name.toUpperCase()}`
-          : 'Loading estimated price ...'}
+        {isBuying
+          ? 'WAITING FOR WALLET APPROVAL'
+          : previewUnitsOut
+            ? `CONFIRM BUY FOR ${formatUnits(previewUnitsOut, Number(coin.decimals))} ${coin.name.toUpperCase()}`
+            : 'Loading estimated price ...'}
       </GraduatedTradeButton>
     </>
   )

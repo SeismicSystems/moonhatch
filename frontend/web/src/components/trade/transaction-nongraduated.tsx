@@ -20,6 +20,7 @@ export const TransactionNonGraduated = ({
   const [buyInputEth, setBuyInputEth] = useState<string>('')
   const [buyAmountWei, setBuyAmountWei] = useState<bigint | null>(null)
   const { buyPreGraduation } = usePumpClient()
+  const [isBuying, setIsBuying] = useState(false)
 
   useEffect(() => {
     if (buyInputEth === '') {
@@ -59,10 +60,18 @@ export const TransactionNonGraduated = ({
             placeholder="ENTER ETH AMOUNT"
           />
           {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
-          <NonGraduatedTradeButton onClick={buy} disabled={!buyAmountWei}>
-            {buyAmountWei
-              ? `BUY ${formatEther(buyAmountWei)} ETH worth of ${coin.name.toUpperCase()}`
-              : 'Enter a valid amount'}
+          <NonGraduatedTradeButton
+            onClick={() => {
+              setIsBuying(true)
+              buy()
+            }}
+            disabled={!buyAmountWei || isBuying}
+          >
+            {isBuying
+              ? 'WAITING FOR WALLET APPROVAL'
+              : buyAmountWei
+                ? `BUY ${formatEther(buyAmountWei)} ETH worth of ${coin.name.toUpperCase()}`
+                : 'Enter a valid amount'}
           </NonGraduatedTradeButton>
         </TradeInnerBox>
       </TradeOuterBox>

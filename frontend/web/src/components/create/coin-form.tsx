@@ -200,7 +200,7 @@ const CoinForm: React.FC = () => {
           className="w-full bg-green-600 text-white rounded py-3 hover:bg-blue-700"
           disabled={isCreating}
         >
-          {isCreating ? 'CREATING...' : 'CREATE COIN'}
+          {isCreating ? 'WAITING FOR WALLET APPROVAL' : 'CREATE COIN'}
         </button>
       </form>
     </div>
