@@ -32,3 +32,14 @@ export const formatRelativeTime = (timestamp: number): string => {
   }
   return remainingHours > 0 ? `${days}d${remainingHours}h ` : `${days}d `
 }
+
+export const parseBigInt = (amt: string | null): bigint | null => {
+  if (amt === null) {
+    return null
+  }
+  try {
+    return BigInt(amt)
+  } catch {
+    return null
+  }
+}

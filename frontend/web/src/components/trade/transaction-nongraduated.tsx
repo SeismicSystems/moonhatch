@@ -1,45 +1,73 @@
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
+import { formatEther, parseEther } from 'viem'
 
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
+import { WeiIn } from '@/components/trade/wei-in'
+import { usePumpClient } from '@/hooks/usePumpClient'
 import { Coin } from '@/types/coin'
 
 import { NonGraduatedAmountInput } from './amount-input'
 import { NonGraduatedTradeButton } from './trade-button'
 
-interface TransactionNonGraduatedProps {
-  coin: Pick<Coin, 'id' | 'name'>
-  buyAmount: string
-  setBuyAmount: (value: string) => void
-  handleBuy: (amount: string, tradeType: 'buy') => void
+type TransactionNonGraduatedProps = {
+  coin: Coin
 }
 
-export default function TransactionNonGraduated({
+export const TransactionNonGraduated = ({
   coin,
-  buyAmount,
-  setBuyAmount,
-  handleBuy,
-}: TransactionNonGraduatedProps) {
-  const conversionRate = 1000
+}: TransactionNonGraduatedProps) => {
+  const [buyError, setBuyError] = useState<string | null>(null)
+  const [buyInputEth, setBuyInputEth] = useState<string>('')
+  const [buyAmountWei, setBuyAmountWei] = useState<bigint | null>(null)
+  const { buyPreGraduation } = usePumpClient()
 
-  const estimatedBuy = useMemo(() => {
-    const inputValue = parseFloat(buyAmount)
-    return isNaN(inputValue) || inputValue <= 0
-      ? 0
-      : inputValue * conversionRate
-  }, [buyAmount, conversionRate])
+  useEffect(() => {
+    if (buyInputEth === '') {
+      setBuyAmountWei(null)
+      return
+    }
+    try {
+      const inputValueWei = parseEther(buyInputEth)
+      setBuyAmountWei(inputValueWei)
+    } catch (error) {
+      setBuyAmountWei(null)
+    }
+  }, [buyInputEth])
+
+  const buy = () => {
+    if (!buyAmountWei) {
+      setBuyError('Invalid amount')
+      return
+    }
+    buyPreGraduation(coin.id, buyAmountWei)
+      .then((hash) => {
+        console.log(`Send tx to chain: ${hash}`)
+      })
+      .catch((e) => {
+        setBuyError(`Buy failed: ${e}`)
+      })
+  }
 
   return (
-    <TradeOuterBox>
-      <TradeInnerBox sx={{ height: 'auto', gap: '16px' }}>
-        <NonGraduatedAmountInput
-          amount={buyAmount}
-          setAmount={setBuyAmount}
-          placeholder="ENTER ETH AMOUNT"
-        />
-        <NonGraduatedTradeButton onClick={() => handleBuy(buyAmount, 'buy')}>
-          {`CONFIRM BUY FOR ${estimatedBuy} ${coin.name.toUpperCase()}`}
-        </NonGraduatedTradeButton>
-      </TradeInnerBox>
-    </TradeOuterBox>
+    <>
+      <WeiIn coin={coin} />
+      <TradeOuterBox>
+        <TradeInnerBox sx={{ height: 'auto', gap: '16px' }}>
+          <NonGraduatedAmountInput
+            amount={buyInputEth}
+            setAmount={setBuyInputEth}
+            placeholder="ENTER ETH AMOUNT"
+          />
+          {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
+          <NonGraduatedTradeButton onClick={buy} disabled={!buyAmountWei}>
+            {buyAmountWei
+              ? `BUY ${formatEther(buyAmountWei)} ETH worth of ${coin.name.toUpperCase()}`
+              : 'Enter a valid amount'}
+          </NonGraduatedTradeButton>
+        </TradeInnerBox>
+      </TradeOuterBox>
+    </>
   )
 }
+
+export default TransactionNonGraduated

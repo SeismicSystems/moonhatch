@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useSwipeable } from 'react-swipeable'
 
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 import { Buy } from '@/components/trade/trade-buy'
@@ -8,11 +9,7 @@ import { Side } from '@/types/trade'
 import { Box, SxProps } from '@mui/material'
 
 export type TransactionGraduatedProps = {
-  coin: Pick<Coin, 'id' | 'graduated' | 'name'>
-  buyAmount: string
-  setBuyAmount: (value: string) => void
-  buyError: string | null
-  handleBuy: (amount: string, tradeType: 'buy' | 'sell') => void
+  coin: Coin
 }
 
 const toggleContainerSx: SxProps = {
@@ -58,31 +55,43 @@ export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (
 ) => {
   const [side, setSide] = useState<Side>(Side.BUY)
 
-  return (
-    <TradeOuterBox>
-      <TradeInnerBox sx={{ gap: '24px' }}>
-        {/* Custom Toggle */}
-        <Box sx={toggleContainerSx}>
-          <Box
-            component="button"
-            sx={buyToggleButtonSx(side)}
-            onClick={() => setSide(Side.BUY)}
-          >
-            <div className="buy-text text-[var(--creamWhite)]">Buy</div>
-          </Box>
-          <Box
-            component="button"
-            sx={sellToggleButtonSx(side)}
-            onClick={() => setSide(Side.SELL)}
-          >
-            <div className="sell-text text-[var(--creamWhite)]">Sell</div>
-          </Box>
-        </Box>
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      setSide(Side.SELL)
+    },
+    onSwipedRight: () => {
+      setSide(Side.BUY)
+    },
+    trackMouse: true,
+  })
 
-        {/* Trade Input and Confirm Button */}
-        {side === Side.BUY ? <Buy {...props} /> : <Sell {...props} />}
-      </TradeInnerBox>
-    </TradeOuterBox>
+  return (
+    <div {...swipeHandlers}>
+      <TradeOuterBox>
+        <TradeInnerBox sx={{ gap: '24px' }}>
+          {/* Custom Toggle */}
+          <Box sx={toggleContainerSx}>
+            <Box
+              component="button"
+              sx={buyToggleButtonSx(side)}
+              onClick={() => setSide(Side.BUY)}
+            >
+              <div className="buy-text text-[var(--creamWhite)]">Buy</div>
+            </Box>
+            <Box
+              component="button"
+              sx={sellToggleButtonSx(side)}
+              onClick={() => setSide(Side.SELL)}
+            >
+              <div className="sell-text text-[var(--creamWhite)]">Sell</div>
+            </Box>
+          </Box>
+
+          {/* Trade Input and Confirm Button */}
+          {side === Side.BUY ? <Buy {...props} /> : <Sell {...props} />}
+        </TradeInnerBox>
+      </TradeOuterBox>
+    </div>
   )
 }
 

@@ -1,28 +1,35 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
+import { usePumpClient } from '@/hooks/usePumpClient'
+import { Coin } from '@/types/coin'
 import CachedIcon from '@mui/icons-material/Cached'
 import { Box, CircularProgress, IconButton, Typography } from '@mui/material'
 
-interface BalanceDisplayProps {
-  coin: {
-    graduated: boolean
-    name: string
-  }
-  balance: string | null
-  refreshBalance: () => void
-  loading: boolean
-}
+type WeiInProps = { coin: Coin }
 
-const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
-  coin,
-  balance,
-  refreshBalance,
-  loading,
-}) => {
+export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
   const [revealed, setRevealed] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [weiIn, setWeiIn] = useState<bigint | null>(null)
 
-  const handleReveal = () => {
-    setRevealed(true)
+  useEffect(() => {
+    const cachedWei = localStorage.getItem(`weiIn_coin_${coin.id}`)
+    if (cachedWei) setWeiIn(BigInt(cachedWei))
+  }, [coin.id])
+
+  const { getWeiIn } = usePumpClient()
+
+  const refreshBalance = async () => {
+    if (loading) {
+      return
+    }
+    getWeiIn(coin.id)
+      .then((wei) => {
+        setWeiIn(wei)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }
 
   return (
@@ -70,7 +77,7 @@ const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
         </IconButton>
 
         <Box
-          onClick={handleReveal}
+          onClick={() => setRevealed(!revealed)}
           sx={{
             flexGrow: 1,
             marginLeft: 2,
@@ -103,8 +110,8 @@ const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
                 },
               }}
             >
-              {balance
-                ? `${balance} ${coin.name.toUpperCase()}`
+              {weiIn
+                ? `${weiIn} ${coin.name.toUpperCase()}`
                 : 'NO BALANCE AVAILABLE'}
             </Typography>
           ) : (
@@ -116,4 +123,4 @@ const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
   )
 }
 
-export default BalanceDisplay
+export default WeiIn

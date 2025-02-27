@@ -6,43 +6,45 @@ import { Candles } from '@/components/chart/Candles'
 import CoinInfoDetails from '@/components/coin-detail/coin-info-details'
 import TradeSection from '@/components/coin-detail/trade-section'
 import CoinSocials from '@/components/coin/coin-social'
-import { useCoinActions } from '@/hooks/useCoinActions'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
 import { Box, Typography } from '@mui/material'
 
+const CoinDetailGraph: React.FC<{ coin: Coin }> = ({ coin }) => {
+  return (
+    <>
+      {coin.graduated && coin.deployedPool ? (
+        <Box sx={{ display: 'flex' }}>
+          <div className="justify-center items-center">
+            <Candles pool={`${coin.deployedPool}`} />
+          </div>
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '350px',
+            width: '350px',
+            marginRight: { xs: 0, sm: 0, md: 0, lg: 0, xl: '200%' },
+          }}
+        >
+          <Typography variant="h3" sx={{ mb: 2, color: 'error.main' }}>
+            CHART LOCKED UNTIL GRADUATION
+          </Typography>
+          <div className="lock-container border-2 border-red-500 rounded-full p-4 ">
+            <LockIcon className="lock-icon text-red-500 text-[96px] animate-pulse" />
+          </div>
+        </Box>
+      )}
+    </>
+  )
+}
+
 const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
-  const [weiIn, setWeiIn] = useState<bigint | null>(null)
-  // @ts-ignore
-  const [buyError, setBuyError] = useState<string | null>(null)
-
-  const [buyAmount, setBuyAmount] = useState<string>('')
-
-  const {
-    viewEthIn,
-    refreshWeiInForGraduated,
-    refreshWeiInForNonGraduated,
-    handleBuy,
-    loadingEthIn,
-  } = useCoinActions({
-    coin,
-    buyAmount,
-    setBuyAmount,
-    setWeiIn,
-    sellAmount: '', // pass sell state if needed
-    setSellAmount: () => { },
-  })
-
-  useEffect(() => {
-    const cachedWei = localStorage.getItem(`weiIn_coin_${coin.id}`)
-    if (cachedWei) setWeiIn(BigInt(cachedWei))
-  }, [coin.id])
-
-  const refreshWeiIn = coin.graduated
-    ? refreshWeiInForGraduated
-    : refreshWeiInForNonGraduated
-
   return (
     <>
       <div className="">
@@ -78,17 +80,7 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
               website: coin.website || '',
             }}
           />
-          <TradeSection
-            coin={{ ...coin, id: coin.id }}
-            weiIn={weiIn}
-            loadingEthIn={loadingEthIn}
-            viewEthIn={viewEthIn}
-            refreshWeiIn={refreshWeiIn}
-            buyAmount={buyAmount}
-            setBuyAmount={setBuyAmount}
-            buyError={buyError}
-            handleBuy={handleBuy}
-          />
+          <TradeSection coin={coin} />
           {(coin.twitter || coin.telegram || coin.website) && (
             <div className="coin-socials-container -mt-12 lg:mt-20 -mb-4">
               <CoinSocials
@@ -105,32 +97,7 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
         </Box>
 
         <div className="status-icon-container flex justify-center mx-auto items-center">
-          {coin.graduated && coin.deployedPool ? (
-            <Box sx={{ display: 'flex' }}>
-              <div className="justify-center items-center">
-                <Candles pool={`${coin.deployedPool}`} />
-              </div>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '350px',
-                width: '350px',
-                marginRight: { xs: 0, sm: 0, md: 0, lg: 0, xl: '200%' },
-              }}
-            >
-              <Typography variant="h3" sx={{ mb: 2, color: 'error.main' }}>
-                CHART LOCKED UNTIL GRADUATION
-              </Typography>
-              <div className="lock-container border-2 border-red-500 rounded-full p-4 ">
-                <LockIcon className="lock-icon text-red-500 text-[96px] animate-pulse" />
-              </div>
-            </Box>
-          )}
+          <CoinDetailGraph coin={coin} />
         </div>
       </div>
     </>
@@ -144,7 +111,7 @@ const CoinDetail: React.FC = () => {
 
   useEffect(() => {
     if (!loaded || !coinId) return
-
+    // TODO: fetch from store
     // Fetch coin data once without an interval
     fetchCoin(BigInt(coinId))
       .then((foundCoin) => setCoin(foundCoin || null))

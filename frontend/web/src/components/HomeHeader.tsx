@@ -1,7 +1,7 @@
 import CreateCoinButton from '@/components/home/create-coin-button'
 import GraduatedIconsContainer from '@/components/home/grad-icon-container'
 import KingOfTheHillSection from '@/components/home/king-of-the-hill'
-import { Coin } from '@/types/coin'
+import type { Coin } from '@/types/coin'
 
 type HomeHeaderProps = {
   coins: Coin[]

@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useShieldedWallet } from 'seismic-react'
 import {
   ShieldedContract,
   ShieldedPublicClient,
   ShieldedWalletClient,
+  getExplorerUrl,
   getShieldedContract,
 } from 'seismic-viem'
 import type { Hex, TransactionReceipt } from 'viem'
@@ -45,11 +46,25 @@ type ApproveParams = ApproveDexParams & {
 }
 
 export const usePumpClient = () => {
+  const [loaded, setLoaded] = useState(false)
   const { walletClient, publicClient } = useShieldedWallet()
   const { contract: pumpContract } = usePumpContract()
   const { contract: dexContract } = useDexContract()
   const { address: wethAddress } = useWethContract()
-  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (
+      walletClient &&
+      publicClient &&
+      pumpContract &&
+      dexContract &&
+      wethAddress
+    ) {
+      setLoaded(true)
+    } else {
+      setLoaded(false)
+    }
+  }, [walletClient, publicClient, pumpContract, dexContract, wethAddress])
 
   const getDeadline = (deadlineMs: number) => {
     return Math.floor((Date.now() + deadlineMs) / 1000)
@@ -57,7 +72,6 @@ export const usePumpClient = () => {
 
   const getWeiIn = async (coinId: bigint): Promise<bigint> => {
     if (!pumpContract) {
-      setError('Pump contract not found')
       throw new Error('Pump contract not found')
     }
     const weiIn = (await pumpContract.read.getWeiIn([coinId])) as bigint
@@ -66,7 +80,6 @@ export const usePumpClient = () => {
 
   const wallet = (): ShieldedWalletClient => {
     if (!walletClient) {
-      setError('Wallet client not found')
       throw new Error('Wallet client not found')
     }
     return walletClient
@@ -74,7 +87,6 @@ export const usePumpClient = () => {
 
   const pubClient = (): ShieldedPublicClient => {
     if (!publicClient) {
-      setError('Public client not found')
       throw new Error('Public client not found')
     }
     return publicClient
@@ -82,7 +94,6 @@ export const usePumpClient = () => {
 
   const dex = (): ShieldedContract => {
     if (!dexContract) {
-      setError('DEX contract not found')
       throw new Error('DEX contract not found')
     }
     return dexContract
@@ -90,7 +101,6 @@ export const usePumpClient = () => {
 
   const pump = (): ShieldedContract => {
     if (!pumpContract) {
-      setError('Pump contract not found')
       throw new Error('Pump contract not found')
     }
     return pumpContract
@@ -146,7 +156,10 @@ export const usePumpClient = () => {
     spender,
   }: AllowanceParams): Promise<bigint> => {
     const coinContract = getCoinContract(token)
-    const allowance = (await coinContract.tread.allowance([spender])) as bigint
+    const allowance = (await coinContract.tread.allowance([
+      walletAddress(),
+      spender,
+    ])) as bigint
     return allowance
   }
 
@@ -156,7 +169,8 @@ export const usePumpClient = () => {
     amount,
   }: ApproveParams): Promise<Hex> => {
     const coinContract = getCoinContract(token)
-    return coinContract.write.approve([spender, amount], { gas: 1_000_000 })
+    // @ts-expect-error TODO: christian fix typing in seismic-viem
+    return coinContract.twrite.approve([spender, amount], { gas: 1_000_000 })
   }
 
   const approveDex = async ({
@@ -183,7 +197,8 @@ export const usePumpClient = () => {
     const to = walletAddress()
     const deadline = getDeadline(deadlineMs)
     const path = [wethAddress, token]
-    return dex().write.swapExactETHForTokens(
+    // @ts-expect-error TODO: christian fix typing in seismic-viem
+    return dex().twrite.swapExactETHForTokens(
       [minAmountOut, path, to, deadline],
       {
         gas: 1_000_000,
@@ -201,7 +216,8 @@ export const usePumpClient = () => {
     const to = walletAddress()
     const path = [token, wethAddress]
     const deadline = getDeadline(deadlineMs)
-    return dex().write.swapExactTokensForETH(
+    // @ts-expect-error TODO: christian fix typing in seismic-viem
+    return dex().twrite.swapExactTokensForETH(
       [amountIn, minAmountOut, path, to, deadline],
       { gas: 1_000_000 }
     )
@@ -232,8 +248,11 @@ export const usePumpClient = () => {
     amountIn,
   }: TradeParams): Promise<bigint> => {
     const path = [wethAddress, token]
-    const amount = (await dex().read.getAmountsOut([amountIn, path])) as bigint
-    return amount
+    const [_, amountOut] = (await dex().tread.getAmountsOut([
+      amountIn,
+      path,
+    ])) as [bigint, bigint]
+    return amountOut
   }
 
   const previewSell = async ({
@@ -241,11 +260,50 @@ export const usePumpClient = () => {
     amountIn,
   }: TradeParams): Promise<bigint> => {
     const path = [token, wethAddress]
-    const amount = (await dex().read.getAmountsOut([amountIn, path])) as bigint
-    return amount
+    const [_, weiOut] = (await dex().tread.getAmountsOut([amountIn, path])) as [
+      bigint,
+      bigint,
+    ]
+    return weiOut
+  }
+
+  const waitForTransaction = async (hash: Hex) => {
+    return await pubClient().waitForTransactionReceipt({ hash })
+  }
+
+  const approveAndSell = async ({
+    token,
+    amountIn,
+    ...params
+  }: TradeParams): Promise<Hex> => {
+    const allowance = await allowanceDex(token)
+    if (allowance < amountIn) {
+      const amount = amountIn - allowance
+      const approvalReceipt = await approveSale({ token, amount })
+      if (approvalReceipt) {
+        console.log(`Approved tx: ${approvalReceipt.transactionHash}`)
+      }
+    }
+    const sellTxHash = await sell({ token, amountIn, ...params })
+    return sellTxHash
+  }
+
+  const explorerUrl = (txHash: Hex): string | undefined => {
+    return getExplorerUrl({ publicClient: pubClient(), txHash })
+  }
+
+  const deployGraduated = async (coinId: bigint): Promise<Hex> => {
+    // @ts-expect-error TODO: christian fix typing in seismic-viem
+    return pump().twrite.deployGraduated([coinId], { gas: 1_000_000 })
+  }
+
+  const getPair = async (coinId: bigint): Promise<Hex> => {
+    // @ts-expect-error TODO: christian fix typing in seismic-viem
+    return pump().tread.getPair([coinId])
   }
 
   return {
+    loaded,
     walletClient,
     publicClient,
     pumpContract,
@@ -266,6 +324,10 @@ export const usePumpClient = () => {
     approveSale,
     previewBuy,
     previewSell,
-    error,
+    approveAndSell,
+    waitForTransaction,
+    explorerUrl,
+    deployGraduated,
+    getPair,
   }
 }

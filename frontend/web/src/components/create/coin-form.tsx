@@ -200,7 +200,7 @@ const CoinForm: React.FC = () => {
           CREATE COIN
         </button>
       </form>
-    </div >
+    </div>
   )
 }
 
