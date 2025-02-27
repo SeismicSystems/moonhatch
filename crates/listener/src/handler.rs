@@ -21,6 +21,8 @@ use pump::{
     error::PumpError,
 };
 
+use crate::sock::SockWriter;
+
 const CONFIRMATIONS: u64 = 1;
 
 pub fn fmt_hex<T: AsRef<[u8]>>(value: T) -> String {
@@ -66,6 +68,7 @@ struct PendingLogs {
 pub struct LogHandler {
     pool: PgPool,
     client: PumpClient,
+    sock_writer: SockWriter,
     ws: PumpWsClient,
     prices: HashMap<u64, (Block, HashMap<Address, Vec<BigDecimal>>)>,
     pools: HashMap<Address, Pool>,
@@ -77,9 +80,12 @@ impl LogHandler {
     pub async fn new(pool: PgPool, client: PumpClient) -> Result<LogHandler, PumpError> {
         let ws = PumpWsClient::new(client.chain_id).await?;
         let mut conn = connect(&pool)?;
+        let sock_writer = SockWriter::try_new()?;
+
         Ok(LogHandler {
             pool,
             client,
+            sock_writer,
             ws,
             prices: HashMap::new(),
             pools: store::load_pools(&mut conn)?,
@@ -113,17 +119,21 @@ impl LogHandler {
         }
     }
 
-    async fn handle_creation(&self, log: Log<PumpRand::CoinCreated>) -> Result<bool, PumpError> {
+    async fn handle_creation(
+        &mut self,
+        log: Log<PumpRand::CoinCreated>,
+    ) -> Result<bool, PumpError> {
         let mut conn = self.conn()?;
         let coin_id = log.data().coinId;
-        let coin = self.client.get_coin(coin_id).await?;
+        let sol_coin = self.client.get_coin(coin_id).await?;
         log::info!(
             "Coin[{}] created at {} by {}",
             coin_id,
-            fmt_hex(coin.contractAddress),
-            fmt_hex(coin.creator)
+            fmt_hex(sol_coin.contractAddress),
+            fmt_hex(sol_coin.creator)
         );
-        store::upsert_verified(&mut conn, coin_id as i64, coin)?;
+        let coin = store::upsert_verified(&mut conn, coin_id as i64, sol_coin)?;
+        self.sock_writer.write_verified_coin(coin)?;
         Ok(false)
     }
 
@@ -151,12 +161,13 @@ impl LogHandler {
         );
         let wei_in = int_to_decimal(data.totalWeiIn);
         let mut conn = self.conn()?;
-        store::update_wei_in(&mut conn, data.coinId as i64, wei_in)?;
+        store::update_wei_in(&mut conn, data.coinId as i64, wei_in.clone())?;
+        self.sock_writer.write_wei_in_updated(data.coinId as i64, wei_in)?;
         Ok(false)
     }
 
     async fn handle_graduation(
-        &self,
+        &mut self,
         log: Log<PumpRand::CoinGraduated>,
     ) -> Result<bool, PumpError> {
         let block_number = self.try_block(&log)?.number();
@@ -166,6 +177,7 @@ impl LogHandler {
         store::graduate_coin(&mut conn, coin_id as i64)?;
         let tx = self.client.deploy_graduated(coin_id).await?;
         log::info!("Called graduate({}), tx={}", coin_id, fmt_hex(tx));
+        self.sock_writer.write_graduated_coin(coin_id as i64)?;
         Ok(false)
     }
 
@@ -187,9 +199,10 @@ impl LogHandler {
         let data = log.data();
         let mut conn = self.conn()?;
         let pool = self.get_pool(data.lpToken).await?;
+        let coin_id = data.coinId as i64;
         log::info!(
             "Coin[{}] was to deployed to dex with LP address {}",
-            data.coinId,
+            coin_id,
             fmt_hex(data.lpToken)
         );
         self.pools.insert(pool.lp_token, pool);
@@ -205,7 +218,8 @@ impl LogHandler {
             created_at,
         };
         store::upsert_deployed_pool(&mut conn, pool)?;
-        store::update_deployed_pool(&mut conn, data.coinId as i64, data.lpToken)?;
+        store::update_deployed_pool(&mut conn, coin_id, data.lpToken)?;
+        self.sock_writer.write_deployed_to_dex(coin_id, data.lpToken)?;
         Ok(true)
     }
 
