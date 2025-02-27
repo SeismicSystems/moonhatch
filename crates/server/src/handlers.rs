@@ -5,7 +5,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use chrono::{NaiveDateTime, Utc};
+use chrono::Utc;
 use serde::Serialize;
 
 use pump::{
