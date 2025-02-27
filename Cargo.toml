@@ -5,9 +5,10 @@ resolver = "2"
 [workspace.dependencies]
 pump = { path = "crates/pump" }
 # web
-axum = { version = "0.6.20", features = ["multipart"]}
+axum = { version = "0.6.20", features = ["multipart", "ws"]}
 futures-util = "0.3"
 tokio = { version = "1.28", features = ["full"] }
+tokio-stream = { version = "0.1.17", features = ["net"] }
 
 # db
 bigdecimal = { version = "0.4.7", features = ["serde"] }

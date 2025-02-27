@@ -9,6 +9,7 @@ pump.workspace = true
 # webserver
 axum.workspace = true
 tokio.workspace = true
+tokio-stream.workspace = true
 tower-http = { version = "0.4.4", features = ["cors"] }
 
 # db
@@ -33,3 +34,5 @@ alloy-provider.workspace = true
 alloy-rpc-types-eth.workspace = true
 alloy-primitives.workspace = true
 alloy-sol-types.workspace = true
+uuid = { version = "1.15.1", features = ["v4"] }
+futures = "0.3.31"

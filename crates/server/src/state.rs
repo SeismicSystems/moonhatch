@@ -1,11 +1,31 @@
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_s3::{config::Region, Client as S3Client};
-use std::sync::Arc;
+use axum::{
+    extract::{
+        ws::{Message, WebSocket, WebSocketUpgrade},
+        State,
+    },
+    response::IntoResponse,
+    routing::get,
+    Router,
+};
+use futures::{sink::SinkExt, stream::StreamExt};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
+use tokio::{
+    net::UnixListener,
+    sync::broadcast::{self, Sender},
+};
+use tokio_stream::wrappers::UnixListenerStream;
+use uuid::Uuid;
 
 use pump::{
     client::PumpClient,
     db::pool::{self, connect, PgConn},
     error::PumpError,
+    SOCKET_PATH,
 };
 
 #[derive(Clone)]
@@ -13,10 +33,14 @@ pub struct AppState {
     pub s3_client: Arc<S3Client>,
     pub db_pool: pool::PgPool,
     pub pump_client: Arc<PumpClient>,
+    pub tx: Sender<String>,
+    pub clients: Arc<Mutex<HashMap<String, tokio::sync::mpsc::Sender<String>>>>,
 }
 
 impl AppState {
     pub async fn new() -> Result<AppState, PumpError> {
+        let (tx, _rx) = broadcast::channel(100);
+
         let region_provider =
             RegionProviderChain::default_provider().or_else(Region::new("us-east-1"));
         let aws_config = aws_config::from_env().region(region_provider).load().await;
@@ -29,7 +53,13 @@ impl AppState {
         // Establish the database pool.
         let db_pool = pool::establish_pool();
 
-        Ok(AppState { s3_client: shared_s3_client, db_pool, pump_client: Arc::new(pump_client) })
+        Ok(AppState {
+            s3_client: shared_s3_client,
+            db_pool,
+            pump_client: Arc::new(pump_client),
+            tx: tx.clone(),
+            clients: Arc::new(Mutex::new(HashMap::new())),
+        })
     }
 
     pub fn db_conn(&self) -> Result<PgConn, PumpError> {

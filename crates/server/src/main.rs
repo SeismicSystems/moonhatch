@@ -1,6 +1,9 @@
 // src/main.rs
-mod handlers;
+mod http;
 mod state;
+mod ws;
+
+use std::net::SocketAddr;
 
 use axum::{
     http::{HeaderValue, Method},
@@ -8,7 +11,6 @@ use axum::{
     Router,
 };
 use dotenv::dotenv;
-use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::state::AppState;
@@ -18,10 +20,10 @@ async fn main() {
     dotenv().ok();
     env_logger::init();
 
-    // Set up AWS S3.
     let app_state = AppState::new().await.expect("Failed to create app state");
+    ws::setup_unix_socket(app_state.clone());
 
-    // Set up CORS.
+    // CORS for local dev with vite frontend
     let origin = "http://localhost:5173".parse::<HeaderValue>().unwrap();
     let cors = CorsLayer::new()
         .allow_origin(origin)
@@ -30,16 +32,17 @@ async fn main() {
 
     // Define sub-router to handle /coin/:id routes
     let coin_routes = Router::new()
-        .route("/", get(handlers::get_coin_handler)) // GET /coin/:id/snippet
-        .route("/upload", post(handlers::upload_file)) // POST /coin/:id/upload
-        .route("/verify", post(handlers::verify_coin_handler))
-        .route("/sync", post(handlers::sync_coin));
+        .route("/ws", get(ws::ws_handler))
+        .route("/", get(http::get_coin_handler)) // GET /coin/:id/snippet
+        .route("/upload", post(http::upload_file)) // POST /coin/:id/upload
+        .route("/verify", post(http::verify_coin_handler))
+        .route("/sync", post(http::sync_coin));
 
     let coins_routes = Router::new()
-        .route("/", get(handlers::get_all_coins_handler)) // GET /coins
-        .route("/create", post(handlers::create_coin_handler)); // POST /coins/create
+        .route("/", get(http::get_all_coins_handler)) // GET /coins
+        .route("/create", post(http::create_coin_handler)); // POST /coins/create
 
-    let pool_routes = Router::new().route("/prices", get(handlers::get_pool_prices));
+    let pool_routes = Router::new().route("/prices", get(http::get_pool_prices));
 
     // Define the main router.
     let app = Router::new()
