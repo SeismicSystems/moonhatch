@@ -93,8 +93,11 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       />
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <GraduatedTradeButton
-        onClick={sellCoin}
-        disabled={amountIn === null}
+        onClick={() => {
+          setIsSelling(true)
+          sellCoin()
+        }}
+        disabled={amountIn === null || isSelling}
         sx={{
           padding: { xs: '8px', sm: '10px', md: '12px', lg: '14px' },
           color: 'white',
@@ -102,9 +105,11 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           '&:hover': { backgroundColor: 'darkred' },
         }}
       >
-        {previewWeiOut
-          ? `CONFIRM SELL. ESTIMATED ETH: ${formatEther(previewWeiOut)} ETH`
-          : 'Loading estimated ...'}
+        {isSelling
+          ? 'Waiting for wallet approval...'
+          : previewWeiOut
+            ? `CONFIRM SELL. ESTIMATED ETH: ${formatEther(previewWeiOut)} ETH`
+            : 'Loading estimated ...'}
       </GraduatedTradeButton>
     </>
   )
