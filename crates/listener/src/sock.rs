@@ -1,0 +1,49 @@
+use std::{io::prelude::*, os::unix::net::UnixStream};
+
+use alloy_primitives::Address;
+use bigdecimal::BigDecimal;
+use pump::{db::models::Coin, error::ListenerError, ListenerUpdate, SOCKET_PATH};
+
+pub struct SockWriter {
+    stream: UnixStream,
+}
+
+impl SockWriter {
+    pub(crate) fn try_new() -> Result<Self, ListenerError> {
+        let stream = UnixStream::connect(SOCKET_PATH)?;
+        Ok(Self { stream })
+    }
+
+    fn write(&mut self, message: &ListenerUpdate) -> Result<(), ListenerError> {
+        let message = serde_json::to_string(message)?;
+        self.stream.write_all(message.as_bytes())?;
+        Ok(())
+    }
+
+    pub(crate) fn write_verified_coin(&mut self, coin: Coin) -> Result<(), ListenerError> {
+        self.write(&ListenerUpdate::VerifiedCoin(coin))
+    }
+
+    pub(crate) fn write_wei_in_updated(
+        &mut self,
+        coin_id: i64,
+        total_wei_in: BigDecimal,
+    ) -> Result<(), ListenerError> {
+        self.write(&ListenerUpdate::WeiInUpdated { coin_id, total_wei_in })
+    }
+
+    pub(crate) fn write_graduated_coin(&mut self, coin_id: i64) -> Result<(), ListenerError> {
+        self.write(&ListenerUpdate::GraduatedCoin { coin_id })
+    }
+
+    pub(crate) fn write_deployed_to_dex(
+        &mut self,
+        coin_id: i64,
+        deployed_pool: Address,
+    ) -> Result<(), ListenerError> {
+        self.write(&ListenerUpdate::DeployedToDex {
+            coin_id,
+            deployed_pool: deployed_pool.to_string(),
+        })
+    }
+}

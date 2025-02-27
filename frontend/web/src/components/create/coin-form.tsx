@@ -87,6 +87,7 @@ const CoinForm: React.FC = () => {
     setIsCreating(false)
     navigate(`/coins/${coinId}`)
 
+
     console.log('Final Form Data:', formData)
   }
 
