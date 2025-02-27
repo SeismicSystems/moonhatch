@@ -93,8 +93,10 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       />
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <GraduatedTradeButton
-        onClick={sellCoin}
-        disabled={amountIn === null}
+        onClick={() => {
+          sellCoin()
+        }}
+        disabled={amountIn === null || isSelling}
         sx={{
           padding: { xs: '8px', sm: '10px', md: '12px', lg: '14px' },
           color: 'white',

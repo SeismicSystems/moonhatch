@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { set, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
 import { hexToNumber } from 'viem'
@@ -17,6 +17,7 @@ const CoinForm: React.FC = () => {
   const { publicClient } = useShieldedWallet()
   const { notifySuccess, notifyError } = useToastNotifications()
   const [showMore, setShowMore] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
 
   const {
     register,
@@ -39,6 +40,7 @@ const CoinForm: React.FC = () => {
   const image = watch('image')
 
   const onSubmit = async (formData: CoinFormData) => {
+    setIsCreating(true)
     if (!publicClient) return
 
     const hash = await createCoin({
@@ -196,8 +198,9 @@ const CoinForm: React.FC = () => {
         <button
           type="submit"
           className="w-full bg-green-600 text-white rounded py-3 hover:bg-blue-700"
+          disabled={isCreating}
         >
-          CREATE COIN
+          {isCreating ? 'CREATING...' : 'CREATE COIN'}
         </button>
       </form>
     </div>
