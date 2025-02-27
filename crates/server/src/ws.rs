@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use axum::{
     extract::{
         ws::{Message, WebSocket},

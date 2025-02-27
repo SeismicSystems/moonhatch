@@ -1,31 +1,15 @@
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_s3::{config::Region, Client as S3Client};
-use axum::{
-    extract::{
-        ws::{Message, WebSocket, WebSocketUpgrade},
-        State,
-    },
-    response::IntoResponse,
-    routing::get,
-    Router,
-};
-use futures::{sink::SinkExt, stream::StreamExt};
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
 };
-use tokio::{
-    net::UnixListener,
-    sync::broadcast::{self, Sender},
-};
-use tokio_stream::wrappers::UnixListenerStream;
-use uuid::Uuid;
+use tokio::sync::broadcast::{self, Sender};
 
 use pump::{
     client::PumpClient,
     db::pool::{self, connect, PgConn},
     error::PumpError,
-    SOCKET_PATH,
 };
 
 #[derive(Clone)]
