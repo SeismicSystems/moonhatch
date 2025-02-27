@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useShieldedWallet } from 'seismic-react'
 import {
   ShieldedContract,
@@ -45,10 +46,25 @@ type ApproveParams = ApproveDexParams & {
 }
 
 export const usePumpClient = () => {
+  const [loaded, setLoaded] = useState(false)
   const { walletClient, publicClient } = useShieldedWallet()
   const { contract: pumpContract } = usePumpContract()
   const { contract: dexContract } = useDexContract()
   const { address: wethAddress } = useWethContract()
+
+  useEffect(() => {
+    if (
+      walletClient &&
+      publicClient &&
+      pumpContract &&
+      dexContract &&
+      wethAddress
+    ) {
+      setLoaded(true)
+    } else {
+      setLoaded(false)
+    }
+  }, [walletClient, publicClient, pumpContract, dexContract, wethAddress])
 
   const getDeadline = (deadlineMs: number) => {
     return Math.floor((Date.now() + deadlineMs) / 1000)
@@ -140,12 +156,10 @@ export const usePumpClient = () => {
     spender,
   }: AllowanceParams): Promise<bigint> => {
     const coinContract = getCoinContract(token)
-    console.log('calling allowance...')
     const allowance = (await coinContract.tread.allowance([
       walletAddress(),
       spender,
     ])) as bigint
-    console.log('allowance:', allowance)
     return allowance
   }
 
@@ -183,7 +197,8 @@ export const usePumpClient = () => {
     const to = walletAddress()
     const deadline = getDeadline(deadlineMs)
     const path = [wethAddress, token]
-    return dex().write.swapExactETHForTokens(
+    // @ts-expect-error TODO: christian fix typing in seismic-viem
+    return dex().twrite.swapExactETHForTokens(
       [minAmountOut, path, to, deadline],
       {
         gas: 1_000_000,
@@ -201,7 +216,8 @@ export const usePumpClient = () => {
     const to = walletAddress()
     const path = [token, wethAddress]
     const deadline = getDeadline(deadlineMs)
-    return dex().write.swapExactTokensForETH(
+    // @ts-expect-error TODO: christian fix typing in seismic-viem
+    return dex().twrite.swapExactTokensForETH(
       [amountIn, minAmountOut, path, to, deadline],
       { gas: 1_000_000 }
     )
@@ -277,6 +293,7 @@ export const usePumpClient = () => {
   }
 
   return {
+    loaded,
     walletClient,
     publicClient,
     pumpContract,

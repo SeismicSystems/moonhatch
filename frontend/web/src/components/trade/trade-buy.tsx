@@ -43,7 +43,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       return
     }
     if (isBuying) {
-      setError('Already selling')
+      setError('Already buying')
       return
     }
     setIsBuying(true)
