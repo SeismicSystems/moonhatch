@@ -2956,6 +2956,8 @@ dependencies = [
  "futures-util",
  "log",
  "pump",
+ "serde",
+ "serde_json",
  "tokio",
 ]
 

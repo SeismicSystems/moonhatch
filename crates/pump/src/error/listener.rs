@@ -16,10 +16,26 @@ pub enum ListenerError {
     WrongBlock(u64, u64),
     #[error("Missing transaction hash")]
     MissingTransactionHash,
+    #[error("IO error: {0:?}")]
+    IoError(std::io::Error),
+    #[error("Failed to serialize message: {0:?}")]
+    SerdeJson(serde_json::Error),
 }
 
 impl From<alloy_sol_types::Error> for ListenerError {
     fn from(value: alloy_sol_types::Error) -> Self {
         ListenerError::LogDecodeError(value)
+    }
+}
+
+impl From<std::io::Error> for ListenerError {
+    fn from(value: std::io::Error) -> Self {
+        ListenerError::IoError(value)
+    }
+}
+
+impl From<serde_json::Error> for ListenerError {
+    fn from(value: serde_json::Error) -> Self {
+        ListenerError::SerdeJson(value)
     }
 }

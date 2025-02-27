@@ -110,7 +110,7 @@ pub fn upsert_verified(
     conn: &mut PgConnection,
     coin_id: i64,
     coin: SolidityCoin,
-) -> Result<usize, PumpError> {
+) -> Result<Coin, PumpError> {
     let new_coin = NewCoin {
         id: coin_id,
         name: coin.name.clone(),
@@ -125,7 +125,7 @@ pub fn upsert_verified(
         image_url: None,
         twitter: None,
     };
-    let rows_affected = diesel::insert_into(coins_table)
+    let coin = diesel::insert_into(coins_table)
         .values(&new_coin)
         .on_conflict(coins_schema::id)
         .do_update()
@@ -138,8 +138,8 @@ pub fn upsert_verified(
             coins_schema::contract_address.eq(coin.contractAddress.to_string()),
             coins_schema::creator.eq(coin.creator.to_string()),
         ))
-        .execute(conn)?;
-    Ok(rows_affected)
+        .get_result::<Coin>(conn)?;
+    Ok(coin)
 }
 
 pub fn graduate_coin(conn: &mut PgConnection, coin_id: i64) -> Result<(), PumpError> {

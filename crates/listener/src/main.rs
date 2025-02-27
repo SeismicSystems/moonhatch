@@ -1,4 +1,5 @@
 mod handler;
+mod sock;
 
 use dotenv::dotenv;
 use futures_util::{select, stream::StreamExt};
@@ -20,12 +21,10 @@ async fn main() -> Result<(), PumpError> {
     let mut handler = LogHandler::new(db_pool, client).await?;
 
     log::info!("Initializing pubsub streams");
-
     let mut block_stream = handler.block_stream().await?.fuse();
     let mut log_stream = handler.log_stream().await?.fuse();
 
     log::info!("Listening to streams...");
-
     loop {
         select! {
             maybe_block = block_stream.next() => {
