@@ -10,6 +10,8 @@ pub mod error;
 pub const SOCKET_PATH: &str = "/tmp/listener.sock";
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type", content = "data")]
+#[serde(rename_all = "camelCase")]
 pub enum ListenerUpdate {
     VerifiedCoin(Coin),
     WeiInUpdated { coin_id: i64, total_wei_in: BigDecimal },
