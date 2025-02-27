@@ -29,12 +29,17 @@ use pump::{
 };
 
 #[derive(Clone)]
+pub struct WsState {
+    pub tx: Sender<String>,
+    pub clients: Arc<Mutex<HashMap<String, tokio::sync::mpsc::Sender<String>>>>,
+}
+
+#[derive(Clone)]
 pub struct AppState {
     pub s3_client: Arc<S3Client>,
     pub db_pool: pool::PgPool,
     pub pump_client: Arc<PumpClient>,
-    pub tx: Sender<String>,
-    pub clients: Arc<Mutex<HashMap<String, tokio::sync::mpsc::Sender<String>>>>,
+    pub ws: WsState,
 }
 
 impl AppState {
@@ -57,8 +62,7 @@ impl AppState {
             s3_client: shared_s3_client,
             db_pool,
             pump_client: Arc::new(pump_client),
-            tx: tx.clone(),
-            clients: Arc::new(Mutex::new(HashMap::new())),
+            ws: WsState { tx: tx.clone(), clients: Arc::new(Mutex::new(HashMap::new())) },
         })
     }
 

@@ -1,5 +1,6 @@
 // src/main.rs
 mod http;
+mod sock;
 mod state;
 mod ws;
 
@@ -21,7 +22,7 @@ async fn main() {
     env_logger::init();
 
     let app_state = AppState::new().await.expect("Failed to create app state");
-    ws::setup_unix_socket(app_state.clone());
+    sock::setup_unix_socket(app_state.ws.clone());
 
     // CORS for local dev with vite frontend
     let origin = "http://localhost:5173".parse::<HeaderValue>().unwrap();

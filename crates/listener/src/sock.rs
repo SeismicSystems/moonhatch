@@ -1,11 +1,8 @@
-use std::io::prelude::*;
-use std::os::unix::net::UnixStream;
+use std::{io::prelude::*, os::unix::net::UnixStream};
 
 use alloy_primitives::Address;
 use bigdecimal::BigDecimal;
-use pump::db::models::Coin;
-use pump::error::ListenerError;
-use pump::SOCKET_PATH;
+use pump::{db::models::Coin, error::ListenerError, SOCKET_PATH};
 use serde::{Deserialize, Serialize};
 
 pub struct SockWriter {
