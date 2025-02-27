@@ -5,7 +5,8 @@ resolver = "2"
 [workspace.dependencies]
 pump = { path = "crates/pump" }
 # web
-axum = { version = "0.6.20", features = ["multipart", "ws"]}
+axum = { version = "0.6.20", features = ["multipart", "ws"] }
+futures = "0.3.31"
 futures-util = "0.3"
 tokio = { version = "1.28", features = ["full"] }
 tokio-stream = { version = "0.1.17", features = ["net"] }
@@ -13,7 +14,12 @@ tokio-stream = { version = "0.1.17", features = ["net"] }
 # db
 bigdecimal = { version = "0.4.7", features = ["serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-diesel = { version = "2.2.7", features = ["postgres", "r2d2", "chrono", "numeric"] }
+diesel = { version = "2.2.7", features = [
+    "postgres",
+    "r2d2",
+    "chrono",
+    "numeric",
+] }
 r2d2 = "0.8.10"
 
 dotenv = "0.15"
@@ -23,6 +29,7 @@ reqwest = "0.12.12"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0.11"
+uuid = { version = "1.15.1", features = ["v4"] }
 
 # web3
 alloy-provider = { version = "=0.8.0", features = [
