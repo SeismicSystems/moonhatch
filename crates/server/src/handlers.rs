@@ -5,6 +5,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use chrono::{NaiveDateTime, Utc};
 use serde::Serialize;
 
 use pump::{
@@ -51,6 +52,31 @@ pub(crate) async fn verify_coin_handler(
     // Perform the update operation
     store::update_coin(&mut conn, coin_id, coin)?;
     Ok((StatusCode::OK, Json(format!("Coin {} verified successfully!", coin_id))).into_response())
+}
+
+pub(crate) async fn sync_coin(
+    Path(coin_id): Path<i64>,
+    State(state): State<AppState>,
+) -> Result<impl IntoResponse, PumpError> {
+    let mut conn = state.db_conn()?;
+    let client = &state.pump_client;
+
+    let coin = client.get_coin(coin_id as u32).await?;
+    let pair = client.get_pair(coin.contractAddress).await?;
+    let sol_pool = client.get_pool(pair).await?;
+
+    let pool = models::Pool {
+        address: sol_pool.lp_token.to_string(),
+        chain_id: client.chain_id as i32,
+        dex: client.ca.router.to_string(),
+        token_0: sol_pool.token_0.to_string(),
+        token_1: sol_pool.token_1.to_string(),
+        created_at: Utc::now().naive_utc(),
+    };
+    store::upsert_deployed_pool(&mut conn, pool)?;
+    store::update_coin(&mut conn, coin_id, coin)?;
+    store::update_deployed_pool(&mut conn, coin_id, sol_pool.lp_token)?;
+    Ok((StatusCode::OK, Json(format!("Coin {} synced successfully!", coin_id))).into_response())
 }
 
 pub(crate) async fn get_all_coins_handler(

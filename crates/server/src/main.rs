@@ -32,7 +32,8 @@ async fn main() {
     let coin_routes = Router::new()
         .route("/", get(handlers::get_coin_handler)) // GET /coin/:id/snippet
         .route("/upload", post(handlers::upload_file)) // POST /coin/:id/upload
-        .route("/verify", post(handlers::verify_coin_handler));
+        .route("/verify", post(handlers::verify_coin_handler))
+        .route("/sync", post(handlers::sync_coin));
 
     let coins_routes = Router::new()
         .route("/", get(handlers::get_all_coins_handler)) // GET /coins
