@@ -84,7 +84,7 @@ const CoinForm: React.FC = () => {
     notifySuccess('Coin created successfully')
     setTimeout(() => {
       navigate(`/coins/${coinId}`)
-    }, 2000)
+    }, 1000)
 
     console.log('Final Form Data:', formData)
   }
