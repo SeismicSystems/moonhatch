@@ -24,7 +24,7 @@ export type CoinFormData = {
 }
 
 export type Coin = {
-  id: bigint
+  id: number
   createdAt: number
   imageUrl?: string
   graduated: boolean

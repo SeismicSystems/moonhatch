@@ -1,26 +1,9 @@
 import React from 'react'
 
+import { Coin } from '@/types/coin'
 import { Box } from '@mui/material'
 
-interface CoinInfoDetailsProps {
-  coin: {
-    id: bigint
-    name: string
-    symbol: string
-    contractAddress: { toString: () => string }
-    imageUrl?: string
-    createdAt: { toString: () => string }
-    supply: { toString: () => string }
-    decimals: bigint | number
-    graduated: boolean
-    creator: { toString: () => string }
-    description: string
-    twitter: string
-    website: string
-    telegram: string
-  }
-}
-const CoinDescriptionContainer: React.FC<CoinInfoDetailsProps> = ({ coin }) => {
+const CoinDescriptionContainer: React.FC<{ coin: Coin }> = ({ coin }) => {
   return (
     <>
       {' '}

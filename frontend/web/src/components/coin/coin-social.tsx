@@ -1,15 +1,11 @@
 import React from 'react'
 
 import SocialLink from '@/components/coin/social-link'
+import { Coin } from '@/types/coin'
 import { Box } from '@mui/material'
 
-interface CoinSocialsProps {
-  coin: {
-    id: bigint
-    twitter: string
-    website: string
-    telegram: string
-  }
+type CoinSocialsProps = {
+  coin: Coin
   isCardPage?: boolean
 }
 

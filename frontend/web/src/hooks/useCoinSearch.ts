@@ -1,6 +1,7 @@
 import Fuse from 'fuse.js'
 import { useEffect, useState } from 'react'
 
+import { useFetchCoin } from '@/hooks/useFetchCoin'
 import type { Coin } from '@/types/coin'
 
 interface FilterState {
@@ -12,15 +13,19 @@ interface FilterState {
 }
 
 interface UseCoinSearchResult {
+  allCoins: Coin[]
   filteredCoins: Coin[]
   searchQuery: string
   setSearchQuery: (query: string) => void
   filters: FilterState
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>
+  loading: boolean
+  error: Error | null
 }
 
-export const useCoinSearch = (coins: Coin[]): UseCoinSearchResult => {
-  const [filteredCoins, setFilteredCoins] = useState<Coin[]>(coins)
+export const useCoinSearch = (): UseCoinSearchResult => {
+  const [coins, setCoins] = useState<Coin[]>([])
+  const [filteredCoins, setFilteredCoins] = useState<Coin[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [filters, setFilters] = useState<FilterState>({
     hasWebsite: false,
@@ -29,6 +34,15 @@ export const useCoinSearch = (coins: Coin[]): UseCoinSearchResult => {
     hasAllSocials: false,
     sortByCreatedAt: true,
   })
+
+  const { loadAllCoins, loading, error } = useFetchCoin()
+
+  useEffect(() => {
+    if (loading) return
+    const allCoins = loadAllCoins()
+    console.log(JSON.stringify(allCoins))
+    setCoins(allCoins)
+  }, [loading])
 
   useEffect(() => {
     let updatedCoins = [...coins]
@@ -59,10 +73,13 @@ export const useCoinSearch = (coins: Coin[]): UseCoinSearchResult => {
   }, [searchQuery, filters, coins])
 
   return {
+    allCoins: coins,
     filteredCoins,
     searchQuery,
     setSearchQuery,
     filters,
     setFilters,
+    loading,
+    error,
   }
 }
