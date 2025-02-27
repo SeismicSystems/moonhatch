@@ -62,21 +62,29 @@ pub(crate) async fn sync_coin(
     let client = &state.pump_client;
 
     let coin = client.get_coin(coin_id as u32).await?;
-    let pair = client.get_pair(coin.contractAddress).await?;
-    let sol_pool = client.get_pool(pair).await?;
-
-    let pool = models::Pool {
-        address: sol_pool.lp_token.to_string(),
-        chain_id: client.chain_id as i32,
-        dex: client.ca.router.to_string(),
-        token_0: sol_pool.token_0.to_string(),
-        token_1: sol_pool.token_1.to_string(),
-        created_at: Utc::now().naive_utc(),
-    };
-    store::upsert_deployed_pool(&mut conn, pool)?;
+    let token_address = coin.contractAddress.clone();
     store::update_coin(&mut conn, coin_id, coin)?;
-    store::update_deployed_pool(&mut conn, coin_id, sol_pool.lp_token)?;
-    Ok((StatusCode::OK, Json(format!("Coin {} synced successfully!", coin_id))).into_response())
+
+    match client.get_pair(token_address).await {
+        Ok(pair) => {
+            let sol_pool = client.get_pool(pair).await?;
+
+            let pool = models::Pool {
+                address: sol_pool.lp_token.to_string(),
+                chain_id: client.chain_id as i32,
+                dex: client.ca.router.to_string(),
+                token_0: sol_pool.token_0.to_string(),
+                token_1: sol_pool.token_1.to_string(),
+                created_at: Utc::now().naive_utc(),
+            };
+            store::upsert_deployed_pool(&mut conn, pool)?;
+            store::update_deployed_pool(&mut conn, coin_id, sol_pool.lp_token)?;
+            Ok((StatusCode::OK, Json(format!("Synced graduated coinId={}", coin_id)))
+                .into_response())
+        }
+        Err(_e) => Ok((StatusCode::OK, Json(format!("Synced non-graduated coinId={}", coin_id)))
+            .into_response()),
+    }
 }
 
 pub(crate) async fn get_all_coins_handler(
