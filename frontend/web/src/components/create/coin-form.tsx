@@ -84,9 +84,9 @@ const CoinForm: React.FC = () => {
       .catch((e) => console.error(`Failed verifying coin ${coinId}: ${e}`))
 
     notifySuccess('Coin created successfully')
-    setTimeout(() => {
-      navigate(`/coins/${coinId}`)
-    }, 1000)
+    setIsCreating(false)
+    navigate(`/coins/${coinId}`)
+
 
     console.log('Final Form Data:', formData)
   }
