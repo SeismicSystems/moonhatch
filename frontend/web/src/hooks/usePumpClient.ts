@@ -292,6 +292,16 @@ export const usePumpClient = () => {
     return getExplorerUrl({ publicClient: pubClient(), txHash })
   }
 
+  const deployGraduated = async (coinId: bigint): Promise<Hex> => {
+    // @ts-expect-error TODO: christian fix typing in seismic-viem
+    return pump().twrite.deployGraduated([coinId], { gas: 1_000_000 })
+  }
+
+  const getPair = async (coinId: bigint): Promise<Hex> => {
+    // @ts-expect-error TODO: christian fix typing in seismic-viem
+    return pump().tread.getPair([coinId])
+  }
+
   return {
     loaded,
     walletClient,
@@ -317,5 +327,7 @@ export const usePumpClient = () => {
     approveAndSell,
     waitForTransaction,
     explorerUrl,
+    deployGraduated,
+    getPair,
   }
 }

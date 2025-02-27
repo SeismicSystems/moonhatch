@@ -11,6 +11,39 @@ import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
 import { Box, Typography } from '@mui/material'
 
+const CoinDetailGraph: React.FC<{ coin: Coin }> = ({ coin }) => {
+  return (
+    <>
+      {coin.graduated && coin.deployedPool ? (
+        <Box sx={{ display: 'flex' }}>
+          <div className="justify-center items-center">
+            <Candles pool={`${coin.deployedPool}`} />
+          </div>
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '350px',
+            width: '350px',
+            marginRight: { xs: 0, sm: 0, md: 0, lg: 0, xl: '200%' },
+          }}
+        >
+          <Typography variant="h3" sx={{ mb: 2, color: 'error.main' }}>
+            CHART LOCKED UNTIL GRADUATION
+          </Typography>
+          <div className="lock-container border-2 border-red-500 rounded-full p-4 ">
+            <LockIcon className="lock-icon text-red-500 text-[96px] animate-pulse" />
+          </div>
+        </Box>
+      )}
+    </>
+  )
+}
+
 const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
   return (
     <>
@@ -64,32 +97,7 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
         </Box>
 
         <div className="status-icon-container flex justify-center mx-auto items-center">
-          {coin.graduated && coin.deployedPool ? (
-            <Box sx={{ display: 'flex' }}>
-              <div className="justify-center items-center">
-                <Candles pool={`${coin.deployedPool}`} />
-              </div>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '350px',
-                width: '350px',
-                marginRight: { xs: 0, sm: 0, md: 0, lg: 0, xl: '200%' },
-              }}
-            >
-              <Typography variant="h3" sx={{ mb: 2, color: 'error.main' }}>
-                CHART LOCKED UNTIL GRADUATION
-              </Typography>
-              <div className="lock-container border-2 border-red-500 rounded-full p-4 ">
-                <LockIcon className="lock-icon text-red-500 text-[96px] animate-pulse" />
-              </div>
-            </Box>
-          )}
+          <CoinDetailGraph coin={coin} />
         </div>
       </div>
     </>
