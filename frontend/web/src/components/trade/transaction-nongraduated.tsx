@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { set } from 'react-hook-form'
 import { formatEther, parseEther } from 'viem'
 
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
@@ -36,6 +37,8 @@ export const TransactionNonGraduated = ({
   }, [buyInputEth])
 
   const buy = () => {
+    setIsBuying(true)
+
     if (!buyAmountWei) {
       setBuyError('Invalid amount')
       return
@@ -46,6 +49,9 @@ export const TransactionNonGraduated = ({
       })
       .catch((e) => {
         setBuyError(`Buy failed: ${e}`)
+      })
+      .finally(() => {
+        setIsBuying(false)
       })
   }
 
@@ -62,7 +68,6 @@ export const TransactionNonGraduated = ({
           {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
           <NonGraduatedTradeButton
             onClick={() => {
-              setIsBuying(true)
               buy()
             }}
             disabled={!buyAmountWei || isBuying}
