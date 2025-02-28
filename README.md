@@ -25,7 +25,7 @@ Then from project root, run:
 bun install
 ```
 
-Note: Run all `bun install` commands from root. The only `node_modules/` with your JS packages should be the one at root. `vite` will create temp files in `frontend/web/node_modules`, but that's all that should live there
+Note: Run all `bun install` commands from root. The only `node_modules/` with your JS packages should be the one at root. `vite` will create temp files in `packages/web/node_modules`, but that's all that should live there
 
 ## Local development
 
