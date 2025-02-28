@@ -33,7 +33,6 @@ async fn main() {
 
     // Define sub-router to handle /coin/:id routes
     let coin_routes = Router::new()
-        .route("/ws", get(ws::ws_handler))
         .route("/", get(http::get_coin_handler)) // GET /coin/:id/snippet
         .route("/upload", post(http::upload_file)) // POST /coin/:id/upload
         .route("/verify", post(http::verify_coin_handler))
@@ -47,6 +46,7 @@ async fn main() {
 
     // Define the main router.
     let app = Router::new()
+        .route("/ws", get(ws::ws_handler))
         .nest("/coin/:id", coin_routes)
         .nest("/coins", coins_routes)
         .nest("/pool/:pool", pool_routes)
