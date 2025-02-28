@@ -11,14 +11,15 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use dotenv::dotenv;
+use pump::get_workspace_root;
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::state::AppState;
 
 #[tokio::main]
 async fn main() {
-    dotenv().ok();
+    let workspace_root = get_workspace_root().expect("no workspace root");
+    dotenv::from_path(format!("{}/.env", workspace_root)).ok();
     env_logger::init();
 
     let app_state = AppState::new().await.expect("Failed to create app state");
