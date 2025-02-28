@@ -1,17 +1,14 @@
 use alloy_primitives::Address;
 use alloy_provider::{Provider, SeismicUnsignedProvider};
 use alloy_sol_types::{sol_data::Address as SolAddress, SolCall, SolType};
-use cargo_metadata::MetadataCommand;
 use serde::Deserialize;
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use std::{fs, path::Path};
 
 use crate::{
     client::build_tx,
     contract::dex::UniswapV2Router02::{factoryCall, WETHCall},
     error::PumpError,
+    get_workspace_root,
 };
 
 #[derive(Debug, Clone)]
@@ -22,21 +19,10 @@ pub struct ContractAddresses {
     pub weth: Address,
 }
 
-/// Returns the workspace root by invoking `cargo metadata`.
-fn get_workspace_root() -> Option<PathBuf> {
-    match std::env::var("WORKSPACE_ROOT") {
-        Ok(workspace_root) => Some(PathBuf::from(workspace_root)),
-        Err(_) => {
-            let metadata = MetadataCommand::new().exec().ok()?;
-            Some(metadata.workspace_root.into())
-        }
-    }
-}
-
 fn contract_path(chain_id: u64, contract: &str) -> String {
     format!(
         "{}/contracts/abis/{}/contracts/{}.json",
-        get_workspace_root().unwrap().to_string_lossy(),
+        get_workspace_root().unwrap(),
         chain_id,
         contract
     )

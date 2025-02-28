@@ -1,5 +1,6 @@
 {
-  "chainId": 5124,
+  "address": "0x8464135c8f25da09e49bc8782676a84730c318bc",
+  "chainId": 31337,
   "methodIdentifiers": {
     "allowance(address,address)": "dd62ed3e",
     "allowance(saddress)": "8feaa1ee",
@@ -8,15 +9,15 @@
     "balanceOf()": "722713f7",
     "balanceOf(address)": "70a08231",
     "decimals()": "313ce567",
-    "graduate()": "d3618cca",
-    "mint(saddress,suint256)": "f43064fb",
+    "deposit()": "d0e30db0",
     "name()": "06fdde03",
     "symbol()": "95d89b41",
     "totalSupply()": "18160ddd",
     "transfer(address,uint256)": "a9059cbb",
     "transfer(saddress,suint256)": "8cdb7b34",
     "transferFrom(address,address,uint256)": "23b872dd",
-    "transferFrom(saddress,saddress,suint256)": "be09129c"
+    "transferFrom(saddress,saddress,suint256)": "be09129c",
+    "withdraw(uint256)": "2e1a7d4d"
   },
   "abi": [
     {
@@ -67,12 +68,12 @@
       "name": "approve",
       "inputs": [
         {
-          "name": "spender",
+          "name": "guy",
           "type": "address",
           "internalType": "address"
         },
         {
-          "name": "value",
+          "name": "wad",
           "type": "uint256",
           "internalType": "uint256"
         }
@@ -157,28 +158,10 @@
     },
     {
       "type": "function",
-      "name": "graduate",
+      "name": "deposit",
       "inputs": [],
       "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "mint",
-      "inputs": [
-        {
-          "name": "to",
-          "type": "saddress",
-          "internalType": "saddress"
-        },
-        {
-          "name": "amount",
-          "type": "suint256",
-          "internalType": "suint256"
-        }
-      ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
+      "stateMutability": "payable"
     },
     {
       "type": "function",
@@ -224,12 +207,12 @@
       "name": "transfer",
       "inputs": [
         {
-          "name": "to",
+          "name": "dst",
           "type": "saddress",
           "internalType": "saddress"
         },
         {
-          "name": "value",
+          "name": "wad",
           "type": "suint256",
           "internalType": "suint256"
         }
@@ -326,6 +309,19 @@
       "stateMutability": "nonpayable"
     },
     {
+      "type": "function",
+      "name": "withdraw",
+      "inputs": [
+        {
+          "name": "wad",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
       "type": "event",
       "name": "Approval",
       "inputs": [
@@ -352,6 +348,25 @@
     },
     {
       "type": "event",
+      "name": "Deposit",
+      "inputs": [
+        {
+          "name": "dst",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "wad",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
       "name": "Transfer",
       "inputs": [
         {
@@ -368,6 +383,25 @@
         },
         {
           "name": "value",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "Withdrawal",
+      "inputs": [
+        {
+          "name": "src",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "wad",
           "type": "uint256",
           "indexed": false,
           "internalType": "uint256"
