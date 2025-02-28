@@ -25,10 +25,11 @@ export type CoinFormData = {
 
 export type Coin = {
   id: number
-  createdAt: number
+  description: string | null
+  createdAt: string // ISO 8601 timestamp
   imageUrl?: string
   graduated: boolean
   weiIn: string
   deployedPool: Hex | null
 } & OnChainCoin &
-  Omit<CoinFormData, 'image' | keyof OnChainCoin>
+  Omit<CoinFormData, 'image' | 'description' | keyof OnChainCoin>

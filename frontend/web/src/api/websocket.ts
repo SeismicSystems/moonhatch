@@ -39,6 +39,9 @@ class WebSocketService {
       this.socket.onmessage = (event) => {
         try {
           const update: CoinUpdate = JSON.parse(event.data)
+          if (update.type === 'graduatedCoin') {
+            update.data.graduated = true
+          }
 
           // Validate that we have a proper update with at least an ID
           if (update && update.data.id) {

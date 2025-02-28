@@ -6,8 +6,7 @@ import { formatRelativeTime } from '@/util'
 import { Box, Typography } from '@mui/material'
 
 const CoinImageComponent: React.FC<{ coin: Coin }> = ({ coin }) => {
-  const createdTimestamp = new Date(coin.createdAt + 'Z').getTime()
-  const relativeTime = formatRelativeTime(createdTimestamp)
+  const relativeTime = formatRelativeTime(coin.createdAt)
 
   return (
     <>

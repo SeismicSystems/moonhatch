@@ -37,9 +37,9 @@ export const fetchCoinById = (coinId: number) => async (dispatch: Dispatch) => {
     if (!response.ok) {
       throw new Error(`Response not ok for coin ${coinId}`)
     }
-    const data: Coin = await response.json()
-    dispatch(fetchCoinsSuccess([data]))
-    return data
+    const data: { coin: Coin } = await response.json()
+    dispatch(fetchCoinsSuccess([data.coin]))
+    return data.coin
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error'

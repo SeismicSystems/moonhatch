@@ -15,11 +15,11 @@ const Home: React.FC = () => {
     filters,
     setFilters,
     loading,
-    error,
+    // error,
   } = useCoinSearch()
 
   if (loading) return <div>Loading coins...</div>
-  if (error) return <div>Error loading coins: {error.message}</div>
+  // if (error) return <div>Error loading coins: {error.message}</div>
 
   return (
     <div className="home-container">

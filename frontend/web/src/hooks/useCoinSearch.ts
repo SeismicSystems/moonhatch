@@ -1,7 +1,8 @@
 import Fuse from 'fuse.js'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSelector } from 'react-redux'
 
-import { useFetchCoin } from '@/hooks/useFetchCoin'
+import { selectAllCoins, selectCoinsLoading } from '@/store/slice'
 import type { Coin } from '@/types/coin'
 
 interface FilterState {
@@ -20,11 +21,12 @@ interface UseCoinSearchResult {
   filters: FilterState
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>
   loading: boolean
-  error: Error | null
 }
 
 export const useCoinSearch = (): UseCoinSearchResult => {
-  const [coins, setCoins] = useState<Coin[]>([])
+  const coins = useSelector(selectAllCoins)
+  const loading = useSelector(selectCoinsLoading)
+
   const [filteredCoins, setFilteredCoins] = useState<Coin[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [filters, setFilters] = useState<FilterState>({
@@ -35,20 +37,25 @@ export const useCoinSearch = (): UseCoinSearchResult => {
     sortByCreatedAt: true,
   })
 
-  const { loadAllCoins, loading, error } = useFetchCoin()
+  // Convert coins to array for Fuse if needed and memoize
+  const coinsArray = useMemo(() => {
+    return Object.values(coins)
+  }, [coins])
+
+  // Memoize the Fuse instance to prevent recreation on every render
+  const fuse = useMemo(
+    () =>
+      new Fuse(coinsArray, {
+        keys: ['name', 'symbol'],
+        threshold: 0.3,
+      }),
+    [coinsArray]
+  )
 
   useEffect(() => {
-    if (loading) return
-    const allCoins = loadAllCoins()
-    console.log(JSON.stringify(allCoins))
-    setCoins(allCoins)
-  }, [loading])
-
-  useEffect(() => {
-    let updatedCoins = [...coins]
+    let updatedCoins = [...coinsArray]
 
     if (searchQuery.trim() !== '') {
-      const fuse = new Fuse(coins, { keys: ['name', 'symbol'], threshold: 0.3 })
       updatedCoins = fuse.search(searchQuery).map((result) => result.item)
     }
 
@@ -65,21 +72,20 @@ export const useCoinSearch = (): UseCoinSearchResult => {
 
     updatedCoins.sort((a, b) => {
       return filters.sortByCreatedAt
-        ? (b.createdAt || 0) - (a.createdAt || 0)
-        : (a.createdAt || 0) - (b.createdAt || 0)
+        ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     })
 
     setFilteredCoins(updatedCoins)
-  }, [searchQuery, filters, coins])
+  }, [searchQuery, filters, coinsArray, fuse])
 
   return {
-    allCoins: coins,
+    allCoins: coinsArray,
     filteredCoins,
     searchQuery,
     setSearchQuery,
     filters,
     setFilters,
     loading,
-    error,
   }
 }

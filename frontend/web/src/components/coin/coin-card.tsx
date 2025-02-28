@@ -250,9 +250,9 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                       textOverflow: 'ellipsis',
                     }}
                   >
-                    {coin.description.length > 50
+                    {coin.description && coin.description.length > 50
                       ? `${coin.description.substring(0, 50)}...`
-                      : coin.description}
+                      : coin.description || ''}
                   </Typography>
                 </Box>
               </Box>
