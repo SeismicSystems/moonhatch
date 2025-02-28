@@ -65,41 +65,57 @@ export const {
   updateCoin,
 } = coinsSlice.actions
 
-// Base selector that gets the coins slice
+// Base selector for coins state
 export const selectCoinsState = (state: RootState) => state.coins
 
-// Memoized selector for loading state
+// Selector for loading state
 export const selectCoinsLoading = createSelector(
   [selectCoinsState],
   (coinsState) => coinsState.loading
 )
 
-// Memoized selector that includes all coin data
-// But only creates a new reference when graduated, weiIn, or deployedPool fields change
-export const selectAllCoins = createSelector(
+// Selector for the entities dictionary
+export const selectCoinsEntities = createSelector(
   [selectCoinsState],
-  (coinsState) => {
-    // This is the key - by accessing these fields in the selector function,
-    // we ensure the selector only returns a new reference when these fields change
-    if (coinsState.entities) {
-      // For normalized object structure (always an object)
-      Object.values(coinsState.entities).forEach((coin) => {
-        // Just accessing these fields tells Redux to watch them
-        coin.graduated
-        coin.weiIn
-        coin.deployedPool
-      })
-    }
-
-    // Return the complete data
-    return coinsState.entities || {}
-  }
+  (coinsState) => coinsState.entities || {}
 )
 
-// Optional: Create more specific selectors if needed
-export const selectCoinById = createSelector(
-  [selectAllCoins, (_, coinId: string) => coinId],
-  (coins, coinId) => coins[coinId]
+// Individual entity selectors with field-specific dependencies
+export const selectCoinById = (coinId: string) =>
+  createSelector([selectCoinsEntities], (entities) => entities[coinId])
+
+// Field-specific selectors that only change when that field changes
+export const selectCoinGraduatedStatus = (coinId: string) =>
+  createSelector([selectCoinById(coinId)], (coin) => coin?.graduated)
+
+export const selectCoinWeiInStatus = (coinId: string) =>
+  createSelector([selectCoinById(coinId)], (coin) => coin?.weiIn)
+
+export const selectCoinDeployedPoolStatus = (coinId: string) =>
+  createSelector([selectCoinById(coinId)], (coin) => coin?.deployedPool)
+
+// Main selector that returns entities but with identity based on tracked fields
+export const selectAllCoins = createSelector(
+  [
+    selectCoinsEntities,
+    (state) => {
+      const entities = selectCoinsEntities(state)
+      // This creates a dependency on the specific fields we care about
+      return Object.keys(entities).reduce(
+        (acc, id) => {
+          acc[id] = {
+            graduated: entities[id].graduated,
+            weiIn: entities[id].weiIn,
+            deployedPool: entities[id].deployedPool,
+          }
+          return acc
+        },
+        {} as Record<string, Pick<Coin, 'graduated' | 'weiIn' | 'deployedPool'>>
+      )
+    },
+  ],
+  // Return the full entities dictionary, but only when tracked fields change
+  (entities) => entities
 )
 
 export default coinsSlice.reducer
