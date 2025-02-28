@@ -1,12 +1,8 @@
+import type { RootState } from '@/store/store'
 import type { Coin } from '@/types/coin'
 import type { CoinUpdate } from '@/types/update'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { createSlice } from '@reduxjs/toolkit'
-import { createSelector } from '@reduxjs/toolkit'
-
-import type { RootState } from './store'
-
-// Adjust path as needed
+import { createSelector, createSlice } from '@reduxjs/toolkit'
 
 export type CoinsState = {
   entities: Record<string, Coin>

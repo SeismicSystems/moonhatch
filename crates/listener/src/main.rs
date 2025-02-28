@@ -1,18 +1,19 @@
 mod handler;
 mod sock;
 
-use dotenv::dotenv;
 use futures_util::{select, stream::StreamExt};
 use handler::LogHandler;
 use pump::{
     client::{block::Block, PumpClient},
     db::pool::establish_pool,
     error::PumpError,
+    get_workspace_root,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), PumpError> {
-    dotenv().ok();
+    let workspace_root = get_workspace_root().expect("no workspace root");
+    dotenv::from_path(format!("{}/.env", workspace_root)).ok();
     env_logger::init();
 
     let rpc_url = std::env::var("RPC_URL").expect("Must set RPC_URL in .env");
