@@ -44,7 +44,10 @@ pub fn get_coin(conn: &mut PgConnection, coin_id: i64) -> Result<Coin, PumpError
 }
 
 pub fn get_all_coins(conn: &mut PgConnection) -> Result<Vec<Coin>, PumpError> {
-    Ok(coins_table.order(coins_schema::created_at.desc()).load::<Coin>(conn)?)
+    Ok(coins_table
+        .filter(coins_schema::hidden.eq(false))
+        .order(coins_schema::created_at.desc())
+        .load::<Coin>(conn)?)
 }
 
 pub fn get_pool_prices(
