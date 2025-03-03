@@ -68,7 +68,6 @@ export const TransactionNonGraduated = ({
           {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
           <NonGraduatedTradeButton
             onClick={() => {
-
               buy()
             }}
             disabled={!buyAmountWei || isBuying}

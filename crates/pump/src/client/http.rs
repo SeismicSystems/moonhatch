@@ -1,8 +1,7 @@
 use alloy_network::EthereumWallet;
 use alloy_primitives::{hex::FromHex, Address, FixedBytes, B256};
 use alloy_provider::{
-    create_seismic_provider, create_seismic_provider_without_wallet, network::TransactionBuilder,
-    Provider, SeismicSignedProvider, SeismicUnsignedProvider,
+    network::TransactionBuilder, Provider, SeismicSignedProvider, SeismicUnsignedProvider,
 };
 use alloy_rpc_types_eth::{Header, TransactionInput, TransactionRequest};
 use alloy_signer_local::LocalSigner;
@@ -27,6 +26,7 @@ pub fn build_tx(to: &Address, calldata: Vec<u8>) -> TransactionRequest {
     TransactionRequest::default().with_to(to.clone()).input(TransactionInput::new(calldata.into()))
 }
 
+#[derive(Debug)]
 pub struct PumpClient {
     pub chain_id: u64,
     provider: SeismicUnsignedProvider,
@@ -38,7 +38,7 @@ pub struct PumpClient {
 impl PumpClient {
     pub async fn new(rpc_url: &str) -> Result<PumpClient, PumpError> {
         let rpc_url = Url::from_str(rpc_url).expect("Missing RPC_URL in .env");
-        let provider = create_seismic_provider_without_wallet(rpc_url.clone());
+        let provider = SeismicUnsignedProvider::new(rpc_url.clone());
 
         let chain_id = provider.get_chain_id().await?;
 
@@ -47,7 +47,7 @@ impl PumpClient {
         let pk_bytes = B256::from_hex(private_key).unwrap();
         let signer = LocalSigner::from_bytes(&pk_bytes).expect("invalid signer");
         let signer_address = signer.address();
-        let wallet = create_seismic_provider(EthereumWallet::new(signer), rpc_url);
+        let wallet = SeismicSignedProvider::new(EthereumWallet::new(signer), rpc_url);
 
         Ok(PumpClient {
             provider,

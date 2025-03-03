@@ -2,8 +2,9 @@
 export const stringifyBigInt = (_: any, value: any) =>
   typeof value === 'bigint' ? value.toString() : value
 
-// Helper to format a timestamp (in milliseconds) as a relative time string.
-export const formatRelativeTime = (timestamp: number): string => {
+// Helper to format an ISO 8601 timestamp as a relative time string.
+export const formatRelativeTime = (isoTimestamp: string): string => {
+  const timestamp = new Date(`${isoTimestamp}Z`).getTime()
   const now = Date.now()
   const diff = now - timestamp
   const seconds = Math.floor(diff / 1000)

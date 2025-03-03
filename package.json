@@ -4,7 +4,7 @@
   ],
   "scripts": {
     "dev:local": "bun env:local:anvil && bun run --cwd ./packages/processes dev",
-    "dev:local:reset": "bun run --cwd ./packages/processes dev --reset",
+    "dev:local:reset": "bun env:local:anvil && bun run --cwd ./packages/processes dev --reset",
     "env:devnet": "cp .env.devnet .env",
     "env:local:anvil": "cp .env.local-anvil .env",
     "env:local:devnet": "cp .env.local-devnet .env",

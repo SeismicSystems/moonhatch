@@ -63,10 +63,10 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
     try {
       const amountIn = parseUnits(amountInput, Number(coin.decimals))
       setAmountIn(amountIn)
-    } catch (e) {
+    } catch {
       setAmountIn(null)
     }
-  }, [amountInput])
+  }, [amountInput, coin.decimals])
 
   useEffect(() => {
     if (isPreviewing) {

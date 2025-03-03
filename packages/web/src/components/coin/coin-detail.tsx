@@ -71,15 +71,7 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
             mb: { xs: 0, sm: 4, md: 0 },
           }}
         >
-          <CoinInfoDetails
-            coin={{
-              ...coin,
-              id: coin.id,
-              twitter: coin.twitter || '',
-              telegram: coin.telegram || '',
-              website: coin.website || '',
-            }}
-          />
+          <CoinInfoDetails coin={coin} />
           <TradeSection coin={coin} />
           {(coin.twitter || coin.telegram || coin.website) && (
             <div className="coin-socials-container -mt-12 lg:mt-20 -mb-4">
@@ -106,15 +98,13 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
 
 const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
-  const { fetchCoin, loaded, loading, error } = useFetchCoin()
   const [coin, setCoin] = useState<Coin | null>(null)
+  const { fetchCoin, loaded, loading, error } = useFetchCoin()
 
   useEffect(() => {
     if (!loaded || !coinId) return
-    // TODO: fetch from store
-    // Fetch coin data once without an interval
-    fetchCoin(BigInt(coinId))
-      .then((foundCoin) => setCoin(foundCoin || null))
+    fetchCoin(Number(coinId))
+      .then((foundCoin) => setCoin(foundCoin))
       .catch((err) => console.error('Error fetching coin:', err))
   }, [loaded, coinId])
 

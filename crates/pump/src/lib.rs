@@ -17,9 +17,23 @@ pub const SOCKET_PATH: &str = "/tmp/listener.sock";
 #[serde(rename_all = "camelCase")]
 pub enum ListenerUpdate {
     VerifiedCoin(Coin),
-    WeiInUpdated { coin_id: i64, total_wei_in: BigDecimal },
-    GraduatedCoin { coin_id: i64 },
-    DeployedToDex { coin_id: i64, deployed_pool: String },
+
+    #[serde(rename_all = "camelCase")]
+    WeiInUpdated {
+        id: i64,
+        total_wei_in: BigDecimal,
+    },
+
+    #[serde(rename_all = "camelCase")]
+    GraduatedCoin {
+        id: i64,
+    },
+
+    #[serde(rename_all = "camelCase")]
+    DeployedToDex {
+        id: i64,
+        deployed_pool: String,
+    },
 }
 
 /// Returns the workspace root by invoking `cargo metadata`.

@@ -10,12 +10,7 @@ use pump::{
     get_workspace_root,
 };
 
-#[tokio::main]
-async fn main() -> Result<(), PumpError> {
-    let workspace_root = get_workspace_root().expect("no workspace root");
-    dotenv::from_path(format!("{}/.env", workspace_root)).ok();
-    env_logger::init();
-
+async fn run() -> Result<(), PumpError> {
     let rpc_url = std::env::var("RPC_URL").expect("Must set RPC_URL in .env");
     let client = PumpClient::new(&rpc_url).await?;
     let db_pool = establish_pool();
@@ -23,7 +18,8 @@ async fn main() -> Result<(), PumpError> {
 
     log::info!("Initializing pubsub streams");
     let mut block_stream = handler.block_stream().await?.fuse();
-    let mut log_stream = handler.log_stream().await?.fuse();
+    let mut pump_stream = handler.pump_stream().await?.fuse();
+    let mut pairs_stream = handler.pairs_stream().await?.fuse();
 
     log::info!("Listening to streams...");
     loop {
@@ -32,10 +28,13 @@ async fn main() -> Result<(), PumpError> {
                 match maybe_block {
                     Some(block) => {
                         let block: Block = block.into();
+                        log::debug!("Received block: {:?}", block);
                         match handler.new_block(block).await {
                             Ok(false) => {}
                             Ok(true) => {
-                                log_stream = handler.log_stream().await?.fuse();
+                                log::debug!("Resubscribing to pairs stream");
+                                handler.unsubscribe(pairs_stream.into_inner().id().clone()).await?;
+                                pairs_stream = handler.pairs_stream().await?.fuse();
                             }
                             Err(e) => { log::error!("Error flushing prices for block {}: {:?}", block.number, e); }
                         }
@@ -46,14 +45,16 @@ async fn main() -> Result<(), PumpError> {
                     }
                 }
             },
-            maybe_log = log_stream.next() => {
+            maybe_log = pump_stream.next() => {
                 match maybe_log {
                     Some(log) => {
                         match handler.handle_log(log).await {
                             Ok(false) =>  {}
                             Ok(true) => {
                                 // restart the stream
-                                log_stream = handler.log_stream().await?.fuse();
+                                log::debug!("Resubscribing to pairs stream");
+                                handler.unsubscribe(pairs_stream.into_inner().id().clone()).await?;
+                                pairs_stream = handler.pairs_stream().await?.fuse();
                             }
                             Err(e) => {
                                 log::error!("Error handling log: {:?}", e);
@@ -66,7 +67,31 @@ async fn main() -> Result<(), PumpError> {
                     }
                 }
             },
+            maybe_log = pairs_stream.next() => {
+                match maybe_log {
+                    Some(log) => {
+                        match handler.handle_log(log).await {
+                            Err(e) => {
+                                log::error!("Error handling log: {:?}", e);
+                            }
+                            Ok(_) => {}
+                        }
+                    },
+                    None => {
+                        log::warn!("Log stream ended.");
+                        break;
+                    }
+                }
+            },
         }
     }
     Ok(())
+}
+
+#[tokio::main]
+async fn main() -> Result<(), PumpError> {
+    let workspace_root = get_workspace_root().expect("no workspace root");
+    dotenv::from_path(format!("{}/.env", workspace_root)).ok();
+    env_logger::init();
+    Ok(run().await?)
 }

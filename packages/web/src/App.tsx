@@ -1,16 +1,20 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { PropsWithChildren } from 'react'
+import { useDispatch } from 'react-redux'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ShieldedWalletProvider, sanvil, seismicDevnet2 } from 'seismic-react'
 import { checkFaucet } from 'seismic-viem'
 import { http } from 'viem'
 import { Config, WagmiProvider } from 'wagmi'
 
+import { fetchAllCoins } from '@/api/http'
+import { websocketService } from '@/api/websocket'
 import CoinDetail from '@/components/coin/coin-detail'
 import CoinForm from '@/components/create/coin-form'
 import { CHAIN_ID } from '@/hooks/useContract'
 import Home from '@/pages/Home'
 import NotFound from '@/pages/NotFound'
+import { AppDispatch } from '@/store/store'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -18,7 +22,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './App.css'
 
 const FAUCET_URL = import.meta.env.VITE_FAUCET_URL
-
 const SUPPORTED_CHAINS = [sanvil, seismicDevnet2]
 const CHAINS = SUPPORTED_CHAINS.filter((c) => c.id === CHAIN_ID)
 
@@ -69,6 +72,18 @@ const Providers: React.FC<PropsWithChildren<{ config: Config }>> = ({
 }
 
 const App: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>()
+
+  useEffect(() => {
+    // Fetch all coins when component mounts
+    dispatch(fetchAllCoins())
+
+    // Cleanup function to disconnect WebSocket when component unmounts
+    return () => {
+      websocketService.disconnect()
+    }
+  }, [dispatch])
+
   return (
     <BrowserRouter>
       <Providers config={config}>

@@ -23,7 +23,7 @@ mod tests {
     use super::*;
 
     use alloy_primitives::Address;
-    use alloy_provider::{create_seismic_provider_without_wallet, Provider};
+    use alloy_provider::{Provider, SeismicUnsignedProvider};
     use alloy_rpc_types_eth::TransactionRequest;
     use alloy_sol_types::SolType;
     use reqwest::Url;
@@ -45,7 +45,7 @@ mod tests {
     #[tokio::test]
     async fn test_call() {
         let rpc_url = Url::from_str("http://127.0.0.1:8545").expect("invalid RPC_URL");
-        let seismic_client = create_seismic_provider_without_wallet(rpc_url);
+        let seismic_client = SeismicUnsignedProvider::new(rpc_url);
 
         let contract_address =
             Address::from_str("0x5FbDB2315678afecb367f032d93F642f64180aa3").unwrap();

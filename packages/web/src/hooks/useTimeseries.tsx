@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Hex } from 'viem'
 
-import { BASE_API_URL } from '@/hooks/useFetchCoin'
+import { BASE_API_URL } from '@/api'
 
 type FetchTimeseriesParams = {
   pool: Hex
