@@ -88,7 +88,6 @@ async fn run() -> Result<(), PumpError> {
     Ok(())
 }
 
-
 #[tokio::main]
 async fn main() -> Result<(), PumpError> {
     let workspace_root = get_workspace_root().expect("no workspace root");

@@ -1,8 +1,7 @@
 use alloy_network::EthereumWallet;
 use alloy_primitives::{hex::FromHex, Address, FixedBytes, B256};
 use alloy_provider::{
-    network::TransactionBuilder,
-    Provider, SeismicSignedProvider, SeismicUnsignedProvider,
+    network::TransactionBuilder, Provider, SeismicSignedProvider, SeismicUnsignedProvider,
 };
 use alloy_rpc_types_eth::{Header, TransactionInput, TransactionRequest};
 use alloy_signer_local::LocalSigner;

@@ -1,4 +1,6 @@
-use crate::{client::contract_address::ContractAddresses, contract::pair::UniswapV2Pair, error::PumpError};
+use crate::{
+    client::contract_address::ContractAddresses, contract::pair::UniswapV2Pair, error::PumpError,
+};
 use alloy_primitives::{Address, FixedBytes};
 use alloy_provider::{Provider, SeismicUnsignedWsProvider};
 use alloy_pubsub::SubscriptionStream;
@@ -20,21 +22,20 @@ impl PumpWsClient {
         Ok(PumpWsClient { ws, ca: ContractAddresses::new(chain_id) })
     }
 
-    pub async fn pump_logs(
-        &self,
-    ) -> Result<SubscriptionStream<Log>, PumpError> {
+    pub async fn pump_logs(&self) -> Result<SubscriptionStream<Log>, PumpError> {
         let pump_filter = Filter::new().address(self.ca.pump);
         let sub = self.ws.inner().subscribe_logs(&pump_filter).await?;
         Ok(sub.into_stream())
     }
 
-    pub async fn pair_logs(&self, addresses: Vec<Address>) -> Result<SubscriptionStream<Log>, PumpError> {
-        let filter = Filter::new()
-            .address(addresses)
-            .event_signature(vec![
-                UniswapV2Pair::Swap::SIGNATURE_HASH,
-                UniswapV2Pair::Sync::SIGNATURE_HASH
-            ]);
+    pub async fn pair_logs(
+        &self,
+        addresses: Vec<Address>,
+    ) -> Result<SubscriptionStream<Log>, PumpError> {
+        let filter = Filter::new().address(addresses).event_signature(vec![
+            UniswapV2Pair::Swap::SIGNATURE_HASH,
+            UniswapV2Pair::Sync::SIGNATURE_HASH,
+        ]);
         let sub = self.ws.inner().subscribe_logs(&filter).await?;
         Ok(sub.into_stream())
     }
