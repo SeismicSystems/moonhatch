@@ -1,6 +1,6 @@
 use alloy_rpc_types_eth::Header;
 
-#[derive(Default, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Block {
     pub number: u64,
     pub timestamp: i64,

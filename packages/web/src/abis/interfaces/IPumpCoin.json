@@ -1,5 +1,5 @@
 {
-  "chainId": 5124,
+  "chainId": 31337,
   "methodIdentifiers": {
     "allowance(address,address)": "dd62ed3e",
     "allowance(saddress)": "8feaa1ee",

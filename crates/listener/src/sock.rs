@@ -29,11 +29,11 @@ impl SockWriter {
         coin_id: i64,
         total_wei_in: BigDecimal,
     ) -> Result<(), ListenerError> {
-        self.write(&ListenerUpdate::WeiInUpdated { coin_id, total_wei_in })
+        self.write(&ListenerUpdate::WeiInUpdated { id: coin_id, total_wei_in })
     }
 
     pub(crate) fn write_graduated_coin(&mut self, coin_id: i64) -> Result<(), ListenerError> {
-        self.write(&ListenerUpdate::GraduatedCoin { coin_id })
+        self.write(&ListenerUpdate::GraduatedCoin { id: coin_id })
     }
 
     pub(crate) fn write_deployed_to_dex(
@@ -42,7 +42,7 @@ impl SockWriter {
         deployed_pool: Address,
     ) -> Result<(), ListenerError> {
         self.write(&ListenerUpdate::DeployedToDex {
-            coin_id,
+            id: coin_id,
             deployed_pool: deployed_pool.to_string(),
         })
     }

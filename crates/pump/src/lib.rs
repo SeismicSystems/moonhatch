@@ -20,18 +20,18 @@ pub enum ListenerUpdate {
 
     #[serde(rename_all = "camelCase")]
     WeiInUpdated {
-        coin_id: i64,
+        id: i64,
         total_wei_in: BigDecimal,
     },
 
     #[serde(rename_all = "camelCase")]
     GraduatedCoin {
-        coin_id: i64,
+        id: i64,
     },
 
     #[serde(rename_all = "camelCase")]
     DeployedToDex {
-        coin_id: i64,
+        id: i64,
         deployed_pool: String,
     },
 }

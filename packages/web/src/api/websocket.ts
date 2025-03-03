@@ -42,10 +42,9 @@ class WebSocketService {
           if (update.type === 'graduatedCoin') {
             update.data.graduated = true
           }
-          console.log('received update:', JSON.stringify(update))
 
           // Validate that we have a proper update with at least an ID
-          if (update && update.data.id) {
+          if (update) {
             if (this.dispatch) {
               this.dispatch(updateCoin(update))
             }

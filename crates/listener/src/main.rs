@@ -23,7 +23,8 @@ async fn main() -> Result<(), PumpError> {
 
     log::info!("Initializing pubsub streams");
     let mut block_stream = handler.block_stream().await?.fuse();
-    let mut log_stream = handler.log_stream().await?.fuse();
+    let mut pump_stream = handler.pump_stream().await?.fuse();
+    let mut pairs_stream = handler.pairs_stream().await?.fuse();
 
     log::info!("Listening to streams...");
     loop {
@@ -32,10 +33,13 @@ async fn main() -> Result<(), PumpError> {
                 match maybe_block {
                     Some(block) => {
                         let block: Block = block.into();
+                        println!("Received block: {:?}", block);
                         match handler.new_block(block).await {
                             Ok(false) => {}
                             Ok(true) => {
-                                log_stream = handler.log_stream().await?.fuse();
+                                println!("Resubscribing to pairs stream");
+                                handler.ws.unsubscribe(pairs_stream.into_inner().id().clone()).await?;
+                                pairs_stream = handler.pairs_stream().await?.fuse();
                             }
                             Err(e) => { log::error!("Error flushing prices for block {}: {:?}", block.number, e); }
                         }
@@ -46,14 +50,16 @@ async fn main() -> Result<(), PumpError> {
                     }
                 }
             },
-            maybe_log = log_stream.next() => {
+            maybe_log = pump_stream.next() => {
                 match maybe_log {
                     Some(log) => {
                         match handler.handle_log(log).await {
                             Ok(false) =>  {}
                             Ok(true) => {
                                 // restart the stream
-                                log_stream = handler.log_stream().await?.fuse();
+                                println!("Resubscribing to pairs stream");
+                                handler.ws.unsubscribe(pairs_stream.into_inner().id().clone()).await?;
+                                pairs_stream = handler.pairs_stream().await?.fuse();
                             }
                             Err(e) => {
                                 log::error!("Error handling log: {:?}", e);
@@ -66,6 +72,22 @@ async fn main() -> Result<(), PumpError> {
                     }
                 }
             },
+            // maybe_log = pairs_stream.next() => {
+            //     match maybe_log {
+            //         Some(log) => {
+            //             match handler.handle_log(log).await {
+            //                 Err(e) => {
+            //                     log::error!("Error handling log: {:?}", e);
+            //                 }
+            //                 Ok(_) => {}
+            //             }
+            //         },
+            //         None => {
+            //             log::warn!("Log stream ended.");
+            //             break;
+            //         }
+            //     }
+            // },
         }
     }
     Ok(())

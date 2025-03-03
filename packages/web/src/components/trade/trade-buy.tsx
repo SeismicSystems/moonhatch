@@ -24,15 +24,12 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
     if (!weiIn) {
       return
     }
-    console.log('previewing buy')
-    console.log(`weiIn: ${weiIn}`)
-    console.log(`coin.contractAddress: ${coin.contractAddress}`)
+
     previewBuy({ token: coin.contractAddress, amountIn: weiIn })
       .then((out) => {
         setPreviewUnitsOut(out)
       })
       .catch((e) => {
-        console.log(`preview buy error: ${e}`)
         setError(JSON.stringify(e, stringifyBigInt, 2))
       })
   }
@@ -69,7 +66,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
     try {
       const ethIn = parseEther(ethInput)
       setWeiIn(ethIn)
-    } catch (e) {
+    } catch {
       setWeiIn(null)
     }
   }, [ethInput])
@@ -88,7 +85,8 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       .finally(() => {
         setIsPreviewing(false)
       })
-  }, [weiIn])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPreviewing, weiIn])
 
   return (
     <>

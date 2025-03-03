@@ -69,7 +69,7 @@ pub struct LogHandler {
     pool: PgPool,
     client: PumpClient,
     sock_writer: SockWriter,
-    ws: PumpWsClient,
+    pub ws: PumpWsClient,
     prices: HashMap<u64, (Block, HashMap<Address, Vec<BigDecimal>>)>,
     pools: HashMap<Address, Pool>,
     block_timestamps: HashMap<u64, i64>,
@@ -438,7 +438,11 @@ impl LogHandler {
         self.pools.iter().map(|(lp, _)| lp.clone()).collect()
     }
 
-    pub async fn log_stream(&self) -> Result<SubscriptionStream<Log>, PumpError> {
-        self.ws.pump_logs(self.lp_tokens()).await
+    pub async fn pump_stream(&self) -> Result<SubscriptionStream<Log>, PumpError> {
+        self.ws.pump_logs().await
+    }
+
+    pub async fn pairs_stream(&self) -> Result<SubscriptionStream<Log>, PumpError> {
+        self.ws.pair_logs(self.lp_tokens()).await
     }
 }

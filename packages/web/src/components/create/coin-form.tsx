@@ -13,7 +13,7 @@ import ImageUpload from '@components/create/image-upload'
 const CoinForm: React.FC = () => {
   const navigate = useNavigate()
   const { createCoin } = usePumpClient()
-  const { postCreatedCoin, verifyCoin, uploadImage } = useFetchCoin()
+  const { postCreatedCoin, uploadImage } = useFetchCoin()
   const { publicClient } = useShieldedWallet()
   const { notifySuccess, notifyError } = useToastNotifications()
   const [showMore, setShowMore] = useState(false)
@@ -76,12 +76,6 @@ const CoinForm: React.FC = () => {
       console.error('Failed to save coin to backend')
       return
     }
-
-    console.log('✅ Coin successfully saved in the database')
-
-    verifyCoin(coinId)
-      .then(() => console.log(`Verified coin ${coinId}`))
-      .catch((e) => console.error(`Failed verifying coin ${coinId}: ${e}`))
 
     notifySuccess('Coin created successfully')
     setIsCreating(false)

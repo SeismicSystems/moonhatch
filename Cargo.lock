@@ -94,7 +94,7 @@ dependencies = [
 [[package]]
 name = "alloy-consensus"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-dyn-abi",
  "alloy-eips",
@@ -112,7 +112,7 @@ dependencies = [
 [[package]]
 name = "alloy-consensus-any"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -165,7 +165,7 @@ dependencies = [
 [[package]]
 name = "alloy-eips"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-dyn-abi",
  "alloy-eip2930",
@@ -194,7 +194,7 @@ dependencies = [
 [[package]]
 name = "alloy-json-rpc"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-primitives",
  "alloy-sol-types",
@@ -207,7 +207,7 @@ dependencies = [
 [[package]]
 name = "alloy-network"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-consensus",
  "alloy-consensus-any",
@@ -231,7 +231,7 @@ dependencies = [
 [[package]]
 name = "alloy-network-primitives"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -270,7 +270,7 @@ dependencies = [
 [[package]]
 name = "alloy-provider"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-chains",
  "alloy-consensus",
@@ -285,7 +285,6 @@ dependencies = [
  "alloy-rpc-types-trace",
  "alloy-transport",
  "alloy-transport-http",
- "alloy-transport-ipc",
  "alloy-transport-ws",
  "async-stream",
  "async-trait",
@@ -311,7 +310,7 @@ dependencies = [
 [[package]]
 name = "alloy-pubsub"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-json-rpc",
  "alloy-primitives",
@@ -351,14 +350,13 @@ dependencies = [
 [[package]]
 name = "alloy-rpc-client"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-json-rpc",
  "alloy-primitives",
  "alloy-pubsub",
  "alloy-transport",
  "alloy-transport-http",
- "alloy-transport-ipc",
  "alloy-transport-ws",
  "futures",
  "pin-project",
@@ -376,7 +374,7 @@ dependencies = [
 [[package]]
 name = "alloy-rpc-types-any"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-consensus-any",
  "alloy-rpc-types-eth",
@@ -386,7 +384,7 @@ dependencies = [
 [[package]]
 name = "alloy-rpc-types-eth"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-consensus",
  "alloy-consensus-any",
@@ -405,7 +403,7 @@ dependencies = [
 [[package]]
 name = "alloy-rpc-types-trace"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-primitives",
  "alloy-rpc-types-eth",
@@ -418,7 +416,7 @@ dependencies = [
 [[package]]
 name = "alloy-serde"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-primitives",
  "serde",
@@ -428,7 +426,7 @@ dependencies = [
 [[package]]
 name = "alloy-signer"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-primitives",
  "async-trait",
@@ -441,7 +439,7 @@ dependencies = [
 [[package]]
 name = "alloy-signer-local"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-consensus",
  "alloy-network",
@@ -521,7 +519,7 @@ dependencies = [
 [[package]]
 name = "alloy-transport"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-json-rpc",
  "base64 0.22.1",
@@ -540,7 +538,7 @@ dependencies = [
 [[package]]
 name = "alloy-transport-http"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-json-rpc",
  "alloy-transport",
@@ -552,27 +550,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "alloy-transport-ipc"
-version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
-dependencies = [
- "alloy-json-rpc",
- "alloy-pubsub",
- "alloy-transport",
- "bytes",
- "futures",
- "interprocess",
- "pin-project",
- "serde_json",
- "tokio",
- "tokio-util",
- "tracing",
-]
-
-[[package]]
 name = "alloy-transport-ws"
 version = "0.8.0"
-source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=f3eb36f#f3eb36fd04963e839cfd1874c1770b7ea9ffa64d"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
 dependencies = [
  "alloy-pubsub",
  "alloy-transport",
@@ -1894,12 +1874,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "doctest-file"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aac81fa3e28d21450aa4d2ac065992ba96a1d7303efbce51a95f4fd175b67562"
-
-[[package]]
 name = "dotenv"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2813,21 +2787,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "interprocess"
-version = "2.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "894148491d817cb36b6f778017b8ac46b17408d522dd90f539d677ea938362eb"
-dependencies = [
- "doctest-file",
- "futures-core",
- "libc",
- "recvmsg",
- "tokio",
- "widestring",
- "windows-sys 0.52.0",
-]
-
-[[package]]
 name = "ipnet"
 version = "2.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3571,12 +3530,6 @@ checksum = "d25bf25ec5ae4a3f1b92f929810509a2f53d7dca2f50b794ff57e3face536c8f"
 dependencies = [
  "rand_core",
 ]
-
-[[package]]
-name = "recvmsg"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3edd4d5d42c92f0a659926464d4cce56b562761267ecf0f469d85b7de384175"
 
 [[package]]
 name = "redox_syscall"
@@ -5097,12 +5050,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "widestring"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7219d36b6eac893fa81e84ebe06485e7dcbb616177469b142df14f1f4deb1311"
-
-[[package]]
 name = "winapi"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5425,3 +5372,8 @@ dependencies = [
  "quote",
  "syn 2.0.98",
 ]
+
+[[patch.unused]]
+name = "alloy-transport-ipc"
+version = "0.8.0"
+source = "git+https://github.com/SeismicSystems/seismic-alloy.git?rev=5344a874#5344a8745dd1d92435fff194e70d87afe1ccc0ee"
