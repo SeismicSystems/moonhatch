@@ -1,4 +1,4 @@
-use alloy_primitives::{hex, Address};
+use alloy_primitives::{hex, Address, FixedBytes};
 use alloy_pubsub::SubscriptionStream;
 use alloy_rpc_types_eth::{Header, Log};
 use alloy_sol_types::SolEvent;
@@ -69,7 +69,7 @@ pub struct LogHandler {
     pool: PgPool,
     client: PumpClient,
     sock_writer: Option<SockWriter>,
-    pub ws: PumpWsClient,
+    ws: PumpWsClient,
     prices: HashMap<u64, (Block, HashMap<Address, Vec<BigDecimal>>)>,
     pools: HashMap<Address, Pool>,
     block_timestamps: HashMap<u64, i64>,
@@ -465,5 +465,9 @@ impl LogHandler {
 
     pub async fn pairs_stream(&self) -> Result<SubscriptionStream<Log>, PumpError> {
         self.ws.pair_logs(self.lp_tokens()).await
+    }
+
+    pub async fn unsubscribe(&self, id: FixedBytes<32>) -> Result<(), PumpError> {
+        self.ws.unsubscribe(id).await
     }
 }

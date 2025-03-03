@@ -33,7 +33,7 @@ async fn run() -> Result<(), PumpError> {
                             Ok(false) => {}
                             Ok(true) => {
                                 log::debug!("Resubscribing to pairs stream");
-                                handler.ws.unsubscribe(pairs_stream.into_inner().id().clone()).await?;
+                                handler.unsubscribe(pairs_stream.into_inner().id().clone()).await?;
                                 pairs_stream = handler.pairs_stream().await?.fuse();
                             }
                             Err(e) => { log::error!("Error flushing prices for block {}: {:?}", block.number, e); }
@@ -53,7 +53,7 @@ async fn run() -> Result<(), PumpError> {
                             Ok(true) => {
                                 // restart the stream
                                 log::debug!("Resubscribing to pairs stream");
-                                handler.ws.unsubscribe(pairs_stream.into_inner().id().clone()).await?;
+                                handler.unsubscribe(pairs_stream.into_inner().id().clone()).await?;
                                 pairs_stream = handler.pairs_stream().await?.fuse();
                             }
                             Err(e) => {
