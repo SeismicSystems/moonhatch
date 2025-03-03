@@ -14,15 +14,7 @@ async fn run() -> Result<(), PumpError> {
     let rpc_url = std::env::var("RPC_URL").expect("Must set RPC_URL in .env");
     let client = PumpClient::new(&rpc_url).await?;
     let db_pool = establish_pool();
-
-    println!("Initializing handler");
-    let mut handler = match LogHandler::new(db_pool, client).await {
-        Ok(handler) => handler,
-        Err(e) => {
-            log::error!("Error initializing handler: {:?}", e);
-            return Err(e);
-        }
-    };
+    let mut handler = LogHandler::new(db_pool, client).await?;
 
     log::info!("Initializing pubsub streams");
     let mut block_stream = handler.block_stream().await?.fuse();
