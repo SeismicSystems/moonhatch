@@ -32,7 +32,7 @@ async fn run() -> Result<(), PumpError> {
                         match handler.new_block(block).await {
                             Ok(false) => {}
                             Ok(true) => {
-                                println!("Resubscribing to pairs stream");
+                                log::debug!("Resubscribing to pairs stream");
                                 handler.ws.unsubscribe(pairs_stream.into_inner().id().clone()).await?;
                                 pairs_stream = handler.pairs_stream().await?.fuse();
                             }
@@ -52,7 +52,7 @@ async fn run() -> Result<(), PumpError> {
                             Ok(false) =>  {}
                             Ok(true) => {
                                 // restart the stream
-                                println!("Resubscribing to pairs stream");
+                                log::debug!("Resubscribing to pairs stream");
                                 handler.ws.unsubscribe(pairs_stream.into_inner().id().clone()).await?;
                                 pairs_stream = handler.pairs_stream().await?.fuse();
                             }
