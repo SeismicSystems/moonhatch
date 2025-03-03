@@ -22,6 +22,7 @@ diesel::table! {
         created_at -> Timestamp,
         #[max_length = 42]
         deployed_pool -> Nullable<Bpchar>,
+        hidden -> Bool,
     }
 }
 

@@ -1,0 +1,2 @@
+-- Your SQL goes here
+ALTER TABLE coins ADD COLUMN hidden BOOLEAN DEFAULT FALSE NOT NULL;

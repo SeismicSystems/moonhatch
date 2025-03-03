@@ -116,7 +116,6 @@ const main = async (): Promise<void> => {
   const resetCommands: Command[] = [
     command('anvil:new'),
     command('db:reset', { wait: true }),
-    command('db:revert', { wait: true }),
     command('contract:deploy', { wait: true }),
     ...commonCommands,
   ]

@@ -33,6 +33,26 @@ pub struct Coin {
     pub created_at: NaiveDateTime,
     #[serde(rename = "deployedPool")]
     pub deployed_pool: Option<String>,
+    pub hidden: bool,
+}
+
+#[derive(Insertable, Deserialize, Clone)]
+#[diesel(table_name = schema::coins)]
+pub struct NewCoin {
+    pub id: i64,
+    pub name: String,
+    pub symbol: String,
+    pub supply: BigDecimal,
+    pub decimals: i32,
+    #[serde(rename = "contractAddress")]
+    pub contract_address: String,
+    pub creator: String,
+    pub description: Option<String>,
+    #[serde(rename = "imageUrl")]
+    pub image_url: Option<String>,
+    pub twitter: Option<String>,
+    pub website: Option<String>,
+    pub telegram: Option<String>,
 }
 
 #[derive(Insertable, Queryable, Serialize, Deserialize, Debug)]
@@ -84,25 +104,6 @@ impl NewPoolPrice {
         };
         Ok(price)
     }
-}
-
-#[derive(Insertable, Deserialize, Clone)]
-#[diesel(table_name = schema::coins)]
-pub struct NewCoin {
-    pub id: i64,
-    pub name: String,
-    pub symbol: String,
-    pub supply: BigDecimal,
-    pub decimals: i32,
-    #[serde(rename = "contractAddress")]
-    pub contract_address: String,
-    pub creator: String,
-    pub description: Option<String>,
-    #[serde(rename = "imageUrl")]
-    pub image_url: Option<String>,
-    pub twitter: Option<String>,
-    pub website: Option<String>,
-    pub telegram: Option<String>,
 }
 
 fn serialize_decimal_as_f64<S>(decimal: &BigDecimal, serializer: S) -> Result<S::Ok, S::Error>
