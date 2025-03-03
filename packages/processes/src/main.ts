@@ -35,7 +35,7 @@ const runCommand = (command: Command): Promise<ChildProcess> => {
     const [cmd, ...args] = command.name.split(' ')
 
     if (command.sleepSecondsBefore) {
-      await Bun.sleep(command.sleepSecondsBefore)
+      await Bun.sleep(1000 * command.sleepSecondsBefore)
     }
     console.log(`Running: ${command.name}`)
 
@@ -109,7 +109,7 @@ const main = async (): Promise<void> => {
 
   const commonCommands: Command[] = [
     command('server:dev'),
-    command('listener:dev', { sleepSecondsBefore: 2 }),
+    command('listener:dev', { sleepSecondsBefore: 5 }),
     command('web:dev'),
   ]
 

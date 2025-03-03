@@ -68,7 +68,7 @@ struct PendingLogs {
 pub struct LogHandler {
     pool: PgPool,
     client: PumpClient,
-    sock_writer: SockWriter,
+    sock_writer: Option<SockWriter>,
     pub ws: PumpWsClient,
     prices: HashMap<u64, (Block, HashMap<Address, Vec<BigDecimal>>)>,
     pools: HashMap<Address, Pool>,
@@ -80,18 +80,31 @@ impl LogHandler {
     pub async fn new(pool: PgPool, client: PumpClient) -> Result<LogHandler, PumpError> {
         let ws = PumpWsClient::new(client.chain_id).await?;
         let mut conn = connect(&pool)?;
-        let sock_writer = SockWriter::try_new()?;
 
         Ok(LogHandler {
             pool,
             client,
-            sock_writer,
+            // lazily load this with self.sock()
+            sock_writer: None,
             ws,
             prices: HashMap::new(),
             pools: store::load_pools(&mut conn)?,
             block_timestamps: HashMap::new(),
             pending_logs: HashMap::new(),
         })
+    }
+
+    pub fn sock(&mut self) -> Option<&mut SockWriter> {
+        if self.sock_writer.is_none() {
+            self.sock_writer = match SockWriter::try_new() {
+                Ok(sock_writer) => Some(sock_writer),
+                Err(e) => {
+                    log::error!("Error creating sock writer: {:?}", e);
+                    None
+                }
+            };
+        }
+        return self.sock_writer.as_mut();
     }
 
     /// returns true if we should restart the stream (for a new LP token)
@@ -133,7 +146,9 @@ impl LogHandler {
             fmt_hex(sol_coin.creator)
         );
         let coin = store::upsert_verified(&mut conn, coin_id as i64, sol_coin)?;
-        self.sock_writer.write_verified_coin(coin)?;
+        if let Some(sock) = self.sock() {
+            sock.write_verified_coin(coin)?;
+        };
         Ok(false)
     }
 
@@ -162,7 +177,9 @@ impl LogHandler {
         let wei_in = int_to_decimal(data.totalWeiIn);
         let mut conn = self.conn()?;
         store::update_wei_in(&mut conn, data.coinId as i64, wei_in.clone())?;
-        self.sock_writer.write_wei_in_updated(data.coinId as i64, wei_in)?;
+        if let Some(sock) = self.sock() {
+            sock.write_wei_in_updated(data.coinId as i64, wei_in)?;
+        };
         Ok(false)
     }
 
@@ -177,7 +194,9 @@ impl LogHandler {
         store::graduate_coin(&mut conn, coin_id as i64)?;
         let tx = self.client.deploy_graduated(coin_id).await?;
         log::info!("Called graduate({}), tx={}", coin_id, fmt_hex(tx));
-        self.sock_writer.write_graduated_coin(coin_id as i64)?;
+        if let Some(sock) = self.sock() {
+            sock.write_graduated_coin(coin_id as i64)?;
+        };
         Ok(false)
     }
 
@@ -219,7 +238,9 @@ impl LogHandler {
         };
         store::upsert_deployed_pool(&mut conn, pool)?;
         store::update_deployed_pool(&mut conn, coin_id, data.lpToken)?;
-        self.sock_writer.write_deployed_to_dex(coin_id, data.lpToken)?;
+        if let Some(sock) = self.sock() {
+            sock.write_deployed_to_dex(coin_id, data.lpToken)?;
+        };
         Ok(true)
     }
 

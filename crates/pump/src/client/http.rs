@@ -27,6 +27,7 @@ pub fn build_tx(to: &Address, calldata: Vec<u8>) -> TransactionRequest {
     TransactionRequest::default().with_to(to.clone()).input(TransactionInput::new(calldata.into()))
 }
 
+#[derive(Debug)]
 pub struct PumpClient {
     pub chain_id: u64,
     provider: SeismicUnsignedProvider,
