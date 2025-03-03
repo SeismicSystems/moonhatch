@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { set } from 'react-hook-form'
 import { formatEther, parseEther } from 'viem'
 
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
@@ -31,7 +30,7 @@ export const TransactionNonGraduated = ({
     try {
       const inputValueWei = parseEther(buyInputEth)
       setBuyAmountWei(inputValueWei)
-    } catch (error) {
+    } catch {
       setBuyAmountWei(null)
     }
   }, [buyInputEth])
@@ -43,7 +42,7 @@ export const TransactionNonGraduated = ({
       setBuyError('Invalid amount')
       return
     }
-    buyPreGraduation(coin.id, buyAmountWei)
+    buyPreGraduation(BigInt(coin.id), buyAmountWei)
       .then((hash) => {
         console.log(`Send tx to chain: ${hash}`)
       })
