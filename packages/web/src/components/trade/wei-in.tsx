@@ -23,7 +23,7 @@ export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
     if (loading) {
       return
     }
-    getWeiIn(coin.id)
+    getWeiIn(BigInt(coin.id))
       .then((wei) => {
         setWeiIn(wei)
       })
