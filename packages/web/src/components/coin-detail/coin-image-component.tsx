@@ -20,8 +20,6 @@ const CoinAddress: React.FC<{ address: Hex; name: string }> = ({
         display: 'flex',
         flexDirection: 'row',
         gap: 2,
-        width: '100%',
-        overflow: 'visible',
       }}
     >
       <div className="text-orange-300">{name}:</div>
