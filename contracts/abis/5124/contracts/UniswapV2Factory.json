@@ -1,4 +1,5 @@
 {
+  "address": "0xe497bfd2170e6c7e25c70a0b5e31a7dbee63a91c",
   "chainId": 5124,
   "methodIdentifiers": {
     "allPairs(uint256)": "1e3dd18b",
