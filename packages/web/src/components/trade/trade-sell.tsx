@@ -18,7 +18,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [amountInput, setAmountInput] = useState('')
   const [amountIn, setAmountIn] = useState<bigint | null>(null)
 
-  const { previewSell, approveAndSell, explorerUrl } = usePumpClient()
+  const { previewSell, approveAndSell, txUrl } = usePumpClient()
 
   const previewAmountOut = async () => {
     if (!amountIn) {
@@ -46,7 +46,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       .then((sellTxHash) => {
         console.log(`Sent sell tx: ${sellTxHash}`)
         // TODO: toast with link to explorer url IF it exists
-        const url = explorerUrl(sellTxHash)
+        const url = txUrl(sellTxHash)
         if (url) {
           console.log(`Explorer url: ${url}`)
         }
