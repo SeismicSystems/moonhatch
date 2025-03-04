@@ -8,6 +8,8 @@ import LockIcon from '@mui/icons-material/Lock'
 import SchoolIcon from '@mui/icons-material/School'
 import { Box, Typography } from '@mui/material'
 
+import { TokenBalance } from './token-balance'
+
 interface CoinCardProps {
   coin: Coin
 }
@@ -17,8 +19,6 @@ export const FALLBACK_IMAGE_URL =
 
 const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   const navigate = useNavigate()
-  // @ts-expect-error this is fine
-  const [imgSrc, setImgSrc] = useState(coin.imageUrl)
 
   // State for scrambled text elements (only name & ticker)
   const [scrambledName, setScrambledName] = useState(coin.name.toUpperCase())
@@ -112,7 +112,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
             }}
           >
             <img
-              src={imgSrc || FALLBACK_IMAGE_URL}
+              src={coin.imageUrl || FALLBACK_IMAGE_URL}
               alt="Coin Logo"
               style={{
                 borderRadius: '8px',
@@ -163,39 +163,31 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                   >
                     {scrambledName}
                   </Typography>
-                  <Box
-                    component="div"
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      ml: 1,
-                    }}
-                  >
-                    {coin.graduated ? (
-                      <SchoolIcon
-                        sx={{
-                          fontSize: { xs: '20px', sm: '20px', md: '24px' },
-                          color: 'green',
-                          mx: 1,
-                        }}
-                      />
-                    ) : (
-                      <LockIcon
-                        sx={{
-                          fontSize: { xs: '20px', sm: '20px', md: '24px' },
-                          color: 'red',
-                          mx: 1,
-                        }}
-                      />
-                    )}
-                  </Box>
                 </Box>
                 <Box
+                  display="flex"
+                  flexDirection="row"
+                  gap={1}
+                  alignItems="center"
                   sx={{
                     width: { xs: '150px', sm: '150px' },
                   }}
                 >
+                  {coin.graduated ? (
+                    <SchoolIcon
+                      sx={{
+                        fontSize: { xs: '20px', sm: '20px', md: '24px' },
+                        color: 'green',
+                      }}
+                    />
+                  ) : (
+                    <LockIcon
+                      sx={{
+                        fontSize: { xs: '20px', sm: '20px', md: '24px' },
+                        color: 'red',
+                      }}
+                    />
+                  )}
                   <Typography
                     noWrap
                     variant="body2"
@@ -217,6 +209,9 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                 >
                   AGE: {formatRelativeTime(coin.createdAt)}
                 </Typography>
+                <Box>
+                  <TokenBalance coin={coin} />
+                </Box>
                 <Box
                   component="div"
                   sx={{

@@ -55,10 +55,10 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
           sx={{
             width: {
               xs: 'auto',
-              sm: '550px',
-              md: '450px',
-              lg: '650px',
-              xl: '950px',
+              sm: 'auto', // '550px'
+              md: 'auto', // '450px'
+              lg: 'auto', // '650px'
+              xl: 'auto', // '950px'
             },
             maxWidth: '100%',
             mx: 'auto',
@@ -106,7 +106,7 @@ const CoinDetail: React.FC = () => {
     fetchCoin(Number(coinId))
       .then((foundCoin) => setCoin(foundCoin))
       .catch((err) => console.error('Error fetching coin:', err))
-  }, [loaded, coinId])
+  }, [loaded, coinId, fetchCoin])
 
   if (loading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
