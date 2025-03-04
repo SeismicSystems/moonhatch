@@ -4,8 +4,9 @@ import {
   ShieldedContract,
   ShieldedPublicClient,
   ShieldedWalletClient,
-  getExplorerUrl,
+  addressExplorerUrl,
   getShieldedContract,
+  txExplorerUrl,
 } from 'seismic-viem'
 import type { Hex, TransactionReceipt } from 'viem'
 
@@ -248,7 +249,8 @@ export const usePumpClient = () => {
     amountIn,
   }: TradeParams): Promise<bigint> => {
     const path = [wethAddress, token]
-    const [_, amountOut] = (await dex().tread.getAmountsOut([
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_amountIn, amountOut] = (await dex().tread.getAmountsOut([
       amountIn,
       path,
     ])) as [bigint, bigint]
@@ -260,10 +262,11 @@ export const usePumpClient = () => {
     amountIn,
   }: TradeParams): Promise<bigint> => {
     const path = [token, wethAddress]
-    const [_, weiOut] = (await dex().tread.getAmountsOut([amountIn, path])) as [
-      bigint,
-      bigint,
-    ]
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_amountIn, weiOut] = (await dex().tread.getAmountsOut([
+      amountIn,
+      path,
+    ])) as [bigint, bigint]
     return weiOut
   }
 
@@ -288,8 +291,12 @@ export const usePumpClient = () => {
     return sellTxHash
   }
 
-  const explorerUrl = (txHash: Hex): string | undefined => {
-    return getExplorerUrl({ publicClient: pubClient(), txHash })
+  const txUrl = (txHash: Hex): string | undefined => {
+    return txExplorerUrl({ publicClient: pubClient(), txHash })
+  }
+
+  const addressUrl = (address: Hex): string | undefined => {
+    return addressExplorerUrl({ publicClient: pubClient(), address })
   }
 
   const deployGraduated = async (coinId: bigint): Promise<Hex> => {
@@ -325,9 +332,10 @@ export const usePumpClient = () => {
     previewBuy,
     previewSell,
     approveAndSell,
-    waitForTransaction,
-    explorerUrl,
     deployGraduated,
     getPair,
+    waitForTransaction,
+    txUrl,
+    addressUrl,
   }
 }
