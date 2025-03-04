@@ -1,32 +1,31 @@
 import React, { useEffect, useState } from 'react'
-import { formatUnits } from 'viem'
 
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { Coin } from '@/types/coin'
+import { formatUnitsRounded } from '@/util'
 
 export const TokenBalance: React.FC<{ coin: Coin }> = ({
   coin: { contractAddress, decimals, symbol, graduated, deployedPool },
 }) => {
-  const { balanceOfWallet } = usePumpClient()
+  const { loaded, balanceOfWallet } = usePumpClient()
   const [balanceUnits, setBalanceUnits] = useState<bigint | null>(null)
   const [balanceTokens, setBalanceTokens] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!graduated || !deployedPool) {
+    if (!loaded || !graduated || !deployedPool) {
       return
     }
     balanceOfWallet(contractAddress).then((balance) => {
       setBalanceUnits(balance)
     })
-  }, [graduated, deployedPool, contractAddress, balanceOfWallet])
+  }, [loaded, graduated, deployedPool, contractAddress, balanceOfWallet])
 
   useEffect(() => {
-    console.log('balanceUnits', balanceUnits)
     if (!balanceUnits) {
       setBalanceTokens(null)
       return
     }
-    setBalanceTokens(formatUnits(balanceUnits, Number(decimals)).toString())
+    setBalanceTokens(formatUnitsRounded(balanceUnits, Number(decimals)))
   }, [balanceUnits, decimals])
 
   if (!balanceTokens) {
@@ -35,7 +34,8 @@ export const TokenBalance: React.FC<{ coin: Coin }> = ({
 
   return (
     <div>
-      {balanceTokens} {symbol}
+      <span className="text-orange-200">{balanceTokens}</span>{' '}
+      <span className="text-orange-300 font-bold">{symbol}</span>
     </div>
   )
 }

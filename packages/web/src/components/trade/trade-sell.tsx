@@ -13,23 +13,13 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [isSelling, setIsSelling] = useState(false)
 
+  const [previewUnitsIn, setPreviewUnitsIn] = useState<bigint | null>(null)
   const [previewWeiOut, setPreviewWeiOut] = useState<bigint | null>(null)
 
   const [amountInput, setAmountInput] = useState('')
   const [amountIn, setAmountIn] = useState<bigint | null>(null)
 
   const { previewSell, approveAndSell, txUrl } = usePumpClient()
-
-  const previewAmountOut = async () => {
-    if (!amountIn) {
-      return
-    }
-    const previewOut = await previewSell({
-      token: coin.contractAddress,
-      amountIn,
-    })
-    setPreviewWeiOut(previewOut)
-  }
 
   const sellCoin = () => {
     if (!amountIn) {
@@ -72,9 +62,21 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
     if (isPreviewing) {
       return
     }
-    setIsPreviewing(true)
+    if (!amountIn) {
+      setPreviewUnitsIn(null)
+      setPreviewWeiOut(null)
+      return
+    }
 
-    previewAmountOut()
+    if (amountIn === previewUnitsIn) {
+      return
+    }
+
+    setIsPreviewing(true)
+    previewSell({
+      token: coin.contractAddress,
+      amountIn,
+    })
       .then()
       .catch((e) => {
         setError(`Failed to simulate sale: ${e}`)
@@ -82,7 +84,13 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       .finally(() => {
         setIsPreviewing(false)
       })
-  }, [amountIn])
+  }, [
+    isPreviewing,
+    amountIn,
+    previewUnitsIn,
+    coin.contractAddress,
+    previewSell,
+  ])
 
   return (
     <>

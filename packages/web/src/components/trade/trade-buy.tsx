@@ -5,7 +5,6 @@ import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
 import { usePumpClient } from '@/hooks/usePumpClient'
-import { stringifyBigInt } from '@/util'
 
 export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [error, setError] = useState('')
@@ -13,26 +12,13 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [isBuying, setIsBuying] = useState(false)
 
+  const [previewWeiIn, setPreviewWeiIn] = useState<bigint | null>(null)
   const [previewUnitsOut, setPreviewUnitsOut] = useState<bigint | null>(null)
 
   const [ethInput, setEthInput] = useState('')
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
 
   const { previewBuy, buyPostGraduation, txUrl } = usePumpClient()
-
-  const previewAmountOut = async () => {
-    if (!weiIn) {
-      return
-    }
-
-    previewBuy({ token: coin.contractAddress, amountIn: weiIn })
-      .then((out) => {
-        setPreviewUnitsOut(out)
-      })
-      .catch((e) => {
-        setError(JSON.stringify(e, stringifyBigInt, 2))
-      })
-  }
 
   const buyCoin = () => {
     if (!weiIn) {
@@ -75,18 +61,28 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
     if (isPreviewing) {
       return
     }
-    setIsPreviewing(true)
+    if (!weiIn) {
+      setPreviewWeiIn(null)
+      setPreviewUnitsOut(null)
+      return
+    }
+    if (weiIn === previewWeiIn) {
+      return
+    }
 
-    previewAmountOut()
-      .then()
+    setIsPreviewing(true)
+    previewBuy({ token: coin.contractAddress, amountIn: weiIn })
+      .then((out) => {
+        setPreviewWeiIn(weiIn)
+        setPreviewUnitsOut(out)
+      })
       .catch((e) => {
         setError(`Failed to simulate sale: ${e}`)
       })
       .finally(() => {
         setIsPreviewing(false)
       })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPreviewing, weiIn])
+  }, [isPreviewing, weiIn, previewWeiIn, coin.contractAddress, previewBuy])
 
   return (
     <>

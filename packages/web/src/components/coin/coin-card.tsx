@@ -8,7 +8,7 @@ import LockIcon from '@mui/icons-material/Lock'
 import SchoolIcon from '@mui/icons-material/School'
 import { Box, Typography } from '@mui/material'
 
-import { TokenBalance } from './balance'
+import { TokenBalance } from './token-balance'
 
 interface CoinCardProps {
   coin: Coin

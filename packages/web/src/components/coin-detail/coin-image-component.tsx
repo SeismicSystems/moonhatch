@@ -3,6 +3,7 @@ import { Hex } from 'viem'
 
 import { Address } from '@/components/address/address'
 import { FALLBACK_COIN_IMAGE_URL } from '@/components/coin-detail/coin-info-details'
+import { TokenBalance } from '@/components/coin/token-balance'
 import { Coin } from '@/types/coin'
 import { formatRelativeTime } from '@/util'
 import { Box, Typography } from '@mui/material'
@@ -125,6 +126,7 @@ const CoinImageComponent: React.FC<{ coin: Coin }> = ({ coin }) => {
           <CoinAddress address={coin.contractAddress} name="CA" />
           <CoinAddress address={coin.creator} name="CREATOR" />
           <div className="coin-age text-orange-100">AGE: {relativeTime}</div>
+          <TokenBalance coin={coin} />
         </div>
       </div>
     </Box>
