@@ -19,7 +19,6 @@ class WebSocketService {
   init(dispatch: Dispatch) {
     this.dispatch = dispatch
     this.connect()
-    console.log('websocketService.init', this.url)
   }
 
   // Connect to WebSocket
