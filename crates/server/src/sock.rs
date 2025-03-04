@@ -1,20 +1,21 @@
 use futures::StreamExt;
-use pump::{SOCKET_FILENAME, SOCKET_PATH};
+use pump::{get_workspace_root, SOCKET_FILENAME};
 use std::path::Path;
 use tokio::net::UnixListener;
 use tokio_stream::wrappers::UnixListenerStream;
 
 use crate::state::WsState;
 
-pub(crate) fn setup_unix_socket(state: WsState) {    
-    let folder = Path::new(SOCKET_PATH);
+pub(crate) fn setup_unix_socket(state: WsState) {
+    let workspace = get_workspace_root().unwrap();
+    let folder = Path::new(&workspace);
 
     if !folder.exists() {
         // Create the directory and its parent directories if they don't exist
         std::fs::create_dir_all(folder).expect("Failed to create socket directory");
     }
 
-    let path = format!("{}/{}", SOCKET_PATH, SOCKET_FILENAME);
+    let path = folder.join(SOCKET_FILENAME);
 
     if Path::new(&path).exists() {
         std::fs::remove_file(&path).expect("Failed to remove existing socket file");
