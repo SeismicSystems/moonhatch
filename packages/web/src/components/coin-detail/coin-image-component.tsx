@@ -98,7 +98,7 @@ const CoinImageComponent: React.FC<{ coin: Coin }> = ({ coin }) => {
               }}
             >
               <div className="coin-symbol">
-                $:{coin.symbol.toUpperCase().slice(0, 8)}
+                ${coin.symbol.toUpperCase().slice(0, 8)}
               </div>
             </Typography>
             <div className="coin-author">
