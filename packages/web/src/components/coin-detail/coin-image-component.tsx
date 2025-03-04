@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { Address } from '@/components/address/address'
 import { FALLBACK_COIN_IMAGE_URL } from '@/components/coin-detail/coin-info-details'
 import { Coin } from '@/types/coin'
 import { formatRelativeTime } from '@/util'
@@ -103,12 +104,9 @@ const CoinImageComponent: React.FC<{ coin: Coin }> = ({ coin }) => {
             </Typography>
             <div className="coin-author">
               <div className="text-orange-300">AUTHOR:</div>
-              <div className="text-orange-200">
-                {coin.creator?.toString().slice(0, 4)}...
-                {coin.creator?.toString().slice(-4) || 'N/A'}
-              </div>
+              <Address className="text-orange-200" address={coin.creator} />
             </div>
-            <div className="coin-age text-orange-100">AGE::{relativeTime}</div>
+            <div className="coin-age text-orange-100">AGE: {relativeTime}</div>
           </div>
         </div>
       </Box>
