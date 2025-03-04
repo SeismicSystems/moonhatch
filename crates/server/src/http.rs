@@ -87,6 +87,23 @@ pub(crate) async fn sync_coin(
     }
 }
 
+
+pub(crate) async fn deploy_coin(
+    Path(coin_id): Path<i64>,
+    State(state): State<AppState>,
+) -> Result<impl IntoResponse, PumpError> {
+    let client = &state.pump_client;
+
+    let graduated = client.get_graduated(coin_id as u32).await?;
+    if !graduated {
+        return Err(PumpError::CoinNotGraduated(coin_id as u32));
+    }
+
+    client.deploy_graduated(coin_id as u32).await?;
+    Ok((StatusCode::OK, Json(format!("Deployed coinId={}", coin_id))).into_response())
+}
+
+
 pub(crate) async fn get_all_coins_handler(
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, PumpError> {

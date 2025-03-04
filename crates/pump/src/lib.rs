@@ -10,7 +10,7 @@ pub mod contract;
 pub mod db;
 pub mod error;
 
-pub const SOCKET_PATH: &str = "/tmp/listener.sock";
+pub const SOCKET_FILENAME: &str = "listener.sock";
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]

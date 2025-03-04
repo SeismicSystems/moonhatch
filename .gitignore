@@ -31,3 +31,6 @@ dist-ssr
 
 # Rust
 target/
+
+# Unix socket
+listener.sock

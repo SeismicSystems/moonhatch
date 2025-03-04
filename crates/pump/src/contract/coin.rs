@@ -11,11 +11,16 @@ sol! {
         address creator;
     }
 
+    mapping(uint32 => bool) public graduated;
     function getCoin(uint32 coinId) public view returns (SolidityCoin memory);
 }
 
 pub fn get_coin_calldata(coin_id: u32) -> Vec<u8> {
     getCoinCall { coinId: coin_id }.abi_encode()
+}
+
+pub fn get_graduated_calldata(coin_id: u32) -> Vec<u8> {
+    graduatedCall { _0: coin_id }.abi_encode()
 }
 
 #[cfg(test)]

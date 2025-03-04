@@ -23,6 +23,7 @@ serde_json.workspace = true
 thiserror.workspace = true
 
 # web3
+alloy-dyn-abi.workspace = true
 alloy-network.workspace = true
 alloy-provider.workspace = true
 alloy-rpc-types-eth.workspace = true
