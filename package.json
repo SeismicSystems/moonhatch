@@ -40,7 +40,7 @@
     "contract:address:weth": "CONTRACT=WETH9 BROADCAST=PumpRand RECEIPT=0 bun contract:address",
     "contract:address:factory": "CONTRACT=UniswapV2Factory BROADCAST=PumpRand RECEIPT=1 bun contract:address",
     "contract:address:router": "CONTRACT=UniswapV2Router02 BROADCAST=PumpRand RECEIPT=2 bun contract:address",
-    "contract:address": "jq --arg receipt \"$RECEIPT\" -s '{\"address\": .[0].receipts[($receipt | tonumber)].contractAddress} * .[1]' ./contracts/broadcast/$BROADCAST.s.sol/$VITE_CHAIN_ID/run-latest.json ./contracts/abis/$VITE_CHAIN_ID/contracts/$CONTRACT.json > temp.json && mv temp.json ./contracts/abis/$VITE_CHAIN_ID/contracts/$CONTRACT.json"
+    "contract:address": "jq --arg receipt \"$RECEIPT\" -s '{\"address\": .[0].receipts[($receipt | tonumber)].contractAddress} * .[1]' ./contracts/broadcast/$BROADCAST.s.sol/$VITE_CHAIN_ID/run-latest.json ./contracts/abis/$VITE_CHAIN_ID/contracts/$CONTRACT.json > temp.json && mv temp.json ./contracts/abis/$VITE_CHAIN_ID/contracts/$CONTRACT.json && bun prettier --write ./contracts/abis/$VITE_CHAIN_ID/contracts/$CONTRACT.json"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
