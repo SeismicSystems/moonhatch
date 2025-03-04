@@ -8,7 +8,7 @@ import {
   getShieldedContract,
   txExplorerUrl,
 } from 'seismic-viem'
-import type { Hex, TransactionReceipt } from 'viem'
+import type { Hex } from 'viem'
 
 import {
   COIN_CONTRACT_ABI,
