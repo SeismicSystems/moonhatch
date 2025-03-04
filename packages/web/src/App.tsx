@@ -15,7 +15,7 @@ import CoinForm from '@/components/create/coin-form'
 import { CHAIN_ID } from '@/hooks/useContract'
 import Home from '@/pages/Home'
 import NotFound from '@/pages/NotFound'
-import { AppDispatch, store } from '@/store/store'
+import { AppDispatch } from '@/store/store'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -84,7 +84,7 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!wsRef.current) {
       const websocketService = new WebSocketService(WEBSOCKET_URL)
-      websocketService.init(store.dispatch)
+      websocketService.init(dispatch)
       wsRef.current = websocketService
     }
     return () => {
@@ -93,7 +93,7 @@ const App: React.FC = () => {
         wsRef.current = null
       }
     }
-  }, [])
+  }, [dispatch])
 
   return (
     <BrowserRouter>
