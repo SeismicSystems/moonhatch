@@ -30,8 +30,8 @@ pub fn build_tx(to: &Address, calldata: Vec<u8>) -> TransactionRequest {
 pub struct PumpClient {
     pub chain_id: u64,
     provider: SeismicUnsignedProvider,
-    wallet: SeismicSignedProvider,
     signer_address: Address,
+    wallet: EthereumWallet,
     pub ca: ContractAddresses,
 }
 
@@ -47,12 +47,12 @@ impl PumpClient {
         let pk_bytes = B256::from_hex(private_key).unwrap();
         let signer = LocalSigner::from_bytes(&pk_bytes).expect("invalid signer");
         let signer_address = signer.address();
-        let wallet = SeismicSignedProvider::new(EthereumWallet::new(signer), rpc_url);
+        let wallet = EthereumWallet::new(signer);
 
         Ok(PumpClient {
             provider,
-            wallet,
             signer_address,
+            wallet,
             ca: ContractAddresses::new(chain_id),
             chain_id,
         })
@@ -112,7 +112,14 @@ impl PumpClient {
             .to(self.ca.pump)
             .input(input.into())
             .from(self.signer_address);
-        let pending_tx = self.wallet.send_transaction(tx).await?;
+        let pending_tx = {
+            // drop provider so we don't constantly ask the node for block number
+            let provider = SeismicSignedProvider::new(
+                self.wallet.clone(),
+                Url::from_str(self.provider.client().transport().url()).unwrap(),
+            );
+            provider.send_transaction(tx).await?
+        };
         Ok(pending_tx.tx_hash().clone())
     }
 
