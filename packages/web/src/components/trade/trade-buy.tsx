@@ -18,7 +18,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [ethInput, setEthInput] = useState('')
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
 
-  const { previewBuy, buyPostGraduation, explorerUrl } = usePumpClient()
+  const { previewBuy, buyPostGraduation, txUrl } = usePumpClient()
 
   const previewAmountOut = async () => {
     if (!weiIn) {
@@ -49,7 +49,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       .then((buyTxHash) => {
         console.log(`Sent buy tx: ${buyTxHash}`)
         // TODO: toast with link to explorer url
-        const url = explorerUrl(buyTxHash)
+        const url = txUrl(buyTxHash)
         if (url) {
           console.log(`Explorer url: ${url}`)
         }
