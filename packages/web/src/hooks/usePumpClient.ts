@@ -227,7 +227,7 @@ export const usePumpClient = () => {
   const approveSale = async ({
     token,
     amount,
-  }: ApproveDexParams): Promise<TransactionReceipt | null> => {
+  }: ApproveDexParams): Promise<Hex | null> => {
     const balance = await balanceOfWallet(token)
     if (amount > balance) {
       throw new Error('Insufficient balance')
@@ -237,7 +237,7 @@ export const usePumpClient = () => {
       return null
     }
     const hash = await approveDex({ token, amount })
-    return await pubClient().waitForTransactionReceipt({ hash })
+    return hash
   }
 
   const allowanceDex = async (token: Hex) => {
@@ -274,21 +274,16 @@ export const usePumpClient = () => {
     return await pubClient().waitForTransactionReceipt({ hash })
   }
 
-  const approveAndSell = async ({
+  const checkApproval = async ({
     token,
     amountIn,
-    ...params
-  }: TradeParams): Promise<Hex> => {
+  }: TradeParams): Promise<Hex | null> => {
     const allowance = await allowanceDex(token)
-    if (allowance < amountIn) {
-      const amount = amountIn - allowance
-      const approvalReceipt = await approveSale({ token, amount })
-      if (approvalReceipt) {
-        console.log(`Approved tx: ${approvalReceipt.transactionHash}`)
-      }
+    if (allowance >= amountIn) {
+      return null
     }
-    const sellTxHash = await sell({ token, amountIn, ...params })
-    return sellTxHash
+    const amount = amountIn - allowance
+    return await approveSale({ token, amount })
   }
 
   const txUrl = (txHash: Hex): string | undefined => {
@@ -331,7 +326,7 @@ export const usePumpClient = () => {
     approveSale,
     previewBuy,
     previewSell,
-    approveAndSell,
+    checkApproval,
     deployGraduated,
     getPair,
     waitForTransaction,
