@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { formatUnits, parseEther } from 'viem'
+import { parseEther } from 'viem'
 
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
 import { usePumpClient } from '@/hooks/usePumpClient'
+import { formatUnitsRounded } from '@/util'
 
 export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [error, setError] = useState('')
@@ -105,7 +106,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         {isBuying
           ? 'WAITING FOR WALLET APPROVAL'
           : previewUnitsOut
-            ? `CONFIRM BUY FOR ${formatUnits(previewUnitsOut, Number(coin.decimals))} ${coin.name.toUpperCase()}`
+            ? `CONFIRM BUY FOR ${formatUnitsRounded(previewUnitsOut, Number(coin.decimals))} ${coin.name.toUpperCase()}`
             : 'Loading estimated price ...'}
       </GraduatedTradeButton>
     </>
