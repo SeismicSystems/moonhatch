@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { PropsWithChildren } from 'react'
 import { useDispatch } from 'react-redux'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
@@ -74,18 +74,26 @@ const Providers: React.FC<PropsWithChildren<{ config: Config }>> = ({
 
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
+  const wsRef = useRef<WebSocketService | null>(null)
 
   useEffect(() => {
     // Fetch all coins when component mounts
     dispatch(fetchAllCoins())
-
-    const websocketService = new WebSocketService(WEBSOCKET_URL)
-    websocketService.init(store.dispatch)
-
-    return () => {
-      websocketService.disconnect()
-    }
   }, [dispatch])
+
+  useEffect(() => {
+    if (!wsRef.current) {
+      const websocketService = new WebSocketService(WEBSOCKET_URL)
+      websocketService.init(store.dispatch)
+      wsRef.current = websocketService
+    }
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.disconnect()
+        wsRef.current = null
+      }
+    }
+  }, [])
 
   return (
     <BrowserRouter>
