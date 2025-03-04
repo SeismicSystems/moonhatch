@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { parseEther } from 'viem'
 
-import { ExplorerLink } from '@/components/NotifyExplorer'
+import { ExplorerToast } from '@/components/ExplorerToast'
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
@@ -45,7 +45,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         const url = txUrl(buyTxHash)
         if (url) {
           notifyInfo(
-            <ExplorerLink url={url} text="Sent buy tx: " hash={buyTxHash} />
+            <ExplorerToast url={url} text="Sent buy tx: " hash={buyTxHash} />
           )
         } else {
           notifyInfo(`Sent buy tx: ${buyTxHash}`)
@@ -56,7 +56,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         const url = txUrl(buyReceipt.transactionHash)
         if (url) {
           notifySuccess(
-            <ExplorerLink
+            <ExplorerToast
               url={url}
               text="Buy confirmed: "
               hash={buyReceipt.transactionHash}

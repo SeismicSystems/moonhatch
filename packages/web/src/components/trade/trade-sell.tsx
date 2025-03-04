@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { formatEther, parseUnits } from 'viem'
 
-import { ExplorerLink } from '@/components/NotifyExplorer'
+import { ExplorerToast } from '@/components/ExplorerToast'
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
@@ -49,7 +49,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         const url = txUrl(approveTxHash)
         if (url) {
           notifyInfo(
-            <ExplorerLink
+            <ExplorerToast
               url={url}
               text="Sent approval tx: "
               hash={approveTxHash}
@@ -67,7 +67,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         const url = txUrl(approvalReceipt.transactionHash)
         if (url) {
           notifySuccess(
-            <ExplorerLink
+            <ExplorerToast
               url={url}
               text="Approved confirmed: "
               hash={approvalReceipt.transactionHash}
@@ -84,7 +84,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         const url = txUrl(sellTxHash)
         if (url) {
           notifyInfo(
-            <ExplorerLink url={url} text="Sent sell tx: " hash={sellTxHash} />
+            <ExplorerToast url={url} text="Sent sell tx: " hash={sellTxHash} />
           )
         } else {
           notifyInfo(`Sent sell tx: ${sellTxHash}`)
@@ -95,7 +95,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         const url = txUrl(sellReceipt.transactionHash)
         if (url) {
           notifySuccess(
-            <ExplorerLink
+            <ExplorerToast
               url={url}
               text="Sell confirmed: "
               hash={sellReceipt.transactionHash}
