@@ -112,7 +112,8 @@ impl PumpClient {
             .to(self.ca.pump)
             .input(input.into())
             .from(self.signer_address);
-        let pending_tx = self.wallet.send_transaction(tx).await?;
+        let inner = (*self.wallet).clone();
+        let pending_tx = inner.send_transaction(tx).await?;
         Ok(pending_tx.tx_hash().clone())
     }
 
