@@ -37,6 +37,7 @@ alloy-provider = { version = "=0.8.0", features = [
     "ws",
     "trace-api",
 ] }
+alloy-dyn-abi = "0.8.0"
 alloy-network = "0.8.0"
 alloy-rpc-types-eth = "=0.8.0"
 alloy-primitives = "0.8"

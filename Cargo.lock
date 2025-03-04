@@ -3437,6 +3437,7 @@ dependencies = [
 name = "pump"
 version = "0.1.0"
 dependencies = [
+ "alloy-dyn-abi",
  "alloy-network",
  "alloy-primitives",
  "alloy-provider",
