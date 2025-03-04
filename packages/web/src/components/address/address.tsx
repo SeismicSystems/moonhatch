@@ -15,6 +15,7 @@ type AddressProps = {
 export const Address: React.FC<AddressProps> = ({
   address,
   className,
+  style,
   ...props
 }) => {
   const { addressUrl } = usePumpClient()
@@ -29,7 +30,7 @@ export const Address: React.FC<AddressProps> = ({
     <div
       className={className}
       {...props}
-      style={{ display: 'flex', alignItems: 'center' }}
+      style={{ display: 'flex', alignItems: 'center', ...style }}
     >
       <MaybeLink url={url}>{addressFormatter(address)}</MaybeLink>
       <CopyToClipboard text={address} style={{ marginLeft: '0.5rem' }} />
