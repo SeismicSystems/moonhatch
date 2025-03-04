@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { PropsWithChildren } from 'react'
 import { useDispatch } from 'react-redux'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
@@ -15,7 +15,7 @@ import CoinForm from '@/components/create/coin-form'
 import { CHAIN_ID } from '@/hooks/useContract'
 import Home from '@/pages/Home'
 import NotFound from '@/pages/NotFound'
-import { AppDispatch, store } from '@/store/store'
+import { AppDispatch } from '@/store/store'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -74,16 +74,24 @@ const Providers: React.FC<PropsWithChildren<{ config: Config }>> = ({
 
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
+  const wsRef = useRef<WebSocketService | null>(null)
 
   useEffect(() => {
     // Fetch all coins when component mounts
     dispatch(fetchAllCoins())
+  }, [dispatch])
 
-    const websocketService = new WebSocketService(WEBSOCKET_URL)
-    websocketService.init(store.dispatch)
-
+  useEffect(() => {
+    if (!wsRef.current) {
+      const websocketService = new WebSocketService(WEBSOCKET_URL)
+      websocketService.init(dispatch)
+      wsRef.current = websocketService
+    }
     return () => {
-      websocketService.disconnect()
+      if (wsRef.current) {
+        wsRef.current.disconnect()
+        wsRef.current = null
+      }
     }
   }, [dispatch])
 
