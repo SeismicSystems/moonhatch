@@ -2,7 +2,7 @@ use std::{io::prelude::*, os::unix::net::UnixStream};
 
 use alloy_primitives::Address;
 use bigdecimal::BigDecimal;
-use pump::{db::models::Coin, error::ListenerError, ListenerUpdate, SOCKET_PATH};
+use pump::{db::models::Coin, error::ListenerError, get_workspace_root, ListenerUpdate, SOCKET_FILENAME};
 
 pub struct SockWriter {
     stream: UnixStream,
@@ -10,7 +10,8 @@ pub struct SockWriter {
 
 impl SockWriter {
     pub(crate) fn try_new() -> Result<Self, ListenerError> {
-        let stream = UnixStream::connect(SOCKET_PATH)?;
+        let path = format!("{}/{}", get_workspace_root().unwrap(), SOCKET_FILENAME);
+        let stream = UnixStream::connect(&path)?;
         Ok(Self { stream })
     }
 

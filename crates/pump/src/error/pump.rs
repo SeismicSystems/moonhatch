@@ -16,6 +16,8 @@ pub enum FileUploadError {
 pub enum PumpError {
     #[error("Coin not found: {0:?}")]
     CoinNotFound(u32),
+    #[error("Coin not graduated: {0:?}")]
+    CoinNotGraduated(u32),
     #[error("WETH contract not found")]
     WethNotFound,
     #[error("Pair not found: {0:?}")]
@@ -101,6 +103,7 @@ impl Into<StatusCode> for PumpError {
             PumpError::InvalidAddress => StatusCode::INTERNAL_SERVER_ERROR,
             PumpError::FailedToReadFile(_) => StatusCode::INTERNAL_SERVER_ERROR,
             PumpError::NoBlockWithNumber(_) => StatusCode::NOT_FOUND,
+            PumpError::CoinNotGraduated(_) => StatusCode::BAD_REQUEST,
         }
     }
 }
