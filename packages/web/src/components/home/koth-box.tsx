@@ -172,7 +172,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
               fontSize: coin.rank === 1 ? '1rem' : '.75rem',
             }}
           >
-            $: {coin.symbol.toUpperCase()}
+            ${coin.symbol.toUpperCase()}
           </Typography>
         </div>
       </Box>

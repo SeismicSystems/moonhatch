@@ -12,7 +12,7 @@ const GraduatedIconsContainer: React.FC = () => {
           }}
         />
         <p className="text-[10px] md:text-[12px] lg:text-[14px] text-[var(--creamWhite)]">
-          = not graduated to raydium
+          = not graduated to dex
         </p>
       </div>
       <div className="flex items-center">
@@ -23,7 +23,7 @@ const GraduatedIconsContainer: React.FC = () => {
           }}
         />
         <p className="text-[10px] md:text-[12px] lg:text-[14px] text-[var(--creamWhite)]">
-          = graduated to raydium
+          = graduated to dex
         </p>
       </div>
     </>

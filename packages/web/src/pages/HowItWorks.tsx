@@ -99,7 +99,8 @@ const HowItWorks: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                     market cap of $100k
                   </Step>
                   <Step number={5}>
-                    $17k of liquidity is then deposited in raydium and burned
+                    1 testETH and 1b tokens are deposited into the dex and the
+                    LP tokens are burned
                   </Step>
                 </div>
 
