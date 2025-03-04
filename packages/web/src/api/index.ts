@@ -7,4 +7,4 @@ const getBaseApiUrl = () => {
 }
 
 export const BASE_API_URL = getBaseApiUrl()
-export const WEBSOCKET_URL = `${BASE_API_URL}/ws`
+export const WEBSOCKET_URL = `${BASE_API_URL}/ws`.replace('http', 'ws')

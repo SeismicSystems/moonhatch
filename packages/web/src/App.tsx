@@ -7,14 +7,15 @@ import { checkFaucet } from 'seismic-viem'
 import { http } from 'viem'
 import { Config, WagmiProvider } from 'wagmi'
 
+import { WEBSOCKET_URL } from '@/api'
 import { fetchAllCoins } from '@/api/http'
-import { websocketService } from '@/api/websocket'
+import WebSocketService from '@/api/websocket'
 import CoinDetail from '@/components/coin/coin-detail'
 import CoinForm from '@/components/create/coin-form'
 import { CHAIN_ID } from '@/hooks/useContract'
 import Home from '@/pages/Home'
 import NotFound from '@/pages/NotFound'
-import { AppDispatch } from '@/store/store'
+import { AppDispatch, store } from '@/store/store'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -28,7 +29,7 @@ const CHAINS = SUPPORTED_CHAINS.filter((c) => c.id === CHAIN_ID)
 const config = getDefaultConfig({
   appName: 'Pump Rand',
   projectId: 'd705c8eaf9e6f732e1ddb8350222cdac',
-  // @ts-ignore
+  // @ts-expect-error: this is fine
   chains: CHAINS,
   ssr: false,
 })
@@ -78,7 +79,9 @@ const App: React.FC = () => {
     // Fetch all coins when component mounts
     dispatch(fetchAllCoins())
 
-    // Cleanup function to disconnect WebSocket when component unmounts
+    const websocketService = new WebSocketService(WEBSOCKET_URL)
+    websocketService.init(store.dispatch)
+
     return () => {
       websocketService.disconnect()
     }

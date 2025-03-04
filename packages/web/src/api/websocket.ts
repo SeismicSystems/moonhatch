@@ -1,6 +1,5 @@
 import { Dispatch } from 'redux'
 
-import { WEBSOCKET_URL } from '@/api'
 import { updateCoin } from '@/store/slice'
 import type { CoinUpdate } from '@/types/update'
 
@@ -99,5 +98,4 @@ class WebSocketService {
   }
 }
 
-// Create and export a singleton instance
-export const websocketService = new WebSocketService(WEBSOCKET_URL)
+export default WebSocketService
