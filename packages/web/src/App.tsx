@@ -76,15 +76,12 @@ const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
 
   useEffect(() => {
-    console.info('WEBSOCKET_URL', WEBSOCKET_URL)
+    // Fetch all coins when component mounts
+    dispatch(fetchAllCoins())
 
     const websocketService = new WebSocketService(WEBSOCKET_URL)
     websocketService.init(store.dispatch)
 
-    console.info('websocketService', websocketService)
-
-    // Fetch all coins when component mounts
-    dispatch(fetchAllCoins())
     return () => {
       websocketService.disconnect()
     }
