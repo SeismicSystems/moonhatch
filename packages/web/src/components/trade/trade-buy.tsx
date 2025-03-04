@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { parseEther } from 'viem'
 
+import { ExplorerToast } from '@/components/ExplorerToast'
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
 import { usePumpClient } from '@/hooks/usePumpClient'
+import { useToastNotifications } from '@/hooks/useToastNotifications'
 import { formatUnitsRounded } from '@/util'
 
 export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
@@ -19,30 +21,54 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [ethInput, setEthInput] = useState('')
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
 
-  const { previewBuy, buyPostGraduation, txUrl } = usePumpClient()
+  const { previewBuy, buyPostGraduation, txUrl, waitForTransaction } =
+    usePumpClient()
+
+  const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
+    useToastNotifications()
 
   const buyCoin = () => {
     if (!weiIn) {
       setError('Invalid amount')
+      notifyWarning('Invalid amount')
       return
     }
     if (isBuying) {
       setError('Already buying')
+      notifyWarning('Already buying')
       return
     }
     setIsBuying(true)
 
     buyPostGraduation({ token: coin.contractAddress, amountIn: weiIn })
       .then((buyTxHash) => {
-        console.log(`Sent buy tx: ${buyTxHash}`)
-        // TODO: toast with link to explorer url
         const url = txUrl(buyTxHash)
         if (url) {
-          console.log(`Explorer url: ${url}`)
+          notifyInfo(
+            <ExplorerToast url={url} text="Sent buy tx: " hash={buyTxHash} />
+          )
+        } else {
+          notifyInfo(`Sent buy tx: ${buyTxHash}`)
+        }
+        return waitForTransaction(buyTxHash)
+      })
+      .then((buyReceipt) => {
+        const url = txUrl(buyReceipt.transactionHash)
+        if (url) {
+          notifySuccess(
+            <ExplorerToast
+              url={url}
+              text="Buy confirmed: "
+              hash={buyReceipt.transactionHash}
+            />
+          )
+        } else {
+          notifySuccess(`Buy confirmed: ${buyReceipt.transactionHash}`)
         }
       })
       .catch((e) => {
         setError(e)
+        notifyError(`Failed to buy: ${e}`)
       })
       .finally(() => {
         setIsBuying(false)
@@ -79,11 +105,19 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       })
       .catch((e) => {
         setError(`Failed to simulate sale: ${e}`)
+        notifyWarning(`Failed to simulate sale: ${e}`)
       })
       .finally(() => {
         setIsPreviewing(false)
       })
-  }, [isPreviewing, weiIn, previewWeiIn, coin.contractAddress, previewBuy])
+  }, [
+    isPreviewing,
+    weiIn,
+    previewWeiIn,
+    coin.contractAddress,
+    previewBuy,
+    notifyWarning,
+  ])
 
   return (
     <>

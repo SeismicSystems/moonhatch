@@ -11,21 +11,26 @@ const defaultOptions: ToastOptions = {
 }
 
 export const useToastNotifications = () => {
-  const notifySuccess = (message: string, options?: ToastOptions) => {
+  const notifySuccess = (message: React.ReactNode, options?: ToastOptions) => {
     toast.success(message, { ...defaultOptions, ...options })
   }
 
-  const notifyError = (message: string, options?: ToastOptions) => {
+  const notifyError = (message: React.ReactNode, options?: ToastOptions) => {
     toast.error(message, { ...defaultOptions, ...options })
   }
 
-  const notifyInfo = (message: string, options?: ToastOptions) => {
+  const notifyInfo = (message: React.ReactNode, options?: ToastOptions) => {
     toast.info(message, { ...defaultOptions, ...options })
   }
 
-  const notifyWarning = (message: string, options?: ToastOptions) => {
+  const notifyWarning = (message: React.ReactNode, options?: ToastOptions) => {
     toast.warn(message, { ...defaultOptions, ...options })
   }
 
-  return { notifySuccess, notifyError, notifyInfo, notifyWarning }
+  return {
+    notifySuccess,
+    notifyError,
+    notifyInfo,
+    notifyWarning,
+  }
 }
