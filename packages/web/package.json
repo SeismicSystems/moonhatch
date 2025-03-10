@@ -20,7 +20,7 @@
     "react-router-dom": "^7.1.4",
     "react-swipeable": "^7.0.2",
     "react-swipeable-views": "^0.14.0",
-    "seismic-react": "1.0.26-experimental.1",
+    "seismic-react": "1.0.26",
     "seismic-viem": "1.0.26",
     "viem": "^2.22.3",
     "wagmi": "^2.0.0",
