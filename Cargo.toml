@@ -74,3 +74,5 @@ alloy-transport = { git = "https://github.com/SeismicSystems/seismic-alloy.git",
 alloy-transport-http = { git = "https://github.com/SeismicSystems/seismic-alloy.git", rev = "a912bdd" }
 alloy-transport-ws = { git = "https://github.com/SeismicSystems/seismic-alloy.git", rev = "a912bdd" }
 alloy-network-primitives = { git = "https://github.com/SeismicSystems/seismic-alloy.git", rev = "a912bdd" }
+
+seismic-enclave = { git = "https://github.com/SeismicSystems/seismic-enclave.git", rev = "4a9a812" }
