@@ -65,28 +65,29 @@ pub(crate) async fn sync_coin(
     let token_address = coin.contractAddress.clone();
     store::update_coin(&mut conn, coin_id, coin)?;
 
-    match client.get_pair(token_address).await {
-        Ok(pair) => {
-            let sol_pool = client.get_pool(pair).await?;
-
-            let pool = models::Pool {
-                address: sol_pool.lp_token.to_string(),
-                chain_id: client.chain_id as i32,
-                dex: client.ca.router.to_string(),
-                token_0: sol_pool.token_0.to_string(),
-                token_1: sol_pool.token_1.to_string(),
-                created_at: Utc::now().naive_utc(),
-            };
-            store::upsert_deployed_pool(&mut conn, pool)?;
-            store::update_deployed_pool(&mut conn, coin_id, sol_pool.lp_token)?;
-            Ok((StatusCode::OK, Json(format!("Synced graduated coinId={}", coin_id)))
+    let graduated = client.get_graduated(coin_id as u32).await?;
+    match graduated {
+        true => store::graduate_coin(&mut conn, coin_id)?,
+        false => {
+            return Ok((StatusCode::OK, Json(format!("Synced non-graduated coinId={}", coin_id)))
                 .into_response())
         }
-        Err(_e) => Ok((StatusCode::OK, Json(format!("Synced non-graduated coinId={}", coin_id)))
-            .into_response()),
     }
-}
 
+    let pair = client.get_pair(token_address).await?;
+    let sol_pool = client.get_pool(pair).await?;
+    let pool = models::Pool {
+        address: sol_pool.lp_token.to_string(),
+        chain_id: client.chain_id as i32,
+        dex: client.ca.router.to_string(),
+        token_0: sol_pool.token_0.to_string(),
+        token_1: sol_pool.token_1.to_string(),
+        created_at: Utc::now().naive_utc(),
+    };
+    store::upsert_deployed_pool(&mut conn, pool)?;
+    store::update_deployed_pool(&mut conn, coin_id, sol_pool.lp_token)?;
+    Ok((StatusCode::OK, Json(format!("Synced graduated coinId={}", coin_id))).into_response())
+}
 
 pub(crate) async fn deploy_coin(
     Path(coin_id): Path<i64>,
@@ -99,10 +100,11 @@ pub(crate) async fn deploy_coin(
         return Err(PumpError::CoinNotGraduated(coin_id as u32));
     }
 
+    let mut conn = state.db_conn()?;
+    store::graduate_coin(&mut conn, coin_id)?;
     client.deploy_graduated(coin_id as u32).await?;
     Ok((StatusCode::OK, Json(format!("Deployed coinId={}", coin_id))).into_response())
 }
-
 
 pub(crate) async fn get_all_coins_handler(
     State(state): State<AppState>,
