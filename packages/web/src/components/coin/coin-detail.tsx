@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import NavBar from '@/components/NavBar'
 import { Candles } from '@/components/chart/Candles'
 import CoinInfoDetails from '@/components/coin-detail/coin-info-details'
 import TradeSection from '@/components/coin-detail/trade-section'
 import CoinSocials from '@/components/coin/coin-social'
-import { useFetchCoin } from '@/hooks/useFetchCoin'
+import { useToastNotifications } from '@/hooks/useToastNotifications'
+import { selectCoinById } from '@/store/slice'
 import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
 import { Box, Typography } from '@mui/material'
@@ -44,7 +46,10 @@ const CoinDetailGraph: React.FC<{ coin: Coin }> = ({ coin }) => {
   )
 }
 
-const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
+const CoinDetailContent: React.FC<{ coinId: string }> = ({ coinId }) => {
+  const coin = useSelector(selectCoinById(coinId))
+  if (!coin) return <div>Coin not found.</div>
+
   return (
     <>
       <div className="">
@@ -98,20 +103,20 @@ const CoinDetailContent: React.FC<{ coin: Coin }> = ({ coin }) => {
 
 const CoinDetail: React.FC = () => {
   const { coinId } = useParams<{ coinId: string }>()
-  const [coin, setCoin] = useState<Coin | null>(null)
-  const { fetchCoin, loaded, loading, error } = useFetchCoin()
+  const navigate = useNavigate()
+  const { notifyError } = useToastNotifications()
 
   useEffect(() => {
-    if (!loaded || !coinId) return
-    fetchCoin(Number(coinId))
-      .then((foundCoin) => setCoin(foundCoin))
-      .catch((err) => console.error('Error fetching coin:', err))
-  }, [loaded, coinId, fetchCoin])
+    if (!coinId) {
+      notifyError('Invalid coin ID')
+      navigate('/')
+    }
+  }, [coinId, navigate, notifyError])
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
-  if (!coin) return <div>Coin not found.</div>
-  return <CoinDetailContent coin={coin} />
+  if (!coinId) {
+    return <div>No coin ID</div>
+  }
+  return <CoinDetailContent coinId={coinId} />
 }
 
 export default CoinDetail
