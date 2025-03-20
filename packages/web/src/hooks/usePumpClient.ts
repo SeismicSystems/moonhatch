@@ -287,11 +287,11 @@ export const usePumpClient = () => {
   }
 
   const txUrl = (txHash: Hex): string | undefined => {
-    return txExplorerUrl({ publicClient: pubClient(), txHash })
+    return txExplorerUrl({ chain: pubClient().chain, txHash })
   }
 
   const addressUrl = (address: Hex): string | undefined => {
-    return addressExplorerUrl({ publicClient: pubClient(), address })
+    return addressExplorerUrl({ chain: pubClient().chain, address })
   }
 
   const deployGraduated = async (coinId: bigint): Promise<Hex> => {

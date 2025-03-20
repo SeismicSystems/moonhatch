@@ -5,7 +5,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ShieldedWalletProvider } from 'seismic-react'
 import { sanvil, seismicDevnet2 } from 'seismic-react/rainbowkit'
 import { checkFaucet } from 'seismic-viem'
-import { http } from 'viem'
+import { Address, PublicClient, http } from 'viem'
 import { Config, WagmiProvider } from 'wagmi'
 
 import { WEBSOCKET_URL } from '@/api'
@@ -52,7 +52,13 @@ const Providers: React.FC<PropsWithChildren<{ config: Config }>> = ({
             options={{
               publicTransport,
               publicChain,
-              onAddressChange: async ({ publicClient, address }) => {
+              onAddressChange: async ({
+                publicClient,
+                address,
+              }: {
+                publicClient: PublicClient
+                address: Address
+              }) => {
                 if (!FAUCET_URL) {
                   return
                 }
