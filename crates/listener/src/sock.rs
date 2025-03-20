@@ -2,7 +2,9 @@ use std::{io::prelude::*, os::unix::net::UnixStream};
 
 use alloy_primitives::Address;
 use bigdecimal::BigDecimal;
-use pump::{db::models::Coin, error::ListenerError, get_workspace_root, ListenerUpdate, SOCKET_FILENAME};
+use pump::{
+    db::models::Coin, error::ListenerError, get_workspace_root, ListenerUpdate, SOCKET_FILENAME,
+};
 
 pub struct SockWriter {
     stream: UnixStream,
