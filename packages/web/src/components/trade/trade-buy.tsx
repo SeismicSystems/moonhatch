@@ -100,8 +100,8 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         }
       })
       .catch((e) => {
-        setError(e)
-        notifyError(`Failed to buy: ${e}`)
+        setError(e.message)
+        notifyError(`Failed to buy: ${e.message}`)
       })
       .finally(() => {
         setIsBuying(false)
