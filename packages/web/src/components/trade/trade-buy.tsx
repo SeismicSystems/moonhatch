@@ -7,7 +7,29 @@ import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
+import { Coin } from '@/types/coin'
 import { formatUnitsRounded } from '@/util'
+
+const BuyButtonText: React.FC<{
+  coin: Coin
+  previewWeiIn: bigint | null
+  previewUnitsOut: bigint | null
+  isBuying: boolean
+}> = ({ coin, previewWeiIn, previewUnitsOut, isBuying }) => {
+  if (previewWeiIn === null) {
+    return 'Enter an amount'
+  }
+
+  return (
+    <>
+      {isBuying
+        ? 'WAITING FOR WALLET APPROVAL'
+        : previewUnitsOut
+          ? `CONFIRM BUY FOR ${formatUnitsRounded(previewUnitsOut, Number(coin.decimals))} ${coin.name.toUpperCase()}`
+          : 'Loading estimated price ...'}
+    </>
+  )
+}
 
 export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [error, setError] = useState('')
@@ -137,11 +159,12 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           '&:hover': { backgroundColor: 'darkgreen' },
         }}
       >
-        {isBuying
-          ? 'WAITING FOR WALLET APPROVAL'
-          : previewUnitsOut
-            ? `CONFIRM BUY FOR ${formatUnitsRounded(previewUnitsOut, Number(coin.decimals))} ${coin.name.toUpperCase()}`
-            : 'Loading estimated price ...'}
+        <BuyButtonText
+          coin={coin}
+          previewWeiIn={previewWeiIn}
+          previewUnitsOut={previewUnitsOut}
+          isBuying={isBuying}
+        />
       </GraduatedTradeButton>
     </>
   )

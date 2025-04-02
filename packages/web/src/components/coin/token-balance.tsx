@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
+import { Balance, useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { Coin } from '@/types/coin'
 import { formatUnitsRounded } from '@/util'
@@ -8,8 +9,15 @@ export const TokenBalance: React.FC<{ coin: Coin }> = ({
   coin: { contractAddress, decimals, symbol, graduated, deployedPool },
 }) => {
   const { loaded, balanceOfWallet } = usePumpClient()
+  const { loadBalance, saveBalance } = useAppState()
+
+  const [balanceObj, setBalanceObj] = useState<Balance<bigint> | null>(null)
   const [balanceUnits, setBalanceUnits] = useState<bigint | null>(null)
   const [balanceTokens, setBalanceTokens] = useState<string | null>(null)
+
+  useEffect(() => {
+    setBalanceObj(loadBalance(contractAddress))
+  }, [loadBalance, contractAddress])
 
   useEffect(() => {
     if (!loaded || !graduated || !deployedPool) {

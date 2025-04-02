@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
+import { Hex } from 'viem'
 
 const STORAGE_KEY = 'app-state'
 const STORAGE_EVENT = 'app-state-update'
+
+export type Balance<T> = { balanceUnits: T; lastUpdated: number }
 
 // Define the base state interface
 interface AppState {
   'terms-accepted': boolean
   weiIn: Record<string, string>
+  balances: Record<Hex, Balance<string>>
   // Add more fields here:
   // theme?: 'light' | 'dark';
   // 'notifications-enabled'?: boolean;
@@ -17,6 +21,7 @@ interface AppState {
 const DEFAULT_STATE: AppState = {
   'terms-accepted': false,
   weiIn: {},
+  balances: {},
   // Add corresponding default values:
   // theme: 'light',
   // 'notifications-enabled': true,
@@ -131,6 +136,28 @@ export const useAppState = () => {
     })
   }
 
+  const loadBalance = (tokenAddress: Hex): Balance<bigint> | null => {
+    const balances = getField('balances')
+    const balance = balances[tokenAddress]
+    if (!balance) return null
+    return {
+      balanceUnits: BigInt(balance.balanceUnits),
+      lastUpdated: balance.lastUpdated,
+    }
+  }
+
+  const saveBalance = (tokenAddress: Hex, units: bigint) => {
+    updateState({
+      balances: {
+        ...state.balances,
+        [tokenAddress]: {
+          balanceUnits: units.toString(),
+          lastUpdated: Date.now(),
+        },
+      },
+    })
+  }
+
   return {
     state,
     updateState,
@@ -140,5 +167,7 @@ export const useAppState = () => {
     acceptedTerms,
     loadWeiIn,
     saveWeiIn,
+    loadBalance,
+    saveBalance,
   } as const
 }

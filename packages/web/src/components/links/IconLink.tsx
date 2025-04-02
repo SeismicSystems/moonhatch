@@ -14,7 +14,7 @@ const IconLink: React.FC<React.PropsWithChildren<IconLinkProps>> = ({
 }) => {
   return (
     <div
-      className="flex flex-col items-center text-[var(--creamWhite)] hover:text-[var(--midBlue)] transition"
+      className="flex flex-col items-center text-[var(--creamWhite)] hover:text-white transition"
       style={{ cursor: 'pointer', ...style }}
       onClick={onClick}
     >

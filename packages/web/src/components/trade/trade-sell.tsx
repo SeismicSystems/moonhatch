@@ -7,7 +7,26 @@ import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
-import { stringifyBigInt } from '@/util'
+
+const SellButtonText: React.FC<{
+  previewUnitsIn: bigint | null
+  previewWeiOut: bigint | null
+  isSelling: boolean
+}> = ({ previewUnitsIn, previewWeiOut, isSelling }) => {
+  if (previewUnitsIn === null) {
+    return 'Enter an amount'
+  }
+
+  return (
+    <>
+      {isSelling
+        ? 'Waiting for wallet approval...'
+        : previewWeiOut
+          ? `CONFIRM SELL. ESTIMATED ETH: ${formatEther(previewWeiOut)} ETH`
+          : 'Loading estimated ...'}
+    </>
+  )
+}
 
 export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [error, setError] = useState('')
@@ -106,10 +125,14 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         }
       })
       .catch((e) => {
-        setError(JSON.stringify(e, stringifyBigInt, 2))
-        notifyError(`Failed to sell: ${e}`)
+        setError(e.message)
+        notifyError(`Failed to sell: ${e.message}`)
       })
       .finally(() => {
+        setAmountInput('')
+        setAmountIn(null)
+        setPreviewUnitsIn(null)
+        setPreviewWeiOut(null)
         setIsSelling(false)
       })
   }
@@ -142,7 +165,10 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       token: coin.contractAddress,
       amountIn,
     })
-      .then()
+      .then((weiOut) => {
+        setPreviewWeiOut(weiOut)
+        setPreviewUnitsIn(amountIn)
+      })
       .catch((e) => {
         setError(`Failed to simulate sale: ${e}`)
         notifyWarning(`Failed to simulate sale: ${e}`)
@@ -180,11 +206,11 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           '&:hover': { backgroundColor: 'darkred' },
         }}
       >
-        {isSelling
-          ? 'Waiting for wallet approval...'
-          : previewWeiOut
-            ? `CONFIRM SELL. ESTIMATED ETH: ${formatEther(previewWeiOut)} ETH`
-            : 'Loading estimated ...'}
+        <SellButtonText
+          previewUnitsIn={previewUnitsIn}
+          previewWeiOut={previewWeiOut}
+          isSelling={isSelling}
+        />
       </GraduatedTradeButton>
     </>
   )
