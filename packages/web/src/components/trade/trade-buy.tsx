@@ -84,8 +84,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           toastContent = (
             <ExplorerToast
               url={url}
-              // @ts-expect-error: this is a hacky workaround
-              text={toastContent}
+              text={toastMessage}
               hash={buyReceipt.transactionHash}
             />
           )
@@ -101,7 +100,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       })
       .catch((e) => {
         setError(e.message)
-        notifyError(`Failed to buy: ${e.message}`)
+        notifyError(`Failed to buy ${coin.name.toUpperCase()}`)
       })
       .finally(() => {
         setIsBuying(false)
