@@ -32,7 +32,7 @@ const SellButtonText: React.FC<{
 export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const { previewSell, checkApproval, sell, txUrl, waitForTransaction } =
     usePumpClient()
-  const { deleteBalance } = useAppState()
+  const { loadBalance, deleteBalance } = useAppState()
   const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
     useToastNotifications()
 
@@ -46,6 +46,17 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
 
   const [amountInput, setAmountInput] = useState('')
   const [amountIn, setAmountIn] = useState<bigint | null>(null)
+
+  const [balance, setBalance] = useState<bigint | null>(null)
+
+  useEffect(() => {
+    const balance = loadBalance(coin.contractAddress)
+    if (!balance) {
+      setBalance(null)
+      return
+    }
+    setBalance(balance.units)
+  }, [coin.contractAddress, loadBalance])
 
   const sellCoin = () => {
     if (!amountIn) {
@@ -122,20 +133,18 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       .then((sellReceipt) => {
         const success = sellReceipt.status === 'success'
         const url = txUrl(sellReceipt.transactionHash)
-        let toastContent: string | React.ReactNode = `Sell confirmed: `
-        if (!success) {
-          toastContent = `Sell failed: `
-        }
+        const toastMessage = success ? 'Sell confirmed: ' : 'Sell failed: '
+        let toastContent: React.ReactNode
         if (url) {
           toastContent = (
             <ExplorerToast
               url={url}
-              text="Sell confirmed: "
+              text={toastMessage}
               hash={sellReceipt.transactionHash}
             />
           )
         } else {
-          toastContent += sellReceipt.transactionHash
+          toastContent = `${toastMessage}${sellReceipt.transactionHash}`
         }
         if (success) {
           notifySuccess(toastContent)
@@ -210,7 +219,9 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       <GraduatedAmountInput
         amount={amountInput}
         setAmount={setAmountInput}
-        placeholder={`ENTER ${coin.name.toUpperCase()} AMOUNT`}
+        placeholder={`ENTER AMOUNT`}
+        maxAmount={balance}
+        decimals={Number(coin.decimals)}
       />
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <GraduatedTradeButton

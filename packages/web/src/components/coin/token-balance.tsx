@@ -56,10 +56,7 @@ export const TokenBalance: React.FC<{ coin: Coin }> = ({
       setBalanceTokens(null)
       return
     }
-    const balanceTokens = formatUnitsRounded(
-      balance.balanceUnits,
-      Number(decimals)
-    )
+    const balanceTokens = formatUnitsRounded(balance.units, Number(decimals))
     setBalanceTokens(balanceTokens)
   }, [balance, decimals])
 

@@ -35,9 +35,7 @@ const BuyButtonText: React.FC<{
 export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const { previewBuy, buyPostGraduation, txUrl, waitForTransaction } =
     usePumpClient()
-
   const { deleteBalance } = useAppState()
-
   const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
     useToastNotifications()
 
@@ -80,10 +78,8 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       .then((buyReceipt) => {
         const success = buyReceipt.status === 'success'
         const url = txUrl(buyReceipt.transactionHash)
-        let toastContent: string | React.ReactNode = `Buy confirmed: `
-        if (!success) {
-          toastContent = `Buy failed: `
-        }
+        const toastMessage = success ? 'Buy confirmed: ' : 'Buy failed: '
+        let toastContent: React.ReactNode
         if (url) {
           toastContent = (
             <ExplorerToast
@@ -94,7 +90,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
             />
           )
         } else {
-          toastContent += buyReceipt.transactionHash
+          toastContent = `${toastMessage}${buyReceipt.transactionHash}`
         }
         if (success) {
           notifySuccess(toastContent)
@@ -162,6 +158,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         amount={ethInput}
         setAmount={setEthInput}
         placeholder="SET ETH AMOUNT"
+        decimals={18}
       />
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <GraduatedTradeButton

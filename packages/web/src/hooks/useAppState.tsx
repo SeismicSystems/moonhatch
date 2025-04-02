@@ -4,7 +4,7 @@ import { Hex } from 'viem'
 const STORAGE_KEY = 'app-state'
 const STORAGE_EVENT = 'app-state-update'
 
-export type Balance<T> = { balanceUnits: T; lastUpdated: number }
+export type Balance<T> = { units: T; lastUpdated: number }
 
 // Define the base state interface
 interface AppState {
@@ -154,7 +154,7 @@ export const useAppState = () => {
       const balance = balances[tokenAddress]
       if (!balance) return null
       return {
-        balanceUnits: BigInt(balance.balanceUnits),
+        units: BigInt(balance.units),
         lastUpdated: balance.lastUpdated,
       }
     },
@@ -167,7 +167,7 @@ export const useAppState = () => {
         balances: {
           ...state.balances,
           [tokenAddress]: {
-            balanceUnits: units.toString(),
+            units: units.toString(),
             lastUpdated: Date.now(),
           },
         },

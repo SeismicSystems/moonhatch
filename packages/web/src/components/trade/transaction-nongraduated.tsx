@@ -92,6 +92,7 @@ export const TransactionNonGraduated = ({
             amount={buyInputEth}
             setAmount={setBuyInputEth}
             placeholder="ENTER ETH AMOUNT"
+            decimals={18}
           />
           {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
           <NonGraduatedTradeButton
