@@ -154,7 +154,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       })
       .catch((e) => {
         setError(e.message)
-        notifyError(`Failed to sell: ${e.message}`)
+        notifyError(`Failed to sell ${coin.name.toUpperCase()}`)
       })
       .finally(() => {
         setAmountInput('')
