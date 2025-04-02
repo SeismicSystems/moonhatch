@@ -69,14 +69,13 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       notifyWarning('Already selling')
       return
     }
-    setIsSelling(true)
 
+    setIsSelling(true)
     checkApproval({ token: coin.contractAddress, amountIn })
       .then((approveTxHash) => {
         if (!approveTxHash) {
-          return
+          return null
         }
-
         const url = txUrl(approveTxHash)
         if (url) {
           notifyInfo(
@@ -97,10 +96,10 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         }
         const success = approvalReceipt.status === 'success'
         const url = txUrl(approvalReceipt.transactionHash)
-        let toastContent: string | React.ReactNode = `Approved confirmed: `
-        if (!success) {
-          toastContent = `Approved failed: `
-        }
+        const toastMessage = success
+          ? 'Approved confirmed: '
+          : 'Approved failed: '
+        let toastContent: React.ReactNode
         if (url) {
           toastContent = (
             <ExplorerToast
@@ -110,7 +109,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
             />
           )
         } else {
-          toastContent += approvalReceipt.transactionHash
+          toastContent = `${toastMessage}${approvalReceipt.transactionHash}`
         }
         if (success) {
           notifySuccess(toastContent)
