@@ -13,7 +13,7 @@ export const NonGraduatedTradeButton: React.FC<
 > = ({ children, onClick, disabled }) => {
   return (
     <button
-      className="h-[10dvh] "
+      className="h-[5dvh] "
       style={{
         width: '85%',
         padding: '10px',

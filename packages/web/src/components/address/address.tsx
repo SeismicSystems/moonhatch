@@ -18,13 +18,14 @@ export const Address: React.FC<AddressProps> = ({
   style,
   ...props
 }) => {
-  const { addressUrl } = usePumpClient()
+  const { loaded, addressUrl } = usePumpClient()
   const [url, setUrl] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!loaded) return
     const newUrl = addressUrl(address) ?? null
     setUrl(newUrl)
-  }, [address, addressUrl])
+  }, [loaded, address, addressUrl])
 
   return (
     <div

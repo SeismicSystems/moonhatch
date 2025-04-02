@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { formatEther } from 'viem'
 
+import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { Coin } from '@/types/coin'
 import CachedIcon from '@mui/icons-material/Cached'
@@ -8,16 +10,15 @@ import { Box, CircularProgress, IconButton, Typography } from '@mui/material'
 type WeiInProps = { coin: Coin }
 
 export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
+  const { loadWeiIn, saveWeiIn } = useAppState()
+  const { getWeiIn } = usePumpClient()
   const [revealed, setRevealed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
 
   useEffect(() => {
-    const cachedWei = localStorage.getItem(`weiIn_coin_${coin.id}`)
-    if (cachedWei) setWeiIn(BigInt(cachedWei))
-  }, [coin.id])
-
-  const { getWeiIn } = usePumpClient()
+    setWeiIn(loadWeiIn(coin.id))
+  }, [coin.id, loadWeiIn])
 
   const refreshBalance = async () => {
     if (loading) {
@@ -26,6 +27,7 @@ export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
     getWeiIn(BigInt(coin.id))
       .then((wei) => {
         setWeiIn(wei)
+        saveWeiIn(coin.id, wei)
       })
       .finally(() => {
         setLoading(false)
@@ -111,11 +113,11 @@ export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
               }}
             >
               {weiIn
-                ? `${weiIn} ${coin.name.toUpperCase()}`
+                ? `${formatEther(weiIn)} ETH spent`
                 : 'NO BALANCE AVAILABLE'}
             </Typography>
           ) : (
-            <span style={{ color: '#ccc' }}>CLICK TO SEE BALANCE</span>
+            <span style={{ color: '#ccc' }}>SEE HOW MUCH YOU'VE BOUGHT</span>
           )}
         </Box>
       </Box>

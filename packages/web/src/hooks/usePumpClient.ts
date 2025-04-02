@@ -170,7 +170,6 @@ export const usePumpClient = () => {
     amount,
   }: ApproveParams): Promise<Hex> => {
     const coinContract = getCoinContract(token)
-    // @ts-expect-error TODO: christian fix typing in seismic-viem
     return coinContract.twrite.approve([spender, amount], { gas: 1_000_000 })
   }
 
@@ -185,8 +184,11 @@ export const usePumpClient = () => {
     coinId: bigint,
     weiIn: bigint
   ): Promise<Hex> => {
-    // @ts-expect-error TODO: christian fix typing in seismic-viem
     return pump().twrite.buy([coinId], { value: weiIn, gas: 1_000_000 })
+  }
+
+  const refundPurchase = async (coinId: bigint): Promise<Hex> => {
+    return pump().twrite.refundPurchase([coinId], { gas: 1_000_000 })
   }
 
   const buyPostGraduation = ({
@@ -198,7 +200,6 @@ export const usePumpClient = () => {
     const to = walletAddress()
     const deadline = getDeadline(deadlineMs)
     const path = [wethAddress, token]
-    // @ts-expect-error TODO: christian fix typing in seismic-viem
     return dex().twrite.swapExactETHForTokens(
       [minAmountOut, path, to, deadline],
       {
@@ -217,7 +218,6 @@ export const usePumpClient = () => {
     const to = walletAddress()
     const path = [token, wethAddress]
     const deadline = getDeadline(deadlineMs)
-    // @ts-expect-error TODO: christian fix typing in seismic-viem
     return dex().twrite.swapExactTokensForETH(
       [amountIn, minAmountOut, path, to, deadline],
       { gas: 1_000_000 }
@@ -286,16 +286,15 @@ export const usePumpClient = () => {
     return await approveSale({ token, amount })
   }
 
-  const txUrl = (txHash: Hex): string | undefined => {
+  const txUrl = (txHash: Hex): string | null => {
     return txExplorerUrl({ chain: pubClient().chain, txHash })
   }
 
-  const addressUrl = (address: Hex): string | undefined => {
+  const addressUrl = (address: Hex): string | null => {
     return addressExplorerUrl({ chain: pubClient().chain, address })
   }
 
   const deployGraduated = async (coinId: bigint): Promise<Hex> => {
-    // @ts-expect-error TODO: christian fix typing in seismic-viem
     return pump().twrite.deployGraduated([coinId], { gas: 1_000_000 })
   }
 
@@ -321,6 +320,7 @@ export const usePumpClient = () => {
     approve,
     approveDex,
     buyPreGraduation,
+    refundPurchase,
     buyPostGraduation,
     sell,
     approveSale,

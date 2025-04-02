@@ -3,10 +3,14 @@ import { formatEther, parseEther } from 'viem'
 
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
 import { WeiIn } from '@/components/trade/wei-in'
+import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
+import { useToastNotifications } from '@/hooks/useToastNotifications'
 import { Coin } from '@/types/coin'
 
+import { ExplorerToast } from '../ExplorerToast'
 import { NonGraduatedAmountInput } from './amount-input'
+import { Refund } from './refund'
 import { NonGraduatedTradeButton } from './trade-button'
 
 type TransactionNonGraduatedProps = {
@@ -16,10 +20,13 @@ type TransactionNonGraduatedProps = {
 export const TransactionNonGraduated = ({
   coin,
 }: TransactionNonGraduatedProps) => {
+  const { notifySuccess, notifyInfo, notifyError } = useToastNotifications()
+  const { loaded, waitForTransaction, buyPreGraduation, txUrl } =
+    usePumpClient()
+  const { loadWeiIn, saveWeiIn } = useAppState()
   const [buyError, setBuyError] = useState<string | null>(null)
   const [buyInputEth, setBuyInputEth] = useState<string>('')
   const [buyAmountWei, setBuyAmountWei] = useState<bigint | null>(null)
-  const { buyPreGraduation } = usePumpClient()
   const [isBuying, setIsBuying] = useState(false)
 
   useEffect(() => {
@@ -36,18 +43,40 @@ export const TransactionNonGraduated = ({
   }, [buyInputEth])
 
   const buy = () => {
-    setIsBuying(true)
-
+    if (!loaded) {
+      return
+    }
     if (!buyAmountWei) {
       setBuyError('Invalid amount')
       return
     }
+    setIsBuying(true)
     buyPreGraduation(BigInt(coin.id), buyAmountWei)
       .then((hash) => {
-        console.log(`Send tx to chain: ${hash}`)
+        const url = txUrl(hash)
+        if (url) {
+          notifyInfo(
+            <ExplorerToast url={url} text="Sent buy tx: " hash={hash} />
+          )
+        } else {
+          notifyInfo(`Sent buy tx: ${hash}`)
+        }
+        return waitForTransaction(hash)
+      })
+      .then((receipt) => {
+        if (receipt.status === 'success') {
+          notifySuccess(
+            `Spent ${formatEther(buyAmountWei)} ETH on ${coin.name.toUpperCase()}`
+          )
+          const previousWeiIn = loadWeiIn(coin.id) ?? 0n
+          saveWeiIn(coin.id, previousWeiIn + buyAmountWei)
+        } else {
+          notifyError(`Failed to buy ${coin.name.toUpperCase()}`)
+        }
       })
       .catch((e) => {
         setBuyError(`Buy failed: ${e}`)
+        notifyError(`Failed to buy ${coin.name.toUpperCase()}`)
       })
       .finally(() => {
         setIsBuying(false)
@@ -79,6 +108,7 @@ export const TransactionNonGraduated = ({
           </NonGraduatedTradeButton>
         </TradeInnerBox>
       </TradeOuterBox>
+      <Refund coin={coin} />
     </>
   )
 }
