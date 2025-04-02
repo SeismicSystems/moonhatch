@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { formatEther } from 'viem'
 
+import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { Coin } from '@/types/coin'
 import CachedIcon from '@mui/icons-material/Cached'
@@ -8,28 +10,52 @@ import { Box, CircularProgress, IconButton, Typography } from '@mui/material'
 type WeiInProps = { coin: Coin }
 
 export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
+  const { loadWeiIn, saveWeiIn } = useAppState()
+  const { getWeiIn } = usePumpClient()
   const [revealed, setRevealed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
 
   useEffect(() => {
-    const cachedWei = localStorage.getItem(`weiIn_coin_${coin.id}`)
-    if (cachedWei) setWeiIn(BigInt(cachedWei))
-  }, [coin.id])
+    setWeiIn(loadWeiIn(coin.id))
+  }, [coin.id, loadWeiIn])
 
-  const { getWeiIn } = usePumpClient()
-
-  const refreshBalance = async () => {
+  const refreshBalance = (): Promise<void> => {
     if (loading) {
-      return
+      return Promise.resolve()
     }
-    getWeiIn(BigInt(coin.id))
+    setLoading(true)
+    return getWeiIn(BigInt(coin.id))
       .then((wei) => {
         setWeiIn(wei)
+        saveWeiIn(coin.id, wei)
+      })
+      .then(() => {
+        setRevealed(true)
       })
       .finally(() => {
         setLoading(false)
       })
+  }
+
+  const onClickReveal = () => {
+    if (revealed) {
+      setRevealed(false)
+      return
+    }
+
+    if (weiIn === null) {
+      refreshBalance()
+        .then(() => {
+          setRevealed(true)
+        })
+        .catch(() => {
+          setRevealed(false)
+        })
+      return
+    }
+
+    setRevealed(true)
   }
 
   return (
@@ -77,7 +103,7 @@ export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
         </IconButton>
 
         <Box
-          onClick={() => setRevealed(!revealed)}
+          onClick={onClickReveal}
           sx={{
             flexGrow: 1,
             marginLeft: 2,
@@ -110,12 +136,12 @@ export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
                 },
               }}
             >
-              {weiIn
-                ? `${weiIn} ${coin.name.toUpperCase()}`
-                : 'NO BALANCE AVAILABLE'}
+              {weiIn !== null
+                ? `${formatEther(weiIn)} ETH spent`
+                : 'Sign message to reveal'}
             </Typography>
           ) : (
-            <span style={{ color: '#ccc' }}>CLICK TO SEE BALANCE</span>
+            <span style={{ color: '#ccc' }}>SEE HOW MUCH YOU'VE BOUGHT</span>
           )}
         </Box>
       </Box>

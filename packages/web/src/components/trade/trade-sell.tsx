@@ -5,11 +5,37 @@ import { ExplorerToast } from '@/components/ExplorerToast'
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
+import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
-import { stringifyBigInt } from '@/util'
+
+const SellButtonText: React.FC<{
+  previewUnitsIn: bigint | null
+  previewWeiOut: bigint | null
+  isSelling: boolean
+}> = ({ previewUnitsIn, previewWeiOut, isSelling }) => {
+  if (previewUnitsIn === null) {
+    return 'Enter an amount'
+  }
+
+  return (
+    <>
+      {isSelling
+        ? 'Waiting for wallet approval...'
+        : previewWeiOut
+          ? `CONFIRM SELL. ESTIMATED ETH: ${formatEther(previewWeiOut)} ETH`
+          : 'Loading estimated ...'}
+    </>
+  )
+}
 
 export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
+  const { previewSell, checkApproval, sell, txUrl, waitForTransaction } =
+    usePumpClient()
+  const { loadBalance, deleteBalance } = useAppState()
+  const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
+    useToastNotifications()
+
   const [error, setError] = useState('')
 
   const [isPreviewing, setIsPreviewing] = useState(false)
@@ -21,11 +47,16 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const [amountInput, setAmountInput] = useState('')
   const [amountIn, setAmountIn] = useState<bigint | null>(null)
 
-  const { previewSell, checkApproval, sell, txUrl, waitForTransaction } =
-    usePumpClient()
+  const [balance, setBalance] = useState<bigint | null>(null)
 
-  const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
-    useToastNotifications()
+  useEffect(() => {
+    const balance = loadBalance(coin.contractAddress)
+    if (!balance) {
+      setBalance(null)
+      return
+    }
+    setBalance(balance.units)
+  }, [coin.contractAddress, loadBalance])
 
   const sellCoin = () => {
     if (!amountIn) {
@@ -64,9 +95,14 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         if (!approvalReceipt) {
           return
         }
+        const success = approvalReceipt.status === 'success'
         const url = txUrl(approvalReceipt.transactionHash)
+        let toastContent: string | React.ReactNode = `Approved confirmed: `
+        if (!success) {
+          toastContent = `Approved failed: `
+        }
         if (url) {
-          notifySuccess(
+          toastContent = (
             <ExplorerToast
               url={url}
               text="Approved confirmed: "
@@ -74,9 +110,12 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
             />
           )
         } else {
-          notifySuccess(
-            `Approved confirmed: ${approvalReceipt.transactionHash}`
-          )
+          toastContent += approvalReceipt.transactionHash
+        }
+        if (success) {
+          notifySuccess(toastContent)
+        } else {
+          notifyError(toastContent)
         }
       })
       .then(() => sell({ token: coin.contractAddress, amountIn }))
@@ -92,24 +131,37 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         return waitForTransaction(sellTxHash)
       })
       .then((sellReceipt) => {
+        const success = sellReceipt.status === 'success'
         const url = txUrl(sellReceipt.transactionHash)
+        const toastMessage = success ? 'Sell confirmed: ' : 'Sell failed: '
+        let toastContent: React.ReactNode
         if (url) {
-          notifySuccess(
+          toastContent = (
             <ExplorerToast
               url={url}
-              text="Sell confirmed: "
+              text={toastMessage}
               hash={sellReceipt.transactionHash}
             />
           )
         } else {
-          notifySuccess(`Sell confirmed: ${sellReceipt.transactionHash}`)
+          toastContent = `${toastMessage}${sellReceipt.transactionHash}`
+        }
+        if (success) {
+          notifySuccess(toastContent)
+          deleteBalance(coin.contractAddress)
+        } else {
+          notifyError(toastContent)
         }
       })
       .catch((e) => {
-        setError(JSON.stringify(e, stringifyBigInt, 2))
-        notifyError(`Failed to sell: ${e}`)
+        setError(e.message)
+        notifyError(`Failed to sell: ${e.message}`)
       })
       .finally(() => {
+        setAmountInput('')
+        setAmountIn(null)
+        setPreviewUnitsIn(null)
+        setPreviewWeiOut(null)
         setIsSelling(false)
       })
   }
@@ -142,7 +194,10 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       token: coin.contractAddress,
       amountIn,
     })
-      .then()
+      .then((weiOut) => {
+        setPreviewWeiOut(weiOut)
+        setPreviewUnitsIn(amountIn)
+      })
       .catch((e) => {
         setError(`Failed to simulate sale: ${e}`)
         notifyWarning(`Failed to simulate sale: ${e}`)
@@ -164,7 +219,9 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       <GraduatedAmountInput
         amount={amountInput}
         setAmount={setAmountInput}
-        placeholder={`ENTER ${coin.name.toUpperCase()} AMOUNT`}
+        placeholder={`ENTER AMOUNT`}
+        maxAmount={balance}
+        decimals={Number(coin.decimals)}
       />
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <GraduatedTradeButton
@@ -180,11 +237,11 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           '&:hover': { backgroundColor: 'darkred' },
         }}
       >
-        {isSelling
-          ? 'Waiting for wallet approval...'
-          : previewWeiOut
-            ? `CONFIRM SELL. ESTIMATED ETH: ${formatEther(previewWeiOut)} ETH`
-            : 'Loading estimated ...'}
+        <SellButtonText
+          previewUnitsIn={previewUnitsIn}
+          previewWeiOut={previewWeiOut}
+          isSelling={isSelling}
+        />
       </GraduatedTradeButton>
     </>
   )

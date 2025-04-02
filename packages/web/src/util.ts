@@ -51,7 +51,7 @@ export const formatUnitsRounded = (
   value: bigint,
   decimals: number,
   places: number = 6
-) => {
+): string => {
   const formatted = formatUnits(value, decimals)
   const [integer, fraction] = formatted.split('.')
   if (!fraction) {

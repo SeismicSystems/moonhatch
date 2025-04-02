@@ -4,8 +4,7 @@ import { useDispatch } from 'react-redux'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ShieldedWalletProvider } from 'seismic-react'
 import { sanvil, seismicDevnet2 } from 'seismic-react/rainbowkit'
-import { checkFaucet } from 'seismic-viem'
-import { Address, PublicClient, http } from 'viem'
+import { http } from 'viem'
 import { Config, WagmiProvider } from 'wagmi'
 
 import { WEBSOCKET_URL } from '@/api'
@@ -23,7 +22,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import './App.css'
 
-const FAUCET_URL = import.meta.env.VITE_FAUCET_URL
 const SUPPORTED_CHAINS = [sanvil, seismicDevnet2]
 const CHAINS = SUPPORTED_CHAINS.filter((c) => c.id === CHAIN_ID)
 
@@ -52,23 +50,6 @@ const Providers: React.FC<PropsWithChildren<{ config: Config }>> = ({
             options={{
               publicTransport,
               publicChain,
-              onAddressChange: async ({
-                publicClient,
-                address,
-              }: {
-                publicClient: PublicClient
-                address: Address
-              }) => {
-                if (!FAUCET_URL) {
-                  return
-                }
-                await checkFaucet({
-                  address,
-                  publicClient,
-                  faucetUrl: FAUCET_URL,
-                  minBalanceEther: 0.5,
-                })
-              },
             }}
           >
             {children}

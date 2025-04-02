@@ -5,11 +5,40 @@ import { ExplorerToast } from '@/components/ExplorerToast'
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
+import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
+import { Coin } from '@/types/coin'
 import { formatUnitsRounded } from '@/util'
 
+const BuyButtonText: React.FC<{
+  coin: Coin
+  previewWeiIn: bigint | null
+  previewUnitsOut: bigint | null
+  isBuying: boolean
+}> = ({ coin, previewWeiIn, previewUnitsOut, isBuying }) => {
+  if (previewWeiIn === null) {
+    return 'Enter an amount'
+  }
+
+  return (
+    <>
+      {isBuying
+        ? 'WAITING FOR WALLET APPROVAL'
+        : previewUnitsOut
+          ? `CONFIRM BUY FOR ${formatUnitsRounded(previewUnitsOut, Number(coin.decimals))} ${coin.name.toUpperCase()}`
+          : 'Loading estimated price ...'}
+    </>
+  )
+}
+
 export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
+  const { previewBuy, buyPostGraduation, txUrl, waitForTransaction } =
+    usePumpClient()
+  const { deleteBalance } = useAppState()
+  const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
+    useToastNotifications()
+
   const [error, setError] = useState('')
 
   const [isPreviewing, setIsPreviewing] = useState(false)
@@ -20,12 +49,6 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
 
   const [ethInput, setEthInput] = useState('')
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
-
-  const { previewBuy, buyPostGraduation, txUrl, waitForTransaction } =
-    usePumpClient()
-
-  const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
-    useToastNotifications()
 
   const buyCoin = () => {
     if (!weiIn) {
@@ -53,17 +76,27 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         return waitForTransaction(buyTxHash)
       })
       .then((buyReceipt) => {
+        const success = buyReceipt.status === 'success'
         const url = txUrl(buyReceipt.transactionHash)
+        const toastMessage = success ? 'Buy confirmed: ' : 'Buy failed: '
+        let toastContent: React.ReactNode
         if (url) {
-          notifySuccess(
+          toastContent = (
             <ExplorerToast
               url={url}
-              text="Buy confirmed: "
+              // @ts-expect-error: this is a hacky workaround
+              text={toastContent}
               hash={buyReceipt.transactionHash}
             />
           )
         } else {
-          notifySuccess(`Buy confirmed: ${buyReceipt.transactionHash}`)
+          toastContent = `${toastMessage}${buyReceipt.transactionHash}`
+        }
+        if (success) {
+          notifySuccess(toastContent)
+          deleteBalance(coin.contractAddress)
+        } else {
+          notifyError(toastContent)
         }
       })
       .catch((e) => {
@@ -125,6 +158,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         amount={ethInput}
         setAmount={setEthInput}
         placeholder="SET ETH AMOUNT"
+        decimals={18}
       />
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <GraduatedTradeButton
@@ -137,11 +171,12 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           '&:hover': { backgroundColor: 'darkgreen' },
         }}
       >
-        {isBuying
-          ? 'WAITING FOR WALLET APPROVAL'
-          : previewUnitsOut
-            ? `CONFIRM BUY FOR ${formatUnitsRounded(previewUnitsOut, Number(coin.decimals))} ${coin.name.toUpperCase()}`
-            : 'Loading estimated price ...'}
+        <BuyButtonText
+          coin={coin}
+          previewWeiIn={previewWeiIn}
+          previewUnitsOut={previewUnitsOut}
+          isBuying={isBuying}
+        />
       </GraduatedTradeButton>
     </>
   )
