@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Hex } from 'viem'
 
 const STORAGE_KEY = 'app-state'
@@ -83,27 +83,33 @@ export const useAppState = () => {
   }, [])
 
   // Helper to notify all components about state changes
-  const notifyStateChange = (newState: AppState) => {
+  const notifyStateChange = useCallback((newState: AppState) => {
     const event = new CustomEvent(STORAGE_EVENT, {
       detail: { newState },
     })
     window.dispatchEvent(event)
-  }
+  }, [])
 
-  const updateState = (updates: Partial<AppState>): void => {
-    try {
-      const newState = { ...state, ...updates }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
-      setState(newState)
-      notifyStateChange(newState)
-    } catch (error) {
-      console.error('Error writing to localStorage:', error)
-    }
-  }
+  const updateState = useCallback(
+    (updates: Partial<AppState>): void => {
+      try {
+        const newState = { ...state, ...updates }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
+        setState(newState)
+        notifyStateChange(newState)
+      } catch (error) {
+        console.error('Error writing to localStorage:', error)
+      }
+    },
+    [state, notifyStateChange]
+  )
 
-  const getField = <K extends keyof AppState>(field: K): AppState[K] => {
-    return state[field]
-  }
+  const getField = useCallback(
+    <K extends keyof AppState>(field: K): AppState[K] => {
+      return state[field]
+    },
+    [state]
+  )
 
   const setField = <K extends keyof AppState>(
     field: K,
@@ -120,43 +126,64 @@ export const useAppState = () => {
     return setField('terms-accepted', true)
   }
 
-  const loadWeiIn = (coinId: number): bigint | null => {
-    const coinsWeiIn = getField('weiIn')
-    const coinWeiIn = coinsWeiIn[coinId.toString()]
-    if (!coinWeiIn) return null
-    return BigInt(coinWeiIn)
-  }
+  const loadWeiIn = useCallback(
+    (coinId: number): bigint | null => {
+      const coinsWeiIn = getField('weiIn')
+      const coinWeiIn = coinsWeiIn[coinId.toString()]
+      if (!coinWeiIn) return null
+      return BigInt(coinWeiIn)
+    },
+    [getField]
+  )
 
-  const saveWeiIn = (coinId: number, value: bigint) => {
-    updateState({
-      weiIn: {
-        ...state.weiIn,
-        [coinId.toString()]: value.toString(),
-      },
-    })
-  }
-
-  const loadBalance = (tokenAddress: Hex): Balance<bigint> | null => {
-    const balances = getField('balances')
-    const balance = balances[tokenAddress]
-    if (!balance) return null
-    return {
-      balanceUnits: BigInt(balance.balanceUnits),
-      lastUpdated: balance.lastUpdated,
-    }
-  }
-
-  const saveBalance = (tokenAddress: Hex, units: bigint) => {
-    updateState({
-      balances: {
-        ...state.balances,
-        [tokenAddress]: {
-          balanceUnits: units.toString(),
-          lastUpdated: Date.now(),
+  const saveWeiIn = useCallback(
+    (coinId: number, value: bigint) => {
+      updateState({
+        weiIn: {
+          ...state.weiIn,
+          [coinId.toString()]: value.toString(),
         },
-      },
-    })
-  }
+      })
+    },
+    [updateState, state.weiIn]
+  )
+
+  const loadBalance = useCallback(
+    (tokenAddress: Hex): Balance<bigint> | null => {
+      const balances = getField('balances')
+      const balance = balances[tokenAddress]
+      if (!balance) return null
+      return {
+        balanceUnits: BigInt(balance.balanceUnits),
+        lastUpdated: balance.lastUpdated,
+      }
+    },
+    [getField]
+  )
+
+  const saveBalance = useCallback(
+    (tokenAddress: Hex, units: bigint) => {
+      updateState({
+        balances: {
+          ...state.balances,
+          [tokenAddress]: {
+            balanceUnits: units.toString(),
+            lastUpdated: Date.now(),
+          },
+        },
+      })
+    },
+    [updateState, state.balances]
+  )
+
+  const deleteBalance = useCallback(
+    (tokenAddress: Hex) => {
+      updateState({
+        balances: { ...state.balances, [tokenAddress]: undefined },
+      })
+    },
+    [updateState, state.balances]
+  )
 
   return {
     state,
@@ -169,5 +196,6 @@ export const useAppState = () => {
     saveWeiIn,
     loadBalance,
     saveBalance,
+    deleteBalance,
   } as const
 }

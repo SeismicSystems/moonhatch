@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { Balance, useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { Coin } from '@/types/coin'
 import { formatUnitsRounded } from '@/util'
+
+const REFRESH_EVERY_MS = 5 * 60 * 1000
 
 export const TokenBalance: React.FC<{ coin: Coin }> = ({
   coin: { contractAddress, decimals, symbol, graduated, deployedPool },
@@ -11,30 +13,55 @@ export const TokenBalance: React.FC<{ coin: Coin }> = ({
   const { loaded, balanceOfWallet } = usePumpClient()
   const { loadBalance, saveBalance } = useAppState()
 
-  const [balanceObj, setBalanceObj] = useState<Balance<bigint> | null>(null)
-  const [balanceUnits, setBalanceUnits] = useState<bigint | null>(null)
+  const [fetching, setFetching] = useState(false)
+  const [balance, setBalance] = useState<Balance<bigint> | null>(null)
   const [balanceTokens, setBalanceTokens] = useState<string | null>(null)
 
+  const fetchBalance = useCallback(() => {
+    if (fetching) {
+      return
+    }
+    setFetching(true)
+    balanceOfWallet(contractAddress)
+      .then((units) => {
+        saveBalance(contractAddress, units)
+      })
+      .finally(() => {
+        setFetching(false)
+      })
+  }, [balanceOfWallet, contractAddress, saveBalance, fetching])
+
   useEffect(() => {
-    setBalanceObj(loadBalance(contractAddress))
+    setBalance(loadBalance(contractAddress))
   }, [loadBalance, contractAddress])
 
   useEffect(() => {
     if (!loaded || !graduated || !deployedPool) {
       return
     }
-    balanceOfWallet(contractAddress).then((balance) => {
-      setBalanceUnits(balance)
-    })
-  }, [loaded, graduated, deployedPool, contractAddress, balanceOfWallet])
+
+    if (balance) {
+      const lastUpdated = balance.lastUpdated
+      const now = Date.now()
+      const diff = now - lastUpdated
+      if (diff < REFRESH_EVERY_MS) {
+        return
+      }
+    }
+    fetchBalance()
+  }, [loaded, graduated, deployedPool, balance, fetchBalance])
 
   useEffect(() => {
-    if (!balanceUnits) {
+    if (!balance) {
       setBalanceTokens(null)
       return
     }
-    setBalanceTokens(formatUnitsRounded(balanceUnits, Number(decimals)))
-  }, [balanceUnits, decimals])
+    const balanceTokens = formatUnitsRounded(
+      balance.balanceUnits,
+      Number(decimals)
+    )
+    setBalanceTokens(balanceTokens)
+  }, [balance, decimals])
 
   if (!balanceTokens) {
     return <></>

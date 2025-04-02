@@ -5,6 +5,7 @@ import { ExplorerToast } from '@/components/ExplorerToast'
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
+import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
 
@@ -29,6 +30,12 @@ const SellButtonText: React.FC<{
 }
 
 export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
+  const { previewSell, checkApproval, sell, txUrl, waitForTransaction } =
+    usePumpClient()
+  const { deleteBalance } = useAppState()
+  const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
+    useToastNotifications()
+
   const [error, setError] = useState('')
 
   const [isPreviewing, setIsPreviewing] = useState(false)
@@ -39,12 +46,6 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
 
   const [amountInput, setAmountInput] = useState('')
   const [amountIn, setAmountIn] = useState<bigint | null>(null)
-
-  const { previewSell, checkApproval, sell, txUrl, waitForTransaction } =
-    usePumpClient()
-
-  const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
-    useToastNotifications()
 
   const sellCoin = () => {
     if (!amountIn) {
@@ -83,9 +84,14 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         if (!approvalReceipt) {
           return
         }
+        const success = approvalReceipt.status === 'success'
         const url = txUrl(approvalReceipt.transactionHash)
+        let toastContent: string | React.ReactNode = `Approved confirmed: `
+        if (!success) {
+          toastContent = `Approved failed: `
+        }
         if (url) {
-          notifySuccess(
+          toastContent = (
             <ExplorerToast
               url={url}
               text="Approved confirmed: "
@@ -93,9 +99,12 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
             />
           )
         } else {
-          notifySuccess(
-            `Approved confirmed: ${approvalReceipt.transactionHash}`
-          )
+          toastContent += approvalReceipt.transactionHash
+        }
+        if (success) {
+          notifySuccess(toastContent)
+        } else {
+          notifyError(toastContent)
         }
       })
       .then(() => sell({ token: coin.contractAddress, amountIn }))
@@ -111,9 +120,14 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         return waitForTransaction(sellTxHash)
       })
       .then((sellReceipt) => {
+        const success = sellReceipt.status === 'success'
         const url = txUrl(sellReceipt.transactionHash)
+        let toastContent: string | React.ReactNode = `Sell confirmed: `
+        if (!success) {
+          toastContent = `Sell failed: `
+        }
         if (url) {
-          notifySuccess(
+          toastContent = (
             <ExplorerToast
               url={url}
               text="Sell confirmed: "
@@ -121,7 +135,13 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
             />
           )
         } else {
-          notifySuccess(`Sell confirmed: ${sellReceipt.transactionHash}`)
+          toastContent += sellReceipt.transactionHash
+        }
+        if (success) {
+          notifySuccess(toastContent)
+          deleteBalance(coin.contractAddress)
+        } else {
+          notifyError(toastContent)
         }
       })
       .catch((e) => {

@@ -5,6 +5,7 @@ import { ExplorerToast } from '@/components/ExplorerToast'
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
 import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
+import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
 import { Coin } from '@/types/coin'
@@ -32,6 +33,14 @@ const BuyButtonText: React.FC<{
 }
 
 export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
+  const { previewBuy, buyPostGraduation, txUrl, waitForTransaction } =
+    usePumpClient()
+
+  const { deleteBalance } = useAppState()
+
+  const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
+    useToastNotifications()
+
   const [error, setError] = useState('')
 
   const [isPreviewing, setIsPreviewing] = useState(false)
@@ -42,12 +51,6 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
 
   const [ethInput, setEthInput] = useState('')
   const [weiIn, setWeiIn] = useState<bigint | null>(null)
-
-  const { previewBuy, buyPostGraduation, txUrl, waitForTransaction } =
-    usePumpClient()
-
-  const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
-    useToastNotifications()
 
   const buyCoin = () => {
     if (!weiIn) {
@@ -75,17 +78,29 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         return waitForTransaction(buyTxHash)
       })
       .then((buyReceipt) => {
+        const success = buyReceipt.status === 'success'
         const url = txUrl(buyReceipt.transactionHash)
+        let toastContent: string | React.ReactNode = `Buy confirmed: `
+        if (!success) {
+          toastContent = `Buy failed: `
+        }
         if (url) {
-          notifySuccess(
+          toastContent = (
             <ExplorerToast
               url={url}
-              text="Buy confirmed: "
+              // @ts-expect-error: this is a hacky workaround
+              text={toastContent}
               hash={buyReceipt.transactionHash}
             />
           )
         } else {
-          notifySuccess(`Buy confirmed: ${buyReceipt.transactionHash}`)
+          toastContent += buyReceipt.transactionHash
+        }
+        if (success) {
+          notifySuccess(toastContent)
+          deleteBalance(coin.contractAddress)
+        } else {
+          notifyError(toastContent)
         }
       })
       .catch((e) => {
