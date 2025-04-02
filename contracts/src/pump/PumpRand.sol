@@ -253,7 +253,7 @@ contract PumpRand {
             block.timestamp + 1
         );
 
-        address lpToken = getPair(coinId);        
+        address lpToken = getPair(coinId);
         emit DeployedToDex(coinId, lpToken);
     }
 
