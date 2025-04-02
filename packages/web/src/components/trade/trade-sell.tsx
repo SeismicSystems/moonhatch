@@ -69,12 +69,12 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
       notifyWarning('Already selling')
       return
     }
-    setIsSelling(true)
 
+    setIsSelling(true)
     checkApproval({ token: coin.contractAddress, amountIn })
       .then((approveTxHash) => {
         if (!approveTxHash) {
-          return
+          return null
         }
         const url = txUrl(approveTxHash)
         if (url) {
