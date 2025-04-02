@@ -279,12 +279,10 @@ export const usePumpClient = () => {
     amountIn,
   }: TradeParams): Promise<Hex | null> => {
     const allowance = await allowanceDex(token)
-    console.log(`Dex Allowance: ${allowance}, AmountIn: ${amountIn}`)
     if (allowance >= amountIn) {
       return null
     }
-    const amount = amountIn - allowance
-    return await approveSale({ token, amount })
+    return await approveSale({ token, amount: amountIn })
   }
 
   const txUrl = (txHash: Hex): string | null => {
