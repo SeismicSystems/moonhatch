@@ -37,6 +37,7 @@ class WebSocketService {
   private reconnectAttempts = 0
   private maxReconnectAttempts = 5
   private reconnectTimeout = 3000 // 3 seconds
+  private reconnectOnClose = true
 
   constructor(url: string) {
     this.url = url
@@ -126,8 +127,8 @@ class WebSocketService {
         }
       }
 
-      this.socket.onclose = () => {
-        console.log('WebSocket connection closed')
+      this.socket.onclose = (event) => {
+        console.log('WebSocket connection closed', event)
         this.attemptReconnect()
       }
 
@@ -141,8 +142,11 @@ class WebSocketService {
     }
   }
 
-  // Try to reconnect
   private attemptReconnect() {
+    if (!this.reconnectOnClose) {
+      return
+    }
+
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++
       console.log(
@@ -157,9 +161,10 @@ class WebSocketService {
     }
   }
 
-  // Close the connection
   disconnect() {
     if (this.socket) {
+      // if we intentionally disconnect, don't try to reconnect
+      this.reconnectOnClose = false
       this.socket.close()
       this.socket = null
     }
