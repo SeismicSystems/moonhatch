@@ -45,14 +45,15 @@ const coinsSlice = createSlice({
       const update = action.payload
       const existingCoin = state.entities[update.data.id.toString()]
 
+      const coinId = update.data.id.toString()
       if (existingCoin) {
         // Merge the update with the existing coin
-        state.entities[update.data.id.toString()] = {
+        state.entities[coinId] = {
           ...existingCoin,
           ...update.data,
         }
       } else if (update.type === 'verifiedCoin') {
-        state.entities[update.data.id.toString()] = update.data as Coin
+        state.entities[coinId] = update.data as Coin
       }
     },
   },

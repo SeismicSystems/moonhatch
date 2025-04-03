@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { PropsWithChildren } from 'react'
 import { useDispatch } from 'react-redux'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom'
 import { ShieldedWalletProvider } from 'seismic-react'
 import { sanvil, seismicDevnet2 } from 'seismic-react/rainbowkit'
 import { http } from 'viem'
@@ -60,8 +60,9 @@ const Providers: React.FC<PropsWithChildren<{ config: Config }>> = ({
   )
 }
 
-const App: React.FC = () => {
+const AppRoutes: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
+  const navigate = useNavigate()
   const wsRef = useRef<WebSocketService | null>(null)
 
   useEffect(() => {
@@ -72,7 +73,7 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!wsRef.current) {
       const websocketService = new WebSocketService(WEBSOCKET_URL)
-      websocketService.init(dispatch)
+      websocketService.init(dispatch, navigate)
       wsRef.current = websocketService
     }
     return () => {
@@ -81,17 +82,23 @@ const App: React.FC = () => {
         wsRef.current = null
       }
     }
-  }, [dispatch])
+  }, [dispatch, navigate])
 
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/create" element={<CoinForm />} />
+      <Route path="/coins/:coinId" element={<CoinDetail />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  )
+}
+
+const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Providers config={config}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/create" element={<CoinForm />} />
-          <Route path="/coins/:coinId" element={<CoinDetail />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AppRoutes />
       </Providers>
     </BrowserRouter>
   )

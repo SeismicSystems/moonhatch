@@ -24,6 +24,7 @@ use pump::{
 use crate::sock::SockWriter;
 
 const CONFIRMATIONS: u64 = 1;
+const WEI_IN_GRADUATION: u64 = 10u64.pow(18);
 
 pub fn fmt_hex<T: AsRef<[u8]>>(value: T) -> String {
     let bytes = value.as_ref();
@@ -177,6 +178,11 @@ impl LogHandler {
         let wei_in = int_to_decimal(data.totalWeiIn);
         let mut conn = self.conn()?;
         store::update_wei_in(&mut conn, data.coinId as i64, wei_in.clone())?;
+
+        if wei_in >= BigDecimal::from(WEI_IN_GRADUATION) {
+            // don't stream this update because they'll get a graduated message shortly
+            return Ok(false);
+        }
         if let Some(sock) = self.sock() {
             sock.write_wei_in_updated(data.coinId as i64, wei_in)?;
         };

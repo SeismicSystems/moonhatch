@@ -1,13 +1,39 @@
 import { Coin } from '@/types/coin'
 
 export type CoinUpdateType =
-  | 'coin'
   | 'verifiedCoin'
   | 'weiInUpdated'
   | 'graduatedCoin'
   | 'deployedToDex'
 
-export type CoinUpdate = {
-  type: CoinUpdateType
-  data: Partial<Coin> & { id: number }
+type AddCoin = {
+  type: 'coin'
+  data: Coin
 }
+
+type VerifiedCoin = {
+  type: 'verifiedCoin'
+  data: Coin
+}
+
+type WeiInUpdated = {
+  type: 'weiInUpdated'
+  data: Pick<Coin, 'id' | 'weiIn'>
+}
+
+type GraduatedCoin = {
+  type: 'graduatedCoin'
+  data: Pick<Coin, 'id' | 'graduated'>
+}
+
+type DeployedToDex = {
+  type: 'deployedToDex'
+  data: Pick<Coin, 'id' | 'deployedPool'>
+}
+
+export type CoinUpdate =
+  | AddCoin
+  | VerifiedCoin
+  | WeiInUpdated
+  | GraduatedCoin
+  | DeployedToDex

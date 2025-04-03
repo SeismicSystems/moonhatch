@@ -32,7 +32,7 @@ impl SockWriter {
         coin_id: i64,
         total_wei_in: BigDecimal,
     ) -> Result<(), ListenerError> {
-        self.write(&ListenerUpdate::WeiInUpdated { id: coin_id, total_wei_in })
+        self.write(&ListenerUpdate::WeiInUpdated { id: coin_id, wei_in: total_wei_in })
     }
 
     pub(crate) fn write_graduated_coin(&mut self, coin_id: i64) -> Result<(), ListenerError> {
