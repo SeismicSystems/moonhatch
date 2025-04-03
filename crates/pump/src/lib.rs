@@ -21,7 +21,7 @@ pub enum ListenerUpdate {
     #[serde(rename_all = "camelCase")]
     WeiInUpdated {
         id: i64,
-        total_wei_in: BigDecimal,
+        wei_in: BigDecimal,
     },
 
     #[serde(rename_all = "camelCase")]
