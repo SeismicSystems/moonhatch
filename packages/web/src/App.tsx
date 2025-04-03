@@ -73,26 +73,15 @@ const AppRoutes: React.FC = () => {
   useEffect(() => {
     if (!wsRef.current) {
       const websocketService = new WebSocketService(WEBSOCKET_URL)
+      websocketService.init(dispatch, navigate)
       wsRef.current = websocketService
     }
     return () => {
-      if (!wsRef.current) {
-        return
-      }
-      if (wsRef.current.isConnected()) {
+      if (wsRef.current) {
         wsRef.current.disconnect()
-      }
-      wsRef.current = null
-    }
-  }, [])
-
-  useEffect(() => {
-    if (wsRef.current) {
-      if (!wsRef.current.isConnected()) {
-        wsRef.current.init(dispatch, navigate)
+        wsRef.current = null
       }
     }
-    return () => {}
   }, [dispatch, navigate])
 
   return (
