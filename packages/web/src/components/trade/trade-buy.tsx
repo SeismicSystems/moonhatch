@@ -94,6 +94,10 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         if (success) {
           notifySuccess(toastContent)
           deleteBalance(coin.contractAddress)
+          setEthInput('')
+          setWeiIn(null)
+          setPreviewWeiIn(null)
+          setPreviewUnitsOut(null)
         } else {
           notifyError(toastContent)
         }

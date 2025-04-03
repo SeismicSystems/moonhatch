@@ -148,6 +148,10 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         if (success) {
           notifySuccess(toastContent)
           deleteBalance(coin.contractAddress)
+          setAmountInput('')
+          setAmountIn(null)
+          setPreviewUnitsIn(null)
+          setPreviewWeiOut(null)
         } else {
           notifyError(toastContent)
         }
@@ -157,10 +161,6 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         notifyError(`Failed to sell ${coin.name.toUpperCase()}`)
       })
       .finally(() => {
-        setAmountInput('')
-        setAmountIn(null)
-        setPreviewUnitsIn(null)
-        setPreviewWeiOut(null)
         setIsSelling(false)
       })
   }
