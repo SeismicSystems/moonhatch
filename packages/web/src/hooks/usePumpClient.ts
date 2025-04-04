@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useShieldedWallet } from 'seismic-react'
 import {
-  ShieldedContract,
   ShieldedPublicClient,
   ShieldedWalletClient,
   addressExplorerUrl,
@@ -53,6 +52,8 @@ export const usePumpClient = () => {
   const { contract: dexContract } = useDexContract()
   const { address: wethAddress } = useWethContract()
 
+  const [walletAddress, setWalletAddress] = useState<Hex | null>(null)
+
   useEffect(() => {
     if (
       walletClient &&
@@ -67,242 +68,286 @@ export const usePumpClient = () => {
     }
   }, [walletClient, publicClient, pumpContract, dexContract, wethAddress])
 
-  const getDeadline = (deadlineMs: number) => {
-    return Math.floor((Date.now() + deadlineMs) / 1000)
-  }
-
-  const getWeiIn = async (coinId: bigint): Promise<bigint> => {
-    if (!pumpContract) {
-      throw new Error('Pump contract not found')
+  useEffect(() => {
+    if (!loaded || !walletClient || !walletClient.account) {
+      return
     }
-    const weiIn = (await pumpContract.read.getWeiIn([coinId])) as bigint
-    return weiIn
-  }
 
-  const wallet = (): ShieldedWalletClient => {
+    setWalletAddress(walletClient.account.address)
+  }, [loaded, walletClient])
+
+  const connectedAddress = useCallback(() => {
+    if (!walletAddress) {
+      throw new Error('Wallet address not found')
+    }
+    return walletAddress
+  }, [walletAddress])
+
+  const getDeadline = useCallback((deadlineMs: number) => {
+    return Math.floor((Date.now() + deadlineMs) / 1000)
+  }, [])
+
+  const getWeiIn = useCallback(
+    async (coinId: bigint): Promise<bigint> => {
+      if (!pumpContract) {
+        throw new Error('Pump contract not found')
+      }
+      const weiIn = (await pumpContract.read.getWeiIn([coinId])) as bigint
+      return weiIn
+    },
+    [pumpContract]
+  )
+
+  const wallet = useCallback((): ShieldedWalletClient => {
     if (!walletClient) {
       throw new Error('Wallet client not found')
     }
     return walletClient
-  }
+  }, [walletClient])
 
-  const pubClient = (): ShieldedPublicClient => {
+  const pubClient = useCallback((): ShieldedPublicClient => {
     if (!publicClient) {
       throw new Error('Public client not found')
     }
     return publicClient
-  }
+  }, [publicClient])
 
-  const dex = (): ShieldedContract => {
+  const dex = useCallback(() => {
     if (!dexContract) {
       throw new Error('DEX contract not found')
     }
-    return dexContract
-  }
+    return dexContract as ReturnType<typeof useDexContract>['contract']
+  }, [dexContract])
 
-  const pump = (): ShieldedContract => {
+  const pump = useCallback(() => {
     if (!pumpContract) {
       throw new Error('Pump contract not found')
     }
-    return pumpContract
-  }
+    return pumpContract as ReturnType<typeof usePumpContract>['contract']
+  }, [pumpContract])
 
-  const walletAddress = (): Hex => {
-    return wallet().account.address
-  }
+  const createCoin = useCallback(
+    async ({ name, symbol, supply }: CreateCoinParams): Promise<Hex> => {
+      return pump().write.createCoin([name, symbol, supply])
+    },
+    [pump]
+  )
 
-  const createCoin = async ({
-    name,
-    symbol,
-    supply,
-  }: CreateCoinParams): Promise<Hex> => {
-    return pump().write.createCoin([name, symbol, supply])
-  }
+  const getCoinContract = useCallback(
+    (token: Hex) => {
+      return getShieldedContract({
+        abi: COIN_CONTRACT_ABI,
+        address: token,
+        client: wallet(),
+      })
+    },
+    [wallet]
+  )
 
-  const getCoinContract = (token: Hex) => {
-    return getShieldedContract({
-      abi: COIN_CONTRACT_ABI,
-      address: token,
-      client: wallet(),
-    })
-  }
+  const balanceOfErc20 = useCallback(
+    async ({ token, owner }: BalanceOfParams): Promise<bigint> => {
+      const coinContract = getCoinContract(token)
+      const balance = (await coinContract.tread.balanceOf([owner])) as bigint
+      return balance
+    },
+    [getCoinContract]
+  )
 
-  const balanceOfErc20 = async ({
-    token,
-    owner,
-  }: BalanceOfParams): Promise<bigint> => {
-    const coinContract = getCoinContract(token)
-    const balance = (await coinContract.tread.balanceOf([owner])) as bigint
-    return balance
-  }
+  const balanceOfWallet = useCallback(
+    async (token: Hex): Promise<bigint> => {
+      const balance = await balanceOfErc20({
+        token,
+        owner: connectedAddress(),
+      })
+      return balance
+    },
+    [balanceOfErc20, connectedAddress]
+  )
 
-  const balanceOfWallet = async (token: Hex) => {
-    const balance = await balanceOfErc20({
-      token,
-      owner: walletAddress(),
-    })
-    return balance
-  }
-
-  const balanceEthWallet = async (): Promise<bigint> => {
+  const balanceEthWallet = useCallback(async (): Promise<bigint> => {
     return await pubClient().getBalance({
-      address: walletAddress(),
+      address: connectedAddress(),
     })
-  }
+  }, [connectedAddress, pubClient])
 
-  const allowance = async ({
-    token,
-    spender,
-  }: AllowanceParams): Promise<bigint> => {
-    const coinContract = getCoinContract(token)
-    const allowance = (await coinContract.tread.allowance([
-      walletAddress(),
-      spender,
-    ])) as bigint
-    return allowance
-  }
+  const allowance = useCallback(
+    async ({ token, spender }: AllowanceParams): Promise<bigint> => {
+      const coinContract = getCoinContract(token)
+      const allowance = (await coinContract.tread.allowance([
+        connectedAddress(),
+        spender,
+      ])) as bigint
+      return allowance
+    },
+    [getCoinContract, connectedAddress]
+  )
 
-  const approve = async ({
-    token,
-    spender,
-    amount,
-  }: ApproveParams): Promise<Hex> => {
-    const coinContract = getCoinContract(token)
-    return coinContract.twrite.approve([spender, amount])
-  }
+  const approve = useCallback(
+    async ({ token, spender, amount }: ApproveParams): Promise<Hex> => {
+      const coinContract = getCoinContract(token)
+      return coinContract.twrite.approve([spender, amount])
+    },
+    [getCoinContract]
+  )
 
-  const approveDex = async ({
-    token,
-    amount,
-  }: ApproveDexParams): Promise<Hex> => {
-    return approve({ token, spender: dex().address, amount })
-  }
+  const approveDex = useCallback(
+    async ({ token, amount }: ApproveDexParams): Promise<Hex> => {
+      return approve({ token, spender: dex().address, amount })
+    },
+    [approve, dex]
+  )
 
-  const buyPreGraduation = async (
-    coinId: bigint,
-    weiIn: bigint
-  ): Promise<Hex> => {
-    return pump().twrite.buy([coinId], {
-      value: weiIn,
-    })
-  }
+  const buyPreGraduation = useCallback(
+    async (coinId: bigint, weiIn: bigint): Promise<Hex> => {
+      return pump().twrite.buy([coinId], {
+        value: weiIn,
+      })
+    },
+    [pump]
+  )
 
-  const refundPurchase = async (coinId: bigint): Promise<Hex> => {
-    return pump().twrite.refundPurchase([coinId])
-  }
+  const refundPurchase = useCallback(
+    async (coinId: bigint): Promise<Hex> => {
+      return pump().twrite.refundPurchase([coinId])
+    },
+    [pump]
+  )
 
-  const buyPostGraduation = ({
-    token,
-    amountIn,
-    minAmountOut = 0n,
-    deadlineMs = DEFAULT_DEADLINE_MS,
-  }: TradeParams): Promise<Hex> => {
-    const to = walletAddress()
-    const deadline = getDeadline(deadlineMs)
-    const path = [wethAddress, token]
-    return dex().twrite.swapExactETHForTokens(
-      [minAmountOut, path, to, deadline],
-      {
-        value: amountIn,
+  const buyPostGraduation = useCallback(
+    ({
+      token,
+      amountIn,
+      minAmountOut = 0n,
+      deadlineMs = DEFAULT_DEADLINE_MS,
+    }: TradeParams): Promise<Hex> => {
+      const to = connectedAddress()
+      const deadline = getDeadline(deadlineMs)
+      const path = [wethAddress, token]
+      return dex().twrite.swapExactETHForTokens(
+        [minAmountOut, path, to, deadline],
+        {
+          value: amountIn,
+        }
+      )
+    },
+    [connectedAddress, getDeadline, dex, wethAddress]
+  )
+
+  const sell = useCallback(
+    async ({
+      token,
+      amountIn,
+      minAmountOut = 0n,
+      deadlineMs = DEFAULT_DEADLINE_MS,
+    }: TradeParams): Promise<Hex> => {
+      const to = connectedAddress()
+      const path = [token, wethAddress]
+      const deadline = getDeadline(deadlineMs)
+      return dex().twrite.swapExactTokensForETH([
+        amountIn,
+        minAmountOut,
+        path,
+        to,
+        deadline,
+      ])
+    },
+    [dex, connectedAddress, getDeadline, wethAddress]
+  )
+
+  const allowanceDex = useCallback(
+    async (token: Hex) => {
+      return allowance({ token, spender: dex().address })
+    },
+    [allowance, dex]
+  )
+
+  const approveSale = useCallback(
+    async ({ token, amount }: ApproveDexParams): Promise<Hex | null> => {
+      const balance = await balanceOfWallet(token)
+      if (amount > balance) {
+        throw new Error('Insufficient balance')
       }
-    )
-  }
+      const allowance = await allowanceDex(token)
+      if (amount <= allowance) {
+        return null
+      }
+      const hash = await approveDex({ token, amount })
+      return hash
+    },
+    [balanceOfWallet, allowanceDex, approveDex]
+  )
 
-  const sell = async ({
-    token,
-    amountIn,
-    minAmountOut = 0n,
-    deadlineMs = DEFAULT_DEADLINE_MS,
-  }: TradeParams): Promise<Hex> => {
-    const to = walletAddress()
-    const path = [token, wethAddress]
-    const deadline = getDeadline(deadlineMs)
-    return dex().twrite.swapExactTokensForETH([
-      amountIn,
-      minAmountOut,
-      path,
-      to,
-      deadline,
-    ])
-  }
+  const previewBuy = useCallback(
+    async ({ token, amountIn }: TradeParams): Promise<bigint> => {
+      const path = [wethAddress, token]
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_amountIn, amountOut] = (await dex().tread.getAmountsOut([
+        amountIn,
+        path,
+      ])) as [bigint, bigint]
+      return amountOut
+    },
+    [dex, wethAddress]
+  )
 
-  const approveSale = async ({
-    token,
-    amount,
-  }: ApproveDexParams): Promise<Hex | null> => {
-    const balance = await balanceOfWallet(token)
-    if (amount > balance) {
-      throw new Error('Insufficient balance')
-    }
-    const allowance = await allowanceDex(token)
-    if (amount <= allowance) {
-      return null
-    }
-    const hash = await approveDex({ token, amount })
-    return hash
-  }
+  const previewSell = useCallback(
+    async ({ token, amountIn }: TradeParams): Promise<bigint> => {
+      const path = [token, wethAddress]
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_amountIn, weiOut] = (await dex().tread.getAmountsOut([
+        amountIn,
+        path,
+      ])) as [bigint, bigint]
+      return weiOut
+    },
+    [dex, wethAddress]
+  )
 
-  const allowanceDex = async (token: Hex) => {
-    return allowance({ token, spender: dex().address })
-  }
+  const waitForTransaction = useCallback(
+    async (hash: Hex) => {
+      return await pubClient().waitForTransactionReceipt({ hash })
+    },
+    [pubClient]
+  )
 
-  const previewBuy = async ({
-    token,
-    amountIn,
-  }: TradeParams): Promise<bigint> => {
-    const path = [wethAddress, token]
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_amountIn, amountOut] = (await dex().tread.getAmountsOut([
-      amountIn,
-      path,
-    ])) as [bigint, bigint]
-    return amountOut
-  }
+  const checkApproval = useCallback(
+    async ({ token, amountIn }: TradeParams): Promise<Hex | null> => {
+      const allowance = await allowanceDex(token)
+      if (allowance >= amountIn) {
+        return null
+      }
+      return await approveSale({ token, amount: amountIn })
+    },
+    [allowanceDex, approveSale]
+  )
 
-  const previewSell = async ({
-    token,
-    amountIn,
-  }: TradeParams): Promise<bigint> => {
-    const path = [token, wethAddress]
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_amountIn, weiOut] = (await dex().tread.getAmountsOut([
-      amountIn,
-      path,
-    ])) as [bigint, bigint]
-    return weiOut
-  }
+  const txUrl = useCallback(
+    (txHash: Hex): string | null => {
+      return txExplorerUrl({ chain: pubClient().chain, txHash })
+    },
+    [pubClient]
+  )
 
-  const waitForTransaction = async (hash: Hex) => {
-    return await pubClient().waitForTransactionReceipt({ hash })
-  }
+  const addressUrl = useCallback(
+    (address: Hex): string | null => {
+      return addressExplorerUrl({ chain: pubClient().chain, address })
+    },
+    [pubClient]
+  )
 
-  const checkApproval = async ({
-    token,
-    amountIn,
-  }: TradeParams): Promise<Hex | null> => {
-    const allowance = await allowanceDex(token)
-    if (allowance >= amountIn) {
-      return null
-    }
-    return await approveSale({ token, amount: amountIn })
-  }
+  const deployGraduated = useCallback(
+    async (coinId: bigint): Promise<Hex> => {
+      return pump().twrite.deployGraduated([coinId])
+    },
+    [pump]
+  )
 
-  const txUrl = (txHash: Hex): string | null => {
-    return txExplorerUrl({ chain: pubClient().chain, txHash })
-  }
-
-  const addressUrl = (address: Hex): string | null => {
-    return addressExplorerUrl({ chain: pubClient().chain, address })
-  }
-
-  const deployGraduated = async (coinId: bigint): Promise<Hex> => {
-    return pump().twrite.deployGraduated([coinId])
-  }
-
-  const getPair = async (coinId: bigint): Promise<Hex> => {
-    // @ts-expect-error TODO: christian fix typing in seismic-viem
-    return pump().tread.getPair([coinId])
-  }
+  const getPair = useCallback(
+    async (coinId: bigint): Promise<Hex> => {
+      return pump().tread.getPair([coinId])
+    },
+    [pump]
+  )
 
   return {
     loaded,
@@ -311,6 +356,7 @@ export const usePumpClient = () => {
     pumpContract,
     pubClient,
     wallet,
+    connectedAddress,
     getWeiIn,
     createCoin,
     balanceOfErc20,
