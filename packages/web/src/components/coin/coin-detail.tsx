@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 
+import { fetchCoinById } from '@/api/http'
 import NavBar from '@/components/NavBar'
 import { Candles } from '@/components/chart/Candles'
 import CoinInfoDetails from '@/components/coin-detail/coin-info-details'
 import TradeSection from '@/components/coin-detail/trade-section'
 import CoinSocials from '@/components/coin/coin-social'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
+import NotFound from '@/pages/NotFound'
 import { selectCoinById } from '@/store/slice'
+import { AppDispatch } from '@/store/store'
 import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
 import { Box, Typography } from '@mui/material'
@@ -48,7 +51,22 @@ const CoinDetailGraph: React.FC<{ coin: Coin }> = ({ coin }) => {
 
 const CoinDetailContent: React.FC<{ coinId: string }> = ({ coinId }) => {
   const coin = useSelector(selectCoinById(coinId))
+  const dispatch = useDispatch<AppDispatch>()
+
+  useEffect(() => {
+    dispatch(fetchCoinById(Number(coinId)))
+  }, [coinId, dispatch])
+
+  useEffect(() => {
+    if (!coin) {
+      return
+    }
+  }, [coin])
+
   if (!coin) return <div>Coin not found.</div>
+  if (coin.hidden) {
+    return <NotFound />
+  }
 
   return (
     <>

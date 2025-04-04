@@ -31,5 +31,6 @@ export type Coin = {
   graduated: boolean
   weiIn: string
   deployedPool: Hex | null
+  hidden: boolean
 } & OnChainCoin &
   Omit<CoinFormData, 'image' | 'description' | keyof OnChainCoin>
