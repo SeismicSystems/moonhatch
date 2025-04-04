@@ -23,7 +23,7 @@ export const useCoinSearch = (): UseCoinSearchResult => {
   const [filteredCoins, setFilteredCoins] = useState<Coin[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [filters, setFilters] = useState<Filters>({
-    graduated: undefined,
+    graduated: null,
     hasWebsite: false,
     hasTelegram: false,
     hasTwitter: false,

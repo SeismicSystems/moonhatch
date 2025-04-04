@@ -66,7 +66,7 @@ const GraduatedStatus: React.FC<FilterProps> = ({ filters, setFilters }) => {
           e.stopPropagation()
           setFilters(({ graduated, ...prev }) => ({
             ...prev,
-            graduated: graduated ? undefined : true,
+            graduated: graduated ? null : true,
           }))
         }}
       >
@@ -83,7 +83,7 @@ const GraduatedStatus: React.FC<FilterProps> = ({ filters, setFilters }) => {
           e.stopPropagation()
           setFilters(({ graduated, ...prev }) => ({
             ...prev,
-            graduated: !graduated ? undefined : false,
+            graduated: !graduated ? null : false,
           }))
         }}
       >
