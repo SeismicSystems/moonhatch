@@ -20,18 +20,6 @@ import type { CreateCoinParams } from '@/types/coin'
 
 const DEFAULT_DEADLINE_MS = 20 * 60 * 1000
 
-// all of these were by looking at gas consumed on block explorer
-// and adding a safe buffer
-// TODO: remove these when we're sure estimateGas works in foundry
-const GAS_LIMITS = {
-  CREATE_COIN: 2_000_000,
-  APPROVE: 100_000,
-  BUY_PRE_GRADUATION: 400_000,
-  SWAP_THRU_WETH: 150_000,
-  REFUND_PURCHASE: 150_000,
-  DEPLOY_GRADUATED: 3_000_000,
-}
-
 type TradeParams = {
   token: Hex
   amountIn: bigint
@@ -128,9 +116,7 @@ export const usePumpClient = () => {
     symbol,
     supply,
   }: CreateCoinParams): Promise<Hex> => {
-    return pump().write.createCoin([name, symbol, supply], {
-      gas: GAS_LIMITS.CREATE_COIN,
-    })
+    return pump().write.createCoin([name, symbol, supply])
   }
 
   const getCoinContract = (token: Hex) => {
@@ -182,9 +168,7 @@ export const usePumpClient = () => {
     amount,
   }: ApproveParams): Promise<Hex> => {
     const coinContract = getCoinContract(token)
-    return coinContract.twrite.approve([spender, amount], {
-      gas: GAS_LIMITS.APPROVE,
-    })
+    return coinContract.twrite.approve([spender, amount])
   }
 
   const approveDex = async ({
@@ -200,14 +184,11 @@ export const usePumpClient = () => {
   ): Promise<Hex> => {
     return pump().twrite.buy([coinId], {
       value: weiIn,
-      gas: GAS_LIMITS.BUY_PRE_GRADUATION,
     })
   }
 
   const refundPurchase = async (coinId: bigint): Promise<Hex> => {
-    return pump().twrite.refundPurchase([coinId], {
-      gas: GAS_LIMITS.REFUND_PURCHASE,
-    })
+    return pump().twrite.refundPurchase([coinId])
   }
 
   const buyPostGraduation = ({
@@ -315,9 +296,7 @@ export const usePumpClient = () => {
   }
 
   const deployGraduated = async (coinId: bigint): Promise<Hex> => {
-    return pump().twrite.deployGraduated([coinId], {
-      gas: GAS_LIMITS.DEPLOY_GRADUATED,
-    })
+    return pump().twrite.deployGraduated([coinId])
   }
 
   const getPair = async (coinId: bigint): Promise<Hex> => {
