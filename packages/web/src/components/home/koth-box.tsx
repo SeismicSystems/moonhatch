@@ -2,6 +2,8 @@ import React from 'react'
 
 import { Box, Typography, useMediaQuery } from '@mui/material'
 
+import { FALLBACK_COIN_IMAGE_URL } from '../coin-detail/coin-info-details'
+
 export interface CoinData {
   id: number
   rank: number
@@ -18,8 +20,6 @@ interface KOTHBoxProps {
 
 const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
   const isDesktop = useMediaQuery('(min-width: 880px)')
-  const FALLBACK_COIN_IMAGE_URL =
-    'https://seismic-public-assets.s3.us-east-1.amazonaws.com/seismic-logo-light.png'
 
   if (variant === 'mobile') {
     return (

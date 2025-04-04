@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 
-import { FALLBACK_COIN_IMAGE_URL } from '@/components/coin-detail/coin-info-details'
 import KOTHBox, { CoinData } from '@/components/home/koth-box'
 import { Box, Typography, useMediaQuery } from '@mui/material'
 
@@ -23,12 +22,9 @@ export default function KingOfTheHillSection({
   const topThree = sortedCoins.slice(0, 3)
 
   const coinData: CoinData[] = topThree.map((coin, index) => ({
-    id: coin.id,
     rank: index + 1,
-    name: coin.name,
     score: 0,
-    imageUrl: coin.imageUrl || FALLBACK_COIN_IMAGE_URL,
-    symbol: coin.symbol,
+    ...coin,
   }))
 
   const podiumOrder =
