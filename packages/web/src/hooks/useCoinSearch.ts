@@ -39,7 +39,7 @@ export const useCoinSearch = (): UseCoinSearchResult => {
 
   // Convert coins to array for Fuse if needed and memoize
   const coinsArray = useMemo(() => {
-    return Object.values(coins)
+    return Object.values(coins).filter((coin) => !coin.hidden)
   }, [coins])
 
   // Memoize the Fuse instance to prevent recreation on every render
