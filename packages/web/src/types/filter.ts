@@ -5,5 +5,5 @@ export type Filters = {
   hasTelegram: boolean
   hasTwitter: boolean
   hasAllSocials: boolean
-  newestFirst: boolean
+  oldestFirst: boolean
 }

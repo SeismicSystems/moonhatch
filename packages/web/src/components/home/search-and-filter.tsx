@@ -25,12 +25,12 @@ const NewestOrOldest: React.FC<FilterProps> = ({ filters, setFilters }) => {
           e.stopPropagation()
           setFilters((prev) => ({
             ...prev,
-            newestFirst: true,
+            oldestFirst: true,
           }))
         }}
       >
         <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
-          {filters.newestFirst && (
+          {filters.oldestFirst && (
             <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
           )}
         </div>
@@ -42,12 +42,12 @@ const NewestOrOldest: React.FC<FilterProps> = ({ filters, setFilters }) => {
           e.stopPropagation()
           setFilters((prev) => ({
             ...prev,
-            newestFirst: false,
+            oldestFirst: false,
           }))
         }}
       >
         <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
-          {!filters.newestFirst && (
+          {!filters.oldestFirst && (
             <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
           )}
         </div>

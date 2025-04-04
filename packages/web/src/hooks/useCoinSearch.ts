@@ -28,7 +28,7 @@ export const useCoinSearch = (): UseCoinSearchResult => {
     hasTelegram: false,
     hasTwitter: false,
     hasAllSocials: false,
-    newestFirst: true,
+    oldestFirst: false,
   })
 
   // Convert coins to array for Fuse if needed and memoize
@@ -69,9 +69,9 @@ export const useCoinSearch = (): UseCoinSearchResult => {
       )
 
     updatedCoins.sort((a, b) => {
-      return filters.newestFirst
-        ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      return filters.oldestFirst
+        ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     })
 
     setFilteredCoins(updatedCoins)
