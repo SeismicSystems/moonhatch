@@ -1,21 +1,101 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useEffect, useRef, useState } from 'react'
 
+import type { Filters } from '@/types/filter'
 import FilterListIcon from '@mui/icons-material/FilterList'
 
-interface Filters {
-  hasWebsite: boolean
-  hasTelegram: boolean
-  hasTwitter: boolean
-  hasAllSocials: boolean
-  sortByCreatedAt: boolean
-}
-
-interface SearchAndFilterProps {
-  searchQuery: string
-  setSearchQuery: (query: string) => void
+type FilterProps = {
   filters: Filters
   setFilters: React.Dispatch<React.SetStateAction<Filters>>
+}
+
+type SearchProps = {
+  searchQuery: string
+  setSearchQuery: (query: string) => void
+}
+
+type SearchAndFilterProps = FilterProps & SearchProps
+
+const NewestOrOldest: React.FC<FilterProps> = ({ filters, setFilters }) => {
+  return (
+    <>
+      <li
+        className="flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md hover:bg-[var(--darkBlue)]"
+        onClick={(e) => {
+          e.stopPropagation()
+          setFilters((prev) => ({
+            ...prev,
+            newestFirst: true,
+          }))
+        }}
+      >
+        <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
+          {filters.newestFirst && (
+            <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
+          )}
+        </div>
+        OLDEST
+      </li>
+      <li
+        className="flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md hover:bg-[var(--darkBlue)]"
+        onClick={(e) => {
+          e.stopPropagation()
+          setFilters((prev) => ({
+            ...prev,
+            newestFirst: false,
+          }))
+        }}
+      >
+        <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
+          {!filters.newestFirst && (
+            <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
+          )}
+        </div>
+        NEWEST
+      </li>
+    </>
+  )
+}
+
+const GraduatedStatus: React.FC<FilterProps> = ({ filters, setFilters }) => {
+  return (
+    <>
+      <li
+        className="flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md hover:bg-[var(--darkBlue)]"
+        onClick={(e) => {
+          e.stopPropagation()
+          setFilters(({ graduated, ...prev }) => ({
+            ...prev,
+            graduated: graduated ? undefined : true,
+          }))
+        }}
+      >
+        <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
+          {filters.graduated === true && (
+            <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
+          )}
+        </div>
+        GRADUATED
+      </li>
+      <li
+        className="flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md hover:bg-[var(--darkBlue)]"
+        onClick={(e) => {
+          e.stopPropagation()
+          setFilters(({ graduated, ...prev }) => ({
+            ...prev,
+            graduated: !graduated ? undefined : false,
+          }))
+        }}
+      >
+        <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
+          {filters.graduated === false && (
+            <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
+          )}
+        </div>
+        NOT GRADUATED
+      </li>
+    </>
+  )
 }
 
 const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
@@ -74,42 +154,10 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
                   <li className="flex items-center gap-2 py-2 px-4 rounded-md font-bold text-[var(--creamWhite)]">
                     SORT BY:
                   </li>
-                  <li
-                    className="flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md hover:bg-[var(--darkBlue)]"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setFilters((prev) => ({
-                        ...prev,
-                        sortByCreatedAt: true,
-                      }))
-                    }}
-                  >
-                    <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
-                      {filters.sortByCreatedAt && (
-                        <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
-                      )}
-                    </div>
-                    OLDEST
-                  </li>
-                  <li
-                    className="flex items-center gap-2 py-2 px-4 cursor-pointer rounded-md hover:bg-[var(--darkBlue)]"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setFilters((prev) => ({
-                        ...prev,
-                        sortByCreatedAt: false,
-                      }))
-                    }}
-                  >
-                    <div className="relative w-5 h-5 border-2 border-[var(--creamWhite)] rounded-md flex items-center justify-center">
-                      {!filters.sortByCreatedAt && (
-                        <div className="w-3 h-3 bg-[var(--creamWhite)] rounded-sm"></div>
-                      )}
-                    </div>
-                    NEWEST
-                  </li>
+                  <NewestOrOldest filters={filters} setFilters={setFilters} />
                   <li className="border-t border-[var(--creamWhite)] my-2"></li>
-
+                  <GraduatedStatus filters={filters} setFilters={setFilters} />
+                  <li className="border-t border-[var(--creamWhite)] my-2"></li>
                   {[
                     { key: 'hasWebsite', label: 'WEBSITE' },
                     { key: 'hasTelegram', label: 'TELEGRAM' },
