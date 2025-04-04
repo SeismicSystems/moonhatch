@@ -20,6 +20,18 @@ import type { CreateCoinParams } from '@/types/coin'
 
 const DEFAULT_DEADLINE_MS = 20 * 60 * 1000
 
+// all of these were by looking at gas consumed on block explorer
+// and adding a safe buffer
+// TODO: remove these when we're sure estimateGas works in foundry
+const GAS_LIMITS = {
+  CREATE_COIN: 2_000_000,
+  APPROVE: 100_000,
+  BUY_PRE_GRADUATION: 400_000,
+  SWAP_THRU_WETH: 150_000,
+  REFUND_PURCHASE: 150_000,
+  DEPLOY_GRADUATED: 3_000_000,
+}
+
 type TradeParams = {
   token: Hex
   amountIn: bigint
@@ -117,7 +129,7 @@ export const usePumpClient = () => {
     supply,
   }: CreateCoinParams): Promise<Hex> => {
     return pump().write.createCoin([name, symbol, supply], {
-      gas: 1_000_000,
+      gas: GAS_LIMITS.CREATE_COIN,
     })
   }
 
@@ -170,7 +182,9 @@ export const usePumpClient = () => {
     amount,
   }: ApproveParams): Promise<Hex> => {
     const coinContract = getCoinContract(token)
-    return coinContract.twrite.approve([spender, amount], { gas: 1_000_000 })
+    return coinContract.twrite.approve([spender, amount], {
+      gas: GAS_LIMITS.APPROVE,
+    })
   }
 
   const approveDex = async ({
@@ -184,11 +198,16 @@ export const usePumpClient = () => {
     coinId: bigint,
     weiIn: bigint
   ): Promise<Hex> => {
-    return pump().twrite.buy([coinId], { value: weiIn, gas: 1_000_000 })
+    return pump().twrite.buy([coinId], {
+      value: weiIn,
+      gas: GAS_LIMITS.BUY_PRE_GRADUATION,
+    })
   }
 
   const refundPurchase = async (coinId: bigint): Promise<Hex> => {
-    return pump().twrite.refundPurchase([coinId], { gas: 1_000_000 })
+    return pump().twrite.refundPurchase([coinId], {
+      gas: GAS_LIMITS.REFUND_PURCHASE,
+    })
   }
 
   const buyPostGraduation = ({
@@ -203,7 +222,7 @@ export const usePumpClient = () => {
     return dex().twrite.swapExactETHForTokens(
       [minAmountOut, path, to, deadline],
       {
-        gas: 1_000_000,
+        gas: GAS_LIMITS.SWAP_THRU_WETH,
         value: amountIn,
       }
     )
@@ -220,7 +239,7 @@ export const usePumpClient = () => {
     const deadline = getDeadline(deadlineMs)
     return dex().twrite.swapExactTokensForETH(
       [amountIn, minAmountOut, path, to, deadline],
-      { gas: 1_000_000 }
+      { gas: GAS_LIMITS.SWAP_THRU_WETH }
     )
   }
 
@@ -294,7 +313,9 @@ export const usePumpClient = () => {
   }
 
   const deployGraduated = async (coinId: bigint): Promise<Hex> => {
-    return pump().twrite.deployGraduated([coinId], { gas: 1_000_000 })
+    return pump().twrite.deployGraduated([coinId], {
+      gas: GAS_LIMITS.DEPLOY_GRADUATED,
+    })
   }
 
   const getPair = async (coinId: bigint): Promise<Hex> => {
