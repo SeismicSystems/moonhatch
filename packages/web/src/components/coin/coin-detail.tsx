@@ -54,14 +54,10 @@ const CoinDetailContent: React.FC<{ coinId: string }> = ({ coinId }) => {
   const dispatch = useDispatch<AppDispatch>()
 
   useEffect(() => {
-    dispatch(fetchCoinById(Number(coinId)))
-  }, [coinId, dispatch])
-
-  useEffect(() => {
     if (!coin) {
-      return
+      dispatch(fetchCoinById(Number(coinId)))
     }
-  }, [coin])
+  }, [coinId, coin, dispatch])
 
   if (!coin) return <div>Coin not found.</div>
   if (coin.hidden) {
