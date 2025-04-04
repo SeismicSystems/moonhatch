@@ -4,22 +4,15 @@ import { useSelector } from 'react-redux'
 
 import { selectAllCoins, selectCoinsLoading } from '@/store/slice'
 import type { Coin } from '@/types/coin'
+import { Filters } from '@/types/filter'
 
-interface FilterState {
-  hasWebsite: boolean
-  hasTelegram: boolean
-  hasTwitter: boolean
-  hasAllSocials: boolean
-  sortByCreatedAt: boolean
-}
-
-interface UseCoinSearchResult {
+type UseCoinSearchResult = {
   allCoins: Coin[]
   filteredCoins: Coin[]
   searchQuery: string
   setSearchQuery: (query: string) => void
-  filters: FilterState
-  setFilters: React.Dispatch<React.SetStateAction<FilterState>>
+  filters: Filters
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>
   loading: boolean
 }
 
@@ -29,12 +22,13 @@ export const useCoinSearch = (): UseCoinSearchResult => {
 
   const [filteredCoins, setFilteredCoins] = useState<Coin[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const [filters, setFilters] = useState<FilterState>({
+  const [filters, setFilters] = useState<Filters>({
+    graduated: null,
     hasWebsite: false,
     hasTelegram: false,
     hasTwitter: false,
     hasAllSocials: false,
-    sortByCreatedAt: true,
+    oldestFirst: false,
   })
 
   // Convert coins to array for Fuse if needed and memoize
@@ -57,6 +51,12 @@ export const useCoinSearch = (): UseCoinSearchResult => {
       updatedCoins = fuse.search(searchQuery).map((result) => result.item)
     }
 
+    if (filters.graduated === true) {
+      updatedCoins = updatedCoins.filter((coin) => coin.graduated)
+    } else if (filters.graduated === false) {
+      updatedCoins = updatedCoins.filter((coin) => !coin.graduated)
+    }
+
     if (filters.hasWebsite)
       updatedCoins = updatedCoins.filter((coin) => coin.website)
     if (filters.hasTelegram)
@@ -69,9 +69,9 @@ export const useCoinSearch = (): UseCoinSearchResult => {
       )
 
     updatedCoins.sort((a, b) => {
-      return filters.sortByCreatedAt
-        ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      return filters.oldestFirst
+        ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     })
 
     setFilteredCoins(updatedCoins)
