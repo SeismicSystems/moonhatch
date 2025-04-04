@@ -2,7 +2,7 @@ use alloy_primitives::{hex, Address, FixedBytes};
 use alloy_pubsub::SubscriptionStream;
 use alloy_rpc_types_eth::{Header, Log};
 use alloy_sol_types::SolEvent;
-use bigdecimal::BigDecimal;
+use bigdecimal::{BigDecimal, Zero};
 use chrono::DateTime;
 use std::{collections::HashMap, num::NonZero};
 
@@ -179,6 +179,10 @@ impl LogHandler {
         let mut conn = self.conn()?;
         store::update_wei_in(&mut conn, data.coinId as i64, wei_in.clone())?;
 
+        if wei_in == BigDecimal::zero() {
+            // don't stream this update because they'll get a created message shortly
+            return Ok(false);
+        }
         if wei_in >= BigDecimal::from(WEI_IN_GRADUATION) {
             // don't stream this update because they'll get a graduated message shortly
             return Ok(false);
