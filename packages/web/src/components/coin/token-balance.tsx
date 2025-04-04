@@ -10,7 +10,7 @@ const REFRESH_EVERY_MS = 5 * 60 * 1000
 export const TokenBalance: React.FC<{ coin: Coin }> = ({
   coin: { contractAddress, decimals, symbol, graduated, deployedPool },
 }) => {
-  const { loaded, connectedAddress, balanceOfErc20 } = usePumpClient()
+  const { loaded, walletAddress, balanceOfErc20 } = usePumpClient()
   const { loadBalance, saveBalance } = useAppState()
 
   const [fetching, setFetching] = useState(false)
@@ -18,14 +18,11 @@ export const TokenBalance: React.FC<{ coin: Coin }> = ({
   const [balanceTokens, setBalanceTokens] = useState<string | null>(null)
 
   const fetchBalance = useCallback(() => {
-    if (!loaded || fetching) {
+    if (!loaded || fetching || !walletAddress) {
       return
     }
-    const owner = connectedAddress()
-    if (!owner) return
-
     setFetching(true)
-    balanceOfErc20({ token: contractAddress, owner })
+    balanceOfErc20({ token: contractAddress, owner: walletAddress })
       .then((units) => {
         saveBalance(contractAddress, units)
       })
@@ -36,7 +33,7 @@ export const TokenBalance: React.FC<{ coin: Coin }> = ({
     loaded,
     fetching,
     contractAddress,
-    connectedAddress,
+    walletAddress,
     balanceOfErc20,
     saveBalance,
   ])
