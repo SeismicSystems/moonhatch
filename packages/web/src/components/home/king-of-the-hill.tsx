@@ -80,9 +80,12 @@ export default function KingOfTheHillSection({
           }}
         >
           {podiumOrder.map((coin) => (
-            // @ts-expect-error this is fine
-            <Box onClick={() => navigate(`/coins/${coin.id}`)} key={coin.id}>
-              <KOTHBox key={coin.rank} coin={coin} />
+            <Box
+              onClick={() => navigate(`/coins/${coin.id}`)}
+              key={coin.id}
+              style={{ cursor: 'pointer' }}
+            >
+              <KOTHBox key={coin.id} coin={coin} />
             </Box>
           ))}
         </Box>
@@ -117,7 +120,7 @@ export default function KingOfTheHillSection({
 
         {coinData.map((coin) => (
           <Box
-            key={coin.rank}
+            key={coin.id}
             sx={{
               mb: 1,
               backgroundColor: 'var(--midBlue)',
@@ -131,8 +134,8 @@ export default function KingOfTheHillSection({
               textOverflow: 'ellipsis',
               gap: 2,
             }}
-            // @ts-expect-error this is fine
             onClick={() => navigate(`/coins/${coin.id}`)}
+            style={{ cursor: 'pointer' }}
           >
             <KOTHBox coin={coin} />
           </Box>

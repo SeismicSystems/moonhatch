@@ -3,12 +3,12 @@ import React from 'react'
 import { Box, Typography, useMediaQuery } from '@mui/material'
 
 export interface CoinData {
+  id: number
   rank: number
   name: string
   symbol: string
   score: number
   imageUrl: string
-  ticker?: string
 }
 
 interface KOTHBoxProps {
