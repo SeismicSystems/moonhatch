@@ -1,19 +1,16 @@
 import React from 'react'
 
+import { Coin } from '@/types/coin'
 import { Box, Typography, useMediaQuery } from '@mui/material'
 
 import { FALLBACK_COIN_IMAGE_URL } from '../coin-detail/coin-info-details'
 
-export interface CoinData {
-  id: number
+export type CoinData = Coin & {
   rank: number
-  name: string
-  symbol: string
   score: number
-  imageUrl: string
 }
 
-interface KOTHBoxProps {
+type KOTHBoxProps = {
   coin: CoinData
   variant?: 'desktop' | 'mobile'
 }
