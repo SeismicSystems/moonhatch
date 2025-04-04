@@ -354,6 +354,7 @@ export const usePumpClient = () => {
     walletClient,
     publicClient,
     pumpContract,
+    walletAddress,
     pubClient,
     wallet,
     connectedAddress,
