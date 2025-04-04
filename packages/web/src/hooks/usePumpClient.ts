@@ -222,7 +222,6 @@ export const usePumpClient = () => {
     return dex().twrite.swapExactETHForTokens(
       [minAmountOut, path, to, deadline],
       {
-        gas: GAS_LIMITS.SWAP_THRU_WETH,
         value: amountIn,
       }
     )
@@ -237,10 +236,13 @@ export const usePumpClient = () => {
     const to = walletAddress()
     const path = [token, wethAddress]
     const deadline = getDeadline(deadlineMs)
-    return dex().twrite.swapExactTokensForETH(
-      [amountIn, minAmountOut, path, to, deadline],
-      { gas: GAS_LIMITS.SWAP_THRU_WETH }
-    )
+    return dex().twrite.swapExactTokensForETH([
+      amountIn,
+      minAmountOut,
+      path,
+      to,
+      deadline,
+    ])
   }
 
   const approveSale = async ({
