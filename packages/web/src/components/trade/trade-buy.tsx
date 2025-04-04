@@ -99,6 +99,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           setPreviewWeiIn(null)
           setPreviewUnitsOut(null)
         } else {
+          console.log(buyReceipt)
           notifyError(toastContent)
         }
       })
