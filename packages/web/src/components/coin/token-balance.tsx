@@ -18,7 +18,7 @@ export const TokenBalance: React.FC<{ coin: Coin }> = ({
   const [balanceTokens, setBalanceTokens] = useState<string | null>(null)
 
   const fetchBalance = useCallback(() => {
-    if (fetching) {
+    if (!loaded || fetching) {
       return
     }
     setFetching(true)
@@ -29,7 +29,14 @@ export const TokenBalance: React.FC<{ coin: Coin }> = ({
       .finally(() => {
         setFetching(false)
       })
-  }, [fetching, contractAddress, connectedAddress, balanceOfErc20, saveBalance])
+  }, [
+    loaded,
+    fetching,
+    contractAddress,
+    connectedAddress,
+    balanceOfErc20,
+    saveBalance,
+  ])
 
   useEffect(() => {
     setBalance(loadBalance(contractAddress))
