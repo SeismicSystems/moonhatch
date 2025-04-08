@@ -60,14 +60,14 @@ const Coins: React.FC<{ coins: Coin[] }> = ({ coins }) => {
       </div>
 
       <ReactPaginate
-        previousLabel={<ChevronLeft />}
-        nextLabel={<ChevronRight />}
+        previousLabel={<ChevronLeft color="white" />}
+        nextLabel={<ChevronRight color="white" />}
         pageCount={Math.ceil(coins.length / COINS_PER_PAGE)}
         onPageChange={handlePageChange}
-        pageRangeDisplayed={5}
+        pageRangeDisplayed={10}
         marginPagesDisplayed={2}
         containerClassName="flex justify-center items-center mt-4"
-        pageClassName="mx-2 px-4 py-2 border rounded-md"
+        pageClassName="mx-2 px-4 py-2 border rounded-md text-white"
         activeClassName="bg-blue-500 text-white"
       />
     </div>
