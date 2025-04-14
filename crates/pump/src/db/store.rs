@@ -209,6 +209,10 @@ pub fn hall_of_fame(conn: &mut PgConnection) -> Result<Vec<HallOfFameRow>, PumpE
         FROM coins c
         LEFT JOIN latest_pool_prices lpp 
           ON c.deployed_pool = lpp.pool AND lpp.rn = 1
+        WHERE 
+            c.hidden = false AND 
+            c.graduated = true
+            AND lpp.close IS NOT NULL
         LIMIT 100
     "#;
 
