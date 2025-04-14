@@ -141,10 +141,8 @@ pub struct Trade {
 
 #[derive(QueryableByName, Serialize, Debug)]
 pub struct HallOfFameRow {
-    // This tells Diesel to interpret the coin columns as an embedded struct.
     #[diesel(embed)]
     pub coin: Coin,
-    // Annotate with the matching SQL type.
     #[diesel(sql_type = Numeric)]
     pub price: BigDecimal,
 }
