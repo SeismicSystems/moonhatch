@@ -44,7 +44,9 @@ async fn main() {
         .route("/", get(http::get_all_coins_handler)) // GET /coins
         .route("/create", post(http::create_coin_handler)); // POST /coins/create
 
-    let pool_routes = Router::new().route("/prices", get(http::get_pool_prices));
+    let pool_routes = Router::new()
+        .route("/prices", get(http::get_pool_prices))
+        .route("/hall-of-fame", get(http::get_hall_of_fame));
 
     // Define the main router.
     let app = Router::new()

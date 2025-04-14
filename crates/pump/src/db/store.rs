@@ -7,7 +7,7 @@ use crate::{
     client::pool,
     contract::SolidityCoin,
     db::{
-        models::{Coin, NewCoin, Pool, PoolPriceData},
+        models::{Coin, NewCoin, NewPoolPrice, Pool, PoolPriceData, Trade},
         schema::{
             coins::{self as coins_schema, dsl::coins as coins_table},
             pool_prices::{self as pool_prices_schema, dsl::pool_prices as pool_prices_table},
@@ -18,7 +18,7 @@ use crate::{
     error::PumpError,
 };
 
-use super::models::{NewPoolPrice, Trade};
+use super::models::HallOfFameRow;
 
 pub fn upsert_unverified_coin(
     conn: &mut PgConnection,
@@ -194,6 +194,27 @@ pub fn get_last_closing_price(
         .first::<BigDecimal>(conn)
         .optional()?;
     Ok(price)
+}
+
+pub fn hall_of_fame(conn: &mut PgConnection) -> Result<Vec<HallOfFameRow>, PumpError> {
+    let sql = r#"
+        WITH latest_pool_prices AS (
+            SELECT
+                pool,
+                close,
+                ROW_NUMBER() OVER (PARTITION BY pool ORDER BY time DESC) AS rn
+            FROM pool_prices
+        )
+        SELECT c.*, lpp.close as price
+        FROM coins c
+        LEFT JOIN latest_pool_prices lpp 
+          ON c.deployed_pool = lpp.pool AND lpp.rn = 1
+        LIMIT 100
+    "#;
+
+    // This loads the rows into HallOfFameRow.
+    let results = diesel::sql_query(sql).load::<HallOfFameRow>(conn)?;
+    Ok(results)
 }
 
 pub fn load_pools(conn: &mut PgConnection) -> Result<HashMap<Address, pool::Pool>, PumpError> {
