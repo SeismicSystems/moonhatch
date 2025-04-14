@@ -7,7 +7,7 @@ use crate::{
     client::pool,
     contract::SolidityCoin,
     db::{
-        models::{Coin, NewCoin, NewPoolPrice, Pool, PoolPriceData, Trade},
+        models::{Coin, HallOfFameRow, NewCoin, NewPoolPrice, Pool, PoolPriceData, Trade},
         schema::{
             coins::{self as coins_schema, dsl::coins as coins_table},
             pool_prices::{self as pool_prices_schema, dsl::pool_prices as pool_prices_table},
@@ -17,8 +17,6 @@ use crate::{
     },
     error::PumpError,
 };
-
-use super::models::HallOfFameRow;
 
 pub fn upsert_unverified_coin(
     conn: &mut PgConnection,
