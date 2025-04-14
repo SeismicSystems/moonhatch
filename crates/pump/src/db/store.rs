@@ -213,6 +213,7 @@ pub fn hall_of_fame(conn: &mut PgConnection) -> Result<Vec<HallOfFameRow>, PumpE
             c.hidden = false AND 
             c.graduated = true
             AND lpp.close IS NOT NULL
+        ORDER BY lpp.close DESC
         LIMIT 100
     "#;
 
