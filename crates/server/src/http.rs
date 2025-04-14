@@ -188,3 +188,11 @@ pub(crate) async fn upload_file(
         }
     }
 }
+
+pub(crate) async fn get_hall_of_fame(
+    State(state): State<AppState>,
+) -> Result<impl IntoResponse, PumpError> {
+    let mut conn = state.db_conn()?;
+    let hof_items = store::hall_of_fame(&mut conn)?;
+    Ok(Json(hof_items).into_response())
+}

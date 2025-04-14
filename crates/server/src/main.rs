@@ -49,6 +49,7 @@ async fn main() {
     // Define the main router.
     let app = Router::new()
         .route("/ws", get(ws::ws_handler))
+        .route("/hall-of-fame", get(http::get_hall_of_fame))
         .nest("/coin/:id", coin_routes)
         .nest("/coins", coins_routes)
         .nest("/pool/:pool", pool_routes)

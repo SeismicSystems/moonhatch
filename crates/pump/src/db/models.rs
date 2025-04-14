@@ -3,12 +3,12 @@
 use alloy_primitives::Address;
 use bigdecimal::{BigDecimal, ToPrimitive, Zero};
 use chrono::NaiveDateTime;
-use diesel::{prelude::*, Queryable};
+use diesel::{prelude::*, sql_types::Numeric, Queryable};
 use serde::{Deserialize, Serialize};
 
 use crate::{client::block::Block, db::schema, error::PumpError};
 
-#[derive(Queryable, Serialize, Deserialize, Debug)]
+#[derive(Queryable, Serialize, Deserialize, Debug, QueryableByName)]
 #[diesel(table_name = schema::coins)]
 pub struct Coin {
     pub id: i64,
@@ -137,4 +137,12 @@ pub struct Trade {
     pub amount_0: BigDecimal,
     pub amount_1: BigDecimal,
     pub time: i64,
+}
+
+#[derive(QueryableByName, Serialize, Debug)]
+pub struct HallOfFameRow {
+    #[diesel(embed)]
+    pub coin: Coin,
+    #[diesel(sql_type = Numeric)]
+    pub price: BigDecimal,
 }
