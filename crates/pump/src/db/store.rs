@@ -194,6 +194,7 @@ pub fn get_last_closing_price(
     Ok(price)
 }
 
+/// Returns the top 100 coins by price
 pub fn hall_of_fame(conn: &mut PgConnection) -> Result<Vec<HallOfFameRow>, PumpError> {
     let sql = r#"
         WITH latest_pool_prices AS (
@@ -215,7 +216,6 @@ pub fn hall_of_fame(conn: &mut PgConnection) -> Result<Vec<HallOfFameRow>, PumpE
         LIMIT 100
     "#;
 
-    // This loads the rows into HallOfFameRow.
     let results = diesel::sql_query(sql).load::<HallOfFameRow>(conn)?;
     Ok(results)
 }
