@@ -44,13 +44,12 @@ async fn main() {
         .route("/", get(http::get_all_coins_handler)) // GET /coins
         .route("/create", post(http::create_coin_handler)); // POST /coins/create
 
-    let pool_routes = Router::new()
-        .route("/prices", get(http::get_pool_prices))
-        .route("/hall-of-fame", get(http::get_hall_of_fame));
+    let pool_routes = Router::new().route("/prices", get(http::get_pool_prices));
 
     // Define the main router.
     let app = Router::new()
         .route("/ws", get(ws::ws_handler))
+        .route("/hall-of-fame", get(http::get_hall_of_fame))
         .nest("/coin/:id", coin_routes)
         .nest("/coins", coins_routes)
         .nest("/pool/:pool", pool_routes)
