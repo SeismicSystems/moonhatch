@@ -11,12 +11,15 @@ import { Coin } from '@/types/coin'
 type FetchCoinsParams = {
   limit?: number
   maxId?: number
+  startDispatch?: boolean
 }
 
 export const fetchCoins =
-  ({ limit, maxId }: FetchCoinsParams = {}) =>
+  ({ limit, maxId, startDispatch = true }: FetchCoinsParams = {}) =>
   async (dispatch: Dispatch) => {
-    dispatch(fetchCoinsStart())
+    if (startDispatch) {
+      dispatch(fetchCoinsStart())
+    }
 
     const params = new URLSearchParams()
     if (limit) {
@@ -48,11 +51,13 @@ export const fetchCoins =
 export const fetchAllCoins =
   (limit: number = 5000, sleepMs: number = 1000) =>
   async (dispatch: Dispatch) => {
-    const coins = await fetchCoins({ limit })(dispatch)
+    const coins = await fetchCoins({ limit, startDispatch: true })(dispatch)
     let maxId = coins[coins.length - 1].id - 1
     while (maxId > 0) {
       await new Promise((resolve) => setTimeout(resolve, sleepMs))
-      const newCoins = await fetchCoins({ limit, maxId })(dispatch)
+      const newCoins = await fetchCoins({ limit, maxId, startDispatch: false })(
+        dispatch
+      )
       maxId = newCoins[newCoins.length - 1].id
       coins.push(...newCoins)
       if (newCoins.length < limit) {
