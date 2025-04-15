@@ -1,4 +1,3 @@
-import { sleep } from 'bun'
 import { Dispatch } from 'redux'
 
 import { BASE_API_URL } from '@/api'
@@ -52,7 +51,7 @@ export const fetchAllCoins =
     const coins = await fetchCoins({ limit })(dispatch)
     let maxId = coins[coins.length - 1].id - 1
     while (maxId > 0) {
-      await sleep(sleepMs)
+      await new Promise((resolve) => setTimeout(resolve, sleepMs))
       const newCoins = await fetchCoins({ limit, maxId })(dispatch)
       maxId = newCoins[newCoins.length - 1].id
       coins.push(...newCoins)
