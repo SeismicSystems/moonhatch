@@ -23,7 +23,7 @@ const NavBar: React.FC = () => {
   return (
     <nav className="w-full bg-[var(--darkBlue)] shadow-md py-4 px-8 flex items-center justify-between text-lg font-medium text-[var(--creamWhite)]">
       {/* Hamburger menu button for mobile */}
-      <div className="md:hidden">
+      <div className="md:hidden z-50">
         <button
           onClick={toggleMobileMenu}
           className="flex flex-col justify-center items-center w-8 h-8"
