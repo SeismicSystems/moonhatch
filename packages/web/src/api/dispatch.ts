@@ -3,9 +3,6 @@ import { fetchCoinsStart, updateCoin } from '@/store/slice'
 import { fetchCoinsFailure, fetchCoinsSuccess } from '@/store/slice'
 import { Dispatch } from '@reduxjs/toolkit'
 
-/**
- * Redux action creator that fetches a coin by ID with dispatching
- */
 export const fetchCoinByIdAction =
   (coinId: number) => async (dispatch: Dispatch) => {
     try {
