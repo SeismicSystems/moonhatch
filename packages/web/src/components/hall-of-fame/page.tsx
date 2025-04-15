@@ -32,7 +32,7 @@ interface ProcessedCoin {
   name: string
   price: number
   marketcap: number
-  imageUrl: string
+  imageUrl?: string
   id: number
 }
 
@@ -64,9 +64,19 @@ export default function HallOfFame() {
       const processedData: ProcessedCoin[] = responseData.map((item) => {
         const price = parseFloat(item.price)
 
-        const supplyInTokens =
-          parseFloat(item.coin.supply) / Math.pow(10, item.coin.decimals)
+        let supplyValue: number
+        if (typeof item.coin.supply === 'string') {
+          supplyValue = parseFloat(item.coin.supply)
+        } else {
+          supplyValue = Number(item.coin.supply.toString())
+        }
 
+        const decimals =
+          typeof item.coin.decimals === 'bigint'
+            ? Number(item.coin.decimals)
+            : item.coin.decimals
+
+        const supplyInTokens = supplyValue / Math.pow(10, decimals)
         const marketcap = price * supplyInTokens
 
         return {
