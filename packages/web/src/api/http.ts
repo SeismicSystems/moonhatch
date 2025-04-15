@@ -8,26 +8,65 @@ import {
 } from '@/store/slice'
 import { Coin } from '@/types/coin'
 
-export const fetchAllCoins = () => async (dispatch: Dispatch) => {
-  dispatch(fetchCoinsStart())
+type FetchCoinsParams = {
+  limit?: number
+  maxId?: number
+  startDispatch?: boolean
+}
 
-  try {
-    const response = await fetch(`${BASE_API_URL}/coins`)
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch coins')
+export const fetchCoins =
+  ({ limit, maxId, startDispatch = true }: FetchCoinsParams = {}) =>
+  async (dispatch: Dispatch) => {
+    if (startDispatch) {
+      // TODO: make this less hacky
+      dispatch(fetchCoinsStart())
     }
 
-    const data: Coin[] = await response.json()
-    dispatch(fetchCoinsSuccess(data))
-    return data
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error'
-    dispatch(fetchCoinsFailure(errorMessage))
-    throw error
+    const params = new URLSearchParams()
+    if (limit) {
+      params.set('limit', limit.toString())
+    }
+    if (maxId) {
+      params.set('maxId', maxId.toString())
+    }
+    const queryString = params.toString()
+    const url = `${BASE_API_URL}/coins${queryString ? `?${queryString}` : ''}`
+
+    try {
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error('Failed to fetch coins')
+      }
+
+      const data: Coin[] = await response.json()
+      dispatch(fetchCoinsSuccess(data))
+      return data
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error'
+      dispatch(fetchCoinsFailure(errorMessage))
+      throw error
+    }
   }
-}
+
+export const fetchAllCoins =
+  (limit: number = 5000, sleepMs: number = 1000) =>
+  async (dispatch: Dispatch) => {
+    const coins = await fetchCoins({ limit, startDispatch: true })(dispatch)
+    let maxId = coins[coins.length - 1].id - 1
+    while (maxId > 0) {
+      await new Promise((resolve) => setTimeout(resolve, sleepMs))
+      const newCoins = await fetchCoins({ limit, maxId, startDispatch: false })(
+        dispatch
+      )
+      maxId = newCoins[newCoins.length - 1].id
+      coins.push(...newCoins)
+      if (newCoins.length < limit) {
+        return coins
+      }
+    }
+    return coins
+  }
 
 export const fetchCoinById = (coinId: number) => async (dispatch: Dispatch) => {
   dispatch(fetchCoinsStart())
