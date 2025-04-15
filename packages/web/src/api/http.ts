@@ -18,6 +18,7 @@ export const fetchCoins =
   ({ limit, maxId, startDispatch = true }: FetchCoinsParams = {}) =>
   async (dispatch: Dispatch) => {
     if (startDispatch) {
+      // TODO: make this less hacky
       dispatch(fetchCoinsStart())
     }
 
