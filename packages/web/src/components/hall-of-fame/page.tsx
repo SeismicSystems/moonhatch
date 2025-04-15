@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import NavBar from '@/components/NavBar'
 import HOFInfo from '@/components/hall-of-fame/HOFInfo'
+import type { Coin } from '@/types/coin'
 import HelpIcon from '@mui/icons-material/Help'
 import {
   Box,
@@ -20,27 +21,6 @@ import {
 } from '@mui/material'
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
-
-interface Coin {
-  contractAddress: string
-  createdAt: string
-  creator: string
-  decimals: number
-  deployedPool: string
-  description: string
-  graduated: boolean
-  hidden: boolean
-  id: number
-  imageUrl: string
-  name: string
-  supply: string
-  symbol: string
-  telegram: string | null
-  twitter: string | null
-  verified: boolean
-  website: string | null
-  weiIn: string
-}
 
 interface HallOfFameItem {
   coin: Coin
