@@ -14,7 +14,7 @@ const CreateCoinButton: React.FC = () => {
     <>
       <button
         onClick={() => setShowHowItWorks(true)}
-        className="text-orange-300 md:mr-72 lg:mr-96  -mb-15  mr-48  z-50  hover:text-blue-600 transition justify-self-start "
+        className="text-orange-300 md:mr-72 lg:mr-96  -mb-15  mr-48  z-10  hover:text-blue-600 transition justify-self-start "
       >
         <HelpIcon
           sx={{

@@ -12,6 +12,7 @@ import { fetchAllCoins } from '@/api/http'
 import WebSocketService from '@/api/websocket'
 import CoinDetail from '@/components/coin/coin-detail'
 import CoinForm from '@/components/create/coin-form'
+import HallOfFame from '@/components/hall-of-fame/page'
 import { CHAIN_ID } from '@/hooks/useContract'
 import Home from '@/pages/Home'
 import NotFound from '@/pages/NotFound'
@@ -89,6 +90,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<Home />} />
       <Route path="/create" element={<CoinForm />} />
       <Route path="/coins/:coinId" element={<CoinDetail />} />
+      <Route path="/hall-of-fame" element={<HallOfFame />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )
