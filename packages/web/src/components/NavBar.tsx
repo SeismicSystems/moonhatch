@@ -42,7 +42,7 @@ const NavBar: React.FC = () => {
       </div>
 
       {/* Desktop navigation links */}
-      <div className="hidden md:flex items-center justify-center w-32 pr-16 pl-4 gap-4">
+      <div className="hidden md:flex items-center justify-center w-32 pr-16 md:pr-0 pl-4 gap-4">
         <HomeLink style={ICON_STYLE} />
         <FaucetLink style={ICON_STYLE} />
         <HallOfFameLink style={ICON_STYLE} />

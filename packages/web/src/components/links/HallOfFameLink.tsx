@@ -8,7 +8,7 @@ const HallOfFameLink = ({ style }: { style?: React.CSSProperties }) => {
   return (
     <IconLink
       onClick={() => navigate('/hall-of-fame')}
-      text="Hall of Fame"
+      text="HOF"
       style={style}
     >
       <EmojiEventsIcon
