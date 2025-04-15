@@ -1,168 +1,464 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+import NavBar from '@/components/NavBar'
+import HOFInfo from '@/components/hall-of-fame/HOFInfo'
+import type { Coin } from '@/types/coin'
+import HelpIcon from '@mui/icons-material/Help'
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Pagination,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material'
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+
+interface HallOfFameItem {
+  coin: Coin
+  price: string
+}
+
+interface ProcessedCoin {
+  symbol: string
+  name: string
+  price: number
+  marketcap: number
+  imageUrl?: string
+  id: number
+}
 
 export default function HallOfFame() {
-  const [data, setData] = useState<
-    Array<{ id: number; name: string; score: number; date: string }>
-  >([])
+  const navigate = useNavigate()
+  const [data, setData] = useState<ProcessedCoin[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const itemsPerPage = 10
+  const itemsPerPage = 20
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [showHOFInfo, setShowHOFInfo] = useState(false)
 
-  // Function to generate mock data
-  const generateMockData = () => {
+  const fetchData = async () => {
     setLoading(true)
+    setError(null)
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const mockData = Array.from({ length: 50 }, (_, i) => ({
-        id: i + 1,
-        name: `Player ${i + 1}`,
-        score: Math.floor(Math.random() * 10000),
-        date: new Date(
-          Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000
-        ).toLocaleDateString(),
-      }))
+    try {
+      const apiUrl = `${BACKEND_URL}/hall-of-fame`
+      console.log('Fetching from:', apiUrl)
+      const response = await fetch(apiUrl)
 
-      // Sort by score (highest first)
-      mockData.sort((a, b) => b.score - a.score)
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`)
+      }
 
-      setData(mockData)
-      setTotalPages(Math.ceil(mockData.length / itemsPerPage))
+      const responseData: HallOfFameItem[] = await response.json()
+
+      const processedData: ProcessedCoin[] = responseData.map((item) => {
+        const price = parseFloat(item.price)
+
+        let supplyValue: number
+        if (typeof item.coin.supply === 'string') {
+          supplyValue = parseFloat(item.coin.supply)
+        } else {
+          supplyValue = Number(item.coin.supply.toString())
+        }
+
+        const decimals =
+          typeof item.coin.decimals === 'bigint'
+            ? Number(item.coin.decimals)
+            : item.coin.decimals
+
+        const supplyInTokens = supplyValue / Math.pow(10, decimals)
+        const marketcap = price * supplyInTokens
+
+        return {
+          id: item.coin.id,
+          symbol: item.coin.symbol.trim(),
+          name: item.coin.name.trim(),
+          price,
+          marketcap,
+          imageUrl: item.coin.imageUrl,
+        }
+      })
+
+      processedData.sort((a, b) => b.marketcap - a.marketcap)
+
+      setData(processedData)
+      setTotalPages(Math.ceil(processedData.length / itemsPerPage))
+    } catch (err) {
+      console.error('Error fetching data:', err)
+      setError(err instanceof Error ? err.message : 'An unknown error occurred')
+    } finally {
       setLoading(false)
-    }, 500)
+    }
   }
 
-  // Initial data load
   useEffect(() => {
-    generateMockData()
+    fetchData()
   }, [])
 
-  // Auto-refresh every 5 minutes
   useEffect(() => {
     const interval = setInterval(
       () => {
-        generateMockData()
+        fetchData()
       },
       5 * 60 * 1000
-    ) // 5 minutes in milliseconds
+    )
 
     return () => clearInterval(interval)
   }, [])
 
-  // Get current page data
   const getCurrentPageData = () => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
     return data.slice(startIndex, endIndex)
   }
 
-  // Handle page navigation
-  const goToPage = (page: number) => {
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    page: number
+  ) => {
     setCurrentPage(page)
   }
 
-  return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-[#f1dac4]">Hall of Fame</h1>
-        <button
-          onClick={generateMockData}
-          className="px-4 py-2 bg-[#474973] text-[#f1dac4] rounded hover:bg-[#161b33] transition-colors"
-          disabled={loading}
-        >
-          {loading ? 'Refreshing...' : 'Refresh Data'}
-        </button>
-      </div>
+  const formatNumber = (num: number) => {
+    if (isNaN(num)) return 'N/A'
 
-      {loading ? (
-        <div className="text-center py-10 text-[#f1dac4]">Loading...</div>
+    return num.toLocaleString(undefined, {
+      maximumFractionDigits: num < 1 ? 6 : 2,
+    })
+  }
+
+  const handleRowClick = (id: number) => {
+    navigate(`/coins/${id}`)
+  }
+
+  return (
+    <Box className="hof-page-container flex flex-col items-center">
+      <NavBar />
+      <Box
+        className="flex justify-center items-center mb-6 relative"
+        sx={{
+          width: '70dvw',
+          marginTop: '2rem',
+        }}
+      >
+        <Typography
+          variant="h1"
+          className="font-bold text-[#f1dac4] text-center"
+          sx={{
+            fontSize: {
+              xs: '1.3rem',
+              sm: '2rem',
+              md: '2.5rem',
+              lg: '3rem',
+            },
+          }}
+        >
+          HALL OF FAME
+        </Typography>
+
+        <button
+          onClick={() => setShowHOFInfo(true)}
+          className="absolute right-0 text-orange-300 hover:text-blue-600 transition"
+        >
+          <HelpIcon
+            sx={{
+              fontSize: { xs: '1rem', sm: '2rem', md: '2.5rem' },
+            }}
+          />
+        </button>
+      </Box>
+
+      {loading && data.length === 0 ? (
+        <Box className="text-center py-10 text-[#f1dac4]">
+          <CircularProgress sx={{ color: '#f1dac4' }} />
+        </Box>
+      ) : error ? (
+        <Box className="text-center py-10 text-[#f1dac4]">
+          <Typography color="error">Error: {error}</Typography>
+          <Button
+            onClick={fetchData}
+            sx={{
+              mt: 2,
+              color: '#f1dac4',
+              borderColor: '#f1dac4',
+              '&:hover': {
+                borderColor: '#f1dac4',
+                backgroundColor: 'rgba(241, 218, 196, 0.1)',
+              },
+            }}
+            variant="outlined"
+          >
+            Retry
+          </Button>
+        </Box>
       ) : (
         <>
-          <div className="overflow-x-auto rounded border border-[#474973]">
-            <table className="min-w-full bg-[#0d0c1d]">
-              <thead className="bg-[#161b33]">
-                <tr>
-                  <th className="py-2 px-4 border-b border-[#474973] text-left text-[#f1dac4]">
-                    Rank
-                  </th>
-                  <th className="py-2 px-4 border-b border-[#474973] text-left text-[#f1dac4]">
-                    Player
-                  </th>
-                  <th className="py-2 px-4 border-b border-[#474973] text-left text-[#f1dac4]">
-                    Score
-                  </th>
-                  <th className="py-2 px-4 border-b border-[#474973] text-left text-[#f1dac4]">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {getCurrentPageData().map((item, index) => (
-                  <tr
-                    key={item.id}
-                    className={
-                      index % 2 === 0 ? 'bg-[#0d0c1d]' : 'bg-[#161b33]'
-                    }
+          {loading && (
+            <Box sx={{ position: 'fixed', top: '1rem', right: '1rem' }}>
+              <CircularProgress size={24} sx={{ color: '#f1dac4' }} />
+            </Box>
+          )}
+          <TableContainer
+            component={Paper}
+            sx={{
+              width: '70dvw',
+              bgcolor: '#0d0c1d',
+              border: '1px solid #474973',
+              borderRadius: 1,
+              overflow: 'auto',
+              height: '70dvh',
+            }}
+          >
+            <Table>
+              <TableHead
+                sx={{
+                  bgcolor: '#f1dac4',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 1,
+                }}
+              >
+                <TableRow>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      py: 1,
+                      px: 2,
+                      borderBottom: '1px solid #474973',
+                      color: '#161b33',
+                      fontSize: {
+                        xs: '.7rem',
+                        sm: '.8rem',
+                        md: '.9rem',
+                        lg: '1rem',
+                      },
+                      width: '20%',
+                    }}
                   >
-                    <td className="py-2 px-4 border-b border-[#474973] text-[#f1dac4]">
-                      {(currentPage - 1) * itemsPerPage + index + 1}
-                    </td>
-                    <td className="py-2 px-4 border-b border-[#474973] text-[#f1dac4]">
-                      {item.name}
-                    </td>
-                    <td className="py-2 px-4 border-b border-[#474973] text-[#f1dac4]">
-                      {item.score.toLocaleString()}
-                    </td>
-                    <td className="py-2 px-4 border-b border-[#474973] text-[#f1dac4]">
-                      {item.date}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    COIN
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      py: 1,
+                      px: 2,
+                      borderBottom: '1px solid #474973',
+                      color: '#161b33',
+                      fontSize: {
+                        xs: '.7rem',
+                        sm: '.8rem',
+                        md: '.9rem',
+                        lg: '1rem',
+                      },
+                      width: '30%',
+                    }}
+                  >
+                    NAME
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      py: 1,
+                      px: 2,
+                      borderBottom: '1px solid #474973',
+                      color: '#161b33',
+                      fontSize: {
+                        xs: '.7rem',
+                        sm: '.8rem',
+                        md: '.9rem',
+                        lg: '1rem',
+                      },
+                      width: '25%',
+                    }}
+                  >
+                    PRICE
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      py: 1,
+                      px: 2,
+                      borderBottom: '1px solid #474973',
+                      color: '#161b33',
+                      fontSize: {
+                        xs: '.7rem',
+                        sm: '.8rem',
+                        md: '.9rem',
+                        lg: '1rem',
+                      },
+                      width: '25%',
+                    }}
+                  >
+                    MARKETCAP
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data.length > 0 ? (
+                  getCurrentPageData().map((item, index) => (
+                    <TableRow
+                      key={item.id}
+                      sx={{
+                        bgcolor: index % 2 === 0 ? '#0d0c1d' : '#161b33',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          bgcolor: '#2d2957',
+                          transition: 'background-color 0.2s ease',
+                        },
+                      }}
+                      onClick={() => handleRowClick(item.id)}
+                    >
+                      <TableCell
+                        sx={{
+                          py: 1,
+                          px: 2,
+                          borderBottom: '1px solid #474973',
+                          color: '#f1dac4',
+                          textAlign: 'center',
+                          fontSize: {
+                            xs: '.7rem',
+                            sm: '.8rem',
+                            md: '.9rem',
+                            lg: '1rem',
+                          },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {item.imageUrl && (
+                            <Box
+                              component="img"
+                              src={item.imageUrl}
+                              alt={item.symbol}
+                              sx={{
+                                width: 24,
+                                height: 24,
+                                borderRadius: '50%',
+                                marginRight: 1,
+                                objectFit: 'cover',
+                              }}
+                            />
+                          )}
+                          {item.symbol}
+                        </Box>
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          py: 1,
+                          px: 2,
+                          borderBottom: '1px solid #474973',
+                          color: '#f1dac4',
+                          textAlign: 'center',
+                          fontSize: {
+                            xs: '.7rem',
+                            sm: '.8rem',
+                            md: '.9rem',
+                            lg: '1rem',
+                          },
+                        }}
+                      >
+                        {item.name}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          py: 1,
+                          px: 2,
+                          borderBottom: '1px solid #474973',
+                          color: '#f1dac4',
+                          textAlign: 'center',
+                          fontSize: {
+                            xs: '.7rem',
+                            sm: '.8rem',
+                            md: '.9rem',
+                            lg: '1rem',
+                          },
+                        }}
+                      >
+                        ${formatNumber(item.price)}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          py: 1,
+                          px: 2,
+                          borderBottom: '1px solid #474973',
+                          color: '#f1dac4',
+                          textAlign: 'center',
+                          fontSize: {
+                            xs: '.7rem',
+                            sm: '.8rem',
+                            md: '.9rem',
+                            lg: '1rem',
+                          },
+                        }}
+                      >
+                        ${formatNumber(item.marketcap)}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      sx={{
+                        textAlign: 'center',
+                        color: '#f1dac4',
+                        py: 4,
+                      }}
+                    >
+                      No data available
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-          <div className="flex justify-between items-center mt-4 text-[#a69cac]">
-            <div>
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-              {Math.min(currentPage * itemsPerPage, data.length)} of{' '}
-              {data.length} entries
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => goToPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-1 border border-[#474973] rounded disabled:opacity-50 text-[#f1dac4] bg-[#161b33] hover:bg-[#474973] transition-colors"
-              >
-                Previous
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => goToPage(page)}
-                    className={`px-3 py-1 border border-[#474973] rounded text-[#f1dac4] ${
-                      currentPage === page
-                        ? 'bg-[#474973]'
-                        : 'bg-[#161b33] hover:bg-[#474973]'
-                    } transition-colors`}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
-              <button
-                onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 border border-[#474973] rounded disabled:opacity-50 text-[#f1dac4] bg-[#161b33] hover:bg-[#474973] transition-colors"
-              >
-                Next
-              </button>
-            </div>
-          </div>
+          {data.length > 0 && (
+            <Box
+              className="flex justify-center mt-8 items-center "
+              sx={{ color: '#a69cac', width: '70dvw' }}
+            >
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={handlePageChange}
+                sx={{
+                  '& .MuiPaginationItem-root': {
+                    color: '#f1dac4',
+                    borderColor: '#474973',
+                    backgroundColor: '#161b33',
+                    '&:hover': {
+                      backgroundColor: '#474973',
+                    },
+                    '&.Mui-selected': {
+                      backgroundColor: '#474973',
+                    },
+                  },
+                }}
+              />
+            </Box>
+          )}
         </>
       )}
-    </div>
+
+      {showHOFInfo && (
+        <HOFInfo isOpen={showHOFInfo} onClose={() => setShowHOFInfo(false)} />
+      )}
+    </Box>
   )
 }
