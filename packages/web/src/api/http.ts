@@ -50,11 +50,11 @@ export const fetchAllCoins =
   (limit: number = 5000, sleepMs: number = 1000) =>
   async (dispatch: Dispatch) => {
     const coins = await fetchCoins({ limit })(dispatch)
-    let lastId = coins[coins.length - 1].id
-    while (lastId > 0) {
+    let maxId = coins[coins.length - 1].id - 1
+    while (maxId > 0) {
       await sleep(sleepMs)
-      const newCoins = await fetchCoins({ limit, maxId: lastId })(dispatch)
-      lastId = newCoins[newCoins.length - 1].id
+      const newCoins = await fetchCoins({ limit, maxId })(dispatch)
+      maxId = newCoins[newCoins.length - 1].id
       coins.push(...newCoins)
       if (newCoins.length < limit) {
         return coins
