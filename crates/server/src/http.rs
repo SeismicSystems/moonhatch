@@ -119,8 +119,15 @@ pub(crate) async fn get_all_coins_handler(
         },
         None => None,
     };
+    let max_id = match params.get("maxId") {
+        Some(max_id) => match max_id.parse::<i64>() {
+            Ok(max_id) => Some(max_id),
+            Err(_) => None,
+        },
+        None => None,
+    };
     let mut conn = state.db_conn()?;
-    let coin_list = store::get_all_coins(&mut conn, limit)?;
+    let coin_list = store::get_all_coins(&mut conn, limit, max_id)?;
     Ok(Json(coin_list).into_response())
 }
 
