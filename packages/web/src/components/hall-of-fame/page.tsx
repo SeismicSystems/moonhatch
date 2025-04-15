@@ -280,7 +280,7 @@ export default function HallOfFame() {
                       width: '25%',
                     }}
                   >
-                    PRICE (testETH)
+                    PRICE
                   </TableCell>
                   <TableCell
                     align="center"
@@ -388,7 +388,7 @@ export default function HallOfFame() {
                           },
                         }}
                       >
-                        {formatNumber(item.price)}
+                        ${formatNumber(item.price)}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -405,7 +405,7 @@ export default function HallOfFame() {
                           },
                         }}
                       >
-                        {formatNumber(item.marketcap)}
+                        ${formatNumber(item.marketcap)}
                       </TableCell>
                     </TableRow>
                   ))

@@ -16,7 +16,7 @@ type KOTHBoxProps = {
 }
 
 const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
-  const isDesktop = useMediaQuery('(min-width: 880px)')
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
 
   if (variant === 'mobile') {
     return (
@@ -131,7 +131,9 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
               textAlign: isDesktop ? 'center' : 'left',
               width: isDesktop ? '100px' : '200px',
               overflow: 'hidden',
+              lineHeight: { xs: '2', md: '1' },
               textOverflow: 'ellipsis',
+              paddingBottom: { xs: '0', md: '.5rem' },
               mt:
                 coin.rank === 1
                   ? isDesktop
@@ -146,7 +148,7 @@ const KOTHBox: React.FC<KOTHBoxProps> = ({ coin, variant = 'desktop' }) => {
                 coin.rank === 1
                   ? isDesktop
                     ? '1.5rem'
-                    : '2.25rem'
+                    : '1.5rem'
                   : isDesktop
                     ? '1rem'
                     : '.75rem',
