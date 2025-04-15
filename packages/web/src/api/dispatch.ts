@@ -1,8 +1,7 @@
+import { FetchCoinsParams, , fetchCoins } from '@/api/http'
 import { fetchCoinsStart, updateCoin } from '@/store/slice'
 import { fetchCoinsFailure, fetchCoinsSuccess } from '@/store/slice'
 import { Dispatch } from '@reduxjs/toolkit'
-
-import { FetchCoinsParams, fetchCoinById, fetchCoins } from './http'
 
 /**
  * Redux action creator that fetches a coin by ID with dispatching

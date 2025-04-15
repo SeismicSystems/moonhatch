@@ -8,6 +8,7 @@ import { http } from 'viem'
 import { Config, WagmiProvider } from 'wagmi'
 
 import { WEBSOCKET_URL } from '@/api'
+import { fetchAllCoinsAction } from '@/api/dispatch'
 import WebSocketService from '@/api/websocket'
 import CoinDetail from '@/components/coin/coin-detail'
 import CoinForm from '@/components/create/coin-form'
@@ -21,7 +22,6 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import './App.css'
-import { fetchAllCoinsAction } from './api/dispatch'
 
 const SUPPORTED_CHAINS = [sanvil, seismicDevnet2]
 const CHAINS = SUPPORTED_CHAINS.filter((c) => c.id === CHAIN_ID)
