@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { BASE_API_URL } from '@/api'
 import NavBar from '@/components/NavBar'
 import HOFInfo from '@/components/hall-of-fame/HOFInfo'
 import type { Coin } from '@/types/coin'
@@ -19,8 +20,6 @@ import {
   TableRow,
   Typography,
 } from '@mui/material'
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 
 interface HallOfFameItem {
   coin: Coin
@@ -51,7 +50,7 @@ export default function HallOfFame() {
     setError(null)
 
     try {
-      const apiUrl = `${BACKEND_URL}/hall-of-fame`
+      const apiUrl = `${BASE_API_URL}/hall-of-fame`
       console.log('Fetching from:', apiUrl)
       const response = await fetch(apiUrl)
 
