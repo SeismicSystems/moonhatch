@@ -41,10 +41,16 @@ pub fn get_coin(conn: &mut PgConnection, coin_id: i64) -> Result<Coin, PumpError
     Ok(coins_table.filter(coins_schema::id.eq(coin_id)).first(conn)?)
 }
 
-pub fn get_all_coins(conn: &mut PgConnection) -> Result<Vec<Coin>, PumpError> {
+pub fn get_all_coins(
+    conn: &mut PgConnection,
+    limit: Option<usize>,
+    max_id: Option<i64>,
+) -> Result<Vec<Coin>, PumpError> {
     Ok(coins_table
         .filter(coins_schema::hidden.eq(false))
-        .order(coins_schema::created_at.desc())
+        .filter(coins_schema::id.le(max_id.unwrap_or(i64::MAX)))
+        .order(coins_schema::id.desc())
+        .limit(limit.unwrap_or(1_000).min(20_000) as i64)
         .load::<Coin>(conn)?)
 }
 
