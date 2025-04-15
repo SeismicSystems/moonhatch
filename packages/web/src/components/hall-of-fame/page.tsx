@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import NavBar from '@/components/NavBar'
 import {
   Box,
-  Button,
   CircularProgress,
   Pagination,
   Paper,
@@ -22,7 +21,7 @@ export default function HallOfFame() {
   >([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const itemsPerPage = 10
+  const itemsPerPage = 20
   const [loading, setLoading] = useState(false)
 
   // Function to generate mock data
@@ -82,11 +81,28 @@ export default function HallOfFame() {
   return (
     <Box className="hof-page-container flex flex-col items-center">
       <NavBar />
-      <Box className="flex justify-between items-center mb-6" width="70dvw">
-        <Typography variant="h5" className="font-bold text-[#f1dac4]">
-          Hall of Fame
+      <Box
+        className="flex justify-center items-center mb-6"
+        sx={{
+          width: '70dvw',
+          marginTop: '2rem',
+        }}
+      >
+        <Typography
+          variant="h1"
+          className="font-bold text-[#f1dac4] text-center"
+          sx={{
+            fontSize: {
+              xs: '1.6rem',
+              sm: '2rem',
+              md: '2.5rem',
+              lg: '3rem',
+            },
+          }}
+        >
+          HALL OF FAME
         </Typography>
-        <Button
+        {/* <Button
           onClick={generateMockData}
           disabled={loading}
           sx={{
@@ -104,7 +120,7 @@ export default function HallOfFame() {
           }}
         >
           {loading ? 'Refreshing...' : 'Refresh Data'}
-        </Button>
+        </Button> */}
       </Box>
 
       {loading ? (
@@ -121,10 +137,19 @@ export default function HallOfFame() {
               border: '1px solid #474973',
               borderRadius: 1,
               overflow: 'auto',
+              height: '70dvh',
             }}
           >
             <Table>
-              <TableHead sx={{ bgcolor: '#161b33' }}>
+              <TableHead
+                sx={{
+                  bgcolor: '#f1dac4',
+                  position: 'sticky',
+
+                  top: 0,
+                  zIndex: 1,
+                }}
+              >
                 <TableRow>
                   <TableCell
                     align="center"
@@ -132,7 +157,13 @@ export default function HallOfFame() {
                       py: 1,
                       px: 2,
                       borderBottom: '1px solid #474973',
-                      color: '#f1dac4',
+                      color: '#161b33',
+                      fontSize: {
+                        xs: '.7rem',
+                        sm: '.8rem',
+                        md: '.9rem',
+                        lg: '1rem',
+                      },
                     }}
                   >
                     SYMBOL
@@ -143,7 +174,13 @@ export default function HallOfFame() {
                       py: 1,
                       px: 2,
                       borderBottom: '1px solid #474973',
-                      color: '#f1dac4',
+                      color: '#161b33',
+                      fontSize: {
+                        xs: '.7rem',
+                        sm: '.8rem',
+                        md: '.9rem',
+                        lg: '1rem',
+                      },
                     }}
                   >
                     NAME
@@ -154,7 +191,13 @@ export default function HallOfFame() {
                       py: 1,
                       px: 2,
                       borderBottom: '1px solid #474973',
-                      color: '#f1dac4',
+                      color: '#161b33',
+                      fontSize: {
+                        xs: '.7rem',
+                        sm: '.8rem',
+                        md: '.9rem',
+                        lg: '1rem',
+                      },
                     }}
                   >
                     PRICE
@@ -165,7 +208,13 @@ export default function HallOfFame() {
                       py: 1,
                       px: 2,
                       borderBottom: '1px solid #474973',
-                      color: '#f1dac4',
+                      color: '#161b33',
+                      fontSize: {
+                        xs: '.7rem',
+                        sm: '.8rem',
+                        md: '.9rem',
+                        lg: '1rem',
+                      },
                     }}
                   >
                     MARKETCAP
@@ -184,6 +233,13 @@ export default function HallOfFame() {
                         px: 2,
                         borderBottom: '1px solid #474973',
                         color: '#f1dac4',
+                        textAlign: 'center',
+                        fontSize: {
+                          xs: '.7rem',
+                          sm: '.8rem',
+                          md: '.9rem',
+                          lg: '1rem',
+                        },
                       }}
                     >
                       {item.symbol}
@@ -194,6 +250,13 @@ export default function HallOfFame() {
                         px: 2,
                         borderBottom: '1px solid #474973',
                         color: '#f1dac4',
+                        textAlign: 'center',
+                        fontSize: {
+                          xs: '.7rem',
+                          sm: '.8rem',
+                          md: '.9rem',
+                          lg: '1rem',
+                        },
                       }}
                     >
                       {item.name}
@@ -204,6 +267,13 @@ export default function HallOfFame() {
                         px: 2,
                         borderBottom: '1px solid #474973',
                         color: '#f1dac4',
+                        textAlign: 'center',
+                        fontSize: {
+                          xs: '.7rem',
+                          sm: '.8rem',
+                          md: '.9rem',
+                          lg: '1rem',
+                        },
                       }}
                     >
                       {item.price}
@@ -214,6 +284,13 @@ export default function HallOfFame() {
                         px: 2,
                         borderBottom: '1px solid #474973',
                         color: '#f1dac4',
+                        textAlign: 'center',
+                        fontSize: {
+                          xs: '.7rem',
+                          sm: '.8rem',
+                          md: '.9rem',
+                          lg: '1rem',
+                        },
                       }}
                     >
                       {item.marketcap}
@@ -225,14 +302,9 @@ export default function HallOfFame() {
           </TableContainer>
 
           <Box
-            className="flex justify-between items-center mt-4"
+            className="flex justify-center mt-8 items-center "
             sx={{ color: '#a69cac', width: '70dvw' }}
           >
-            <Typography variant="body2">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-              {Math.min(currentPage * itemsPerPage, data.length)} of{' '}
-              {data.length} entries
-            </Typography>
             <Pagination
               count={totalPages}
               page={currentPage}
