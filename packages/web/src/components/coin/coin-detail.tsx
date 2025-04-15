@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { fetchCoinById } from '@/api/http'
+import { fetchCoinByIdAction } from '@/api/dispatch'
 import NavBar from '@/components/NavBar'
 import { Candles } from '@/components/chart/Candles'
 import CoinInfoDetails from '@/components/coin-detail/coin-info-details'
@@ -55,7 +55,7 @@ const CoinDetailContent: React.FC<{ coinId: string }> = ({ coinId }) => {
 
   useEffect(() => {
     if (!coin) {
-      dispatch(fetchCoinById(Number(coinId)))
+      dispatch(fetchCoinByIdAction(Number(coinId)))
     }
   }, [coinId, coin, dispatch])
 
