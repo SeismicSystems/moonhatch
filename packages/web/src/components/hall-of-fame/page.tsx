@@ -280,7 +280,7 @@ export default function HallOfFame() {
                       width: '25%',
                     }}
                   >
-                    PRICE
+                    PRICE (testETH)
                   </TableCell>
                   <TableCell
                     align="center"
