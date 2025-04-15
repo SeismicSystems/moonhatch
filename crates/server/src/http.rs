@@ -1,6 +1,8 @@
+use std::collections::HashMap;
+
 use aws_sdk_s3::primitives::ByteStream;
 use axum::{
-    extract::{Multipart, Path, State},
+    extract::{Multipart, Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
@@ -108,9 +110,17 @@ pub(crate) async fn deploy_coin(
 
 pub(crate) async fn get_all_coins_handler(
     State(state): State<AppState>,
+    Query(params): Query<HashMap<String, String>>,
 ) -> Result<impl IntoResponse, PumpError> {
+    let limit = match params.get("limit") {
+        Some(lim) => match lim.parse::<usize>() {
+            Ok(lim) => Some(lim),
+            Err(_) => None,
+        },
+        None => None,
+    };
     let mut conn = state.db_conn()?;
-    let coin_list = store::get_all_coins(&mut conn)?;
+    let coin_list = store::get_all_coins(&mut conn, limit)?;
     Ok(Json(coin_list).into_response())
 }
 
