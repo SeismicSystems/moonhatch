@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import NavBar from '@/components/NavBar'
+import HOFInfo from '@/components/hall-of-fame/HOFInfo'
+import HelpIcon from '@mui/icons-material/Help'
 import {
   Box,
+  Button,
   CircularProgress,
   Pagination,
   Paper,
@@ -15,62 +19,119 @@ import {
   Typography,
 } from '@mui/material'
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+
+interface Coin {
+  contractAddress: string
+  createdAt: string
+  creator: string
+  decimals: number
+  deployedPool: string
+  description: string
+  graduated: boolean
+  hidden: boolean
+  id: number
+  imageUrl: string
+  name: string
+  supply: string
+  symbol: string
+  telegram: string | null
+  twitter: string | null
+  verified: boolean
+  website: string | null
+  weiIn: string
+}
+
+interface HallOfFameItem {
+  coin: Coin
+  price: string
+}
+
+interface ProcessedCoin {
+  symbol: string
+  name: string
+  price: number
+  marketcap: number
+  imageUrl: string
+  id: number
+}
+
 export default function HallOfFame() {
-  const [data, setData] = useState<
-    Array<{ symbol: string; name: string; price: number; marketcap: number }>
-  >([])
+  const navigate = useNavigate()
+  const [data, setData] = useState<ProcessedCoin[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const itemsPerPage = 20
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [showHOFInfo, setShowHOFInfo] = useState(false)
 
-  // Function to generate mock data
-  const generateMockData = () => {
+  const fetchData = async () => {
     setLoading(true)
+    setError(null)
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const mockData = Array.from({ length: 50 }, (_, i) => ({
-        symbol: `TICKER${i + 123}`,
-        name: `COIN_NAME${i + 1}`,
-        price: Math.floor(Math.random() * 10000),
-        marketcap: Math.floor(Math.random() * 10000) * 1000,
-      }))
+    try {
+      const apiUrl = `${BACKEND_URL}/hall-of-fame`
+      console.log('Fetching from:', apiUrl)
+      const response = await fetch(apiUrl)
 
-      // Sort by score (highest first)
-      mockData.sort((a, b) => b.marketcap - a.marketcap)
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`)
+      }
 
-      setData(mockData)
-      setTotalPages(Math.ceil(mockData.length / itemsPerPage))
+      const responseData: HallOfFameItem[] = await response.json()
+
+      const processedData: ProcessedCoin[] = responseData.map((item) => {
+        const price = parseFloat(item.price)
+
+        const supplyInTokens =
+          parseFloat(item.coin.supply) / Math.pow(10, item.coin.decimals)
+
+        const marketcap = price * supplyInTokens
+
+        return {
+          id: item.coin.id,
+          symbol: item.coin.symbol.trim(),
+          name: item.coin.name.trim(),
+          price,
+          marketcap,
+          imageUrl: item.coin.imageUrl,
+        }
+      })
+
+      processedData.sort((a, b) => b.marketcap - a.marketcap)
+
+      setData(processedData)
+      setTotalPages(Math.ceil(processedData.length / itemsPerPage))
+    } catch (err) {
+      console.error('Error fetching data:', err)
+      setError(err instanceof Error ? err.message : 'An unknown error occurred')
+    } finally {
       setLoading(false)
-    }, 500)
+    }
   }
 
-  // Initial data load
   useEffect(() => {
-    generateMockData()
+    fetchData()
   }, [])
 
-  // Auto-refresh every 5 minutes
   useEffect(() => {
     const interval = setInterval(
       () => {
-        generateMockData()
+        fetchData()
       },
       5 * 60 * 1000
-    ) // 5 minutes in milliseconds
+    )
 
     return () => clearInterval(interval)
   }, [])
 
-  // Get current page data
   const getCurrentPageData = () => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
     return data.slice(startIndex, endIndex)
   }
 
-  // Handle page navigation
   const handlePageChange = (
     _event: React.ChangeEvent<unknown>,
     page: number
@@ -78,11 +139,23 @@ export default function HallOfFame() {
     setCurrentPage(page)
   }
 
+  const formatNumber = (num: number) => {
+    if (isNaN(num)) return 'N/A'
+
+    return num.toLocaleString(undefined, {
+      maximumFractionDigits: num < 1 ? 6 : 2,
+    })
+  }
+
+  const handleRowClick = (id: number) => {
+    navigate(`/coins/${id}`)
+  }
+
   return (
     <Box className="hof-page-container flex flex-col items-center">
       <NavBar />
       <Box
-        className="flex justify-center items-center mb-6"
+        className="flex justify-center items-center mb-6 relative"
         sx={{
           width: '70dvw',
           marginTop: '2rem',
@@ -93,7 +166,7 @@ export default function HallOfFame() {
           className="font-bold text-[#f1dac4] text-center"
           sx={{
             fontSize: {
-              xs: '1.6rem',
+              xs: '1.3rem',
               sm: '2rem',
               md: '2.5rem',
               lg: '3rem',
@@ -102,33 +175,49 @@ export default function HallOfFame() {
         >
           HALL OF FAME
         </Typography>
-        {/* <Button
-          onClick={generateMockData}
-          disabled={loading}
-          sx={{
-            px: 2,
-            py: 1,
-            bgcolor: '#474973',
-            color: '#f1dac4',
-            borderRadius: 1,
-            '&:hover': {
-              bgcolor: '#161b33',
-            },
-            '&.Mui-disabled': {
-              opacity: 0.5,
-            },
-          }}
+
+        <button
+          onClick={() => setShowHOFInfo(true)}
+          className="absolute right-0 text-orange-300 hover:text-blue-600 transition"
         >
-          {loading ? 'Refreshing...' : 'Refresh Data'}
-        </Button> */}
+          <HelpIcon
+            sx={{
+              fontSize: { xs: '1rem', sm: '2rem', md: '2.5rem' },
+            }}
+          />
+        </button>
       </Box>
 
-      {loading ? (
+      {loading && data.length === 0 ? (
         <Box className="text-center py-10 text-[#f1dac4]">
           <CircularProgress sx={{ color: '#f1dac4' }} />
         </Box>
+      ) : error ? (
+        <Box className="text-center py-10 text-[#f1dac4]">
+          <Typography color="error">Error: {error}</Typography>
+          <Button
+            onClick={fetchData}
+            sx={{
+              mt: 2,
+              color: '#f1dac4',
+              borderColor: '#f1dac4',
+              '&:hover': {
+                borderColor: '#f1dac4',
+                backgroundColor: 'rgba(241, 218, 196, 0.1)',
+              },
+            }}
+            variant="outlined"
+          >
+            Retry
+          </Button>
+        </Box>
       ) : (
         <>
+          {loading && (
+            <Box sx={{ position: 'fixed', top: '1rem', right: '1rem' }}>
+              <CircularProgress size={24} sx={{ color: '#f1dac4' }} />
+            </Box>
+          )}
           <TableContainer
             component={Paper}
             sx={{
@@ -145,7 +234,6 @@ export default function HallOfFame() {
                 sx={{
                   bgcolor: '#f1dac4',
                   position: 'sticky',
-
                   top: 0,
                   zIndex: 1,
                 }}
@@ -164,9 +252,10 @@ export default function HallOfFame() {
                         md: '.9rem',
                         lg: '1rem',
                       },
+                      width: '20%',
                     }}
                   >
-                    SYMBOL
+                    COIN
                   </TableCell>
                   <TableCell
                     align="center"
@@ -181,6 +270,7 @@ export default function HallOfFame() {
                         md: '.9rem',
                         lg: '1rem',
                       },
+                      width: '30%',
                     }}
                   >
                     NAME
@@ -198,6 +288,7 @@ export default function HallOfFame() {
                         md: '.9rem',
                         lg: '1rem',
                       },
+                      width: '25%',
                     }}
                   >
                     PRICE
@@ -215,6 +306,7 @@ export default function HallOfFame() {
                         md: '.9rem',
                         lg: '1rem',
                       },
+                      width: '25%',
                     }}
                   >
                     MARKETCAP
@@ -222,109 +314,160 @@ export default function HallOfFame() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {getCurrentPageData().map((item, index) => (
-                  <TableRow
-                    key={item.symbol}
-                    sx={{ bgcolor: index % 2 === 0 ? '#0d0c1d' : '#161b33' }}
-                  >
-                    <TableCell
+                {data.length > 0 ? (
+                  getCurrentPageData().map((item, index) => (
+                    <TableRow
+                      key={item.id}
                       sx={{
-                        py: 1,
-                        px: 2,
-                        borderBottom: '1px solid #474973',
-                        color: '#f1dac4',
-                        textAlign: 'center',
-                        fontSize: {
-                          xs: '.7rem',
-                          sm: '.8rem',
-                          md: '.9rem',
-                          lg: '1rem',
+                        bgcolor: index % 2 === 0 ? '#0d0c1d' : '#161b33',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          bgcolor: '#2d2957',
+                          transition: 'background-color 0.2s ease',
                         },
                       }}
+                      onClick={() => handleRowClick(item.id)}
                     >
-                      {item.symbol}
-                    </TableCell>
+                      <TableCell
+                        sx={{
+                          py: 1,
+                          px: 2,
+                          borderBottom: '1px solid #474973',
+                          color: '#f1dac4',
+                          textAlign: 'center',
+                          fontSize: {
+                            xs: '.7rem',
+                            sm: '.8rem',
+                            md: '.9rem',
+                            lg: '1rem',
+                          },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {item.imageUrl && (
+                            <Box
+                              component="img"
+                              src={item.imageUrl}
+                              alt={item.symbol}
+                              sx={{
+                                width: 24,
+                                height: 24,
+                                borderRadius: '50%',
+                                marginRight: 1,
+                                objectFit: 'cover',
+                              }}
+                            />
+                          )}
+                          {item.symbol}
+                        </Box>
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          py: 1,
+                          px: 2,
+                          borderBottom: '1px solid #474973',
+                          color: '#f1dac4',
+                          textAlign: 'center',
+                          fontSize: {
+                            xs: '.7rem',
+                            sm: '.8rem',
+                            md: '.9rem',
+                            lg: '1rem',
+                          },
+                        }}
+                      >
+                        {item.name}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          py: 1,
+                          px: 2,
+                          borderBottom: '1px solid #474973',
+                          color: '#f1dac4',
+                          textAlign: 'center',
+                          fontSize: {
+                            xs: '.7rem',
+                            sm: '.8rem',
+                            md: '.9rem',
+                            lg: '1rem',
+                          },
+                        }}
+                      >
+                        ${formatNumber(item.price)}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          py: 1,
+                          px: 2,
+                          borderBottom: '1px solid #474973',
+                          color: '#f1dac4',
+                          textAlign: 'center',
+                          fontSize: {
+                            xs: '.7rem',
+                            sm: '.8rem',
+                            md: '.9rem',
+                            lg: '1rem',
+                          },
+                        }}
+                      >
+                        ${formatNumber(item.marketcap)}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
                     <TableCell
+                      colSpan={4}
                       sx={{
-                        py: 1,
-                        px: 2,
-                        borderBottom: '1px solid #474973',
-                        color: '#f1dac4',
                         textAlign: 'center',
-                        fontSize: {
-                          xs: '.7rem',
-                          sm: '.8rem',
-                          md: '.9rem',
-                          lg: '1rem',
-                        },
+                        color: '#f1dac4',
+                        py: 4,
                       }}
                     >
-                      {item.name}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        py: 1,
-                        px: 2,
-                        borderBottom: '1px solid #474973',
-                        color: '#f1dac4',
-                        textAlign: 'center',
-                        fontSize: {
-                          xs: '.7rem',
-                          sm: '.8rem',
-                          md: '.9rem',
-                          lg: '1rem',
-                        },
-                      }}
-                    >
-                      {item.price}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        py: 1,
-                        px: 2,
-                        borderBottom: '1px solid #474973',
-                        color: '#f1dac4',
-                        textAlign: 'center',
-                        fontSize: {
-                          xs: '.7rem',
-                          sm: '.8rem',
-                          md: '.9rem',
-                          lg: '1rem',
-                        },
-                      }}
-                    >
-                      {item.marketcap}
+                      No data available
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>
 
-          <Box
-            className="flex justify-center mt-8 items-center "
-            sx={{ color: '#a69cac', width: '70dvw' }}
-          >
-            <Pagination
-              count={totalPages}
-              page={currentPage}
-              onChange={handlePageChange}
-              sx={{
-                '& .MuiPaginationItem-root': {
-                  color: '#f1dac4',
-                  borderColor: '#474973',
-                  backgroundColor: '#161b33',
-                  '&:hover': {
-                    backgroundColor: '#474973',
+          {data.length > 0 && (
+            <Box
+              className="flex justify-center mt-8 items-center "
+              sx={{ color: '#a69cac', width: '70dvw' }}
+            >
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={handlePageChange}
+                sx={{
+                  '& .MuiPaginationItem-root': {
+                    color: '#f1dac4',
+                    borderColor: '#474973',
+                    backgroundColor: '#161b33',
+                    '&:hover': {
+                      backgroundColor: '#474973',
+                    },
+                    '&.Mui-selected': {
+                      backgroundColor: '#474973',
+                    },
                   },
-                  '&.Mui-selected': {
-                    backgroundColor: '#474973',
-                  },
-                },
-              }}
-            />
-          </Box>
+                }}
+              />
+            </Box>
+          )}
         </>
+      )}
+
+      {showHOFInfo && (
+        <HOFInfo isOpen={showHOFInfo} onClose={() => setShowHOFInfo(false)} />
       )}
     </Box>
   )
