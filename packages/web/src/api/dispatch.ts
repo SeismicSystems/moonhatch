@@ -1,4 +1,4 @@
-import { FetchCoinsParams, , fetchCoins } from '@/api/http'
+import { FetchCoinsParams, fetchCoinById, fetchCoins } from '@/api/http'
 import { fetchCoinsStart, updateCoin } from '@/store/slice'
 import { fetchCoinsFailure, fetchCoinsSuccess } from '@/store/slice'
 import { Dispatch } from '@reduxjs/toolkit'
