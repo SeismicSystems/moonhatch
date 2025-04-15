@@ -1,8 +1,24 @@
 import { useEffect, useState } from 'react'
 
+import NavBar from '@/components/NavBar'
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Pagination,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material'
+
 export default function HallOfFame() {
   const [data, setData] = useState<
-    Array<{ id: number; name: string; score: number; date: string }>
+    Array<{ symbol: string; name: string; price: number; marketcap: number }>
   >([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -16,16 +32,14 @@ export default function HallOfFame() {
     // Simulate API call delay
     setTimeout(() => {
       const mockData = Array.from({ length: 50 }, (_, i) => ({
-        id: i + 1,
-        name: `Player ${i + 1}`,
-        score: Math.floor(Math.random() * 10000),
-        date: new Date(
-          Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000
-        ).toLocaleDateString(),
+        symbol: `TICKER${i + 123}`,
+        name: `COIN_NAME${i + 1}`,
+        price: Math.floor(Math.random() * 10000),
+        marketcap: Math.floor(Math.random() * 10000) * 1000,
       }))
 
       // Sort by score (highest first)
-      mockData.sort((a, b) => b.score - a.score)
+      mockData.sort((a, b) => b.marketcap - a.marketcap)
 
       setData(mockData)
       setTotalPages(Math.ceil(mockData.length / itemsPerPage))
@@ -58,111 +72,188 @@ export default function HallOfFame() {
   }
 
   // Handle page navigation
-  const goToPage = (page: number) => {
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    page: number
+  ) => {
     setCurrentPage(page)
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-[#f1dac4]">Hall of Fame</h1>
-        <button
+    <Box className="hof-page-container flex flex-col items-center">
+      <NavBar />
+      <Box className="flex justify-between items-center mb-6" width="70dvw">
+        <Typography variant="h5" className="font-bold text-[#f1dac4]">
+          Hall of Fame
+        </Typography>
+        <Button
           onClick={generateMockData}
-          className="px-4 py-2 bg-[#474973] text-[#f1dac4] rounded hover:bg-[#161b33] transition-colors"
           disabled={loading}
+          sx={{
+            px: 2,
+            py: 1,
+            bgcolor: '#474973',
+            color: '#f1dac4',
+            borderRadius: 1,
+            '&:hover': {
+              bgcolor: '#161b33',
+            },
+            '&.Mui-disabled': {
+              opacity: 0.5,
+            },
+          }}
         >
           {loading ? 'Refreshing...' : 'Refresh Data'}
-        </button>
-      </div>
+        </Button>
+      </Box>
 
       {loading ? (
-        <div className="text-center py-10 text-[#f1dac4]">Loading...</div>
+        <Box className="text-center py-10 text-[#f1dac4]">
+          <CircularProgress sx={{ color: '#f1dac4' }} />
+        </Box>
       ) : (
         <>
-          <div className="overflow-x-auto rounded border border-[#474973]">
-            <table className="min-w-full bg-[#0d0c1d]">
-              <thead className="bg-[#161b33]">
-                <tr>
-                  <th className="py-2 px-4 border-b border-[#474973] text-left text-[#f1dac4]">
-                    Rank
-                  </th>
-                  <th className="py-2 px-4 border-b border-[#474973] text-left text-[#f1dac4]">
-                    Player
-                  </th>
-                  <th className="py-2 px-4 border-b border-[#474973] text-left text-[#f1dac4]">
-                    Score
-                  </th>
-                  <th className="py-2 px-4 border-b border-[#474973] text-left text-[#f1dac4]">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {getCurrentPageData().map((item, index) => (
-                  <tr
-                    key={item.id}
-                    className={
-                      index % 2 === 0 ? 'bg-[#0d0c1d]' : 'bg-[#161b33]'
-                    }
+          <TableContainer
+            component={Paper}
+            sx={{
+              width: '70dvw',
+              bgcolor: '#0d0c1d',
+              border: '1px solid #474973',
+              borderRadius: 1,
+              overflow: 'auto',
+            }}
+          >
+            <Table>
+              <TableHead sx={{ bgcolor: '#161b33' }}>
+                <TableRow>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      py: 1,
+                      px: 2,
+                      borderBottom: '1px solid #474973',
+                      color: '#f1dac4',
+                    }}
                   >
-                    <td className="py-2 px-4 border-b border-[#474973] text-[#f1dac4]">
-                      {(currentPage - 1) * itemsPerPage + index + 1}
-                    </td>
-                    <td className="py-2 px-4 border-b border-[#474973] text-[#f1dac4]">
+                    SYMBOL
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      py: 1,
+                      px: 2,
+                      borderBottom: '1px solid #474973',
+                      color: '#f1dac4',
+                    }}
+                  >
+                    NAME
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      py: 1,
+                      px: 2,
+                      borderBottom: '1px solid #474973',
+                      color: '#f1dac4',
+                    }}
+                  >
+                    PRICE
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      py: 1,
+                      px: 2,
+                      borderBottom: '1px solid #474973',
+                      color: '#f1dac4',
+                    }}
+                  >
+                    MARKETCAP
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {getCurrentPageData().map((item, index) => (
+                  <TableRow
+                    key={item.symbol}
+                    sx={{ bgcolor: index % 2 === 0 ? '#0d0c1d' : '#161b33' }}
+                  >
+                    <TableCell
+                      sx={{
+                        py: 1,
+                        px: 2,
+                        borderBottom: '1px solid #474973',
+                        color: '#f1dac4',
+                      }}
+                    >
+                      {item.symbol}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        py: 1,
+                        px: 2,
+                        borderBottom: '1px solid #474973',
+                        color: '#f1dac4',
+                      }}
+                    >
                       {item.name}
-                    </td>
-                    <td className="py-2 px-4 border-b border-[#474973] text-[#f1dac4]">
-                      {item.score.toLocaleString()}
-                    </td>
-                    <td className="py-2 px-4 border-b border-[#474973] text-[#f1dac4]">
-                      {item.date}
-                    </td>
-                  </tr>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        py: 1,
+                        px: 2,
+                        borderBottom: '1px solid #474973',
+                        color: '#f1dac4',
+                      }}
+                    >
+                      {item.price}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        py: 1,
+                        px: 2,
+                        borderBottom: '1px solid #474973',
+                        color: '#f1dac4',
+                      }}
+                    >
+                      {item.marketcap}
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-          <div className="flex justify-between items-center mt-4 text-[#a69cac]">
-            <div>
+          <Box
+            className="flex justify-between items-center mt-4"
+            sx={{ color: '#a69cac', width: '70dvw' }}
+          >
+            <Typography variant="body2">
               Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
               {Math.min(currentPage * itemsPerPage, data.length)} of{' '}
               {data.length} entries
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => goToPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-1 border border-[#474973] rounded disabled:opacity-50 text-[#f1dac4] bg-[#161b33] hover:bg-[#474973] transition-colors"
-              >
-                Previous
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => goToPage(page)}
-                    className={`px-3 py-1 border border-[#474973] rounded text-[#f1dac4] ${
-                      currentPage === page
-                        ? 'bg-[#474973]'
-                        : 'bg-[#161b33] hover:bg-[#474973]'
-                    } transition-colors`}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
-              <button
-                onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 border border-[#474973] rounded disabled:opacity-50 text-[#f1dac4] bg-[#161b33] hover:bg-[#474973] transition-colors"
-              >
-                Next
-              </button>
-            </div>
-          </div>
+            </Typography>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              sx={{
+                '& .MuiPaginationItem-root': {
+                  color: '#f1dac4',
+                  borderColor: '#474973',
+                  backgroundColor: '#161b33',
+                  '&:hover': {
+                    backgroundColor: '#474973',
+                  },
+                  '&.Mui-selected': {
+                    backgroundColor: '#474973',
+                  },
+                },
+              }}
+            />
+          </Box>
         </>
       )}
-    </div>
+    </Box>
   )
 }
