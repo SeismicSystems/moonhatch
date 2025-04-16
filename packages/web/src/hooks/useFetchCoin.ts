@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { TransactionReceipt } from 'viem'
 
 import { BASE_API_URL } from '@/api'
-import { fetchCoinById } from '@/api/http'
-import { selectAllCoins, updateCoin } from '@/store/slice'
+import { fetchCoinByIdAction } from '@/api/dispatch'
+import { selectAllCoins } from '@/store/slice'
 import { AppDispatch } from '@/store/store'
 import type { Coin, CoinFormData } from '@/types/coin'
 
@@ -35,9 +35,7 @@ export function useFetchCoin() {
       setLoading(true)
 
       try {
-        const coin = await dispatch(fetchCoinById(coinId))
-        dispatch(updateCoin({ type: 'coin', data: coin }))
-        return coin
+        return await dispatch(fetchCoinByIdAction(coinId))
       } catch (err) {
         const errorObj = err instanceof Error ? err : new Error('Unknown error')
         setError(errorObj)
