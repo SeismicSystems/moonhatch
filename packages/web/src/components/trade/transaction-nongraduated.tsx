@@ -71,11 +71,11 @@ export const TransactionNonGraduated = ({
           const previousWeiIn = loadWeiIn(coin.id) ?? 0n
           saveWeiIn(coin.id, previousWeiIn + buyAmountWei)
         } else {
+          console.log('Failed to buy', coin.name.toUpperCase())
           notifyError(`Failed to buy ${coin.name.toUpperCase()}`)
         }
       })
-      .catch((e) => {
-        setBuyError(`Buy failed: ${e}`)
+      .catch(() => {
         notifyError(`Failed to buy ${coin.name.toUpperCase()}`)
       })
       .finally(() => {
@@ -94,7 +94,7 @@ export const TransactionNonGraduated = ({
             placeholder="ENTER ETH AMOUNT"
             decimals={18}
           />
-
+          {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
           <NonGraduatedTradeButton
             onClick={() => {
               buy()

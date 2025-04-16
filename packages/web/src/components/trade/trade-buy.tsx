@@ -52,12 +52,10 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
 
   const buyCoin = () => {
     if (!weiIn) {
-      setError('Invalid amount')
       notifyWarning('Invalid amount')
       return
     }
     if (isBuying) {
-      setError('Already buying')
       notifyWarning('Already buying')
       return
     }
@@ -102,8 +100,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           notifyError(toastContent)
         }
       })
-      .catch((e) => {
-        setError(e.message)
+      .catch(() => {
         notifyError(`Failed to buy ${coin.name.toUpperCase()}`)
       })
       .finally(() => {
@@ -139,9 +136,8 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         setPreviewWeiIn(weiIn)
         setPreviewUnitsOut(out)
       })
-      .catch((e) => {
-        setError(`Failed to simulate sale: ${e}`)
-        notifyWarning(`Failed to simulate sale: ${e}`)
+      .catch(() => {
+        notifyWarning(`Failed to simulate sale`)
       })
       .finally(() => {
         setIsPreviewing(false)

@@ -102,7 +102,7 @@ const CoinForm: React.FC = () => {
           <input
             {...register('name', { required: 'Name is required' })}
             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-[var(--creamWhite)]"
-            placeholder="Enter name"
+            placeholder="enter name"
           />
           {errors.name && (
             <p className="text-red-500 text-sm">{errors.name.message}</p>
@@ -116,7 +116,7 @@ const CoinForm: React.FC = () => {
           <input
             {...register('symbol', { required: 'Symbol is required' })}
             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-[var(--creamWhite)]"
-            placeholder="Enter symbol"
+            placeholder="enter symbol"
           />
           {errors.symbol && (
             <p className="text-red-500 text-sm">{errors.symbol.message}</p>
@@ -130,14 +130,17 @@ const CoinForm: React.FC = () => {
           <textarea
             {...register('description')}
             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white h-32"
-            placeholder="Enter description"
+            placeholder="enter description"
           />
         </div>
 
         <ImageUpload onFileSelect={(file) => setValue('image', file)} />
         {image && (
-          <p className="text-green-400">Image selected: {image.name}</p>
+          <p className="text-green-400">image selected: {image.name}</p>
         )}
+        <p className="text-pink-300 text-sm mb-2">
+          ADDING AN IMG WILL BOOST KING OF THE HILL SCORE
+        </p>
 
         <button
           type="button"
@@ -152,6 +155,9 @@ const CoinForm: React.FC = () => {
             <h3 className="text-[var(--lightBlue)] text-[10px]">
               THESE FIELDS ARE OPTIONAL
             </h3>
+            <p className="text-pink-300 text-sm mb-2">
+              ADDING SOCIAL ACCOUNTS WILL BOOST KING OF THE HILL SCORE
+            </p>
 
             <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 text-white">
               <span className="text-gray-400 pr-2">x.com/</span>
