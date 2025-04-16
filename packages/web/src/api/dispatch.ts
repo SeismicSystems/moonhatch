@@ -34,11 +34,21 @@ export const fetchCoinsAction =
     }
   }
 
+type FetchAllCoinsParams = {
+  initialLimit?: number
+  limit?: number
+  sleepMs?: number
+}
+
 export const fetchAllCoinsAction =
-  (limit: number = 5000, sleepMs: number = 1000) =>
+  ({
+    initialLimit = 1000,
+    limit = 5000,
+    sleepMs = 1000,
+  }: FetchAllCoinsParams = {}) =>
   async (dispatch: Dispatch) => {
     dispatch(fetchCoinsStart())
-    const coins = await fetchCoins({ limit })
+    const coins = await fetchCoins({ limit: initialLimit })
     let maxId = coins[coins.length - 1].id - 1
     while (maxId > 0) {
       await new Promise((resolve) => setTimeout(resolve, sleepMs))
