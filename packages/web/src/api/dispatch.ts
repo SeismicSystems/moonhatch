@@ -49,6 +49,14 @@ export const fetchAllCoinsAction =
   async (dispatch: Dispatch) => {
     dispatch(fetchCoinsStart())
     const coins = await fetchCoins({ limit: initialLimit })
+      .then((coins) => {
+        dispatch(fetchCoinsSuccess(coins))
+        return coins
+      })
+      .catch((e) => {
+        dispatch(fetchCoinsFailure(e.message))
+        throw e
+      })
     let maxId = coins[coins.length - 1].id - 1
     while (maxId > 0) {
       await new Promise((resolve) => setTimeout(resolve, sleepMs))
