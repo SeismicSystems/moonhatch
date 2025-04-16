@@ -64,11 +64,14 @@ const Coins: React.FC<{ coins: Coin[] }> = ({ coins }) => {
         nextLabel={<ChevronRight color="white" />}
         pageCount={Math.ceil(coins.length / COINS_PER_PAGE)}
         onPageChange={handlePageChange}
-        pageRangeDisplayed={5}
-        marginPagesDisplayed={3}
-        containerClassName="flex justify-center items-center mt-4"
-        pageClassName="mx-2 px-4 py-2 border rounded-md text-white"
+        pageRangeDisplayed={3}
+        marginPagesDisplayed={1}
+        containerClassName="flex justify-center items-center mt-4 flex-wrap gap-2 max-w-full overflow-x-auto py-2"
+        pageClassName="px-3 py-1 border rounded-md text-white hover:bg-blue-600"
         activeClassName="bg-blue-500 text-white"
+        breakClassName="text-white mx-1"
+        previousClassName="mr-1"
+        nextClassName="ml-1"
       />
     </div>
   )
