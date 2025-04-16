@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { formatEther } from 'viem'
 
+import { WalletAwareIconButton } from '@/components/trade/wallet-aware-button'
 import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { Coin } from '@/types/coin'
 import CachedIcon from '@mui/icons-material/Cached'
-import { Box, CircularProgress, IconButton, Typography } from '@mui/material'
+import { Box, CircularProgress, Typography } from '@mui/material'
 
 type WeiInProps = { coin: Coin }
 
@@ -86,7 +87,7 @@ export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
           justifyContent: 'space-between',
         }}
       >
-        <IconButton
+        <WalletAwareIconButton
           sx={{
             backgroundColor: 'var(--midBlue)',
             color: 'var(--creamWhite)',
@@ -100,7 +101,7 @@ export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
           onClick={refreshBalance}
         >
           <CachedIcon />
-        </IconButton>
+        </WalletAwareIconButton>
 
         <Box
           onClick={onClickReveal}

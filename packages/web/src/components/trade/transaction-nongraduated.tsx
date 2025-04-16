@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { formatEther, parseEther } from 'viem'
 
 import { TradeInnerBox, TradeOuterBox } from '@/components/trade/trade-box'
+import { WalletAwareNonGraduatedTradeButton } from '@/components/trade/wallet-aware-button'
 import { WeiIn } from '@/components/trade/wei-in'
 import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
@@ -12,7 +13,6 @@ import { CircularProgress } from '@mui/material'
 import { ExplorerToast } from '../ExplorerToast'
 import { NonGraduatedAmountInput } from './amount-input'
 import { Refund } from './refund'
-import { NonGraduatedTradeButton } from './trade-button'
 
 type TransactionNonGraduatedProps = {
   coin: Coin
@@ -96,7 +96,7 @@ export const TransactionNonGraduated = ({
             decimals={18}
           />
           {buyError && <p style={{ color: 'red' }}>{buyError}</p>}
-          <NonGraduatedTradeButton
+          <WalletAwareNonGraduatedTradeButton
             onClick={() => {
               buy()
             }}
@@ -109,7 +109,7 @@ export const TransactionNonGraduated = ({
             ) : (
               'ENTER AMOUNT'
             )}
-          </NonGraduatedTradeButton>
+          </WalletAwareNonGraduatedTradeButton>
         </TradeInnerBox>
       </TradeOuterBox>
       <Refund coin={coin} />

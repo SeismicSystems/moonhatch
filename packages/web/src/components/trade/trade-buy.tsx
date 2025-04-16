@@ -3,8 +3,8 @@ import { parseEther } from 'viem'
 
 import { ExplorerToast } from '@/components/ExplorerToast'
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
-import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
+import { WalletAwareGraduatedTradeButton } from '@/components/trade/wallet-aware-button'
 import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
@@ -38,8 +38,6 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const { deleteBalance } = useAppState()
   const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
     useToastNotifications()
-
-  const [error, setError] = useState('')
 
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [isBuying, setIsBuying] = useState(false)
@@ -159,8 +157,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         placeholder="SET ETH AMOUNT"
         decimals={18}
       />
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <GraduatedTradeButton
+      <WalletAwareGraduatedTradeButton
         onClick={buyCoin}
         disabled={weiIn === null || isBuying}
         sx={{
@@ -177,7 +174,7 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           previewUnitsOut={previewUnitsOut}
           isBuying={isBuying}
         />
-      </GraduatedTradeButton>
+      </WalletAwareGraduatedTradeButton>
     </>
   )
 }

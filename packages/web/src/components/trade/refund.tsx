@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { WalletAwareButton } from '@/components/trade/wallet-aware-button'
 import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
@@ -58,8 +59,10 @@ export const Refund: React.FC<{ coin: Coin }> = ({ coin }) => {
   }
 
   return (
-    <button
-      className="h-[5dvh] "
+    <WalletAwareButton
+      onClick={refund}
+      disabled={disabled}
+      className="h-[5dvh]"
       style={{
         width: '85%',
         height: 'auto',
@@ -70,14 +73,12 @@ export const Refund: React.FC<{ coin: Coin }> = ({ coin }) => {
         cursor: disabled ? 'not-allowed' : 'pointer',
         color: disabled ? 'black' : 'var(--creamWhite)',
       }}
-      onClick={refund}
-      disabled={disabled}
     >
       {refunding
         ? '...REFUNDING...'
         : disabled
           ? 'NOTHING TO REFUND'
           : 'REFUND'}
-    </button>
+    </WalletAwareButton>
   )
 }

@@ -3,8 +3,8 @@ import { formatEther, parseUnits } from 'viem'
 
 import { ExplorerToast } from '@/components/ExplorerToast'
 import { GraduatedAmountInput } from '@/components/trade/amount-input'
-import { GraduatedTradeButton } from '@/components/trade/trade-button'
 import { TransactionGraduatedProps } from '@/components/trade/transaction-graduated'
+import { WalletAwareGraduatedTradeButton } from '@/components/trade/wallet-aware-button'
 import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
@@ -35,8 +35,6 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
   const { loadBalance, deleteBalance } = useAppState()
   const { notifySuccess, notifyInfo, notifyWarning, notifyError } =
     useToastNotifications()
-
-  const [error, setError] = useState('')
 
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [isSelling, setIsSelling] = useState(false)
@@ -195,7 +193,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         setPreviewUnitsIn(amountIn)
       })
       .catch(() => {
-        notifyWarning(`Failed to simulate sale: ${e}`)
+        notifyWarning(`Failed to simulate sale`)
       })
       .finally(() => {
         setIsPreviewing(false)
@@ -218,8 +216,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         maxAmount={balance}
         decimals={Number(coin.decimals)}
       />
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <GraduatedTradeButton
+      <WalletAwareGraduatedTradeButton
         onClick={() => {
           setIsSelling(true)
           sellCoin()
@@ -237,7 +234,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           previewWeiOut={previewWeiOut}
           isSelling={isSelling}
         />
-      </GraduatedTradeButton>
+      </WalletAwareGraduatedTradeButton>
     </>
   )
 }
