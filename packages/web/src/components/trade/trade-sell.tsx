@@ -60,12 +60,10 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
 
   const sellCoin = () => {
     if (!amountIn) {
-      setError('Invalid amount')
       notifyWarning('Invalid amount')
       return
     }
     if (isSelling) {
-      setError('Already selling')
       notifyWarning('Already selling')
       return
     }
@@ -156,8 +154,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
           notifyError(toastContent)
         }
       })
-      .catch((e) => {
-        setError(e.message)
+      .catch(() => {
         notifyError(`Failed to sell ${coin.name.toUpperCase()}`)
       })
       .finally(() => {
@@ -197,8 +194,7 @@ export const Sell: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         setPreviewWeiOut(weiOut)
         setPreviewUnitsIn(amountIn)
       })
-      .catch((e) => {
-        setError(`Failed to simulate sale: ${e}`)
+      .catch(() => {
         notifyWarning(`Failed to simulate sale: ${e}`)
       })
       .finally(() => {
