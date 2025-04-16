@@ -42,7 +42,7 @@ type FetchAllCoinsParams = {
 
 export const fetchAllCoinsAction =
   ({
-    initialLimit = 1000,
+    initialLimit = 200,
     limit = 5000,
     sleepMs = 1000,
   }: FetchAllCoinsParams = {}) =>
