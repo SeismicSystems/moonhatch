@@ -15,7 +15,8 @@ import { selectCoinById } from '@/store/slice'
 import { AppDispatch } from '@/store/store'
 import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
-import { Box, CircularProgress, Tooltip, Typography } from '@mui/material'
+import { Box, CircularProgress, Typography } from '@mui/material'
+
 
 const WEI_GRADUATION = 1000000000000000000n
 
