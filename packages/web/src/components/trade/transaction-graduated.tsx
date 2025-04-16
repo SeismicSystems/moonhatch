@@ -75,6 +75,7 @@ export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (
               component="button"
               sx={{
                 ...buyToggleButtonSx(side),
+
                 height: '3rem',
               }}
               onClick={() => setSide(Side.BUY)}

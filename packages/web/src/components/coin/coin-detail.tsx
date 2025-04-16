@@ -69,7 +69,7 @@ const CoinDetailContent: React.FC<{ coinId: string }> = ({ coinId }) => {
       <div className="">
         <NavBar />
       </div>
-      <div className="page-container bg-[var(--darkBlue)] flex w-full justify-center items-center = flex-col lg:flex-row gap-12 xl:gap-24 pb-24 max-w-screen lg:px-12 2xl:px-24 lg:py-8">
+      <div className="page-container flex w-full justify-center items-center = flex-col lg:flex-row gap-12 xl:gap-24 pb-24 max-w-screen lg:px-12 2xl:px-24 lg:py-8">
         <Box
           sx={{
             width: {
@@ -83,8 +83,7 @@ const CoinDetailContent: React.FC<{ coinId: string }> = ({ coinId }) => {
             mx: 'auto',
             marginTop: 4,
             p: 4,
-            // border: 2,
-            // borderColor: 'var(--creamWhite)',
+
             bgcolor: 'var(--darkBlue)',
             borderRadius: '24px',
             overflow: 'hidden',

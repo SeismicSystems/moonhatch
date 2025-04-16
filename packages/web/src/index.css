@@ -50,6 +50,7 @@ body::before {
     transparent 70%
   );
   pointer-events: none;
+
   z-index: 1;
 }
 
@@ -67,7 +68,7 @@ body::after {
   opacity: 0.15;
   mix-blend-mode: overlay;
   pointer-events: none;
-  z-index: 2;
+  z-index: -1;
 }
 
 .coin-card-container {
