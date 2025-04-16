@@ -11,8 +11,13 @@ const CoinDescriptionContainer: React.FC<{ coin: Coin }> = ({ coin }) => {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          color: 'var(--lightBlue)',
+          color: 'var(--creamWhite)',
+          bgcolor: 'var(--midBlue)',
           fontSize: '0.75rem',
+          marginBottom: 2,
+          marginTop: 2,
+          borderRadius: '2rem',
+          p: 2,
           '& .coin-desc': {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -21,14 +26,36 @@ const CoinDescriptionContainer: React.FC<{ coin: Coin }> = ({ coin }) => {
           },
         }}
       >
-        <div className="coin-desc mt-2 flex flex-col items-center justify-center">
-          <div className="flex text-xs xl:text-lg text-orange-300">
+        <Box
+          className="coin-desc"
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mt: 2,
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              fontSize: { xs: '0.75rem', xl: '1.125rem' },
+              color: 'orange',
+            }}
+          >
             DESCRIPTION:{' '}
-          </div>
-          <div className="lg:text-lg overflow-hidden text-ellipsis">
+          </Box>
+          <Box
+            sx={{
+              fontSize: { xs: 'inherit', lg: '1.125rem' },
+              overflowY: 'auto',
+              height: 'auto',
+              textOverflow: 'ellipsis',
+            }}
+          >
             "{coin.description || 'creator did not provide description'}"
-          </div>
-        </div>
+          </Box>
+        </Box>
       </Box>
     </>
   )

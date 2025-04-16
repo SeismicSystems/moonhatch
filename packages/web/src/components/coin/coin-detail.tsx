@@ -74,10 +74,10 @@ const CoinDetailContent: React.FC<{ coinId: string }> = ({ coinId }) => {
           sx={{
             width: {
               xs: 'auto',
-              sm: 'auto', // '550px'
-              md: 'auto', // '450px'
-              lg: 'auto', // '650px'
-              xl: 'auto', // '950px'
+              sm: 'auto',
+              md: 'auto',
+              lg: 'auto',
+              xl: 'auto',
             },
             maxWidth: '100%',
             mx: 'auto',
