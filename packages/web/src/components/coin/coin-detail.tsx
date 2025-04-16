@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
+import { formatEther } from 'viem'
 
 import { fetchCoinByIdAction } from '@/api/dispatch'
 import NavBar from '@/components/NavBar'
@@ -14,9 +15,17 @@ import { selectCoinById } from '@/store/slice'
 import { AppDispatch } from '@/store/store'
 import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
-import { Box, Typography } from '@mui/material'
+import { Box, CircularProgress, Tooltip, Typography } from '@mui/material'
+
+const WEI_GRADUATION = 1000000000000000000n
 
 const CoinDetailGraph: React.FC<{ coin: Coin }> = ({ coin }) => {
+  const weiIn = !coin.graduated ? BigInt(coin.weiIn || '0') : 0n
+
+  const percentage = !coin.graduated
+    ? Math.min(Number((weiIn * 100n) / WEI_GRADUATION), 100)
+    : 0
+
   return (
     <>
       {coin.graduated && coin.deployedPool ? (
@@ -42,16 +51,57 @@ const CoinDetailGraph: React.FC<{ coin: Coin }> = ({ coin }) => {
             justifyContent: 'center',
             alignItems: 'center',
             height: '20rem',
-
             marginRight: { xs: 0, sm: 0, md: 0, lg: 0, xl: '200%' },
           }}
         >
           <Typography variant="h3" sx={{ mb: 2, color: 'error.main' }}>
             CHART LOCKED UNTIL GRADUATION
           </Typography>
-          <div className="lock-container border-2 border-red-500 rounded-full p-4 ">
-            <LockIcon className="lock-icon text-red-500 text-[96px] animate-pulse" />
-          </div>
+
+          <Box
+            sx={{
+              position: 'relative',
+              display: 'inline-flex',
+              marginTop: '2rem',
+            }}
+          >
+            <CircularProgress
+              variant="determinate"
+              value={percentage}
+              size={120}
+              thickness={4}
+              sx={{
+                color: percentage >= 100 ? 'var(--green)' : 'var(--lightBlue)',
+                position: 'absolute',
+                zIndex: 1,
+              }}
+            />
+            <CircularProgress
+              variant="determinate"
+              value={100}
+              size={120}
+              thickness={4}
+              sx={{
+                color: 'rgba(255, 255, 255, 0.2)',
+              }}
+            />
+            <Box
+              sx={{
+                top: 0,
+                left: 0,
+                bottom: 0,
+                right: 0,
+                position: 'absolute',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <div className="lock-container rounded-full p-4">
+                <LockIcon className="lock-icon text-red-500 text-[80px] animate-pulse" />
+              </div>
+            </Box>
+          </Box>
         </Box>
       )}
     </>
