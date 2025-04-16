@@ -7,6 +7,7 @@ import { useAppState } from '@/hooks/useAppState'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
 import { Coin } from '@/types/coin'
+import { CircularProgress } from '@mui/material'
 
 import { ExplorerToast } from '../ExplorerToast'
 import { NonGraduatedAmountInput } from './amount-input'
@@ -101,11 +102,13 @@ export const TransactionNonGraduated = ({
             }}
             disabled={!buyAmountWei || isBuying}
           >
-            {isBuying
-              ? 'WAITING FOR WALLET APPROVAL'
-              : buyAmountWei
-                ? `BUY ${formatEther(buyAmountWei)} ETH worth of ${coin.name.toUpperCase()}`
-                : 'Enter a valid amount'}
+            {isBuying ? (
+              <CircularProgress size={20} sx={{ color: 'var(--creamWhite)' }} />
+            ) : buyAmountWei ? (
+              `BUY ${formatEther(buyAmountWei)} ETH OF $${coin.symbol.toUpperCase()}`
+            ) : (
+              'ENTER AMOUNT'
+            )}
           </NonGraduatedTradeButton>
         </TradeInnerBox>
       </TradeOuterBox>

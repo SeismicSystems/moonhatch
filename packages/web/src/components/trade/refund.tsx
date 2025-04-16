@@ -62,17 +62,22 @@ export const Refund: React.FC<{ coin: Coin }> = ({ coin }) => {
       className="h-[5dvh] "
       style={{
         width: '85%',
-        padding: '10px',
+        height: 'auto',
+        padding: '1rem',
         backgroundColor: disabled ? '#FF9999' : '#FF0038',
         border: 'none',
-        borderRadius: '4px',
+        borderRadius: '4rem',
         cursor: disabled ? 'not-allowed' : 'pointer',
         color: disabled ? 'black' : 'var(--creamWhite)',
       }}
       onClick={refund}
       disabled={disabled}
     >
-      {refunding ? 'Refunding...' : disabled ? 'Nothing to refund' : 'Refund'}
+      {refunding
+        ? '...REFUNDING...'
+        : disabled
+          ? 'NOTHING TO REFUND'
+          : 'REFUND'}
     </button>
   )
 }

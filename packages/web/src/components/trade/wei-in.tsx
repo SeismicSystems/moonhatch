@@ -107,7 +107,8 @@ export const WeiIn: React.FC<WeiInProps> = ({ coin }) => {
           sx={{
             flexGrow: 1,
             marginLeft: 2,
-            height: '50px',
+            height: '4rem',
+            p: 2,
             borderRadius: 2,
             display: 'flex',
             alignItems: 'center',

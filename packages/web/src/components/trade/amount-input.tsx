@@ -25,7 +25,7 @@ export const NonGraduatedAmountInput: React.FC<
       style={{
         width: '85%',
         padding: '8px',
-        borderRadius: '4px',
+        borderRadius: '4rem',
         textAlign: 'center',
         border: '1px solid var(--midBlue)',
         backgroundColor: 'var(--lightBlue)',
@@ -43,6 +43,7 @@ export const GraduatedAmountInput: React.FC<
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
+
         gap: '8px',
       }}
     >
@@ -56,6 +57,7 @@ export const GraduatedAmountInput: React.FC<
           '& .MuiOutlinedInput-input': {
             textAlign: 'center',
             color: 'var(--darkBlue)',
+
             fontSize: {
               xs: '1rem',
               sm: '1.1rem',

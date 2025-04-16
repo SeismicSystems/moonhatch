@@ -16,10 +16,11 @@ export const NonGraduatedTradeButton: React.FC<
       className="h-[5dvh] "
       style={{
         width: '85%',
+        height: '3.5rem',
         padding: '10px',
         backgroundColor: 'green',
         border: 'none',
-        borderRadius: '4px',
+        borderRadius: '4rem',
         cursor: 'pointer',
         color: 'var(--creamWhite)',
       }}

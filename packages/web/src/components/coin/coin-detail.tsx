@@ -81,6 +81,7 @@ const CoinDetailContent: React.FC<{ coinId: string }> = ({ coinId }) => {
             },
             maxWidth: '100%',
             mx: 'auto',
+            marginTop: 4,
             p: 4,
             // border: 2,
             // borderColor: 'var(--creamWhite)',
