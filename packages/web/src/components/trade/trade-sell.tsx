@@ -15,7 +15,7 @@ const SellButtonText: React.FC<{
   isSelling: boolean
 }> = ({ previewUnitsIn, previewWeiOut, isSelling }) => {
   if (previewUnitsIn === null) {
-    return 'Enter an amount'
+    return 'SELL'
   }
 
   return (

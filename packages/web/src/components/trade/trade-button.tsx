@@ -40,8 +40,9 @@ export const GraduatedTradeButton: React.FC<
       fullWidth
       sx={{
         fontFamily: 'inherit',
-        height: { xs: '60px', sm: '70px', md: '80px', lg: '90px' },
-        borderRadius: '4px',
+
+        height: '4rem',
+        borderRadius: '4rem',
         fontSize: {
           xs: '1rem',
           sm: '1.1rem',
