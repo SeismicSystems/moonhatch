@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useShieldedWallet } from 'seismic-react'
 import { hexToNumber } from 'viem'
 
+import { WalletAwareButton } from '@/components/trade/wallet-aware-button'
 import { useFetchCoin } from '@/hooks/useFetchCoin'
 import { usePumpClient } from '@/hooks/usePumpClient'
 import { useToastNotifications } from '@/hooks/useToastNotifications'
@@ -192,13 +193,13 @@ const CoinForm: React.FC = () => {
           COIN DATA CANNOT BE CHANGED AFTER CREATION
         </p>
 
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white rounded py-3 hover:bg-blue-700"
+        <WalletAwareButton
+          onClick={handleSubmit(onSubmit)}
           disabled={isCreating}
+          className="w-full bg-green-600 text-white rounded py-3 hover:bg-blue-700"
         >
           {isCreating ? 'WAITING FOR WALLET APPROVAL' : 'CREATE COIN'}
-        </button>
+        </WalletAwareButton>
       </form>
     </div>
   )
