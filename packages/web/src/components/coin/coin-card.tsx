@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { formatEther } from 'viem'
 
 import CoinSocials from '@/components/coin/coin-social'
+import { TokenBalance } from '@/components/coin/token-balance'
 import { Coin } from '@/types/coin'
 import { formatRelativeTime } from '@/util'
 import LockIcon from '@mui/icons-material/Lock'
 import SchoolIcon from '@mui/icons-material/School'
-import { Box, Typography } from '@mui/material'
+import { Box, CircularProgress, Tooltip, Typography } from '@mui/material'
 
-import { TokenBalance } from './token-balance'
+// In the contract, 1 ETH (1e18 wei) is needed to graduate
+const WEI_GRADUATION = 1000000000000000000n
 
 interface CoinCardProps {
   coin: Coin
@@ -25,6 +28,15 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
   const [scrambledSymbol, setScrambledSymbol] = useState(
     `$${coin.symbol.toUpperCase()}`
   )
+
+  // Calculate graduation progress for non-graduated coins
+  const weiIn = !coin.graduated ? BigInt(coin.weiIn || '0') : 0n
+  const graduationPercentage = !coin.graduated
+    ? Math.min(Number((weiIn * 100n) / WEI_GRADUATION), 100)
+    : 0
+  const tooltipText = !coin.graduated
+    ? `${graduationPercentage}% to graduation (${formatEther(weiIn)} / ${formatEther(WEI_GRADUATION)} ETH)`
+    : ''
 
   useEffect(() => {
     const scrambleText = (
@@ -181,12 +193,47 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                       }}
                     />
                   ) : (
-                    <LockIcon
-                      sx={{
-                        fontSize: { xs: '20px', sm: '20px', md: '24px' },
-                        color: 'red',
-                      }}
-                    />
+                    <Tooltip title={tooltipText}>
+                      <Box
+                        sx={{
+                          position: 'relative',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <CircularProgress
+                          variant="determinate"
+                          value={graduationPercentage}
+                          size={24}
+                          thickness={4}
+                          sx={{
+                            color:
+                              graduationPercentage >= 100
+                                ? 'var(--green)'
+                                : 'var(--lightBlue)',
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            top: 0,
+                            left: 0,
+                            bottom: 0,
+                            right: 0,
+                            position: 'absolute',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <LockIcon
+                            sx={{
+                              fontSize: { xs: '14px', sm: '14px', md: '16px' },
+                              color: 'red',
+                            }}
+                          />
+                        </Box>
+                      </Box>
+                    </Tooltip>
                   )}
                   <Typography
                     noWrap
@@ -212,6 +259,7 @@ const CoinCard: React.FC<CoinCardProps> = ({ coin }) => {
                 <Box>
                   <TokenBalance coin={coin} />
                 </Box>
+
                 <Box
                   component="div"
                   sx={{
