@@ -11,6 +11,9 @@ import { useToastNotifications } from '@/hooks/useToastNotifications'
 import { CoinFormData } from '@/types/coin'
 import ImageUpload from '@components/create/image-upload'
 
+const MAX_FILE_SIZE = 1024 * 1024 // 1MB in bytes
+const MAX_SYMBOL_LENGTH = 8
+
 const CoinForm: React.FC = () => {
   const navigate = useNavigate()
   const { createCoin } = usePumpClient()
@@ -19,6 +22,7 @@ const CoinForm: React.FC = () => {
   const { notifySuccess, notifyError } = useToastNotifications()
   const [showMore, setShowMore] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+  const [fileError, setFileError] = useState<string | null>(null)
 
   const {
     register,
@@ -40,7 +44,20 @@ const CoinForm: React.FC = () => {
 
   const image = watch('image')
 
+  const validateFileSize = (file: File | null) => {
+    if (file && file.size > MAX_FILE_SIZE) {
+      setFileError('File size must be less than 1MB')
+      return false
+    }
+    setFileError(null)
+    return true
+  }
+
   const onSubmit = async (formData: CoinFormData) => {
+    if (formData.image && !validateFileSize(formData.image)) {
+      return
+    }
+
     setIsCreating(true)
     if (!publicClient) return
 
@@ -83,6 +100,15 @@ const CoinForm: React.FC = () => {
     navigate(`/coins/${coinId}`)
   }
 
+  const handleFileSelect = (file: File | null) => {
+    if (file && validateFileSize(file)) {
+      setValue('image', file)
+    } else if (!file) {
+      setValue('image', null)
+      setFileError(null)
+    }
+  }
+
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="mb-4">
@@ -115,7 +141,13 @@ const CoinForm: React.FC = () => {
             SYMBOL
           </label>
           <input
-            {...register('symbol', { required: 'Symbol is required' })}
+            {...register('symbol', {
+              required: 'Symbol is required',
+              maxLength: {
+                value: MAX_SYMBOL_LENGTH,
+                message: `Symbol must be ${MAX_SYMBOL_LENGTH} characters or less`,
+              },
+            })}
             className="w-full bg-gray-900 border border-gray-700 rounded p-2 text-[var(--creamWhite)]"
             placeholder="enter symbol"
           />
@@ -135,10 +167,11 @@ const CoinForm: React.FC = () => {
           />
         </div>
 
-        <ImageUpload onFileSelect={(file) => setValue('image', file)} />
-        {image && (
+        <ImageUpload onFileSelect={handleFileSelect} />
+        {image && !fileError && (
           <p className="text-green-400">image selected: {image.name}</p>
         )}
+        {fileError && <p className="text-red-500 text-sm">{fileError}</p>}
         <p className="text-pink-300 text-sm mb-2">
           ADDING AN IMG WILL BOOST KING OF THE HILL SCORE
         </p>

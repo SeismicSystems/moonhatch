@@ -24,10 +24,7 @@ const ImageUpload: React.FC<{
 
   return (
     <div className="mb-4">
-      <label className="block text-[var(--lightBlue)] mb-2 text-sm">
-        {' '}
-        IMG / VIDEO
-      </label>
+      <label className="block text-[var(--lightBlue)] mb-2 text-sm"> IMG</label>
       <div
         className="border-2 border-dashed border-gray-700 rounded p-8 text-center"
         onDragOver={(e) => e.preventDefault()}
@@ -48,9 +45,7 @@ const ImageUpload: React.FC<{
             />
           </svg>
           <p className="text-gray-400">
-            {fileName
-              ? `Selected: ${fileName}`
-              : 'drag and drop an image or video'}
+            {fileName ? `Selected: ${fileName}` : 'drag and drop an image'}
           </p>
           <button
             type="button"
