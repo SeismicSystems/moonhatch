@@ -16,10 +16,11 @@ export const NonGraduatedTradeButton: React.FC<
       className="h-[5dvh] "
       style={{
         width: '85%',
+        height: '3.5rem',
         padding: '10px',
         backgroundColor: 'green',
         border: 'none',
-        borderRadius: '4px',
+        borderRadius: '4rem',
         cursor: 'pointer',
         color: 'var(--creamWhite)',
       }}
@@ -39,8 +40,9 @@ export const GraduatedTradeButton: React.FC<
       fullWidth
       sx={{
         fontFamily: 'inherit',
-        height: { xs: '60px', sm: '70px', md: '80px', lg: '90px' },
-        borderRadius: '4px',
+
+        height: '4rem',
+        borderRadius: '4rem',
         fontSize: {
           xs: '1rem',
           sm: '1.1rem',

@@ -10,7 +10,6 @@ export const TradeOuterBox: React.FC<React.PropsWithChildren> = ({
       sx={{
         width: { xs: '300px', sm: '450px' },
         mx: 'auto',
-        paddingBottom: { xs: 2, sm: 2, md: 0, lg: 2, xl: 2 },
         marginBottom: { xs: 2, sm: 2, md: 0, lg: 2, xl: 2 },
       }}
     >

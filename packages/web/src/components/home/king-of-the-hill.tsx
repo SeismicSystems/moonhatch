@@ -95,6 +95,8 @@ export default function KingOfTheHillSection({
           borderRadius: '12px',
           margin: '2rem 0',
           textAlign: 'center',
+          border: '1px solid var(--creamWhite)',
+
           width: { md: '60%', lg: '50%', xl: '40%' },
           height: '40dvh',
           display: 'flex',
@@ -145,12 +147,14 @@ export default function KingOfTheHillSection({
           padding: '1rem',
           backgroundColor: 'var(--darkBlue)',
           borderRadius: '12px',
+
           width: { xs: '100%', sm: '60%', md: '100%', lg: '100%' },
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
           margin: '2rem 0',
+          border: '1px solid var(--creamWhite)',
         }}
       >
         <Typography

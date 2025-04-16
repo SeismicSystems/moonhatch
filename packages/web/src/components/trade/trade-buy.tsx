@@ -18,7 +18,7 @@ const BuyButtonText: React.FC<{
   isBuying: boolean
 }> = ({ coin, previewWeiIn, previewUnitsOut, isBuying }) => {
   if (previewWeiIn === null) {
-    return 'Enter an amount'
+    return 'BUY'
   }
 
   return (
@@ -27,7 +27,7 @@ const BuyButtonText: React.FC<{
         ? 'WAITING FOR WALLET APPROVAL'
         : previewUnitsOut
           ? `CONFIRM BUY FOR ${formatUnitsRounded(previewUnitsOut, Number(coin.decimals))} ${coin.name.toUpperCase()}`
-          : 'Loading estimated price ...'}
+          : '...LOADING ESTIMATED PRICE...'}
     </>
   )
 }
@@ -164,7 +164,8 @@ export const Buy: React.FC<TransactionGraduatedProps> = ({ coin }) => {
         onClick={buyCoin}
         disabled={weiIn === null || isBuying}
         sx={{
-          padding: { xs: '50px', sm: '50px', md: '50px', lg: '50px' },
+          height: '4rem',
+          borderRadius: '4rem',
           color: 'var(--creamWhite)',
           backgroundColor: 'green',
           '&:hover': { backgroundColor: 'darkgreen' },

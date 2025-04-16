@@ -70,17 +70,24 @@ export const TransactionGraduated: React.FC<TransactionGraduatedProps> = (
       <TradeOuterBox>
         <TradeInnerBox sx={{ gap: '24px' }}>
           {/* Custom Toggle */}
-          <Box sx={toggleContainerSx}>
+          <Box sx={{ ...toggleContainerSx, marginTop: '1rem' }}>
             <Box
               component="button"
-              sx={buyToggleButtonSx(side)}
+              sx={{
+                ...buyToggleButtonSx(side),
+
+                height: '3rem',
+              }}
               onClick={() => setSide(Side.BUY)}
             >
               <div className="buy-text text-[var(--creamWhite)]">Buy</div>
             </Box>
             <Box
               component="button"
-              sx={sellToggleButtonSx(side)}
+              sx={{
+                ...sellToggleButtonSx(side),
+                height: '3rem',
+              }}
               onClick={() => setSide(Side.SELL)}
             >
               <div className="sell-text text-[var(--creamWhite)]">Sell</div>
