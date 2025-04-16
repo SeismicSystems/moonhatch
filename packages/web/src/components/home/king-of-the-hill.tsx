@@ -1,40 +1,90 @@
+import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 import KOTHBox, { CoinData } from '@/components/home/koth-box'
+import { selectAllCoins } from '@/store/slice'
+import { Coin } from '@/types/coin'
 import { Box, Typography, useMediaQuery } from '@mui/material'
 
 interface KingOfTheHillSectionProps {
-  // @ts-expect-error this is fine
   coins: Coin[]
 }
 
 export default function KingOfTheHillSection({
   coins,
 }: KingOfTheHillSectionProps) {
-  const isDesktop = useMediaQuery('(min-width: 780px)')
-  const sortedCoins = [...coins].sort((a, b) => {
-    const weiA = a.weiIn ?? 0n
-    const weiB = b.weiIn ?? 0n
-    return weiB > weiA ? 1 : weiB < weiA ? -1 : 0
-  })
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
   const navigate = useNavigate()
+  const [topCoins, setTopCoins] = useState<CoinData[]>([])
 
-  const topThree = sortedCoins.slice(0, 3)
+  const storeCoins = useSelector(selectAllCoins)
 
-  const coinData: CoinData[] = topThree.map((coin, index) => ({
-    rank: index + 1,
-    score: 0,
-    ...coin,
-  }))
+  useEffect(() => {
+    if (coins && coins.length > 0) {
+      const scoredCoins = calculateKOTHScores(coins)
+      setTopCoins(scoredCoins.slice(0, 3))
+    }
+    // Otherwise get coins from Redux store
+    else if (Object.keys(storeCoins).length > 0) {
+      const coinsList = Object.values(storeCoins)
+      const scoredCoins = calculateKOTHScores(coinsList)
+      setTopCoins(scoredCoins.slice(0, 3))
+    }
+  }, [coins, storeCoins])
+
+  const calculateKOTHScores = (coinsList: Coin[]): CoinData[] => {
+    return [...coinsList]
+      .map((coin) => {
+        const weiIn = BigInt(coin.weiIn || '0')
+
+        // Calculate factors for the formula
+        const graduatedMult = coin.graduated ? 0 : 1
+        const imageMult = coin.imageUrl ? 3 : 1
+
+        let socialCount = 0
+        if (coin.website) socialCount++
+        if (coin.twitter) socialCount++
+        if (coin.telegram) socialCount++
+        const socialMult = 1 + socialCount / 3
+
+        const coinAgeMs = Date.now() - new Date(coin.createdAt).getTime()
+        const ageMinutes = coinAgeMs / (1000 * 60)
+        const timeFactor = Math.log(2 + Math.max(0, ageMinutes))
+
+        const weiInValue = Number(weiIn) / 10 ** 10
+        const score =
+          (graduatedMult * imageMult * socialMult * weiInValue) / timeFactor
+
+        return {
+          ...coin,
+          score,
+          rank: 0,
+        }
+      })
+      .sort((a, b) => (b.score || 0) - (a.score || 0))
+      .map((coin, index) => ({
+        ...coin,
+        rank: index + 1,
+      }))
+  }
+
+  if (topCoins.length === 0) {
+    return (
+      <Box sx={{ p: 4, color: 'var(--creamWhite)', textAlign: 'center' }}>
+        <Typography>No coins found for the leaderboard.</Typography>
+      </Box>
+    )
+  }
 
   const podiumOrder =
-    coinData.length >= 3
+    topCoins.length >= 3
       ? [
-          coinData.find((c) => c.rank === 2)!,
-          coinData.find((c) => c.rank === 1)!,
-          coinData.find((c) => c.rank === 3)!,
+          topCoins.find((c) => c.rank === 2)!,
+          topCoins.find((c) => c.rank === 1)!,
+          topCoins.find((c) => c.rank === 3)!,
         ]
-      : coinData
+      : topCoins
 
   if (isDesktop) {
     return (
@@ -45,8 +95,8 @@ export default function KingOfTheHillSection({
           borderRadius: '12px',
           margin: '2rem 0',
           textAlign: 'center',
-          width: { md: '60%', lg: '60%', xl: '30%' },
-          height: '300px',
+          width: { md: '60%', lg: '50%', xl: '40%' },
+          height: '40dvh',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -114,7 +164,7 @@ export default function KingOfTheHillSection({
           KINGS OF THE CURVE
         </Typography>
 
-        {coinData.map((coin) => (
+        {topCoins.map((coin) => (
           <Box
             key={coin.id}
             sx={{

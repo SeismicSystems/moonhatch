@@ -33,6 +33,8 @@ body {
 .home-container {
   margin: 0;
   padding: 0;
+  width: 100dvw;
+  overflow-x: hidden;
 }
 
 canvas {

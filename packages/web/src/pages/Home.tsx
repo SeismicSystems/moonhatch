@@ -20,7 +20,7 @@ const Home: React.FC = () => {
   if (loading) return <div>Loading coins...</div>
 
   return (
-    <div className="home-container">
+    <div className="home-container overflow-x-hidden">
       <div className="mb-4">
         <NavBar />
       </div>

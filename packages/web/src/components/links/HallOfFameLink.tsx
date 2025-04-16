@@ -9,11 +9,20 @@ const HallOfFameLink = ({ style }: { style?: React.CSSProperties }) => {
     <IconLink
       onClick={() => navigate('/hall-of-fame')}
       text="HOF"
-      style={style}
+      style={{
+        ...style,
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative',
+        zIndex: 1,
+      }}
     >
       <EmojiEventsIcon
         sx={{
           fontSize: { xs: '20px', sm: '30px', md: '34px' },
+          width: '2.3rem',
         }}
       />
     </IconLink>
