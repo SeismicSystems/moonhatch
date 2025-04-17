@@ -213,3 +213,17 @@ pub(crate) async fn get_hall_of_fame(
     let hof_items = store::hall_of_fame(&mut conn)?;
     Ok(Json(hof_items).into_response())
 }
+
+/// Handler for GET /address/:address
+pub(crate) async fn get_coin_by_address_handler(
+    Path(address): Path<String>,
+    State(state): State<AppState>,
+) -> Result<impl IntoResponse, PumpError> {
+    let mut conn = state.db_conn()?;
+    let coin = store::get_coin_by_address(&mut conn, address)?;
+    
+    match coin {
+        Some(coin) => Ok(Json(CoinResponse { coin }).into_response()),
+        None => Err(PumpError::CoinNotFound(0)), // Using 0 as a placeholder since we don't have coin ID
+    }
+}

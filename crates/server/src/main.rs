@@ -50,6 +50,7 @@ async fn main() {
     let app = Router::new()
         .route("/ws", get(ws::ws_handler))
         .route("/hall-of-fame", get(http::get_hall_of_fame))
+        .route("/address/:address", get(http::get_coin_by_address_handler))
         .nest("/coin/:id", coin_routes)
         .nest("/coins", coins_routes)
         .nest("/pool/:pool", pool_routes)
