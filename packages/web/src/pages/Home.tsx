@@ -15,6 +15,7 @@ const Home: React.FC = () => {
     filters,
     setFilters,
     loading,
+    isSearchingByAddress,
   } = useCoinSearch()
 
   if (loading) return <div>Loading coins...</div>
@@ -34,6 +35,14 @@ const Home: React.FC = () => {
           filters={filters}
           setFilters={setFilters}
         />
+        {isSearchingByAddress &&
+          filteredCoins.length === 0 &&
+          searchQuery.trim() !== '' && (
+            <div className="text-center text-orange-400 mt-4">
+              No coins found with the contract address{' '}
+              {searchQuery.toLowerCase()}
+            </div>
+          )}
       </div>
       <Coins coins={filteredCoins} />
     </div>

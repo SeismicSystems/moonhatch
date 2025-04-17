@@ -37,3 +37,22 @@ export const fetchCoinById = async (coinId: number): Promise<Coin> => {
   const data: { coin: Coin } = await response.json()
   return data.coin
 }
+
+export const fetchCoinByAddress = async (
+  address: string
+): Promise<Coin | null> => {
+  try {
+    const response = await fetch(`${BASE_API_URL}/address/${address}`)
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null
+      }
+      throw new Error(`Response not ok for address ${address}`)
+    }
+    const data: { coin: Coin } = await response.json()
+    return data.coin
+  } catch (error) {
+    console.error(`Error fetching coin by address: ${error}`)
+    return null
+  }
+}
