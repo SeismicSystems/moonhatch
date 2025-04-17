@@ -40,17 +40,49 @@ pub fn upsert_unverified_coin(
 pub fn get_coin(conn: &mut PgConnection, coin_id: i64) -> Result<Coin, PumpError> {
     Ok(coins_table.filter(coins_schema::id.eq(coin_id)).first(conn)?)
 }
+pub struct GetAllCoinsParams {
+    limit: Option<usize>,
+    max_id: Option<i64>,
+    creator: Option<String>,
+}
+
+impl GetAllCoinsParams {
+    pub fn parse(params: HashMap<String, String>) -> Result<GetAllCoinsParams, PumpError> {
+        let limit = match params.get("limit") {
+            Some(lim) => match lim.parse::<usize>() {
+                Ok(lim) => Some(lim),
+                Err(_) => None,
+            },
+            None => None,
+        };
+        let max_id = match params.get("maxId") {
+            Some(max_id) => match max_id.parse::<i64>() {
+                Ok(max_id) => Some(max_id),
+                Err(_) => None,
+            },
+            None => None,
+        };
+        let creator = params.get("creator").map(|s| s.to_string());
+        Ok(GetAllCoinsParams { limit, max_id, creator })
+    }
+}
 
 pub fn get_all_coins(
     conn: &mut PgConnection,
-    limit: Option<usize>,
-    max_id: Option<i64>,
+    params: GetAllCoinsParams,
 ) -> Result<Vec<Coin>, PumpError> {
-    Ok(coins_table
+    let mut query = coins_table
         .filter(coins_schema::hidden.eq(false))
-        .filter(coins_schema::id.le(max_id.unwrap_or(i64::MAX)))
+        .filter(coins_schema::id.le(params.max_id.unwrap_or(i64::MAX)))
+        .into_boxed();
+
+    if let Some(creator) = params.creator {
+        query = query.filter(coins_schema::creator.eq(creator));
+    }
+
+    Ok(query
         .order(coins_schema::id.desc())
-        .limit(limit.unwrap_or(1_000).min(20_000) as i64)
+        .limit(params.limit.unwrap_or(1_000).min(20_000) as i64)
         .load::<Coin>(conn)?)
 }
 
