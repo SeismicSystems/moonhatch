@@ -1,9 +1,6 @@
 use alloy_primitives::Address;
 use bigdecimal::BigDecimal;
-use diesel::{
-    expression::AsExpression, expression_methods::ExpressionMethods, prelude::*, sql_query,
-    sql_types::Text,
-};
+use diesel::{expression_methods::ExpressionMethods, prelude::*, sql_query, sql_types::Text};
 use std::{collections::HashMap, str::FromStr};
 
 use crate::{
