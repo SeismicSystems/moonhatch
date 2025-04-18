@@ -220,10 +220,12 @@ pub(crate) async fn get_coin_by_address_handler(
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, PumpError> {
     let mut conn = state.db_conn()?;
-    let coin = store::get_coin_by_address(&mut conn, address)?;
     
-    match coin {
-        Some(coin) => Ok(Json(CoinResponse { coin }).into_response()),
-        None => Err(PumpError::CoinNotFound(0)), // Using 0 as a placeholder since we don't have coin ID
+    // Try to get coin by address
+    match store::get_coin_by_address(&mut conn, address) {
+        Ok(coin) => Ok(Json(CoinResponse { coin }).into_response()),
+        Err(PumpError::Diesel(diesel::result::Error::NotFound)) => 
+            Err(PumpError::CoinNotFound(0)), // Using 0 as a placeholder since we don't have coin ID
+        Err(err) => Err(err),
     }
 }
