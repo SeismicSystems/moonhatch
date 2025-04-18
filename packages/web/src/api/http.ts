@@ -42,7 +42,7 @@ export const fetchCoinByAddress = async (
   address: string
 ): Promise<Coin | null> => {
   try {
-    const response = await fetch(`${BASE_API_URL}/address/${address}`)
+    const response = await fetch(`${BASE_API_URL}/coins/address/${address}`)
     if (!response.ok) {
       if (response.status === 404) {
         return null
