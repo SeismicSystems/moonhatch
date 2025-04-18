@@ -265,7 +265,7 @@ pub fn update_wei_in(
 pub fn get_coin_by_address(
     conn: &mut PgConnection,
     address: String,
-) -> Result<Option<Coin>, PumpError> {
+) -> Result<Coin, PumpError> {
     // Normalize the address by converting to lowercase and trimming whitespace
     let normalized_address = address.to_lowercase().trim().to_string();
     
@@ -274,8 +274,7 @@ pub fn get_coin_by_address(
     
     let result = sql_query(sql)
         .bind::<Text, _>(normalized_address)
-        .get_result::<Coin>(conn)
-        .optional()?;
+        .get_result::<Coin>(conn)?;
         
     Ok(result)
 }
