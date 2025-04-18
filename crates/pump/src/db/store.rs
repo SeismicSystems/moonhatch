@@ -1,6 +1,9 @@
 use alloy_primitives::Address;
 use bigdecimal::BigDecimal;
-use diesel::prelude::*;
+use diesel::{
+    expression::AsExpression, expression_methods::ExpressionMethods, prelude::*, sql_query,
+    sql_types::Text,
+};
 use std::{collections::HashMap, str::FromStr};
 
 use crate::{
@@ -256,4 +259,16 @@ pub fn update_wei_in(
         .set((coins_schema::wei_in.eq(wei_in),))
         .execute(conn)?;
     Ok(())
+}
+
+pub fn get_coin_by_address(conn: &mut PgConnection, address: String) -> Result<Coin, PumpError> {
+    // Normalize the address by converting to lowercase and trimming whitespace
+    let normalized_address = address.to_lowercase().trim().to_string();
+
+    // Use a raw SQL query with the LOWER function for case-insensitive comparison
+    let sql = "SELECT * FROM coins WHERE LOWER(TRIM(contract_address)) = $1 AND hidden = false";
+
+    let result = sql_query(sql).bind::<Text, _>(normalized_address).get_result::<Coin>(conn)?;
+
+    Ok(result)
 }

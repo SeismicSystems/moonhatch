@@ -42,7 +42,8 @@ async fn main() {
 
     let coins_routes = Router::new()
         .route("/", get(http::get_all_coins_handler)) // GET /coins
-        .route("/create", post(http::create_coin_handler)); // POST /coins/create
+        .route("/create", post(http::create_coin_handler)) // POST /coins/create
+        .route("/address/:address", get(http::get_coin_by_address_handler));
 
     let pool_routes = Router::new().route("/prices", get(http::get_pool_prices));
 

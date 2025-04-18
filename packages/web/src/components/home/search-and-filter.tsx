@@ -125,7 +125,7 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
       <div className="flex items-center">
         <input
           type="text"
-          placeholder="SEARCH NAME/TICKER"
+          placeholder="SEARCH NAME/TICKER/CA"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-64 text-xs lg:text-lg uppercase text-[var(--creamWhite)] h-12 lg:h-16 md:w-80 lg:w-96 p-2 rounded-md text-center"
