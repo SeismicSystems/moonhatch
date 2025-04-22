@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
-import { formatEther } from 'viem'
 
 import { fetchCoinByIdAction } from '@/api/dispatch'
 import NavBar from '@/components/NavBar'
@@ -16,7 +15,6 @@ import { AppDispatch } from '@/store/store'
 import type { Coin } from '@/types/coin'
 import LockIcon from '@mui/icons-material/Lock'
 import { Box, CircularProgress, Typography } from '@mui/material'
-
 
 const WEI_GRADUATION = 1000000000000000000n
 
