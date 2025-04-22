@@ -17,10 +17,12 @@ const CoinDescriptionContainer: React.FC<{ coin: Coin }> = ({ coin }) => {
           marginBottom: 2,
           marginTop: 2,
           borderRadius: '2rem',
+          width: 'auto',
+          minWidth: '80%',
+          maxWidth: '100%',
           p: 2,
           '& .coin-desc': {
             overflow: 'hidden',
-            textOverflow: 'ellipsis',
             marginBottom: 2,
             fontSize: { xs: '1rem', sm: '1rem', md: '1.2rem', lg: '1.4rem' },
           },
@@ -34,6 +36,7 @@ const CoinDescriptionContainer: React.FC<{ coin: Coin }> = ({ coin }) => {
             alignItems: 'center',
             justifyContent: 'center',
             mt: 2,
+            width: '100%',
           }}
         >
           <Box
@@ -49,8 +52,11 @@ const CoinDescriptionContainer: React.FC<{ coin: Coin }> = ({ coin }) => {
             sx={{
               fontSize: { xs: 'inherit', lg: '1.125rem' },
               overflowY: 'auto',
-              height: 'auto',
-              textOverflow: 'ellipsis',
+              maxHeight: '300px',
+              width: '100%',
+              wordBreak: 'break-word',
+              whiteSpace: 'pre-wrap',
+              padding: '0.5rem',
             }}
           >
             "{coin.description || 'creator did not provide description'}"
