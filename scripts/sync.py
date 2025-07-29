@@ -63,7 +63,7 @@ def sync_coin(coin_id: int) -> requests.Response:
 def deploy_coin(coin_id: int) -> requests.Response:
     return _post("deploy", coin_id)
 
-def get_coin(coin_id: int) -> Dict:
+def _get_coin(coin_id: int) -> Dict:
     resp = requests.get(url=f"{_API_URL}/coin/{coin_id}")
     resp.raise_for_status()
     return resp.json()
@@ -94,7 +94,7 @@ def sync_and_deploy_all() -> Tuple[int, int, int]:
             
             # Step 2: Check if sync response indicates deployment is needed
             response_text = sync_response.text
-            needs_deploy = "PairNotFound" in response_text and "0x0000000000000000000000000000000000000000" in response_text
+            needs_deploy = "PairNotFound" in response_text
             
             # Step 3: Deploy if sync indicates it's needed
             deploy_success = False
