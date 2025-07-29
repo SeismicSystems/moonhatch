@@ -70,123 +70,125 @@ def _get_coin(coin_id: int) -> Dict:
 
 
 def sync_and_deploy_all() -> Tuple[int, int, int]:
+    overall_start_time = time.time()
+    
+    # Phase 1: Load all coins initially
+    print("Phase 1: Loading all coins...")
     all_coins = sorted(load_all_coins(), key=lambda k: k['id'], reverse=True)
-    # Only process coins that don't already have a deployedPool
     coins_to_process = [coin for coin in all_coins if coin.get('deployedPool') is None]
     n_coins = len(coins_to_process)
     n_total = len(all_coins)
+    print(f"Loaded {n_total} total coins, {n_coins} to process (skipping {n_total - n_coins} already deployed)")
+    
     verified = 0
     deployed = 0
     
-    print(f"Filtering coins: {n_coins} to process out of {n_total} total (skipping {n_total - n_coins} already deployed)")
-
+    # Phase 2: Verify all coins (sync only)
+    print(f"\nPhase 2: Verifying all {n_coins} coins...")
     start_time = time.time()
-    last_log_time = start_time
-    last_completed = 0
     
-    def process_single_coin(coin: Dict) -> Tuple[bool, bool, bool]:
+    def verify_single_coin(coin: Dict) -> bool:
         coin_id = coin["id"]
         try:
-            # Step 1: Sync the coin and check response
-            sync_response = sync_coin(coin_id)
-            sync_success = True
+            sync_coin(coin_id)
             was_unverified = not coin['verified']
-            
-            # Step 2: Check if sync response indicates deployment is needed
-            response_text = sync_response.text
-            needs_deploy = "PairNotFound" in response_text
-            
-            # Step 3: Deploy if sync indicates it's needed
-            deploy_success = False
-            if needs_deploy:
-                try:
-                    deploy_coin(coin_id)
-                    deploy_success = True
-                    print(f"Deployed coin {coin_id}")
-                except Exception as e:
-                    pass  # Skip deploy errors
-            
-            return sync_success, was_unverified, deploy_success
-            
+            return was_unverified
         except Exception as e:
-            return False, False, False  # Skip sync errors
-    
-    print(f"Starting sync with {'parallel' if USE_PARALLEL else 'sequential'} processing...")
+            return False
     
     if USE_PARALLEL:
-        # Process in batches to avoid overwhelming the database
         completed = 0
         for batch_start in range(0, n_coins, BATCH_SIZE):
             batch_end = min(batch_start + BATCH_SIZE, n_coins)
             batch = coins_to_process[batch_start:batch_end]
-            batch_size = len(batch)
             
-            print(f"Processing batch {batch_start//BATCH_SIZE + 1}: coins {batch_start+1}-{batch_end} ({batch_size} coins)")
+            print(f"Verifying batch {batch_start//BATCH_SIZE + 1}: coins {batch_start+1}-{batch_end}")
             
             with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_REQUESTS) as executor:
-                future_to_coin = {executor.submit(process_single_coin, coin): coin for coin in batch}
+                future_to_coin = {executor.submit(verify_single_coin, coin): coin for coin in batch}
                 
                 for future in as_completed(future_to_coin):
-                    sync_success, was_unverified, deploy_success = future.result()
-                    if sync_success and was_unverified:
+                    was_unverified = future.result()
+                    if was_unverified:
                         verified += 1
-                    if deploy_success:
-                        deployed += 1
-                    
                     completed += 1
-                    current_time = time.time()
-                    
-                    # Log every 30 seconds
-                    if current_time - last_log_time >= 30:
-                        elapsed = current_time - last_log_time
-                        requests_in_period = completed - last_completed
-                        rate = requests_in_period / elapsed
-                        total_elapsed = current_time - start_time
-                        overall_rate = completed / total_elapsed if total_elapsed > 0 else 0
-                        print(f"[{total_elapsed:.1f}s] Completed {completed}/{n_coins} coins | Last 30s: {requests_in_period} requests ({rate:.1f} req/s) | Overall: {overall_rate:.1f} req/s | Deployed: {deployed}")
-                        last_log_time = current_time
-                        last_completed = completed
-                    
-                    # Milestone logging every 1000
-                    if completed % 1000 == 0:
-                        total_elapsed = current_time - start_time
-                        overall_rate = completed / total_elapsed if total_elapsed > 0 else 0
-                        print(f"Milestone: Processed {completed}/{n_coins} coins in {total_elapsed:.1f}s ({overall_rate:.1f} req/s) | Verified: {verified}, Deployed: {deployed}")
             
-            # Pause between batches to let DB recover
-            if batch_end < n_coins:  # Don't pause after the last batch
-                print(f"Batch complete. Pausing {BATCH_PAUSE}s to let DB recover...")
+            if batch_end < n_coins:
+                print(f"Verification batch complete. Pausing {BATCH_PAUSE}s...")
                 time.sleep(BATCH_PAUSE)
     else:
-        # Sequential processing
         for i, coin in enumerate(coins_to_process):
-            sync_success, was_unverified, deploy_success = process_single_coin(coin)
-            if sync_success and was_unverified:
+            was_unverified = verify_single_coin(coin)
+            if was_unverified:
                 verified += 1
+    
+    verify_time = time.time() - start_time
+    print(f"Phase 2 complete: Verified {verified} coins in {verify_time:.1f}s")
+    
+    # Phase 3: Refetch all coins
+    print(f"\nPhase 3: Refetching all coins...")
+    start_time = time.time()
+    all_coins = sorted(load_all_coins(), key=lambda k: k['id'], reverse=True)
+    refetch_time = time.time() - start_time  
+    print(f"Phase 3 complete: Refetched {len(all_coins)} coins in {refetch_time:.1f}s")
+    
+    # Phase 4: Deploy coins that need deploying
+    print(f"\nPhase 4: Deploying coins that need deployment...")
+    start_time = time.time()
+    
+    # Get fresh list of coins that still need deployment after refetch
+    coins_to_deploy = [coin for coin in all_coins if coin.get('deployedPool') is None]
+    n_deploy = len(coins_to_deploy)
+    print(f"Found {n_deploy} coins that need deployment")
+    
+    def deploy_single_coin(coin: Dict) -> bool:
+        coin_id = coin["id"]
+        try:
+            # Check if deployment is needed by syncing first
+            sync_response = sync_coin(coin_id)
+            response_text = sync_response.text
+            needs_deploy = "PairNotFound" in response_text
+            
+            if needs_deploy:
+                deploy_coin(coin_id)
+                print(f"Deployed coin {coin_id}")
+                return True
+            return False
+        except Exception as e:
+            return False
+    
+    if USE_PARALLEL:
+        completed = 0
+        for batch_start in range(0, n_deploy, BATCH_SIZE):
+            batch_end = min(batch_start + BATCH_SIZE, n_deploy)
+            batch = coins_to_deploy[batch_start:batch_end]
+            
+            print(f"Deploying batch {batch_start//BATCH_SIZE + 1}: coins {batch_start+1}-{batch_end}")
+            
+            with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_REQUESTS) as executor:
+                future_to_coin = {executor.submit(deploy_single_coin, coin): coin for coin in batch}
+                
+                for future in as_completed(future_to_coin):
+                    deploy_success = future.result()
+                    if deploy_success:
+                        deployed += 1
+                    completed += 1
+            
+            if batch_end < n_deploy:
+                print(f"Deployment batch complete. Pausing {BATCH_PAUSE}s...")
+                time.sleep(BATCH_PAUSE)
+    else:
+        for coin in coins_to_deploy:
+            deploy_success = deploy_single_coin(coin)
             if deploy_success:
                 deployed += 1
-            
-            completed = i + 1
-            current_time = time.time()
-            
-            if current_time - last_log_time >= 30:
-                elapsed = current_time - last_log_time
-                requests_in_period = completed - last_completed
-                rate = requests_in_period / elapsed
-                total_elapsed = current_time - start_time
-                overall_rate = completed / total_elapsed if total_elapsed > 0 else 0
-                print(f"[{total_elapsed:.1f}s] Completed {completed}/{n_coins} coins | Last 30s: {requests_in_period} requests ({rate:.1f} req/s) | Overall: {overall_rate:.1f} req/s | Deployed: {deployed}")
-                last_log_time = current_time
-                last_completed = completed
-            
-            if completed % 1000 == 0:
-                total_elapsed = current_time - start_time
-                overall_rate = completed / total_elapsed if total_elapsed > 0 else 0
-                print(f"Milestone: Processed {completed}/{n_coins} coins in {total_elapsed:.1f}s ({overall_rate:.1f} req/s) | Verified: {verified}, Deployed: {deployed}")
     
-    total_time = time.time() - start_time
-    overall_rate = n_coins / total_time if total_time > 0 else 0
-    print(f"Sync and deploy complete: {n_coins} coins in {total_time:.1f}s ({overall_rate:.1f} req/s) | Verified: {verified}, Deployed: {deployed}")
+    deploy_time = time.time() - start_time
+    total_time = time.time() - overall_start_time
+    
+    print(f"Phase 4 complete: Deployed {deployed} coins in {deploy_time:.1f}s")
+    print(f"\nALL PHASES COMPLETE: {total_time:.1f}s total | Verified: {verified}, Deployed: {deployed}")
+    
     return verified, deployed, n_coins
 
 # Legacy function - now handled in sync_and_deploy_all
