@@ -112,22 +112,9 @@ pub(crate) async fn get_all_coins_handler(
     State(state): State<AppState>,
     Query(params): Query<HashMap<String, String>>,
 ) -> Result<impl IntoResponse, PumpError> {
-    let limit = match params.get("limit") {
-        Some(lim) => match lim.parse::<usize>() {
-            Ok(lim) => Some(lim),
-            Err(_) => None,
-        },
-        None => None,
-    };
-    let max_id = match params.get("maxId") {
-        Some(max_id) => match max_id.parse::<i64>() {
-            Ok(max_id) => Some(max_id),
-            Err(_) => None,
-        },
-        None => None,
-    };
+    let all_coins_params = store::GetAllCoinsParams::parse(params)?;
     let mut conn = state.db_conn()?;
-    let coin_list = store::get_all_coins(&mut conn, limit, max_id)?;
+    let coin_list = store::get_all_coins(&mut conn, all_coins_params)?;
     Ok(Json(coin_list).into_response())
 }
 
